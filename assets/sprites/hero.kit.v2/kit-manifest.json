@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "hero.kit.v2",
+  "revision": 2,
+  "status": "draft",
+  "kind": "layered_kit",
+  "notes": "Layered character kit (owner, 2026-09-28): two bodies, hairstyles as front/back layers, skin and hair as palette-index ramps, and pose patches for breath, blink, grin and the male flex arm. kit.json is the authored data (index grids); this manifest maps the app's stable option IDs onto it. Rendering rules are in source/README.md and ported to Sources/HeroContent/CharacterKit.swift. Draft: final characters still in progress.",
+  "canvas": { "width": 64, "height": 128 },
+  "pivot": { "x": 32, "y": 122 },
+  "ticks_per_second": 12,
+  "rig_rows": { "tip": 11, "neck": 27, "waist": 53, "seam": 75 },
+  "hair_indices": [13, 14, 15, 16, 17],
+  "skin_indices": [10, 11, 6, 7, 8],
+  "styles": {
+    "male":   { "hair.bald": null, "hair.buzz": "buzz", "hair.medium": "medium", "hair.wolf": "wolf" },
+    "female": { "hair.bald": null, "hair.blunt": "blunt", "hair.long": "long", "hair.ponytail": "ponytail" }
+  },
+  "style_display_names": { "hair.bald": "Bald", "hair.buzz": "Buzz", "hair.medium": "Medium", "hair.wolf": "Wolf cut", "hair.blunt": "Blunt bob", "hair.long": "Long flowy", "hair.ponytail": "Warrior ponytail" },
+  "hair_ramps": {
+    "hair.black":  ["#16171f", "#1f212b", "#2c2f3c", "#3f4456", "#5d6680"],
+    "hair.brown":  ["#2a1810", "#472a1a", "#6b4127", "#8f5d38", "#b3804f"],
+    "hair.blonde": ["#5a3f1e", "#8a6a30", "#b8954a", "#dcc070", "#f3e2a0"],
+    "hair.auburn": ["#3a1410", "#62211a", "#8e3524", "#b84e30", "#d9744a"],
+    "hair.silver": ["#3c4150", "#626a7c", "#8d95a6", "#b8bfcb", "#e2e6ec"]
+  },
+  "skin_ramps": {
+    "skin.fair":  ["#946451", "#c08a6c", "#deac8c", "#f2cbae", "#fbe0c8"],
+    "skin.light": ["#8d6050", "#b77f63", "#d69b75", "#eab58d", "#f5c69d"],
+    "skin.tan":   ["#6a4029", "#8c5a38", "#ad744a", "#c98e60", "#e0a878"],
+    "skin.brown": ["#472816", "#633c22", "#80502f", "#9c6440", "#b87a50"],
+    "skin.deep":  ["#28150c", "#3b2013", "#4e2d1b", "#633b25", "#7a4a30"]
+  },
+  "flex": { "bodies": ["male"], "interval_seconds": [9, 11] },
+  "open_items": ["Female flex arm needs its own drawing", "Bald male temple pixels", "Blunt bob floating strand", "Ponytail loop", "Black hair on black suit readability for long styles", "Long back hair below the neck should move with the torso band"]
+}

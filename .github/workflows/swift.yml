@@ -31,6 +31,12 @@ jobs:
           for m in $(find assets/sprites -name manifest.json); do
             python3 Tools/validate_sprites.py "$(dirname "$m")"
           done
+      - name: Validate layered character kits
+        run: |
+          set -e
+          for m in $(find assets/sprites -name kit-manifest.json); do
+            python3 Tools/validate_kit.py "$(dirname "$m")"
+          done
 
   app:
     name: iOS app (simulator build)

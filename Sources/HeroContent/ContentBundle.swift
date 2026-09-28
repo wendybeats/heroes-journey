@@ -72,11 +72,15 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public struct AvatarOptions: Codable, Sendable, Equatable {
         public let baseBodies: [String]
         public let skinPalettes: [String]
-        public let hairStyles: [String]
+        public let hairStylesByBody: [String: [String]]
         public let hairPalettes: [String]
+        public let displayNames: [String: String]
         enum CodingKeys: String, CodingKey {
-            case baseBodies = "base_bodies", skinPalettes = "skin_palettes", hairStyles = "hair_styles", hairPalettes = "hair_palettes"
+            case baseBodies = "base_bodies", skinPalettes = "skin_palettes", hairStylesByBody = "hair_styles_by_body"
+            case hairPalettes = "hair_palettes", displayNames = "display_names"
         }
+        public func hairStyles(for body: String) -> [String] { hairStylesByBody[body] ?? [] }
+        public func displayName(_ id: String) -> String { displayNames[id] ?? id }
     }
 
     public let schemaVersion: Int

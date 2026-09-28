@@ -55,8 +55,10 @@ struct HomeView: View {
                     Text(state.evolution?.displayName ?? "").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
                 }
                 Spacer()
-                SpritePlayer(assetSetID: state.evolution?.assetSetID ?? "hero.body.ev1", scale: 2)
-                    .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)  // the character's own glow
+                if let recipe = state.recipe {
+                    LayeredCharacterView(recipe: recipe, scale: 2)
+                        .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)  // the character's own glow
+                }
             }
             .padding(NeoTokyo.Spacing.lg)
         }

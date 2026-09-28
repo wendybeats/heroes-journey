@@ -1,71 +1,422 @@
 {
   "schema_version": 1,
-  "content_version": "2026.09.28-1",
+  "content_version": "2026.09.28-2",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
-    { "id": "strength",  "display_name": "Strength" },
-    { "id": "cardio",    "display_name": "Cardio" },
-    { "id": "combat",    "display_name": "Combat" },
-    { "id": "mobility",  "display_name": "Mobility / Recovery" },
-    { "id": "learning",  "display_name": "Learning" },
-    { "id": "mindfulness", "display_name": "Mindfulness" }
+    {
+      "id": "strength",
+      "display_name": "Strength"
+    },
+    {
+      "id": "cardio",
+      "display_name": "Cardio"
+    },
+    {
+      "id": "combat",
+      "display_name": "Combat"
+    },
+    {
+      "id": "mobility",
+      "display_name": "Mobility / Recovery"
+    },
+    {
+      "id": "learning",
+      "display_name": "Learning"
+    },
+    {
+      "id": "mindfulness",
+      "display_name": "Mindfulness"
+    }
   ],
   "activity_types": [
-    { "id": "weightlifting", "family_id": "strength", "display_name": "Weightlifting", "default_duration_seconds": 3600, "logging_mode": "detailed" },
-    { "id": "calisthenics",  "family_id": "strength", "display_name": "Calisthenics",  "default_duration_seconds": 1800, "logging_mode": "detailed" },
-    { "id": "running",  "family_id": "cardio", "display_name": "Running",  "default_duration_seconds": 1800, "logging_mode": "simple" },
-    { "id": "cycling",  "family_id": "cardio", "display_name": "Cycling",  "default_duration_seconds": 2700, "logging_mode": "simple" },
-    { "id": "swimming", "family_id": "cardio", "display_name": "Swimming", "default_duration_seconds": 1800, "logging_mode": "simple" },
-    { "id": "tennis",   "family_id": "cardio", "display_name": "Tennis",   "default_duration_seconds": 3600, "logging_mode": "simple" },
-    { "id": "walking",  "family_id": "cardio", "display_name": "Walking",  "default_duration_seconds": 1800, "logging_mode": "simple" },
-    { "id": "boxing",     "family_id": "combat", "display_name": "Boxing",     "default_duration_seconds": 3600, "logging_mode": "simple" },
-    { "id": "kickboxing", "family_id": "combat", "display_name": "Kickboxing", "default_duration_seconds": 3600, "logging_mode": "simple" },
-    { "id": "mma",        "family_id": "combat", "display_name": "MMA",        "default_duration_seconds": 3600, "logging_mode": "simple" },
-    { "id": "bjj",        "family_id": "combat", "display_name": "Brazilian Jiu-Jitsu", "default_duration_seconds": 3600, "logging_mode": "simple" },
-    { "id": "yoga",       "family_id": "mobility", "display_name": "Yoga",       "default_duration_seconds": 2700, "logging_mode": "simple" },
-    { "id": "stretching", "family_id": "mobility", "display_name": "Stretching", "default_duration_seconds": 900,  "logging_mode": "simple" },
-    { "id": "reading",  "family_id": "learning", "display_name": "Reading",  "default_duration_seconds": 1800, "logging_mode": "simple" },
-    { "id": "studying", "family_id": "learning", "display_name": "Studying", "default_duration_seconds": 2700, "logging_mode": "simple" },
-    { "id": "meditation", "family_id": "mindfulness", "display_name": "Meditation", "default_duration_seconds": 600, "logging_mode": "simple" },
-    { "id": "breathwork", "family_id": "mindfulness", "display_name": "Breathwork", "default_duration_seconds": 600, "logging_mode": "simple" }
+    {
+      "id": "weightlifting",
+      "family_id": "strength",
+      "display_name": "Weightlifting",
+      "default_duration_seconds": 3600,
+      "logging_mode": "detailed"
+    },
+    {
+      "id": "calisthenics",
+      "family_id": "strength",
+      "display_name": "Calisthenics",
+      "default_duration_seconds": 1800,
+      "logging_mode": "detailed"
+    },
+    {
+      "id": "running",
+      "family_id": "cardio",
+      "display_name": "Running",
+      "default_duration_seconds": 1800,
+      "logging_mode": "simple"
+    },
+    {
+      "id": "cycling",
+      "family_id": "cardio",
+      "display_name": "Cycling",
+      "default_duration_seconds": 2700,
+      "logging_mode": "simple"
+    },
+    {
+      "id": "swimming",
+      "family_id": "cardio",
+      "display_name": "Swimming",
+      "default_duration_seconds": 1800,
+      "logging_mode": "simple"
+    },
+    {
+      "id": "tennis",
+      "family_id": "cardio",
+      "display_name": "Tennis",
+      "default_duration_seconds": 3600,
+      "logging_mode": "simple"
+    },
+    {
+      "id": "walking",
+      "family_id": "cardio",
+      "display_name": "Walking",
+      "default_duration_seconds": 1800,
+      "logging_mode": "simple"
+    },
+    {
+      "id": "boxing",
+      "family_id": "combat",
+      "display_name": "Boxing",
+      "default_duration_seconds": 3600,
+      "logging_mode": "simple"
+    },
+    {
+      "id": "kickboxing",
+      "family_id": "combat",
+      "display_name": "Kickboxing",
+      "default_duration_seconds": 3600,
+      "logging_mode": "simple"
+    },
+    {
+      "id": "mma",
+      "family_id": "combat",
+      "display_name": "MMA",
+      "default_duration_seconds": 3600,
+      "logging_mode": "simple"
+    },
+    {
+      "id": "bjj",
+      "family_id": "combat",
+      "display_name": "Brazilian Jiu-Jitsu",
+      "default_duration_seconds": 3600,
+      "logging_mode": "simple"
+    },
+    {
+      "id": "yoga",
+      "family_id": "mobility",
+      "display_name": "Yoga",
+      "default_duration_seconds": 2700,
+      "logging_mode": "simple"
+    },
+    {
+      "id": "stretching",
+      "family_id": "mobility",
+      "display_name": "Stretching",
+      "default_duration_seconds": 900,
+      "logging_mode": "simple"
+    },
+    {
+      "id": "reading",
+      "family_id": "learning",
+      "display_name": "Reading",
+      "default_duration_seconds": 1800,
+      "logging_mode": "simple"
+    },
+    {
+      "id": "studying",
+      "family_id": "learning",
+      "display_name": "Studying",
+      "default_duration_seconds": 2700,
+      "logging_mode": "simple"
+    },
+    {
+      "id": "meditation",
+      "family_id": "mindfulness",
+      "display_name": "Meditation",
+      "default_duration_seconds": 600,
+      "logging_mode": "simple"
+    },
+    {
+      "id": "breathwork",
+      "family_id": "mindfulness",
+      "display_name": "Breathwork",
+      "default_duration_seconds": 600,
+      "logging_mode": "simple"
+    }
   ],
   "attributes": [
-    { "id": "strength",    "display_name": "Strength",    "token": "attribute.strength" },
-    { "id": "endurance",   "display_name": "Endurance",   "token": "attribute.endurance" },
-    { "id": "knowledge",   "display_name": "Knowledge",   "token": "attribute.knowledge" },
-    { "id": "mindfulness", "display_name": "Mindfulness", "token": "attribute.mindfulness" }
+    {
+      "id": "strength",
+      "display_name": "Strength",
+      "token": "attribute.strength"
+    },
+    {
+      "id": "endurance",
+      "display_name": "Endurance",
+      "token": "attribute.endurance"
+    },
+    {
+      "id": "knowledge",
+      "display_name": "Knowledge",
+      "token": "attribute.knowledge"
+    },
+    {
+      "id": "mindfulness",
+      "display_name": "Mindfulness",
+      "token": "attribute.mindfulness"
+    }
   ],
   "evolutions": [
-    { "id": "ev1_awakened",   "display_name": "Awakened",     "min_level": 1,  "asset_set_id": "hero.body.ev1" },
-    { "id": "ev2_evolution1", "display_name": "Evolution I",  "min_level": 5,  "asset_set_id": "hero.body.ev2" },
-    { "id": "ev3_evolution2", "display_name": "Evolution II", "min_level": 10, "asset_set_id": "hero.body.ev3" }
+    {
+      "id": "ev1_awakened",
+      "display_name": "Awakened",
+      "min_level": 1,
+      "asset_set_id": "hero.kit.v2"
+    },
+    {
+      "id": "ev2_evolution1",
+      "display_name": "Evolution I",
+      "min_level": 5,
+      "asset_set_id": "hero.body.ev2"
+    },
+    {
+      "id": "ev3_evolution2",
+      "display_name": "Evolution II",
+      "min_level": 10,
+      "asset_set_id": "hero.body.ev3"
+    }
   ],
   "items": [
-    { "id": "item.visor.slate",      "display_name": "Slate Visor",      "slot": "face", "rarity": "common", "asset_set_id": "item.visor.slate" },
-    { "id": "item.gloves.wrap",      "display_name": "Wrapped Gloves",   "slot": "hand", "rarity": "common", "asset_set_id": "item.gloves.wrap" },
-    { "id": "item.jacket.rain",      "display_name": "Rain Jacket",      "slot": "body", "rarity": "uncommon", "asset_set_id": "item.jacket.rain" },
-    { "id": "item.backpack.courier", "display_name": "Courier Pack",     "slot": "back", "rarity": "uncommon", "asset_set_id": "item.backpack.courier" },
-    { "id": "item.effect.pinkglow",  "display_name": "Neon Trace",       "slot": "effect", "rarity": "rare", "asset_set_id": "item.effect.pinkglow" }
+    {
+      "id": "item.visor.slate",
+      "display_name": "Slate Visor",
+      "slot": "face",
+      "rarity": "common",
+      "asset_set_id": "item.visor.slate"
+    },
+    {
+      "id": "item.gloves.wrap",
+      "display_name": "Wrapped Gloves",
+      "slot": "hand",
+      "rarity": "common",
+      "asset_set_id": "item.gloves.wrap"
+    },
+    {
+      "id": "item.jacket.rain",
+      "display_name": "Rain Jacket",
+      "slot": "body",
+      "rarity": "uncommon",
+      "asset_set_id": "item.jacket.rain"
+    },
+    {
+      "id": "item.backpack.courier",
+      "display_name": "Courier Pack",
+      "slot": "back",
+      "rarity": "uncommon",
+      "asset_set_id": "item.backpack.courier"
+    },
+    {
+      "id": "item.effect.pinkglow",
+      "display_name": "Neon Trace",
+      "slot": "effect",
+      "rarity": "rare",
+      "asset_set_id": "item.effect.pinkglow"
+    }
   ],
   "rewards": [
-    { "id": "reward.l2.visor",    "trigger": { "type": "level", "level": 2 },  "grants": [{ "type": "item", "item_id": "item.visor.slate" }] },
-    { "id": "reward.l3.world",    "trigger": { "type": "level", "level": 3 },  "grants": [{ "type": "world_reaction", "reaction_id": "world.rain_stops" }] },
-    { "id": "reward.l4.gloves",   "trigger": { "type": "level", "level": 4 },  "grants": [{ "type": "item", "item_id": "item.gloves.wrap" }] },
-    { "id": "reward.l5.evolve",   "trigger": { "type": "level", "level": 5 },  "grants": [{ "type": "evolution", "evolution_id": "ev2_evolution1" }] },
-    { "id": "reward.l6.jacket",   "trigger": { "type": "level", "level": 6 },  "grants": [{ "type": "item", "item_id": "item.jacket.rain" }] },
-    { "id": "reward.l7.backdrop", "trigger": { "type": "level", "level": 7 },  "grants": [{ "type": "backdrop", "backdrop_id": "backdrop.shrine_falls" }] },
-    { "id": "reward.l8.pack",     "trigger": { "type": "level", "level": 8 },  "grants": [{ "type": "item", "item_id": "item.backpack.courier" }] },
-    { "id": "reward.l9.teaser",   "trigger": { "type": "level", "level": 9 },  "grants": [{ "type": "world_reaction", "reaction_id": "world.ascension_teaser" }] },
-    { "id": "reward.l10.evolve",  "trigger": { "type": "level", "level": 10 }, "grants": [{ "type": "evolution", "evolution_id": "ev3_evolution2" }, { "type": "item", "item_id": "item.effect.pinkglow" }] }
+    {
+      "id": "reward.l2.visor",
+      "trigger": {
+        "type": "level",
+        "level": 2
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.visor.slate"
+        }
+      ]
+    },
+    {
+      "id": "reward.l3.world",
+      "trigger": {
+        "type": "level",
+        "level": 3
+      },
+      "grants": [
+        {
+          "type": "world_reaction",
+          "reaction_id": "world.rain_stops"
+        }
+      ]
+    },
+    {
+      "id": "reward.l4.gloves",
+      "trigger": {
+        "type": "level",
+        "level": 4
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.gloves.wrap"
+        }
+      ]
+    },
+    {
+      "id": "reward.l5.evolve",
+      "trigger": {
+        "type": "level",
+        "level": 5
+      },
+      "grants": [
+        {
+          "type": "evolution",
+          "evolution_id": "ev2_evolution1"
+        }
+      ]
+    },
+    {
+      "id": "reward.l6.jacket",
+      "trigger": {
+        "type": "level",
+        "level": 6
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.jacket.rain"
+        }
+      ]
+    },
+    {
+      "id": "reward.l7.backdrop",
+      "trigger": {
+        "type": "level",
+        "level": 7
+      },
+      "grants": [
+        {
+          "type": "backdrop",
+          "backdrop_id": "backdrop.shrine_falls"
+        }
+      ]
+    },
+    {
+      "id": "reward.l8.pack",
+      "trigger": {
+        "type": "level",
+        "level": 8
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.backpack.courier"
+        }
+      ]
+    },
+    {
+      "id": "reward.l9.teaser",
+      "trigger": {
+        "type": "level",
+        "level": 9
+      },
+      "grants": [
+        {
+          "type": "world_reaction",
+          "reaction_id": "world.ascension_teaser"
+        }
+      ]
+    },
+    {
+      "id": "reward.l10.evolve",
+      "trigger": {
+        "type": "level",
+        "level": 10
+      },
+      "grants": [
+        {
+          "type": "evolution",
+          "evolution_id": "ev3_evolution2"
+        },
+        {
+          "type": "item",
+          "item_id": "item.effect.pinkglow"
+        }
+      ]
+    }
   ],
   "backdrops": [
-    { "id": "backdrop.rain_district", "display_name": "Rain District", "palette": "rain_district", "asset_set_id": "backdrop.rain_district", "default": true },
-    { "id": "backdrop.shrine_falls",  "display_name": "Shrine Falls",  "palette": "shrine_falls",  "asset_set_id": "backdrop.shrine_falls" }
+    {
+      "id": "backdrop.rain_district",
+      "display_name": "Rain District",
+      "palette": "rain_district",
+      "asset_set_id": "backdrop.rain_district",
+      "default": true
+    },
+    {
+      "id": "backdrop.shrine_falls",
+      "display_name": "Shrine Falls",
+      "palette": "shrine_falls",
+      "asset_set_id": "backdrop.shrine_falls"
+    }
   ],
   "avatar_options": {
-    "base_bodies": ["male", "female"],
-    "skin_palettes": ["skin.1", "skin.2", "skin.3", "skin.4", "skin.5"],
-    "hair_styles": ["hair.short", "hair.buzz", "hair.long", "hair.tied"],
-    "hair_palettes": ["hair.black", "hair.brown", "hair.blonde", "hair.red", "hair.silver", "hair.pink"]
+    "base_bodies": [
+      "male",
+      "female"
+    ],
+    "skin_palettes": [
+      "skin.fair",
+      "skin.light",
+      "skin.tan",
+      "skin.brown",
+      "skin.deep"
+    ],
+    "hair_styles_by_body": {
+      "male": [
+        "hair.bald",
+        "hair.buzz",
+        "hair.medium",
+        "hair.wolf"
+      ],
+      "female": [
+        "hair.bald",
+        "hair.blunt",
+        "hair.long",
+        "hair.ponytail"
+      ]
+    },
+    "hair_palettes": [
+      "hair.black",
+      "hair.brown",
+      "hair.blonde",
+      "hair.auburn",
+      "hair.silver"
+    ],
+    "display_names": {
+      "skin.fair": "Fair",
+      "skin.light": "Light",
+      "skin.tan": "Tan",
+      "skin.brown": "Brown",
+      "skin.deep": "Deep",
+      "hair.bald": "Bald",
+      "hair.buzz": "Buzz",
+      "hair.medium": "Medium",
+      "hair.wolf": "Wolf cut",
+      "hair.blunt": "Blunt bob",
+      "hair.long": "Long flowy",
+      "hair.ponytail": "Warrior ponytail",
+      "hair.black": "Black",
+      "hair.brown": "Brown",
+      "hair.blonde": "Blonde",
+      "hair.auburn": "Auburn",
+      "hair.silver": "Silver"
+    }
   }
 }

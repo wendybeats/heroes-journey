@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "status": "still-art handoff for final editing",
+  "logicalCell": [
+    64,
+    128
+  ],
+  "pngCell": [
+    512,
+    1024
+  ],
+  "scale": 8,
+  "origin": "top-left",
+  "alphaValues": [
+    0,
+    255
+  ],
+  "layerOrder": [
+    "hair_back (if present)",
+    "body_bald",
+    "hair_front"
+  ],
+  "hairPalette": [
+    "#101118",
+    "#0e2a12",
+    "#1d4a24",
+    "#2f6e37",
+    "#4a9652",
+    "#74c07a"
+  ],
+  "bodyPalette": [
+    "#101118",
+    "#1b1d27",
+    "#282b36",
+    "#373b49",
+    "#4d5365",
+    "#697287",
+    "#f5c69d",
+    "#eab58d",
+    "#d69b75",
+    "#b77f63",
+    "#8d6050",
+    "#f5efe3"
+  ],
+  "variants": [
+    {
+      "name": "male-bald",
+      "layersBackToFront": [
+        "layers/male_body_bald.png"
+      ]
+    },
+    {
+      "name": "male-buzz",
+      "layersBackToFront": [
+        "layers/male_body_bald.png",
+        "layers/male_hair_buzz_front.png"
+      ]
+    },
+    {
+      "name": "male-medium",
+      "layersBackToFront": [
+        "layers/male_body_bald.png",
+        "layers/male_hair_medium_front.png"
+      ]
+    },
+    {
+      "name": "male-wolf",
+      "layersBackToFront": [
+        "layers/male_hair_wolf_back.png",
+        "layers/male_body_bald.png",
+        "layers/male_hair_wolf_front.png"
+      ]
+    },
+    {
+      "name": "female-bald",
+      "layersBackToFront": [
+        "layers/female_body_bald.png"
+      ]
+    },
+    {
+      "name": "female-blunt",
+      "layersBackToFront": [
+        "layers/female_body_bald.png",
+        "layers/female_hair_blunt_front.png"
+      ]
+    },
+    {
+      "name": "female-long",
+      "layersBackToFront": [
+        "layers/female_hair_long_back.png",
+        "layers/female_body_bald.png",
+        "layers/female_hair_long_front.png"
+      ]
+    },
+    {
+      "name": "female-ponytail",
+      "layersBackToFront": [
+        "layers/female_hair_ponytail_back.png",
+        "layers/female_body_bald.png",
+        "layers/female_hair_ponytail_front.png"
+      ]
+    }
+  ],
+  "reference": "reference/male_medium_source.png, frame 0",
+  "notes": [
+    "Keep full canvas and origin; do not trim transparent margins.",
+    "Bald scalp begins at logical y12; the original hair tips begin at y8. Soles remain y122.",
+    "The female base uses the original boot pixels from row110 onward to lock foot position.",
+    "The male medium layer uses recolored source hair pixels to preserve the approved silhouette.",
+    "Verify face/ear outlines, hairline occlusion and all moving poses during final editing."
+  ]
+}

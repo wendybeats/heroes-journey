@@ -59,6 +59,10 @@ Doc 15 §3–5 implemented in `HeroDomain`:
 
 Not yet: a network implementation, account identity, guest claiming (criteria 3 and 5), and the strength logger.
 
+## Increment 3, same day: layered character kit
+
+The owner's sprite kit v2 (bodies, hairstyles as layers, skin/hair ramps, pose patches) is shipped as data under `assets/sprites/hero.kit.v2` and rendered at runtime: `PoseComposer` in `HeroContent` is a line-for-line port of the approved preview's compositor (row remap by rig band, arm patches, blink, glint, hair sway), tested against the kit on Linux; `LayeredCharacterView` colors the grid per recipe, caches images, and runs the locked idle with the male flex every 9–11 s. Onboarding previews the live character while choosing body, hair, hair color and skin. Doc 07's "store a recipe, not a sprite" is now real: the recipe holds only IDs, and every combination renders from the same data.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

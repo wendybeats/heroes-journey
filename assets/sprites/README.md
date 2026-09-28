@@ -61,6 +61,10 @@ The validator checks manifest shape, frame count and dimensions, binary alpha, p
 3. `manifest.json` `status` set to `"accepted"`.
 4. Bundle references the asset set (already does for ev1/ev2/ev3 and the five MVP items).
 
+## Layered kits
+
+`hero.kit.v2/` is a *layered* asset set rather than baked frames: `kit.json` holds palette-indexed grids for each body and hair layer plus pose patches (breath shading, blink, grin, the male flex arm); `kit-manifest.json` maps the app's stable option IDs (`hair.wolf`, `skin.deep`, …) onto kit layer keys and color ramps. The app composes a pose into an index grid at runtime (`PoseComposer`, pure and tested on Linux), colors it with the recipe's ramps, and plays the kit's locked idle and flex rules (`LayeredCharacterView`). Gate: `python3 Tools/validate_kit.py assets/sprites/hero.kit.v2`. The authoring kit (8× layer PNGs, scripts, approved HTML previews) lives under `source/`.
+
 ## Current state
 
-`hero.body.ev1/rev2` is the working placeholder: the first authored character while the final set is still being built (status `draft`; the final art lands as rev3+) (male base, medium black hair, dark bodysuit). Only `skin` is a recolor role: hair shares the suit's dark ramp, so hair palettes need a separate layer in a later revision. Blink, hair drift and the flex action exist in the source kit's compositor but are not baked into frames yet.
+`hero.kit.v2` is the working character set (draft; final characters still in progress): male and female bodies, three hairstyles each plus bald, five skin ramps, five hair ramps, male flex. `hero.body.ev1/rev2` is the earlier single-frame-set import, kept for the frame pipeline (male base, medium black hair, dark bodysuit). Only `skin` is a recolor role: hair shares the suit's dark ramp, so hair palettes need a separate layer in a later revision. Blink, hair drift and the flex action exist in the source kit's compositor but are not baked into frames yet.
