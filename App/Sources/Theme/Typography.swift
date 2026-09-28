@@ -1,11 +1,11 @@
 import SwiftUI
 
-/// Fitness-app typography (doc 19). Barlow for UI, Barlow Semi Condensed for stats.
+/// Fitness-app typography (doc 19). Plus Jakarta Sans throughout; ExtraBold carries large stats.
 /// Every numeric style enables tabular figures so counters and columns never jitter.
 /// Sizes come from the generated `NeoTokyo.Typeface` scale; text still scales with Dynamic Type
 /// because `Font.custom(_:size:)` is relative to the body text style.
 enum HeroFont {
-    // Stats: condensed, athletic, always tabular.
+    // Stats: heavy weight, always tabular.
     static var statXL: Font { .custom(NeoTokyo.Typeface.statBold, size: NeoTokyo.Typeface.statXl).monospacedDigit() }
     static var statLG: Font { .custom(NeoTokyo.Typeface.statBold, size: NeoTokyo.Typeface.statLg).monospacedDigit() }
     static var statMD: Font { .custom(NeoTokyo.Typeface.statSemibold, size: NeoTokyo.Typeface.statMd).monospacedDigit() }

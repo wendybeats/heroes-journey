@@ -1,66 +1,185 @@
 {
   "schema_version": 1,
-  "content_version": "2026.09.28-2",
+  "content_version": "2026.09.28-3",
   "theme_id": "neo_tokyo_dark",
   "notes": "Derived from assets/references/2026-09-28/neo-tokyo-color-board.webp via Tools/sample_reference_colors.py, then re-ranked on 2026-09-28 (owner decision): gold is the primary accent, blue and pink are fallbacks, green is tertiary for informational numbers, coral is Knowledge. Contrast is checked by Tools/check_token_contrast.py; do not edit colors without re-running it.",
   "hierarchy": {
     "primary": "gold",
-    "fallback": ["blue", "pink"],
+    "fallback": [
+      "blue",
+      "pink"
+    ],
     "tertiary": "green",
     "destructive": "coral",
-    "notes": "One accent per region. Gold carries XP, level progress, the character glow, selection and confirmation. Blue then pink are used only when a region already uses gold and needs a second accent (links, imported-data badges). Green marks informational numbers such as weekly minutes; never actions. Coral is shared by Knowledge and destructive actions; the two never appear on the same screen in MVP."
+    "notes": "One accent per region. Gold carries XP, level progress, the character glow, selection and confirmation. Blue then pink are used only when a region already uses gold and needs a second accent (links, imported-data badges). Green is reserved as the tertiary accent and for the Mindfulness attribute; utility numbers such as weekly minutes are white (text.primary), not green (owner, 2026-09-28). Coral is shared by Knowledge and destructive actions; the two never appear on the same screen in MVP."
   },
   "surface": {
-    "base":    { "hex": "#0A1020", "role": "App background. Deep navy-black, never pure black." },
-    "raised":  { "hex": "#111A2E", "role": "Cards, sheets, list rows." },
-    "overlay": { "hex": "#182642", "role": "Modals, popovers, pressed states." },
-    "line":    { "hex": "#25355A", "role": "Hairline borders and dividers." },
-    "scene_fade": { "hex": "#0A1020", "role": "Color that scene backdrops dither/fade into at their edges." }
+    "base": {
+      "hex": "#0A1020",
+      "role": "App background. Deep navy-black, never pure black."
+    },
+    "raised": {
+      "hex": "#111A2E",
+      "role": "Cards, sheets, list rows."
+    },
+    "overlay": {
+      "hex": "#182642",
+      "role": "Modals, popovers, pressed states."
+    },
+    "line": {
+      "hex": "#25355A",
+      "role": "Hairline borders and dividers."
+    },
+    "scene_fade": {
+      "hex": "#0A1020",
+      "role": "Color that scene backdrops dither/fade into at their edges."
+    }
   },
   "text": {
-    "primary":   { "hex": "#E4E9F4", "role": "Body and headings on any surface." },
-    "secondary": { "hex": "#9FACC8", "role": "Labels, captions." },
-    "muted":     { "hex": "#6B7A9C", "role": "Placeholders, disabled." },
-    "on_accent": { "hex": "#0A1020", "role": "Text on a filled accent or on the primary button." }
+    "primary": {
+      "hex": "#E4E9F4",
+      "role": "Body and headings on any surface."
+    },
+    "secondary": {
+      "hex": "#9FACC8",
+      "role": "Labels, captions."
+    },
+    "muted": {
+      "hex": "#6B7A9C",
+      "role": "Placeholders, disabled."
+    },
+    "on_accent": {
+      "hex": "#0A1020",
+      "role": "Text on a filled accent or on the primary button."
+    }
   },
   "accent": {
-    "gold":  { "hex": "#E3B95E", "dim": "#7A6030", "role": "PRIMARY. XP, level progress, character glow, selection, confirmation, PRs and rare unlocks." },
-    "blue":  { "hex": "#6FA9DC", "dim": "#2E5C88", "role": "Fallback 1. Links, imported/verified badges. Endurance." },
-    "pink":  { "hex": "#E08BAB", "dim": "#8A3D5C", "role": "Fallback 2. Strength." },
-    "green": { "hex": "#5CC5B0", "dim": "#2B6B62", "role": "Tertiary. Informational numbers only (weekly minutes, session counts). Mindfulness." },
-    "coral": { "hex": "#D8776B", "dim": "#7A3A33", "role": "Knowledge, and destructive actions." },
-    "button": { "hex": "#E6ECF7", "dim": "#B9C4DA", "role": "Primary button fill: off-white with a hint of blue. Text on it is text.on_accent." }
+    "gold": {
+      "hex": "#E3B95E",
+      "dim": "#7A6030",
+      "role": "PRIMARY. XP, level progress, character glow, selection, confirmation, PRs and rare unlocks."
+    },
+    "blue": {
+      "hex": "#6FA9DC",
+      "dim": "#2E5C88",
+      "role": "Fallback 1. Links, imported/verified badges. Endurance."
+    },
+    "pink": {
+      "hex": "#E08BAB",
+      "dim": "#8A3D5C",
+      "role": "Fallback 2. Strength."
+    },
+    "green": {
+      "hex": "#5CC5B0",
+      "dim": "#2B6B62",
+      "role": "Tertiary, reserved. Mindfulness. Utility numbers are white, not green."
+    },
+    "coral": {
+      "hex": "#D8776B",
+      "dim": "#7A3A33",
+      "role": "Knowledge, and destructive actions."
+    },
+    "button": {
+      "hex": "#E6ECF7",
+      "dim": "#B9C4DA",
+      "role": "Primary button fill: off-white with a hint of blue. Text on it is text.on_accent."
+    }
   },
   "attribute": {
-    "strength":    { "hex": "#E08BAB", "role": "Same as accent.pink." },
-    "endurance":   { "hex": "#6FA9DC", "role": "Same as accent.blue." },
-    "mindfulness": { "hex": "#5CC5B0", "role": "Same as accent.green." },
-    "knowledge":   { "hex": "#D8776B", "role": "Same as accent.coral." }
+    "strength": {
+      "hex": "#E08BAB",
+      "role": "Same as accent.pink."
+    },
+    "endurance": {
+      "hex": "#6FA9DC",
+      "role": "Same as accent.blue."
+    },
+    "mindfulness": {
+      "hex": "#5CC5B0",
+      "role": "Same as accent.green."
+    },
+    "knowledge": {
+      "hex": "#D8776B",
+      "role": "Same as accent.coral."
+    }
   },
   "type": {
-    "notes": "Fitness app first: clean, athletic numerals at every size. Barlow (SIL OFL) for UI text; Barlow Semi Condensed for large stats. Every numeric label enables tabular figures. Files live in App/Resources/Fonts with OFL.txt.",
-    "ui_family": "Barlow",
-    "stat_family": "Barlow Semi Condensed",
+    "notes": "Fitness app first: clean numerals at every size, rounded and slightly futuristic (owner, 2026-09-28: 'like SF Pro but more rounded and futuristic'). Plus Jakarta Sans (SIL OFL), one family; ExtraBold carries large stats. Every numeric label enables tabular figures. Files live in App/Resources/Fonts with OFL.txt. Runner-up if rejected: Outfit.",
+    "ui_family": "Plus Jakarta Sans",
+    "stat_family": "Plus Jakarta Sans",
     "postscript": {
-      "ui_regular": "Barlow-Regular",
-      "ui_medium": "Barlow-Medium",
-      "ui_semibold": "Barlow-SemiBold",
-      "ui_bold": "Barlow-Bold",
-      "stat_semibold": "BarlowSemiCondensed-SemiBold",
-      "stat_bold": "BarlowSemiCondensed-Bold"
+      "ui_regular": "PlusJakartaSans-Regular",
+      "ui_medium": "PlusJakartaSans-Medium",
+      "ui_semibold": "PlusJakartaSans-SemiBold",
+      "ui_bold": "PlusJakartaSans-Bold",
+      "stat_semibold": "PlusJakartaSans-Bold",
+      "stat_bold": "PlusJakartaSans-ExtraBold"
     },
     "scale": {
-      "stat_xl": 44, "stat_lg": 32, "stat_md": 22, "stat_sm": 17,
-      "title": 22, "headline": 17, "body": 16, "callout": 15, "caption": 13, "label": 11
+      "stat_xl": 44,
+      "stat_lg": 32,
+      "stat_md": 22,
+      "stat_sm": 17,
+      "title": 22,
+      "headline": 17,
+      "body": 16,
+      "callout": 15,
+      "caption": 13,
+      "label": 11
     }
   },
   "backdrop_palettes": {
-    "rain_district": { "shades": ["#0B2233", "#1C4A66", "#3E7C97"], "source": "cinema_rain tile" },
-    "moon_alley":    { "shades": ["#1A1214", "#4A2529", "#8C3A44"], "source": "moonlight_alley tile" },
-    "amber_rooftop": { "shades": ["#1E1712", "#4A3222", "#8A6548"], "source": "amber_rooftop tile" },
-    "shrine_falls":  { "shades": ["#0E2340", "#245478", "#6FA3AC"], "source": "waterfall_statue tile" }
+    "rain_district": {
+      "shades": [
+        "#0B2233",
+        "#1C4A66",
+        "#3E7C97"
+      ],
+      "source": "cinema_rain tile"
+    },
+    "moon_alley": {
+      "shades": [
+        "#1A1214",
+        "#4A2529",
+        "#8C3A44"
+      ],
+      "source": "moonlight_alley tile"
+    },
+    "amber_rooftop": {
+      "shades": [
+        "#1E1712",
+        "#4A3222",
+        "#8A6548"
+      ],
+      "source": "amber_rooftop tile"
+    },
+    "shrine_falls": {
+      "shades": [
+        "#0E2340",
+        "#245478",
+        "#6FA3AC"
+      ],
+      "source": "waterfall_statue tile"
+    }
   },
-  "radius": { "sm": 6, "md": 10, "lg": 16, "pill": 999 },
-  "spacing": { "xs": 4, "sm": 8, "md": 12, "lg": 16, "xl": 24, "xxl": 32 },
-  "motion": { "fast_ms": 120, "base_ms": 200, "reward_ms": 2400, "idle_frame_ms": 140 }
+  "radius": {
+    "sm": 6,
+    "md": 10,
+    "lg": 16,
+    "pill": 999
+  },
+  "spacing": {
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "xxl": 32
+  },
+  "motion": {
+    "fast_ms": 120,
+    "base_ms": 200,
+    "reward_ms": 2400,
+    "idle_frame_ms": 140
+  }
 }

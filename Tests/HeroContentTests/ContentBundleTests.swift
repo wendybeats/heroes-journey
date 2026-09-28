@@ -95,7 +95,7 @@ final class ContentBundleTests: XCTestCase {
 
     func testBundledFontsMatchTokenPostScriptNames() throws {
         let t = try DesignTokens.decode(RepoFiles.data("Content/v1/design-tokens.json"))
-        XCTAssertEqual(t.type.uiFamily, "Barlow")
+        XCTAssertEqual(t.type.uiFamily, "Plus Jakarta Sans")
         for (role, ps) in t.type.postscript {
             let path = RepoFiles.root.appendingPathComponent("App/Resources/Fonts/\(ps).ttf").path
             XCTAssertTrue(FileManager.default.fileExists(atPath: path), "missing font for \(role): \(ps).ttf")

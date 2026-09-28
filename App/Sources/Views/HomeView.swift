@@ -92,14 +92,14 @@ struct HomeView: View {
         .card()
     }
 
-    // MARK: utility (informational numbers in the tertiary accent)
+    // MARK: utility (numbers in white; owner decision 2026-09-28)
 
     private var weekCard: some View {
         VStack(alignment: .leading, spacing: NeoTokyo.Spacing.md) {
             Eyebrow(text: "This week")
             HStack(alignment: .firstTextBaseline, spacing: NeoTokyo.Spacing.xl) {
-                StatNumber(value: state.weekMinutes, unit: "min", accent: NeoTokyo.Hierarchy.tertiary)
-                StatNumber(value: state.weekSessions, unit: state.weekSessions == 1 ? "session" : "sessions", accent: NeoTokyo.Hierarchy.tertiary)
+                StatNumber(value: state.weekMinutes, unit: "min")
+                StatNumber(value: state.weekSessions, unit: state.weekSessions == 1 ? "session" : "sessions")
                 Spacer()
             }
             let byFamily = state.weekMinutesByFamily

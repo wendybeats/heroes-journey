@@ -43,7 +43,7 @@ Owner decision, 2026-09-28, replacing the earlier "pink is the character's color
 | Primary | gold | `#E3B95E` | XP, level progress, character glow, selection, confirmation, PRs and rare unlocks |
 | Fallback 1 | blue | `#6FA9DC` | Links, imported/verified badges, when gold is already used in a region |
 | Fallback 2 | pink | `#E08BAB` | Second fallback |
-| Tertiary | green | `#5CC5B0` | Informational numbers only: weekly minutes, session counts. Never actions |
+| Tertiary | green | `#5CC5B0` | Reserved. Mindfulness attribute only for now; utility numbers are white |
 | Destructive | coral | `#D8776B` | Delete and irreversible actions |
 | Button | off-white | `#E6ECF7` | The one filled control per screen; navy text on it |
 
@@ -68,14 +68,13 @@ Every accent has a `dim` partner for fills behind text and for inactive states. 
 
 ## Typography
 
-Owner brief: fitness app, not video game; clean numbers at large and small scale; a bit stylized.
+Owner brief, revised 2026-09-28: fitness app, not video game; like SF Pro but more rounded and futuristic; must look great at huge sizes and small. Barlow was rejected as too basic.
 
-- **UI text: Barlow** (Regular, Medium, SemiBold, Bold).
-- **Large stats: Barlow Semi Condensed** (SemiBold, Bold). The slight compression reads athletic, like apparel and scoreboard numerals, without becoming a game HUD.
-- Both ship in `App/Resources/Fonts` under the SIL Open Font License (`OFL.txt` alongside). Verified with fontTools: every file carries the `tnum` feature, and every numeric style in `HeroFont` enables tabular figures so counters and columns never jitter.
+- **Plus Jakarta Sans**, one family: Regular, Medium, SemiBold, Bold for UI; Bold and ExtraBold for stats. Geometric with rounded terminals, close to SF Rounded in feel, with more character in the numerals.
+- Chosen from a rendered specimen of Outfit, Sora, Manrope, Plus Jakarta Sans and Figtree on the app surface at 88/64/44/26/24/18 px. Urbanist and Lexend were excluded before rendering because their files carry no `tnum` feature. Sora is the most futuristic but grows wide and heavy at caption size; **Outfit is the runner-up** and the swap if this one is rejected.
+- Ships in `App/Resources/Fonts` under the SIL Open Font License (`OFL.txt` alongside). Verified with fontTools: every file carries `tnum`, and every numeric style in `HeroFont` enables tabular figures so counters and columns never jitter.
 - Scale (points, before Dynamic Type): stats 44 / 32 / 22 / 17; title 22, headline 17, body 16, callout 15, caption 13, label 11.
 - Eyebrow labels are 11 pt Medium, uppercase, 0.8 tracking.
-- Nearest alternative if Barlow is rejected: Archivo (also OFL, also `tnum`). It is a one-file swap in the tokens plus the font files.
 
 ## Rules
 
@@ -83,7 +82,7 @@ Owner brief: fitness app, not video game; clean numbers at large and small scale
 2. **One accent per region.** A card uses at most one accent color plus text. Gold first; blue, then pink, only when gold is already spent in that region.
 3. **Accents are light, never fills.** Text, icons, 1 px rules, glows. Large filled areas use `dim`. The single filled control per screen is the off-white button.
 4. **Gold means progression.** XP, level, unlocks, the character's glow. It does not decorate utility rows.
-5. **Green means information.** Weekly minutes and session counts. It never marks an action or a success state.
+5. **Utility numbers are white.** Weekly minutes, session counts, sets and weights use `text.primary`. Green is reserved (Mindfulness only) and never marks an action or a success state.
 6. **No gradients on UI chrome.** Gradients appear only inside scene backdrops, as dithered pixel bands.
 7. **Scene backdrops use 2–3 shades from one `backdrop_palettes` entry** and dither into `surface.scene_fade` at the edges (doc 18).
 8. **Typography carries hierarchy, not color.** Secondary text is `text.secondary`, not a dimmed accent.

@@ -35,12 +35,11 @@ targets:
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UIUserInterfaceStyle: Dark
         UIAppFonts:
-          - Barlow-Regular.ttf
-          - Barlow-Medium.ttf
-          - Barlow-SemiBold.ttf
-          - Barlow-Bold.ttf
-          - BarlowSemiCondensed-SemiBold.ttf
-          - BarlowSemiCondensed-Bold.ttf
+          - PlusJakartaSans-Regular.ttf
+          - PlusJakartaSans-Medium.ttf
+          - PlusJakartaSans-SemiBold.ttf
+          - PlusJakartaSans-Bold.ttf
+          - PlusJakartaSans-ExtraBold.ttf
     settings:
       base:
         SWIFT_VERSION: "6.0"
