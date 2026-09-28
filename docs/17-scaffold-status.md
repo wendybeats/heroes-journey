@@ -40,6 +40,8 @@ The JSON level thresholds are test fixtures only. The user's pacing target still
 
 ## Next engineering increment
 
+> Done in the Claude Code rebuild, 2026-09-28: `ProgressionSubmission`/`ProgressionReceipt`, the `ProgressionService` boundary with an in-process authority, exact daily-taper context and a durable `Outbox`. See `docs/20-rebuild-review.md`.
+
 Define the authoritative progression request/receipt and database transaction, including idempotency, ownership, corrections and reward uniqueness. Add a tuned development ruleset, local-to-server submission with durable acknowledgments, and account restoration. Validate the complete manual activity → confirmed progression → visible reward loop before broadening imports and the workout logger.
 
 ## Validation

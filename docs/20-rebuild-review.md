@@ -47,6 +47,18 @@ The previous scaffold's package boundaries (domain / content / infrastructure / 
 | Balance values | `Content/v1/ruleset.dev-1.json`, marked `"status": "dev"` | Doc 17: fixtures are not a balanced curve. Still true. |
 | Backend | Supabase/Postgres, not yet provisioned | Unchanged. No credentials in repo. |
 
+## Increment 2, same day: the grant boundary
+
+Doc 15 §3–5 implemented in `HeroDomain`:
+
+- `ProgressionSubmission` carries the event plus a client-generated submission ID; `ProgressionReceipt` is the only thing the UI renders. Retries, with the same or a new submission ID, return the original outcome reconstructed from the ledger (`wasAlreadyProcessed`).
+- `ProgressionService` is the transport-agnostic boundary. `ProgressionAuthority` holds the rules; `LocalAuthorityProgressionService` runs them in-process for the single-device build. A Supabase implementation replaces it without app changes.
+- `ProcessingRecord` now stores credit-weighted eligible minutes, so same-day taper is exact rather than approximate.
+- `Outbox` is the durable pending/confirmed queue: one entry per event, retries reuse the original submission ID, drained on launch and after each log. The home screen shows a "waiting to sync" count when entries are pending.
+- Tests cover doc 15 acceptance criteria 1 (retry never doubles) and 2 (offline entry survives a round trip and receives one confirmed outcome).
+
+Not yet: a network implementation, account identity, guest claiming (criteria 3 and 5), and the strength logger.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.
