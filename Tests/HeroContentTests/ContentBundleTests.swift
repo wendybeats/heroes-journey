@@ -59,7 +59,7 @@ final class ContentBundleTests: XCTestCase {
         ledger.commit(p, for: e, at: now)
         let s = ledger.snapshot(ruleset: ruleset)
         XCTAssertEqual(s.level, ruleset.level(forTotalXP: p.xp))
-        XCTAssertEqual(bundle.evolution(forLevel: s.level)?.assetSetID, "hero.body.ev1")
+        XCTAssertEqual(bundle.evolution(forLevel: s.level)?.assetSetID, "hero.kit.v2")
     }
 
     func testSpriteManifestDecodesAndFramesExist() throws {

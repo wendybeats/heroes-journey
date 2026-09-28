@@ -28,7 +28,7 @@ final class CharacterKitTests: XCTestCase {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
         for body in bundle.avatarOptions.baseBodies {
             for style in bundle.avatarOptions.hairStyles(for: body) {
-                XCTAssertNotNil(m.styles[body]?[style], "bundle style \(style) for \(body) is not in the kit")
+                XCTAssertTrue(m.styles[body]?.keys.contains(style) == true, "bundle style \(style) for \(body) is not in the kit")
             }
         }
         for skin in bundle.avatarOptions.skinPalettes { XCTAssertNotNil(m.skinRamps[skin], "skin \(skin) has no ramp") }
