@@ -15,6 +15,8 @@ Implemented:
 - SwiftUI shell: onboarding, home scene with dithered backdrop and manifest-driven sprite playback, log sheet, history, reward moment. Local-only persistence.
 - Python gates: token contrast, theme generation, sprite validation.
 
+Verified: CI passes on macOS (`swift test`, 19 tests) and the iOS simulator build. Not yet done: an interactive simulator walkthrough.
+
 Not implemented: HealthKit, server sync, auth, guest claiming, strength logger, PR detection, analytics, entitlements, production art.
 
 ## Run

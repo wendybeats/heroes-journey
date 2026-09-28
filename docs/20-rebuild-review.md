@@ -58,3 +58,5 @@ The previous scaffold's package boundaries (domain / content / infrastructure / 
 ## Verification status of this rebuild's first commit
 
 Honest statement: the machine this rebuild was scaffolded on had no Swift toolchain (network policy blocked swift.org). The Python tools were executed and their output is recorded in their docstrings. The Swift packages and app shell were written to compile but were not compiled locally; `.github/workflows/swift.yml` builds and tests them on a macOS runner on every push, and the first CI run is the compile check. Do not treat any Swift file here as verified until that workflow is green.
+
+Update, same day: the first run failed on one expression in the app's dither loop that the Swift type checker could not resolve in time; it was rewritten with explicit types. The second run (commit `75390d9`) passed all three jobs: `swift build` and `swift test` on macOS (19 tests, 0 failures), the iOS simulator build via XcodeGen, and the Linux content/sprite gates. The app has still not been launched interactively in a simulator.
