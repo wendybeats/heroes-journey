@@ -12,7 +12,7 @@ import HeroContent
 struct SpritePlayer: View {
     let assetSetID: AssetSetID
     var animation = "idle"
-    var scale: CGFloat = 3
+    var scale: CGFloat = 2
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var loaded: Loaded?
@@ -38,7 +38,7 @@ struct SpritePlayer: View {
                 // Missing art must be visible, not silent: a muted outline at canvas size.
                 RoundedRectangle(cornerRadius: 4)
                     .strokeBorder(NeoTokyo.Text.muted, style: StrokeStyle(lineWidth: 1, dash: [4]))
-                    .frame(width: 64 * scale, height: 96 * scale)
+                    .frame(width: 64 * scale, height: 128 * scale)
                     .overlay(Text(assetSetID.rawValue).font(.caption2).foregroundStyle(NeoTokyo.Text.muted))
             }
         }

@@ -35,7 +35,7 @@ The generated `.xcodeproj` is disposable; edit `project.yml`.
 
 ## Adding art
 
-Read `assets/sprites/README.md`. Generate frames externally, drop them in a new `rev<N>` folder with a `manifest.json`, run the validator, review the contact sheet at 2–3× on a phone, set `status` to `accepted`. The current `hero.body.ev1/rev1` frames are a crude placeholder so the pipeline runs; they are not the character.
+Read `assets/sprites/README.md`. Generate frames externally, drop them in a new `rev<N>` folder with a `manifest.json`, run the validator, review the contact sheet at 2–3× on a phone, set `status` to `accepted`. `hero.body.ev1/rev2` is the first authored character, a working placeholder until the final set lands, baked from the owner's authored sheet with `Tools/import_sprite_sheet.py`.
 
 ## Open decisions
 

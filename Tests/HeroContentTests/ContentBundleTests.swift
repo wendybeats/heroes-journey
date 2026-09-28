@@ -63,10 +63,11 @@ final class ContentBundleTests: XCTestCase {
     }
 
     func testSpriteManifestDecodesAndFramesExist() throws {
-        let folder = "assets/sprites/hero.body.ev1/rev1"
+        let folder = "assets/sprites/hero.body.ev1/rev2"
         let m = try SpriteManifest.decode(RepoFiles.data("\(folder)/manifest.json"))
         XCTAssertEqual(m.assetSetID, "hero.body.ev1")
-        XCTAssertEqual(m.canvas.width, 64); XCTAssertEqual(m.canvas.height, 96)
+        XCTAssertEqual(m.canvas.width, 64); XCTAssertEqual(m.canvas.height, 128)
+        XCTAssertNotEqual(m.status, .retired)
         let idle = try XCTUnwrap(m.idle)
         XCTAssertGreaterThanOrEqual(idle.frames.count, 4)
         for frame in idle.frames {

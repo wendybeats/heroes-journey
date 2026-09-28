@@ -15,11 +15,11 @@ struct OnboardingView: View {
             VStack(spacing: NeoTokyo.Spacing.xl) {
                 ZStack {
                     SceneBackdrop(shades: NeoTokyo.Backdrop.rainDistrict)
-                    SpritePlayer(assetSetID: "hero.body.ev1")
+                    SpritePlayer(assetSetID: "hero.body.ev1", scale: 2)
                         .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 18)
-                        .padding(.vertical, NeoTokyo.Spacing.xl)
+                        .padding(.vertical, NeoTokyo.Spacing.lg)
                 }
-                .frame(maxWidth: .infinity, minHeight: 360)
+                .frame(maxWidth: .infinity, minHeight: 300)
                 .clipShape(RoundedRectangle(cornerRadius: NeoTokyo.Radius.lg, style: .continuous))
 
                 VStack(alignment: .leading, spacing: NeoTokyo.Spacing.md) {

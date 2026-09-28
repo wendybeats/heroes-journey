@@ -39,7 +39,7 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showLog) { LogSheet() }
             .sheet(isPresented: $showHistory) { HistoryView() }
-            .overlay { if let proposal = state.lastProposal { RewardMoment(proposal: proposal) } }
+            .overlay { if let receipt = state.lastReceipt { RewardMoment(receipt: receipt) } }
         }
     }
 
@@ -60,7 +60,7 @@ struct HomeView: View {
             }
             .padding(NeoTokyo.Spacing.lg)
         }
-        .frame(maxWidth: .infinity, minHeight: 240)
+        .frame(maxWidth: .infinity, minHeight: 300)
         .clipShape(RoundedRectangle(cornerRadius: NeoTokyo.Radius.lg, style: .continuous))
     }
 
@@ -125,6 +125,9 @@ struct HomeView: View {
             if state.todayEvents.isEmpty {
                 Text("Nothing logged yet.").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.muted)
             } else {
+                if state.pendingCount > 0 {
+                    Text("\(state.pendingCount) waiting to sync").font(HeroFont.caption).foregroundStyle(NeoTokyo.Hierarchy.fallback)
+                }
                 ForEach(state.todayEvents, id: \.id) { event in
                     HStack {
                         Text(state.bundle.activityType(event.activityTypeID)?.displayName ?? event.activityTypeID.rawValue)

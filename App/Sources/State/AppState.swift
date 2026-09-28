@@ -4,31 +4,38 @@ import HeroDomain
 import HeroContent
 
 /// Local, single-device state for the first loop (doc 15 milestone). Persisted as one
-/// atomic JSON archive; replaced by a synced store before HealthKit import volume.
-/// No client-side XP is authoritative: `ledger` is a local *preview* until a server exists.
+/// atomic JSON archive. Progression is never computed by the UI: every log goes through the
+/// `ProgressionService` boundary as a submission, is queued in a durable outbox, and is shown
+/// only from the receipt that comes back. Today the service is the in-process authority; a
+/// Supabase-backed one replaces it without touching this file's callers.
 @MainActor @Observable
 final class AppState {
     struct Archive: Codable {
-        static let schemaVersion = 1
+        static let schemaVersion = 2
         var schemaVersion = Archive.schemaVersion
         var userID: UserID
         var recipe: AvatarRecipe?
         var events: [ActivityEvent]
         var ledger: ProgressionLedger
+        var outbox: Outbox
     }
 
     let bundle: ContentBundle
     let ruleset: ProgressionRuleset
     let tokens: DesignTokens
+    private let service: LocalAuthorityProgressionService
     private(set) var userID: UserID
     var recipe: AvatarRecipe? { didSet { save() } }
     private(set) var events: [ActivityEvent]
+    /// Mirror of the authority's ledger, refreshed after every receipt.
     private(set) var ledger: ProgressionLedger
-    /// The most recent proposal, for the reward moment (doc 02).
-    private(set) var lastProposal: ProgressionProposal?
+    private(set) var outbox: Outbox
+    /// The most recent confirmed receipt, for the reward moment (doc 02).
+    private(set) var lastReceipt: ProgressionReceipt?
 
     var snapshot: ProgressSnapshot { ledger.snapshot(ruleset: ruleset) }
     var evolution: ContentBundle.Evolution? { bundle.evolution(forLevel: snapshot.level) }
+    var pendingCount: Int { outbox.pending.count }
     var todayEvents: [ActivityEvent] { events.filter { Calendar.current.isDateInToday($0.startedAt) }.sorted { $0.startedAt > $1.startedAt } }
 
     /// Events in the current calendar week (locale-aware week start). Facts only, no game math.
@@ -52,42 +59,62 @@ final class AppState {
 
     init(bundle: ContentBundle, ruleset: ProgressionRuleset, tokens: DesignTokens, archive: Archive?) {
         self.bundle = bundle; self.ruleset = ruleset; self.tokens = tokens
-        self.userID = archive?.userID ?? UserID()
+        let user = archive?.userID ?? UserID()
+        let events = archive?.events ?? []
+        let ledger = archive?.ledger ?? ProgressionLedger()
+        self.userID = user
         self.recipe = archive?.recipe
-        self.events = archive?.events ?? []
-        self.ledger = archive?.ledger ?? ProgressionLedger()
+        self.events = events
+        self.ledger = ledger
+        self.outbox = archive?.outbox ?? Outbox()
+        let authority = ProgressionAuthority(ruleset: ruleset, levelRewards: bundle.levelRewards, calendar: .current)
+        self.service = LocalAuthorityProgressionService(authority: authority, owner: user, ledger: ledger, events: events)
     }
 
-    // MARK: logging → progression (the core loop)
+    // MARK: logging → submission → receipt (the core loop)
 
-    /// Records an immutable fact, then evaluates and commits its preview progression once.
+    /// Records an immutable fact, queues it, and submits. The UI shows only the receipt.
     func log(activityTypeID: ActivityTypeID, minutes: Int, startedAt: Date = Date()) {
         guard let type = bundle.activityType(activityTypeID) else { return }
         let event = ActivityEvent(userID: userID, activityTypeID: type.id, familyID: type.familyID, startedAt: startedAt, durationSeconds: minutes * 60, source: .manual, verification: .selfReported)
         events.append(event)
-        let context = ledger.context(for: event, ruleset: ruleset, events: events, levelRewards: bundle.levelRewards, calendar: .current)
-        let proposal = ProgressionEngine.evaluate(event: event, ruleset: ruleset, context: context)
-        ledger.commit(proposal, for: event, at: Date())
-        lastProposal = proposal
-        if proposal.leveledUp, var r = recipe, let ev = bundle.evolution(forLevel: proposal.levelAfter), ev.id != r.evolutionID {
-            r.evolutionID = ev.id
-            recipe = r
-        }
+        let submission = ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: Date())
+        outbox.enqueue(submission)
         save()
+        Task { await drain(showReward: true) }
     }
 
-    func dismissReward() { lastProposal = nil }
+    /// Submit every pending entry in order. Safe to call on launch and after any failure.
+    func drain(showReward: Bool = false) async {
+        for entry in outbox.pending {
+            do {
+                let receipt = try await service.submit(entry.submission)
+                outbox.confirm(receipt)
+                ledger = await service.ledger
+                if showReward && !receipt.wasAlreadyProcessed { lastReceipt = receipt }
+                if receipt.leveledUp, var r = recipe, let ev = bundle.evolution(forLevel: receipt.levelAfter), ev.id != r.evolutionID {
+                    r.evolutionID = ev.id
+                    recipe = r
+                }
+            } catch {
+                outbox.markAttempt(entry.submission.id, error: String(describing: error))
+            }
+            save()
+        }
+    }
+
+    func dismissReward() { lastReceipt = nil }
 
     // MARK: persistence
 
     private static var archiveURL: URL {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("HeroesJourney", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir.appendingPathComponent("archive.v1.json")
+        return dir.appendingPathComponent("archive.v2.json")
     }
 
     private func save() {
-        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger)
+        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox)
         do {
             let data = try JSONEncoder().encode(archive)
             try data.write(to: Self.archiveURL, options: .atomic)
@@ -103,7 +130,9 @@ final class AppState {
             let tokens = try DesignTokens.decode(Data(contentsOf: contentURL("design-tokens.json")))
             precondition(bundle.integrityProblems(against: ruleset).isEmpty, "content bundle failed integrity: \(bundle.integrityProblems(against: ruleset))")
             let archive = (try? Data(contentsOf: archiveURL)).flatMap { try? JSONDecoder().decode(Archive.self, from: $0) }
-            return AppState(bundle: bundle, ruleset: ruleset, tokens: tokens, archive: archive)
+            let state = AppState(bundle: bundle, ruleset: ruleset, tokens: tokens, archive: archive)
+            Task { await state.drain() }  // anything left pending from a previous run
+            return state
         } catch {
             fatalError("content bundle missing or invalid: \(error)")
         }

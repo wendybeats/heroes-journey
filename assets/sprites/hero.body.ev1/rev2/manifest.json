@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "hero.body.ev1",
+  "revision": 2,
+  "status": "draft",
+  "kind": "body",
+  "attachments": {
+    "head": {
+      "x": 32,
+      "y": 14
+    },
+    "hand_r": {
+      "x": 44,
+      "y": 70
+    },
+    "back": {
+      "x": 30,
+      "y": 40
+    }
+  },
+  "layer_order": 0,
+  "max_palette_colors": 24,
+  "palette_roles": {
+    "skin": [
+      "#D69B75",
+      "#EAB58D",
+      "#F5C69D",
+      "#8D6050",
+      "#B77F63"
+    ]
+  },
+  "notes": "WORKING PLACEHOLDER (owner, 2026-09-28): first authored male base, medium black hair, dark bodysuit; the final characters are still being built and will land as rev3+. male base, medium black hair, dark bodysuit. Baked from source/male_medium_source.png (3 keyframes: rest, inhale, exhale) by Tools/import_sprite_sheet.py. Hair and suit share the dark ramp in this version, so only skin is a recolor role; hair recolor needs a separate layer in a later revision. The source kit (rig notes, keyframe deltas, flex compositor) is kept under source/ for the production pilot; blink, hair drift and the flex action are not baked yet.",
+  "canvas": {
+    "width": 64,
+    "height": 128
+  },
+  "pivot": {
+    "x": 32,
+    "y": 122
+  },
+  "animations": {
+    "idle": {
+      "frames": [
+        "idle/000.png",
+        "idle/001.png",
+        "idle/002.png",
+        "idle/003.png",
+        "idle/004.png",
+        "idle/005.png",
+        "idle/006.png",
+        "idle/007.png"
+      ],
+      "frame_duration_ms": 160,
+      "loop": true,
+      "poster_frame": 0
+    }
+  }
+}

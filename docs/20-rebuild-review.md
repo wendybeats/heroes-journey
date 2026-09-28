@@ -42,7 +42,7 @@ The previous scaffold's package boundaries (domain / content / infrastructure / 
 | Module layout | `HeroDomain` (pure), `HeroContent` (versioned JSON), `HeroApp` (SwiftUI) | Foundation-only packages can be tested on Linux CI as well as macOS. |
 | Theme source of truth | `Content/v1/design-tokens.json`, Swift generated from it | Prevents palette drift, the top complaint about the previous build. |
 | Sprite pipeline | Author externally, validate in repo | See §2. |
-| Sprite canvas | 64 × 96 px, ground pivot at (32, 92), 2× and 3× nearest-neighbour display | Tall proportions per doc 18; 96 px tall gives enough rows for a bodysuit with readable hands. This is a proposal; the first accepted character fixes it. |
+| Sprite canvas | 64 × 128 px, ground pivot at (32, 122), 2× nearest-neighbour display | Fixed by the first authored character (`hero.body.ev1/rev2`, 2026-09-28, a working placeholder until the final set): a 116 px figure gives readable hands, face and suit shading at 2×. |
 | Progression boundary | `ActivityEvent + Ruleset + EvaluationContext -> ProgressionProposal` (doc 15 §2) | Pure, deterministic, testable. |
 | Balance values | `Content/v1/ruleset.dev-1.json`, marked `"status": "dev"` | Doc 17: fixtures are not a balanced curve. Still true. |
 | Backend | Supabase/Postgres, not yet provisioned | Unchanged. No credentials in repo. |

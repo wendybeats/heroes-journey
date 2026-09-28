@@ -66,8 +66,12 @@ public struct ProcessingRecord: Hashable, Codable, Sendable {
     public let purpose: Purpose
     public let rulesetID: RulesetID
     public let processedAt: Date
+    /// Credit-weighted minutes this event consumed of its family's daily allowance, so later
+    /// events on the same day taper exactly (doc 15 §2: retain enough context to explain a grant).
+    public let eligibleMinutes: Double
 
-    public init(activityEventID: ActivityEventID, purpose: Purpose, rulesetID: RulesetID, processedAt: Date) {
+    public init(activityEventID: ActivityEventID, purpose: Purpose, rulesetID: RulesetID, processedAt: Date, eligibleMinutes: Double = 0) {
         self.activityEventID = activityEventID; self.purpose = purpose; self.rulesetID = rulesetID; self.processedAt = processedAt
+        self.eligibleMinutes = eligibleMinutes
     }
 }
