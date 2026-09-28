@@ -1,0 +1,41 @@
+name: HeroesJourney
+options:
+  bundleIdPrefix: dev.heroesjourney
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "16.0"
+packages:
+  HeroesJourney:
+    path: .
+targets:
+  HeroesJourney:
+    type: application
+    platform: iOS
+    sources:
+      - App/Sources
+      # Folder references keep repo-relative paths so AppState/SpritePlayer resolve them 1:1.
+      - path: Content
+        type: folder
+        buildPhase: resources
+      - path: assets/sprites
+        type: folder
+        buildPhase: resources
+    dependencies:
+      - package: HeroesJourney
+        product: HeroDomain
+      - package: HeroesJourney
+        product: HeroContent
+    info:
+      path: App/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: Heroes Journey
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UIUserInterfaceStyle: Dark
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
+        SWIFT_STRICT_CONCURRENCY: complete
+        PRODUCT_BUNDLE_IDENTIFIER: dev.heroesjourney.prototype
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"

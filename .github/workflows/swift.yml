@@ -1,0 +1,46 @@
+name: build-and-test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  packages:
+    name: Swift packages (macOS)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift --version
+      - run: swift build
+      - run: swift test
+
+  content-tools:
+    name: Content + sprite gates (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pillow numpy
+      - run: python3 Tools/check_token_contrast.py
+      - run: python3 Tools/generate_theme_swift.py --check
+      - name: Validate every sprite revision
+        run: |
+          set -e
+          for m in $(find assets/sprites -name manifest.json); do
+            python3 Tools/validate_sprites.py "$(dirname "$m")"
+          done
+
+  app:
+    name: iOS app (simulator build)
+    runs-on: macos-15
+    needs: packages
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install xcodegen
+      - run: xcodegen generate
+      - run: >
+          xcodebuild -project HeroesJourney.xcodeproj -scheme HeroesJourney
+          -sdk iphonesimulator -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath build CODE_SIGNING_ALLOWED=NO build

@@ -1,0 +1,50 @@
+import SwiftUI
+import HeroDomain
+
+/// Doc 01 "daily activity timeline". Facts only; XP shown per event comes from the ledger.
+struct HistoryView: View {
+    @Environment(AppState.self) private var state
+    @Environment(\.dismiss) private var dismiss
+
+    private var grouped: [(Date, [ActivityEvent])] {
+        let byDay = Dictionary(grouping: state.events) { Calendar.current.startOfDay(for: $0.startedAt) }
+        return byDay.keys.sorted(by: >).map { ($0, byDay[$0]!.sorted { $0.startedAt > $1.startedAt }) }
+    }
+
+    private func xp(for event: ActivityEvent) -> Int {
+        state.ledger.xp.filter { $0.activityEventID == event.id }.reduce(0) { $0 + $1.amount }
+    }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                if state.events.isEmpty {
+                    Text("No activity yet.").foregroundStyle(NeoTokyo.Text.muted).listRowBackground(Color.clear)
+                }
+                ForEach(grouped, id: \.0) { day, events in
+                    Section(day.formatted(date: .abbreviated, time: .omitted)) {
+                        ForEach(events, id: \.id) { event in
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(state.bundle.activityType(event.activityTypeID)?.displayName ?? event.activityTypeID.rawValue)
+                                        .foregroundStyle(NeoTokyo.Text.primary)
+                                    Text(event.startedAt.formatted(date: .omitted, time: .shortened))
+                                        .font(.caption).foregroundStyle(NeoTokyo.Text.muted)
+                                }
+                                Spacer()
+                                Text("\(event.durationSeconds / 60) min").foregroundStyle(NeoTokyo.Text.secondary).monospacedDigit()
+                                Text("+\(xp(for: event))").foregroundStyle(NeoTokyo.Accent.pink).monospacedDigit().font(.subheadline.weight(.medium))
+                            }
+                        }
+                        .listRowBackground(NeoTokyo.Surface.raised)
+                    }
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .background(NeoTokyo.Surface.base)
+            .navigationTitle("History")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+        }
+    }
+}

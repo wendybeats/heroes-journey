@@ -1,0 +1,22 @@
+# Xcode / SwiftPM
+.build/
+build/
+DerivedData/
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+*.xcuserstate
+.swiftpm/
+
+# Python tools
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+__MACOSX/
+
+# Local secrets (Supabase etc.) — never commit
+*.env
+*.env.*
+Secrets.*
