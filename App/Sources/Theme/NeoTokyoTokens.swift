@@ -64,7 +64,7 @@ public enum NeoTokyo {
     }
 
     /// Font PostScript names and the type scale. Fonts are bundled from App/Resources/Fonts.
-    public enum Type {
+    public enum Typeface {
         public static let uiRegular = "Barlow-Regular"
         public static let uiMedium = "Barlow-Medium"
         public static let uiSemibold = "Barlow-SemiBold"

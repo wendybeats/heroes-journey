@@ -52,7 +52,7 @@ lines += ["    /// Which accent plays which role (doc 19). Views pick by role, n
           f"        public static let destructive = Accent.{swift_name(t['hierarchy']['destructive'])}",
           "    }", "",
           "    /// Font PostScript names and the type scale. Fonts are bundled from App/Resources/Fonts.",
-          "    public enum Type {"]
+          "    public enum Typeface {"]
 for k, v in t["type"]["postscript"].items(): lines.append(f"        public static let {swift_name(k)} = \"{v}\"")
 for k, v in t["type"]["scale"].items(): lines.append(f"        public static let {swift_name(k)}: CGFloat = {v}")
 lines += ["    }", "", "    public enum Backdrop {"]
