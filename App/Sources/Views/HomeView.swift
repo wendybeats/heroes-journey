@@ -118,29 +118,38 @@ struct SceneBackdrop: View {
     let shades: [Color]
     var body: some View {
         Canvas { context, size in
-            let bands = max(2, shades.count)
-            let bandHeight = size.height / CGFloat(bands)
-            for (i, shade) in shades.prefix(bands).enumerated() {
-                context.fill(Path(CGRect(x: 0, y: CGFloat(i) * bandHeight, width: size.width, height: bandHeight + 1)), with: .color(shade))
-            }
-            // ordered-dither fade into surface.base on all four edges, 4 px cells
-            let cell: CGFloat = 4
-            let fade: CGFloat = 40
-            var y: CGFloat = 0
-            while y < size.height {
-                var x: CGFloat = 0
-                while x < size.width {
-                    let d = min(x, y, size.width - x, size.height - y)
-                    if d < fade {
-                        let threshold = ((Int(x / cell) * 7 + Int(y / cell) * 13) % 16) / 16.0
-                        if Double(d / fade) < threshold {
-                            context.fill(Path(CGRect(x: x, y: y, width: cell, height: cell)), with: .color(NeoTokyo.Surface.sceneFade))
-                        }
+            Self.draw(in: &context, size: size, shades: shades)
+        }
+    }
+
+    /// Kept out of the ViewBuilder closure so the type checker sees plain, explicitly typed statements.
+    private static func draw(in context: inout GraphicsContext, size: CGSize, shades: [Color]) {
+        let bands: Int = max(2, shades.count)
+        let bandHeight: CGFloat = size.height / CGFloat(bands)
+        for (i, shade) in shades.prefix(bands).enumerated() {
+            let rect = CGRect(x: 0, y: CGFloat(i) * bandHeight, width: size.width, height: bandHeight + 1)
+            context.fill(Path(rect), with: .color(shade))
+        }
+        // Ordered-dither fade into surface.base on all four edges, 4 px cells.
+        let cell: CGFloat = 4
+        let fade: CGFloat = 40
+        let fill: GraphicsContext.Shading = .color(NeoTokyo.Surface.sceneFade)
+        var y: CGFloat = 0
+        while y < size.height {
+            var x: CGFloat = 0
+            while x < size.width {
+                let distance: CGFloat = min(min(x, y), min(size.width - x, size.height - y))
+                if distance < fade {
+                    let cx: Int = Int(x / cell)
+                    let cy: Int = Int(y / cell)
+                    let threshold: CGFloat = CGFloat((cx * 7 + cy * 13) % 16) / 16
+                    if distance / fade < threshold {
+                        context.fill(Path(CGRect(x: x, y: y, width: cell, height: cell)), with: fill)
                     }
-                    x += cell
                 }
-                y += cell
+                x += cell
             }
+            y += cell
         }
     }
 }

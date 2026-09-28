@@ -7,6 +7,7 @@ import HeroContent
 
 /// Plays the frames a `SpriteManifest` describes, at integer nearest-neighbour scale.
 /// Resolves `asset_set_id` → the highest revision folder shipped in the app bundle.
+/// project.yml ships the `assets/sprites` folder reference, which lands in the bundle as `sprites/`.
 /// Respects Reduce Motion by showing the poster frame.
 struct SpritePlayer: View {
     let assetSetID: AssetSetID
@@ -52,7 +53,7 @@ struct SpritePlayer: View {
     }
 
     static func load(assetSetID: AssetSetID, animation: String) -> Loaded? {
-        guard let root = Bundle.main.resourceURL?.appendingPathComponent("assets/sprites/\(assetSetID.rawValue)") else { return nil }
+        guard let root = Bundle.main.resourceURL?.appendingPathComponent("sprites/\(assetSetID.rawValue)") else { return nil }
         let revisions = ((try? FileManager.default.contentsOfDirectory(atPath: root.path)) ?? [])
             .compactMap { name -> (Int, String)? in
                 guard name.hasPrefix("rev"), let n = Int(name.dropFirst(3)) else { return nil }
