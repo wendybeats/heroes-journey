@@ -20,7 +20,8 @@ A fitness-first RPG whose progression is driven by real-life activity. The track
 
 ## Art and theme rules
 - Colors come from `Content/v1/design-tokens.json` only. Run `python3 Tools/generate_theme_swift.py` after editing it; never edit `App/Sources/Theme/NeoTokyoTokens.swift` by hand. `Tools/check_token_contrast.py` must pass.
-- Doc 19 rules apply to every screen: navy surfaces, one accent per region, pink belongs to the character, amber is rare, no gradients on chrome.
+- Doc 19 rules apply to every screen: fitness first, navy surfaces, one accent per region, gold means progression, green means information only, the off-white button is the single filled control, no gradients on chrome.
+- Pick colors by role (`NeoTokyo.Hierarchy.primary`, `NeoTokyo.Attribute.color(for:)`), never by hue name in views. Use `HeroFont` styles, never `.font(.system…)` or `.caption`; numeric text uses a `HeroFont` number style so digits are tabular.
 - There is no sprite generator in this repo and none should be added. Art is authored externally and dropped into `assets/sprites/<asset_set_id>/rev<N>/`; `Tools/validate_sprites.py` is the gate.
 
 ## Layout

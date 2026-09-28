@@ -13,9 +13,24 @@ public struct DesignTokens: Codable, Sendable, Equatable {
         public let shades: [String]
         public let source: String?
     }
+    public struct Hierarchy: Codable, Sendable, Equatable {
+        public let primary: String
+        public let fallback: [String]
+        public let tertiary: String
+        public let destructive: String
+    }
+    public struct Typography: Codable, Sendable, Equatable {
+        public let uiFamily: String
+        public let statFamily: String
+        public let postscript: [String: String]
+        public let scale: [String: Double]
+        enum CodingKeys: String, CodingKey { case uiFamily = "ui_family", statFamily = "stat_family", postscript, scale }
+    }
     public let schemaVersion: Int
     public let contentVersion: String
     public let themeID: String
+    public let hierarchy: Hierarchy
+    public let type: Typography
     public let surface: [String: Color]
     public let text: [String: Color]
     public let accent: [String: Color]
@@ -27,7 +42,7 @@ public struct DesignTokens: Codable, Sendable, Equatable {
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "schema_version", contentVersion = "content_version", themeID = "theme_id"
-        case surface, text, accent, attribute, backdropPalettes = "backdrop_palettes", radius, spacing, motion
+        case hierarchy, type, surface, text, accent, attribute, backdropPalettes = "backdrop_palettes", radius, spacing, motion
     }
 
     public static func decode(_ data: Data) throws -> DesignTokens {

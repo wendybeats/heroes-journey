@@ -41,8 +41,21 @@ lines += ["", "        /// Color for an attribute slug from the content bundle; 
           "        public static func color(for id: String) -> Color {",
           "            switch id {"]
 for k in t["attribute"]: lines.append(f"            case \"{k}\": return {swift_name(k)}")
-lines += ["            default: return NeoTokyo.Text.secondary", "            }", "        }", "    }", "",
-          "    public enum Backdrop {"]
+lines += ["            default: return NeoTokyo.Text.secondary", "            }", "        }", "    }", ""]
+lines += ["    /// Which accent plays which role (doc 19). Views pick by role, not by hue.",
+          "    public enum Hierarchy {",
+          f"        public static let primary = Accent.{swift_name(t['hierarchy']['primary'])}",
+          f"        public static let primaryDim = Accent.{swift_name(t['hierarchy']['primary'])}Dim",
+          f"        public static let fallback = Accent.{swift_name(t['hierarchy']['fallback'][0])}",
+          f"        public static let fallback2 = Accent.{swift_name(t['hierarchy']['fallback'][1])}",
+          f"        public static let tertiary = Accent.{swift_name(t['hierarchy']['tertiary'])}",
+          f"        public static let destructive = Accent.{swift_name(t['hierarchy']['destructive'])}",
+          "    }", "",
+          "    /// Font PostScript names and the type scale. Fonts are bundled from App/Resources/Fonts.",
+          "    public enum Type {"]
+for k, v in t["type"]["postscript"].items(): lines.append(f"        public static let {swift_name(k)} = \"{v}\"")
+for k, v in t["type"]["scale"].items(): lines.append(f"        public static let {swift_name(k)}: CGFloat = {v}")
+lines += ["    }", "", "    public enum Backdrop {"]
 for k, v in t["backdrop_palettes"].items():
     shades = ", ".join(f"Color(.sRGB, red: {int(h[1:3],16)/255:.4f}, green: {int(h[3:5],16)/255:.4f}, blue: {int(h[5:7],16)/255:.4f}, opacity: 1)" for h in v["shades"])
     lines.append(f"        public static let {swift_name(k)}: [Color] = [{shades}]")

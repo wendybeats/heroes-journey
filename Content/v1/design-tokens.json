@@ -1,8 +1,15 @@
 {
   "schema_version": 1,
-  "content_version": "2026.09.28-1",
+  "content_version": "2026.09.28-2",
   "theme_id": "neo_tokyo_dark",
-  "notes": "Derived from assets/references/2026-09-28/neo-tokyo-color-board.webp via Tools/sample_reference_colors.py. Values are sRGB hex. Contrast ratios are checked by Tools/check_token_contrast.py; do not edit colors without re-running it.",
+  "notes": "Derived from assets/references/2026-09-28/neo-tokyo-color-board.webp via Tools/sample_reference_colors.py, then re-ranked on 2026-09-28 (owner decision): gold is the primary accent, blue and pink are fallbacks, green is tertiary for informational numbers, coral is Knowledge. Contrast is checked by Tools/check_token_contrast.py; do not edit colors without re-running it.",
+  "hierarchy": {
+    "primary": "gold",
+    "fallback": ["blue", "pink"],
+    "tertiary": "green",
+    "destructive": "coral",
+    "notes": "One accent per region. Gold carries XP, level progress, the character glow, selection and confirmation. Blue then pink are used only when a region already uses gold and needs a second accent (links, imported-data badges). Green marks informational numbers such as weekly minutes; never actions. Coral is shared by Knowledge and destructive actions; the two never appear on the same screen in MVP."
+  },
   "surface": {
     "base":    { "hex": "#0A1020", "role": "App background. Deep navy-black, never pure black." },
     "raised":  { "hex": "#111A2E", "role": "Cards, sheets, list rows." },
@@ -14,20 +21,38 @@
     "primary":   { "hex": "#E4E9F4", "role": "Body and headings on any surface." },
     "secondary": { "hex": "#9FACC8", "role": "Labels, captions." },
     "muted":     { "hex": "#6B7A9C", "role": "Placeholders, disabled." },
-    "on_accent": { "hex": "#0A1020", "role": "Text sitting on a filled accent button." }
+    "on_accent": { "hex": "#0A1020", "role": "Text on a filled accent or on the primary button." }
   },
   "accent": {
-    "pink":  { "hex": "#E08BAB", "dim": "#8A3D5C", "role": "Primary interactive: buttons, XP, the character's own glow. Muted, never hot magenta." },
-    "blue":  { "hex": "#6FA9DC", "dim": "#2E5C88", "role": "Informational, links, imported/verified activity." },
-    "green": { "hex": "#5CC5B0", "dim": "#2B6B62", "role": "Success, confirmed grants, streak-free 'done'." },
-    "amber": { "hex": "#D9B36A", "dim": "#7A6030", "role": "Sparing: PR detection, rare items. From the amber rooftop tile." },
-    "coral": { "hex": "#D8776B", "dim": "#7A3A33", "role": "Destructive and error only." }
+    "gold":  { "hex": "#E3B95E", "dim": "#7A6030", "role": "PRIMARY. XP, level progress, character glow, selection, confirmation, PRs and rare unlocks." },
+    "blue":  { "hex": "#6FA9DC", "dim": "#2E5C88", "role": "Fallback 1. Links, imported/verified badges. Endurance." },
+    "pink":  { "hex": "#E08BAB", "dim": "#8A3D5C", "role": "Fallback 2. Strength." },
+    "green": { "hex": "#5CC5B0", "dim": "#2B6B62", "role": "Tertiary. Informational numbers only (weekly minutes, session counts). Mindfulness." },
+    "coral": { "hex": "#D8776B", "dim": "#7A3A33", "role": "Knowledge, and destructive actions." },
+    "button": { "hex": "#E6ECF7", "dim": "#B9C4DA", "role": "Primary button fill: off-white with a hint of blue. Text on it is text.on_accent." }
   },
   "attribute": {
     "strength":    { "hex": "#E08BAB", "role": "Same as accent.pink." },
     "endurance":   { "hex": "#6FA9DC", "role": "Same as accent.blue." },
-    "knowledge":   { "hex": "#D9B36A", "role": "Same as accent.amber." },
-    "mindfulness": { "hex": "#5CC5B0", "role": "Same as accent.green." }
+    "mindfulness": { "hex": "#5CC5B0", "role": "Same as accent.green." },
+    "knowledge":   { "hex": "#D8776B", "role": "Same as accent.coral." }
+  },
+  "type": {
+    "notes": "Fitness app first: clean, athletic numerals at every size. Barlow (SIL OFL) for UI text; Barlow Semi Condensed for large stats. Every numeric label enables tabular figures. Files live in App/Resources/Fonts with OFL.txt.",
+    "ui_family": "Barlow",
+    "stat_family": "Barlow Semi Condensed",
+    "postscript": {
+      "ui_regular": "Barlow-Regular",
+      "ui_medium": "Barlow-Medium",
+      "ui_semibold": "Barlow-SemiBold",
+      "ui_bold": "Barlow-Bold",
+      "stat_semibold": "BarlowSemiCondensed-SemiBold",
+      "stat_bold": "BarlowSemiCondensed-Bold"
+    },
+    "scale": {
+      "stat_xl": 44, "stat_lg": 32, "stat_md": 22, "stat_sm": 17,
+      "title": 22, "headline": 17, "body": 16, "callout": 15, "caption": 13, "label": 11
+    }
   },
   "backdrop_palettes": {
     "rain_district": { "shades": ["#0B2233", "#1C4A66", "#3E7C97"], "source": "cinema_rain tile" },

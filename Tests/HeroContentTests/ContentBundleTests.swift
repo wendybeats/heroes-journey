@@ -84,6 +84,22 @@ final class ContentBundleTests: XCTestCase {
             }
         }
         XCTAssertEqual(t.attribute["strength"]?.hex, t.accent["pink"]?.hex, "attribute colors alias accents (doc 19)")
+        XCTAssertEqual(t.attribute["endurance"]?.hex, t.accent["blue"]?.hex)
         XCTAssertEqual(t.attribute["mindfulness"]?.hex, t.accent["green"]?.hex)
+        XCTAssertEqual(t.attribute["knowledge"]?.hex, t.accent["coral"]?.hex)
+        XCTAssertEqual(t.hierarchy.primary, "gold")
+        for name in [t.hierarchy.primary, t.hierarchy.tertiary, t.hierarchy.destructive] + t.hierarchy.fallback {
+            XCTAssertNotNil(t.accent[name], "hierarchy names unknown accent \(name)")
+        }
+    }
+
+    func testBundledFontsMatchTokenPostScriptNames() throws {
+        let t = try DesignTokens.decode(RepoFiles.data("Content/v1/design-tokens.json"))
+        XCTAssertEqual(t.type.uiFamily, "Barlow")
+        for (role, ps) in t.type.postscript {
+            let path = RepoFiles.root.appendingPathComponent("App/Resources/Fonts/\(ps).ttf").path
+            XCTAssertTrue(FileManager.default.fileExists(atPath: path), "missing font for \(role): \(ps).ttf")
+        }
+        XCTAssertTrue(FileManager.default.fileExists(atPath: RepoFiles.root.appendingPathComponent("App/Resources/Fonts/OFL.txt").path), "font license must ship")
     }
 }

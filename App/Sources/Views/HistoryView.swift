@@ -19,7 +19,7 @@ struct HistoryView: View {
         NavigationStack {
             List {
                 if state.events.isEmpty {
-                    Text("No activity yet.").foregroundStyle(NeoTokyo.Text.muted).listRowBackground(Color.clear)
+                    Text("No activity yet.").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.muted).listRowBackground(Color.clear)
                 }
                 ForEach(grouped, id: \.0) { day, events in
                     Section(day.formatted(date: .abbreviated, time: .omitted)) {
@@ -27,13 +27,13 @@ struct HistoryView: View {
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text(state.bundle.activityType(event.activityTypeID)?.displayName ?? event.activityTypeID.rawValue)
-                                        .foregroundStyle(NeoTokyo.Text.primary)
+                                        .font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
                                     Text(event.startedAt.formatted(date: .omitted, time: .shortened))
-                                        .font(.caption).foregroundStyle(NeoTokyo.Text.muted)
+                                        .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
                                 }
                                 Spacer()
-                                Text("\(event.durationSeconds / 60) min").foregroundStyle(NeoTokyo.Text.secondary).monospacedDigit()
-                                Text("+\(xp(for: event))").foregroundStyle(NeoTokyo.Accent.pink).monospacedDigit().font(.subheadline.weight(.medium))
+                                Text("\(event.durationSeconds / 60) min").font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Text.secondary)
+                                Text("+\(xp(for: event))").font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Hierarchy.primary)
                             }
                         }
                         .listRowBackground(NeoTokyo.Surface.raised)

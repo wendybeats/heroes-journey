@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Shared view styles. Doc 19 rules: one accent per region, accents as light not fill,
-/// navy surfaces, no gradients on chrome.
+/// Shared view styles. Doc 19 rules: one accent per region, gold is primary, accents as light
+/// not fill, navy surfaces, no gradients on chrome.
 struct CardStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
@@ -11,24 +11,24 @@ struct CardStyle: ViewModifier {
     }
 }
 
-/// The single filled button on a screen (doc 19 rule 3).
+/// The single filled button on a screen: off-white with a hint of blue, navy text.
 struct PrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.headline)
+            .font(HeroFont.headline)
             .foregroundStyle(NeoTokyo.Text.onAccent)
             .frame(maxWidth: .infinity)
             .padding(.vertical, NeoTokyo.Spacing.md)
-            .background(NeoTokyo.Accent.pink.opacity(configuration.isPressed ? 0.8 : 1), in: RoundedRectangle(cornerRadius: NeoTokyo.Radius.md, style: .continuous))
+            .background(configuration.isPressed ? NeoTokyo.Accent.buttonDim : NeoTokyo.Accent.button, in: RoundedRectangle(cornerRadius: NeoTokyo.Radius.md, style: .continuous))
     }
 }
 
-/// Outlined secondary action: accent as a hairline, not a fill.
+/// Outlined secondary action: accent as a hairline, not a fill. Defaults to the first fallback accent.
 struct SecondaryButtonStyle: ButtonStyle {
-    var accent: Color = NeoTokyo.Accent.blue
+    var accent: Color = NeoTokyo.Hierarchy.fallback
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.subheadline.weight(.medium))
+            .font(HeroFont.bodyMedium)
             .foregroundStyle(accent)
             .frame(maxWidth: .infinity)
             .padding(.vertical, NeoTokyo.Spacing.md)
@@ -41,13 +41,16 @@ extension View {
     func card() -> some View { modifier(CardStyle()) }
 }
 
-/// Monospaced digits so XP counters do not jitter.
+/// A large tabular number with an optional unit, e.g. "184" / "xp" or "142" / "min".
 struct StatNumber: View {
     let value: Int
-    let accent: Color
+    var unit: String? = nil
+    var accent: Color = NeoTokyo.Text.primary
+    var font: Font = HeroFont.statMD
     var body: some View {
-        Text(value, format: .number)
-            .font(.system(.title2, design: .rounded).weight(.semibold).monospacedDigit())
-            .foregroundStyle(accent)
+        HStack(alignment: .firstTextBaseline, spacing: 3) {
+            Text(value, format: .number).font(font).foregroundStyle(accent)
+            if let unit { Text(unit).font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary) }
+        }
     }
 }

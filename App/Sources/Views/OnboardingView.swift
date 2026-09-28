@@ -16,7 +16,7 @@ struct OnboardingView: View {
                 ZStack {
                     SceneBackdrop(shades: NeoTokyo.Backdrop.rainDistrict)
                     SpritePlayer(assetSetID: "hero.body.ev1")
-                        .shadow(color: NeoTokyo.Accent.pink.opacity(0.35), radius: 18)
+                        .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 18)
                         .padding(.vertical, NeoTokyo.Spacing.xl)
                 }
                 .frame(maxWidth: .infinity, minHeight: 360)
@@ -24,8 +24,9 @@ struct OnboardingView: View {
 
                 VStack(alignment: .leading, spacing: NeoTokyo.Spacing.md) {
                     Text("Someone woke up here. Who are they?")
-                        .font(.title3.weight(.semibold)).foregroundStyle(NeoTokyo.Text.primary)
+                        .font(HeroFont.title).foregroundStyle(NeoTokyo.Text.primary)
                     TextField("Name", text: $name)
+                        .font(HeroFont.body)
                         .textInputAutocapitalization(.words)
                         .padding(NeoTokyo.Spacing.md)
                         .background(NeoTokyo.Surface.overlay, in: RoundedRectangle(cornerRadius: NeoTokyo.Radius.md))
@@ -53,17 +54,17 @@ struct OnboardingView: View {
 
     private func optionRow(_ label: String, options: [String], selection: Binding<String>) -> some View {
         VStack(alignment: .leading, spacing: NeoTokyo.Spacing.xs) {
-            Text(label).font(.caption).foregroundStyle(NeoTokyo.Text.secondary)
+            Eyebrow(text: label)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: NeoTokyo.Spacing.sm) {
                     ForEach(options, id: \.self) { option in
                         let on = selection.wrappedValue == option
                         Button(option.split(separator: ".").last.map(String.init)?.capitalized ?? option) { selection.wrappedValue = option }
-                            .font(.subheadline)
-                            .foregroundStyle(on ? NeoTokyo.Accent.pink : NeoTokyo.Text.secondary)
+                            .font(HeroFont.callout)
+                            .foregroundStyle(on ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.secondary)
                             .padding(.horizontal, NeoTokyo.Spacing.md).padding(.vertical, NeoTokyo.Spacing.sm)
                             .background(NeoTokyo.Surface.overlay, in: Capsule())
-                            .overlay(Capsule().strokeBorder(on ? NeoTokyo.Accent.pink : NeoTokyo.Surface.line, lineWidth: 1))
+                            .overlay(Capsule().strokeBorder(on ? NeoTokyo.Hierarchy.primary : NeoTokyo.Surface.line, lineWidth: 1))
                     }
                 }
             }

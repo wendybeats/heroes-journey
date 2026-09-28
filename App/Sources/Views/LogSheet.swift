@@ -29,7 +29,7 @@ struct LogSheet: View {
                 if let selected {
                     Section {
                         Stepper(value: $minutes, in: 5...240, step: 5) {
-                            HStack { Text(selected.displayName); Spacer(); Text("\(minutes) min").monospacedDigit().foregroundStyle(NeoTokyo.Text.secondary) }
+                            HStack { Text(selected.displayName).font(HeroFont.bodyMedium); Spacer(); Text("\(minutes) min").font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Text.secondary) }
                         }
                         Button("Done") {
                             state.log(activityTypeID: selected.id, minutes: minutes)
@@ -47,11 +47,11 @@ struct LogSheet: View {
                             minutes = max(5, (activity.defaultDurationSeconds ?? 1800) / 60)
                         } label: {
                             HStack {
-                                Text(activity.displayName).foregroundStyle(NeoTokyo.Text.primary)
+                                Text(activity.displayName).font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
                                 Spacer()
                                 Text(state.bundle.family(activity.familyID)?.displayName ?? "")
-                                    .font(.caption).foregroundStyle(NeoTokyo.Text.muted)
-                                if selected?.id == activity.id { Image(systemName: "checkmark").foregroundStyle(NeoTokyo.Accent.pink) }
+                                    .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
+                                if selected?.id == activity.id { Image(systemName: "checkmark").foregroundStyle(NeoTokyo.Hierarchy.primary) }
                             }
                         }
                     }

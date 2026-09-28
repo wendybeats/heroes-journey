@@ -7,6 +7,9 @@ Rules enforced (exit 1 on failure):
   text.muted     on surface.base   >= 3.0  (AA large / non-essential)
   every accent   on surface.base   >= 3.0  (AA UI component / large text)
   text.on_accent on every accent   >= 4.5
+  accent.gold (primary) on every surface >= 4.5 (it carries XP numbers at small sizes)
+  text.on_accent on accent.button  >= 7.0
+  hierarchy names must resolve to accents; attribute colors must alias an accent
 """
 import json, sys
 
@@ -43,5 +46,18 @@ for ak, av in TOK["accent"].items():
     check(f"accent.{ak} on surface.base", av["hex"], surfaces["base"], 3.0)
     check(f"accent.{ak} on surface.raised", av["hex"], surfaces["raised"], 3.0)
     check(f"text.on_accent on accent.{ak}", TOK["text"]["on_accent"]["hex"], av["hex"], 4.5)
+check("accent.gold on surface.overlay", TOK["accent"]["gold"]["hex"], surfaces["overlay"], 4.5)
+check("accent.gold on surface.raised", TOK["accent"]["gold"]["hex"], surfaces["raised"], 4.5)
+check("text.on_accent on accent.button", TOK["text"]["on_accent"]["hex"], TOK["accent"]["button"]["hex"], 7.0)
+h = TOK["hierarchy"]
+for name in [h["primary"], h["tertiary"], h["destructive"], *h["fallback"]]:
+    if name not in TOK["accent"]:
+        fails += 1; print(f"FAIL  hierarchy names unknown accent '{name}'")
+accent_hexes = {v["hex"] for v in TOK["accent"].values()}
+for name, v in TOK["attribute"].items():
+    if v["hex"] not in accent_hexes:
+        fails += 1; print(f"FAIL  attribute.{name} {v['hex']} does not alias an accent")
+    else:
+        print(f"PASS  attribute.{name} aliases an accent")
 print(f"\n{fails} failure(s)")
 sys.exit(1 if fails else 0)

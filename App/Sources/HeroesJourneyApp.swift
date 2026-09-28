@@ -9,7 +9,7 @@ struct HeroesJourneyApp: App {
             RootView()
                 .environment(state)
                 .preferredColorScheme(.dark)
-                .tint(NeoTokyo.Accent.pink)
+                .tint(NeoTokyo.Hierarchy.primary)
         }
     }
 }

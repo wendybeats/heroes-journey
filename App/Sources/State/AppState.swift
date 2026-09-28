@@ -31,6 +31,25 @@ final class AppState {
     var evolution: ContentBundle.Evolution? { bundle.evolution(forLevel: snapshot.level) }
     var todayEvents: [ActivityEvent] { events.filter { Calendar.current.isDateInToday($0.startedAt) }.sorted { $0.startedAt > $1.startedAt } }
 
+    /// Events in the current calendar week (locale-aware week start). Facts only, no game math.
+    var weekEvents: [ActivityEvent] {
+        let cal = Calendar.current
+        guard let interval = cal.dateInterval(of: .weekOfYear, for: Date()) else { return [] }
+        return events.filter { interval.contains($0.startedAt) }
+    }
+    var weekMinutes: Int { weekEvents.reduce(0) { $0 + $1.durationSeconds / 60 } }
+    var weekSessions: Int { weekEvents.count }
+    struct FamilyMinutes { let family: ContentBundle.Family; let minutes: Int }
+    var weekMinutesByFamily: [FamilyMinutes] {
+        var totals: [FamilyID: Int] = [:]
+        for e in weekEvents { totals[e.familyID, default: 0] += e.durationSeconds / 60 }
+        return bundle.families.compactMap { f in
+            guard let m = totals[f.id], m > 0 else { return nil }
+            return FamilyMinutes(family: f, minutes: m)
+        }
+        .sorted { $0.minutes > $1.minutes }
+    }
+
     init(bundle: ContentBundle, ruleset: ProgressionRuleset, tokens: DesignTokens, archive: Archive?) {
         self.bundle = bundle; self.ruleset = ruleset; self.tokens = tokens
         self.userID = archive?.userID ?? UserID()
