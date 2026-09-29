@@ -11,6 +11,9 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
+    # Simulator builds never need a signing team; device builds still use automatic signing.
+    "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "NO"
+    "CODE_SIGNING_REQUIRED[sdk=iphonesimulator*]": "NO"
 targets:
   HeroDomain:
     type: framework
@@ -19,6 +22,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.heroesjourney.HeroDomain
+        GENERATE_INFOPLIST_FILE: "YES"
         CODE_SIGN_STYLE: Automatic
   HeroContent:
     type: framework
@@ -29,6 +33,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.heroesjourney.HeroContent
+        GENERATE_INFOPLIST_FILE: "YES"
         CODE_SIGN_STYLE: Automatic
   HeroesJourney:
     type: application
