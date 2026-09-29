@@ -17,6 +17,9 @@ struct HomeView: View {
     @State private var deltas: [AttributeID: Int] = [:]
     @State private var xpDelta = 0
     @State private var deltaToken = 0
+    @State private var levelUpStart: Date?
+    @State private var levelFlash = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         let snapshot = shown ?? state.snapshot
@@ -53,6 +56,14 @@ struct HomeView: View {
             .sheet(isPresented: $showLog) { LogSheet() }
             .fullScreenCover(isPresented: $showWorkout) { WorkoutView() }
             .sheet(isPresented: $showHistory) { HistoryView() }
+            .overlayPreferenceValue(SceneAnchorsKey.self) { anchors in
+                GeometryReader { geo in
+                    if let start = levelUpStart, let c = anchors["character"], let b = anchors["badge"] {
+                        let cr = geo[c], br = geo[b]
+                        LevelUpOverlay(start: start, characterCenter: CGPoint(x: cr.midX, y: cr.midY), badgeCenter: CGPoint(x: br.midX, y: br.midY))
+                    }
+                }
+            }
             .overlay { if let receipt = state.lastReceipt { RewardMoment(receipt: receipt) } }
             .animation(.easeInOut(duration: 0.25), value: state.lastReceipt == nil)
         }
@@ -67,7 +78,21 @@ struct HomeView: View {
             xpDelta = new.totalXP - old.totalXP
             deltas = Dictionary(uniqueKeysWithValues: new.attributes.map { ($0.key, $0.value - (old.attributes[$0.key] ?? 0)) })
             deltaToken += 1
-            withAnimation(.easeOut(duration: 1.2)) { shown = new }
+            if new.level > old.level && !reduceMotion {
+                // Doc 02 reward moment, extended (owner, 2026-09-29): aura, star burst, then the counter.
+                levelUpStart = Date()
+                Task {
+                    try? await Task.sleep(for: .milliseconds(1500))
+                    levelFlash = true
+                    withAnimation(.easeOut(duration: 1.0)) { shown = new }
+                    try? await Task.sleep(for: .milliseconds(1000))
+                    withAnimation(.easeOut(duration: 0.6)) { levelFlash = false }
+                    try? await Task.sleep(for: .milliseconds(600))
+                    levelUpStart = nil
+                }
+            } else {
+                withAnimation(.easeOut(duration: 1.2)) { shown = new }
+            }
         }
     }
 
@@ -81,14 +106,12 @@ struct HomeView: View {
                 LayeredCharacterView(recipe: recipe, scale: HomeView.characterScale)
                     .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)  // the character's own glow
                     .padding(.bottom, NeoTokyo.Spacing.xl)
+                    .anchorPreference(key: SceneAnchorsKey.self, value: .bounds) { ["character": $0] }
             }
-            VStack(alignment: .leading, spacing: 2) {
-                Eyebrow(text: "Level")
-                CountingText(value: Double(snapshot.level), font: HeroFont.statXL, color: NeoTokyo.Hierarchy.primary)
-                Text(state.evolution?.displayName ?? "").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
-            }
-            .padding(NeoTokyo.Spacing.lg)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            LevelBadge(level: snapshot.level, subtitle: state.bundle.evolution(forLevel: snapshot.level)?.displayName ?? "", flash: levelFlash)
+                .anchorPreference(key: SceneAnchorsKey.self, value: .bounds) { ["badge": $0] }
+                .padding(NeoTokyo.Spacing.lg)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .frame(maxWidth: .infinity, minHeight: 320)
         .clipShape(RoundedRectangle(cornerRadius: NeoTokyo.Radius.lg, style: .continuous))
