@@ -5,6 +5,8 @@ import HeroContent
 /// Doc 19 "fitness first": the utility (today, this week, log) carries the screen. The
 /// character is present and reacts, but sits in a compact scene rather than dominating.
 struct HomeView: View {
+    /// Sprite scale in the scene. 2.0 filled the card; 1.6 lets the backdrop read (owner, 2026-09-29).
+    static let characterScale: CGFloat = 1.6
     @Environment(AppState.self) private var state
     @State private var showLog = false
     @State private var showHistory = false
@@ -72,23 +74,23 @@ struct HomeView: View {
     // MARK: character scene (compact)
 
     private func sceneCard(_ snapshot: ProgressSnapshot) -> some View {
-        ZStack(alignment: .bottomLeading) {
+        ZStack(alignment: .bottom) {
             BackdropImage(assetSetID: state.recipe?.backdropID ?? "backdrop.rain_district")
-            HStack(alignment: .bottom) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Eyebrow(text: "Level")
-                    CountingText(value: Double(snapshot.level), font: HeroFont.statXL, color: NeoTokyo.Hierarchy.primary)
-                    Text(state.evolution?.displayName ?? "").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
-                }
-                Spacer()
-                if let recipe = state.recipe {
-                    LayeredCharacterView(recipe: recipe, scale: 2)
-                        .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)  // the character's own glow
-                }
+            // Character stands on the road: bottom-centre, 20% smaller than the 2x sprite scale.
+            if let recipe = state.recipe {
+                LayeredCharacterView(recipe: recipe, scale: HomeView.characterScale)
+                    .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)  // the character's own glow
+                    .padding(.bottom, NeoTokyo.Spacing.xl)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Eyebrow(text: "Level")
+                CountingText(value: Double(snapshot.level), font: HeroFont.statXL, color: NeoTokyo.Hierarchy.primary)
+                Text(state.evolution?.displayName ?? "").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
             }
             .padding(NeoTokyo.Spacing.lg)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, minHeight: 300)
+        .frame(maxWidth: .infinity, minHeight: 320)
         .clipShape(RoundedRectangle(cornerRadius: NeoTokyo.Radius.lg, style: .continuous))
     }
 

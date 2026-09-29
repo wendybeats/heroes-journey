@@ -16,13 +16,13 @@ struct OnboardingView: View {
         let options = state.bundle.avatarOptions
         ScrollView {
             VStack(spacing: NeoTokyo.Spacing.xl) {
-                ZStack {
+                ZStack(alignment: .bottom) {
                     BackdropImage(assetSetID: "backdrop.rain_district")
-                    LayeredCharacterView(recipe: draft, scale: 2)
+                    LayeredCharacterView(recipe: draft, scale: HomeView.characterScale)
                         .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 18)
-                        .padding(.vertical, NeoTokyo.Spacing.lg)
+                        .padding(.bottom, NeoTokyo.Spacing.xl)
                 }
-                .frame(maxWidth: .infinity, minHeight: 300)
+                .frame(maxWidth: .infinity, minHeight: 320)
                 .clipShape(RoundedRectangle(cornerRadius: NeoTokyo.Radius.lg, style: .continuous))
 
                 VStack(alignment: .leading, spacing: NeoTokyo.Spacing.md) {
