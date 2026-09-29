@@ -8,6 +8,7 @@ struct HomeView: View {
     @Environment(AppState.self) private var state
     @State private var showLog = false
     @State private var showHistory = false
+    @State private var showWorkout = false
 
     var body: some View {
         let snapshot = state.snapshot
@@ -31,13 +32,18 @@ struct HomeView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) {
-                Button("Log activity") { showLog = true }
-                    .buttonStyle(PrimaryButtonStyle())
-                    .padding(.horizontal, NeoTokyo.Spacing.lg)
-                    .padding(.bottom, NeoTokyo.Spacing.sm)
-                    .background(NeoTokyo.Surface.base.opacity(0.92))
+                HStack(spacing: NeoTokyo.Spacing.sm) {
+                    Button(state.activeWorkout == nil ? "Start workout" : "Resume workout") { showWorkout = true }
+                        .buttonStyle(PrimaryButtonStyle())
+                    Button("Log activity") { showLog = true }
+                        .buttonStyle(SecondaryButtonStyle())
+                }
+                .padding(.horizontal, NeoTokyo.Spacing.lg)
+                .padding(.bottom, NeoTokyo.Spacing.sm)
+                .background(NeoTokyo.Surface.base.opacity(0.92))
             }
             .sheet(isPresented: $showLog) { LogSheet() }
+            .fullScreenCover(isPresented: $showWorkout) { WorkoutView() }
             .sheet(isPresented: $showHistory) { HistoryView() }
             .overlay { if let receipt = state.lastReceipt { RewardMoment(receipt: receipt) } }
         }

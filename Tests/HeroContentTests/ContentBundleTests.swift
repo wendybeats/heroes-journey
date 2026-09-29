@@ -20,6 +20,9 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(bundle.families.count, 6)
         XCTAssertEqual(bundle.attributes.map(\.id), ["strength", "endurance", "knowledge", "mindfulness"])
         XCTAssertEqual(bundle.integrityProblems(), [])
+        XCTAssertGreaterThanOrEqual(bundle.exerciseDefinitions.count, 20)
+        XCTAssertEqual(bundle.exercise("bench_press")?.defaultSetType, .weighted)
+        XCTAssertEqual(bundle.exercise("plank")?.defaultSetType, .timed)
     }
 
     func testDevRulesetDecodesAndCoversEveryFamily() throws {

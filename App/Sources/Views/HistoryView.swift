@@ -11,6 +11,13 @@ struct HistoryView: View {
         return byDay.keys.sorted(by: >).map { ($0, byDay[$0]!.sorted { $0.startedAt > $1.startedAt }) }
     }
 
+    private func subtitle(_ event: ActivityEvent) -> String {
+        let time = event.startedAt.formatted(date: .omitted, time: .shortened)
+        guard let w = state.workout(for: event.id) else { return time }
+        let prs = w.personalRecords.filter { !$0.isBaseline }.count
+        return "\(time) · \(w.exercises.count) exercises · \(w.validSetCount) sets" + (prs > 0 ? " · \(prs) PR" : "")
+    }
+
     private func xp(for event: ActivityEvent) -> Int {
         state.ledger.xp.filter { $0.activityEventID == event.id }.reduce(0) { $0 + $1.amount }
     }
@@ -28,7 +35,7 @@ struct HistoryView: View {
                                 VStack(alignment: .leading) {
                                     Text(state.bundle.activityType(event.activityTypeID)?.displayName ?? event.activityTypeID.rawValue)
                                         .font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
-                                    Text(event.startedAt.formatted(date: .omitted, time: .shortened))
+                                    Text(subtitle(event))
                                         .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
                                 }
                                 Spacer()

@@ -17,7 +17,7 @@ Implemented:
 
 Verified: CI passes on macOS (`swift test`, 19 tests) and the iOS simulator build. Not yet done: an interactive simulator walkthrough.
 
-Not implemented: HealthKit, server sync, auth, guest claiming, strength logger, PR detection, analytics, entitlements, production art.
+Strength logger with PR detection is in (doc 02 flow; templates and rest timer deferred). Not implemented: HealthKit, server sync, auth, guest claiming, analytics, entitlements, production art.
 
 ## Run
 

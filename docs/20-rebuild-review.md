@@ -63,6 +63,17 @@ Not yet: a network implementation, account identity, guest claiming (criteria 3 
 
 The owner's sprite kit v2 (bodies, hairstyles as layers, skin/hair ramps, pose patches) is shipped as data under `assets/sprites/hero.kit.v2` and rendered at runtime: `PoseComposer` in `HeroContent` is a line-for-line port of the approved preview's compositor (row remap by rig band, arm patches, blink, glint, hair sway), tested against the kit on Linux; `LayeredCharacterView` colors the grid per recipe, caches images, and runs the locked idle with the male flex every 9–11 s. Onboarding previews the live character while choosing body, hair, hair color and skin. Doc 07's "store a recipe, not a sprite" is now real: the recipe holds only IDs, and every combination renders from the same data.
 
+## Increment 4, 2026-09-29: strength logger
+
+Doc 02's strength flow, on the existing boundary:
+
+- `Workout` / `WorkoutExercise` / `WorkoutSet` in `HeroDomain`. Set types are explicit (`weighted`, `bodyweight`, `assisted`, `timed`); weight is stored in kilograms with the entered unit preserved (doc 15 "normalise for calculation, keep display units").
+- `PRDetector` compares only within the same exercise and set type: heaviest set and Epley estimated 1RM (1–12 reps) for weighted, most reps for bodyweight, longest for timed. Assisted sets and incomplete sets never qualify. A first-ever performance is recorded as a baseline PR and shown quietly, not celebrated.
+- Finishing a workout persists it, detects PRs, converts it to one `ActivityEvent` (`structured_workout`, `structured` verification; `calisthenics` when every set is bodyweight or timed, else `weightlifting`) and submits it through the outbox like any other activity. A workout with no valid sets records nothing.
+- 23 exercise definitions live in the content bundle with a default set type and muscle group.
+- UI: Start/Resume workout on Home, per-exercise cards with previous performance prefilled from the last finished workout, add/remove sets, kg/lb toggle, discard with confirmation, finish. PRs appear in the reward moment and in history rows.
+- Deferred, as doc 01 allows: templates and the rest timer.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

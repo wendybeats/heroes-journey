@@ -11,13 +11,34 @@ import HeroContent
 @MainActor @Observable
 final class AppState {
     struct Archive: Codable {
-        static let schemaVersion = 2
+        static let schemaVersion = 3
         var schemaVersion = Archive.schemaVersion
         var userID: UserID
         var recipe: AvatarRecipe?
         var events: [ActivityEvent]
         var ledger: ProgressionLedger
         var outbox: Outbox
+        var workouts: [Workout] = []
+        var activeWorkout: Workout? = nil
+        var preferredUnit: WeightUnit = .kg
+
+        init(userID: UserID, recipe: AvatarRecipe?, events: [ActivityEvent], ledger: ProgressionLedger, outbox: Outbox, workouts: [Workout], activeWorkout: Workout?, preferredUnit: WeightUnit) {
+            self.userID = userID; self.recipe = recipe; self.events = events; self.ledger = ledger; self.outbox = outbox
+            self.workouts = workouts; self.activeWorkout = activeWorkout; self.preferredUnit = preferredUnit
+        }
+        // v2 archives lack the workout fields; read them as empty rather than discarding the user's data.
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            schemaVersion = try c.decode(Int.self, forKey: .schemaVersion)
+            userID = try c.decode(UserID.self, forKey: .userID)
+            recipe = try c.decodeIfPresent(AvatarRecipe.self, forKey: .recipe)
+            events = try c.decode([ActivityEvent].self, forKey: .events)
+            ledger = try c.decode(ProgressionLedger.self, forKey: .ledger)
+            outbox = try c.decode(Outbox.self, forKey: .outbox)
+            workouts = try c.decodeIfPresent([Workout].self, forKey: .workouts) ?? []
+            activeWorkout = try c.decodeIfPresent(Workout.self, forKey: .activeWorkout)
+            preferredUnit = try c.decodeIfPresent(WeightUnit.self, forKey: .preferredUnit) ?? .kg
+        }
     }
 
     let bundle: ContentBundle
@@ -30,8 +51,13 @@ final class AppState {
     /// Mirror of the authority's ledger, refreshed after every receipt.
     private(set) var ledger: ProgressionLedger
     private(set) var outbox: Outbox
+    private(set) var workouts: [Workout]
+    var activeWorkout: Workout? { didSet { save() } }
+    var preferredUnit: WeightUnit { didSet { save() } }
     /// The most recent confirmed receipt, for the reward moment (doc 02).
     private(set) var lastReceipt: ProgressionReceipt?
+    /// PRs from the workout whose receipt is showing, if any.
+    private(set) var lastPersonalRecords: [PersonalRecord] = []
 
     var snapshot: ProgressSnapshot { ledger.snapshot(ruleset: ruleset) }
     var evolution: ContentBundle.Evolution? { bundle.evolution(forLevel: snapshot.level) }
@@ -67,6 +93,9 @@ final class AppState {
         self.events = events
         self.ledger = ledger
         self.outbox = archive?.outbox ?? Outbox()
+        self.workouts = archive?.workouts ?? []
+        self.activeWorkout = archive?.activeWorkout
+        self.preferredUnit = archive?.preferredUnit ?? .kg
         let authority = ProgressionAuthority(ruleset: ruleset, levelRewards: bundle.levelRewards, calendar: .current)
         self.service = LocalAuthorityProgressionService(authority: authority, owner: user, ledger: ledger, events: events)
     }
@@ -103,18 +132,92 @@ final class AppState {
         }
     }
 
-    func dismissReward() { lastReceipt = nil }
+    func dismissReward() { lastReceipt = nil; lastPersonalRecords = [] }
+
+    // MARK: strength workouts (doc 02 "Strength workout")
+
+    func startWorkout() {
+        guard activeWorkout == nil else { return }
+        activeWorkout = Workout(userID: userID, startedAt: Date())
+    }
+
+    func discardWorkout() { activeWorkout = nil }
+
+    func addExercise(_ exerciseID: ExerciseID) {
+        guard var w = activeWorkout, let def = bundle.exercise(exerciseID) else { return }
+        // Prefill from the last performance of this exercise (doc 02 step 2).
+        let previous = previousSets(for: exerciseID)
+        let sets = previous.isEmpty
+            ? [WorkoutSet(type: def.defaultSetType, enteredUnit: preferredUnit)]
+            : previous.map { WorkoutSet(type: $0.type, reps: $0.reps, weightKg: $0.weightKg, enteredUnit: preferredUnit, durationSeconds: $0.durationSeconds, completed: false) }
+        w.exercises.append(WorkoutExercise(exerciseID: exerciseID, sets: sets))
+        activeWorkout = w
+    }
+
+    func removeExercise(_ id: UUID) {
+        activeWorkout?.exercises.removeAll { $0.id == id }
+    }
+
+    func addSet(to exerciseID: UUID) {
+        guard var w = activeWorkout, let i = w.exercises.firstIndex(where: { $0.id == exerciseID }) else { return }
+        let last = w.exercises[i].sets.last
+        let def = bundle.exercise(w.exercises[i].exerciseID)
+        w.exercises[i].sets.append(WorkoutSet(type: last?.type ?? def?.defaultSetType ?? .weighted, reps: last?.reps, weightKg: last?.weightKg, enteredUnit: preferredUnit, durationSeconds: last?.durationSeconds, completed: false))
+        activeWorkout = w
+    }
+
+    func updateSet(_ set: WorkoutSet, in exerciseID: UUID) {
+        guard var w = activeWorkout, let i = w.exercises.firstIndex(where: { $0.id == exerciseID }),
+              let j = w.exercises[i].sets.firstIndex(where: { $0.id == set.id }) else { return }
+        w.exercises[i].sets[j] = set
+        activeWorkout = w
+    }
+
+    func removeSet(_ setID: UUID, in exerciseID: UUID) {
+        guard var w = activeWorkout, let i = w.exercises.firstIndex(where: { $0.id == exerciseID }) else { return }
+        w.exercises[i].sets.removeAll { $0.id == setID }
+        activeWorkout = w
+    }
+
+    /// Valid sets from the most recent finished workout containing this exercise.
+    func previousSets(for exerciseID: ExerciseID) -> [WorkoutSet] {
+        workouts.filter(\.isFinished).sorted { $0.startedAt > $1.startedAt }
+            .lazy.compactMap { $0.exercises.first { $0.exerciseID == exerciseID }?.validSets }
+            .first { !$0.isEmpty } ?? []
+    }
+
+    /// Doc 02 steps 5-9: finish, persist, detect PRs, convert to an activity, submit, reward.
+    /// Returns false when the workout had no valid sets (nothing is recorded).
+    @discardableResult
+    func finishWorkout() -> Bool {
+        guard var w = activeWorkout else { return false }
+        let now = Date()
+        w.endedAt = now
+        guard let event = w.makeActivityEvent(now: now, weightliftingID: "weightlifting", calisthenicsID: "calisthenics", familyID: "strength") else { return false }
+        w.personalRecords = PRDetector.detect(workout: w, history: workouts)
+        w.activityEventID = event.id
+        workouts.append(w)
+        activeWorkout = nil
+        events.append(event)
+        outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
+        lastPersonalRecords = w.personalRecords
+        save()
+        Task { await drain(showReward: true) }
+        return true
+    }
+
+    func workout(for eventID: ActivityEventID) -> Workout? { workouts.first { $0.activityEventID == eventID } }
 
     // MARK: persistence
 
     private static var archiveURL: URL {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("HeroesJourney", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir.appendingPathComponent("archive.v2.json")
+        return dir.appendingPathComponent("archive.v2.json")  // v3 is backward-compatible with v2 files
     }
 
     private func save() {
-        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox)
+        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit)
         do {
             let data = try JSONEncoder().encode(archive)
             try data.write(to: Self.archiveURL, options: .atomic)

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.09.28-2",
+  "content_version": "2026.09.29-1",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -418,5 +418,145 @@
       "hair.auburn": "Auburn",
       "hair.silver": "Silver"
     }
-  }
+  },
+  "exercise_definitions": [
+    {
+      "id": "bench_press",
+      "display_name": "Bench press",
+      "default_set_type": "weighted",
+      "muscle_group": "chest"
+    },
+    {
+      "id": "incline_bench_press",
+      "display_name": "Incline bench press",
+      "default_set_type": "weighted",
+      "muscle_group": "chest"
+    },
+    {
+      "id": "overhead_press",
+      "display_name": "Overhead press",
+      "default_set_type": "weighted",
+      "muscle_group": "shoulders"
+    },
+    {
+      "id": "back_squat",
+      "display_name": "Back squat",
+      "default_set_type": "weighted",
+      "muscle_group": "legs"
+    },
+    {
+      "id": "front_squat",
+      "display_name": "Front squat",
+      "default_set_type": "weighted",
+      "muscle_group": "legs"
+    },
+    {
+      "id": "deadlift",
+      "display_name": "Deadlift",
+      "default_set_type": "weighted",
+      "muscle_group": "back"
+    },
+    {
+      "id": "romanian_deadlift",
+      "display_name": "Romanian deadlift",
+      "default_set_type": "weighted",
+      "muscle_group": "back"
+    },
+    {
+      "id": "barbell_row",
+      "display_name": "Barbell row",
+      "default_set_type": "weighted",
+      "muscle_group": "back"
+    },
+    {
+      "id": "dumbbell_row",
+      "display_name": "Dumbbell row",
+      "default_set_type": "weighted",
+      "muscle_group": "back"
+    },
+    {
+      "id": "lat_pulldown",
+      "display_name": "Lat pulldown",
+      "default_set_type": "weighted",
+      "muscle_group": "back"
+    },
+    {
+      "id": "pull_up",
+      "display_name": "Pull-up",
+      "default_set_type": "bodyweight",
+      "muscle_group": "back"
+    },
+    {
+      "id": "chin_up",
+      "display_name": "Chin-up",
+      "default_set_type": "bodyweight",
+      "muscle_group": "back"
+    },
+    {
+      "id": "push_up",
+      "display_name": "Push-up",
+      "default_set_type": "bodyweight",
+      "muscle_group": "chest"
+    },
+    {
+      "id": "dip",
+      "display_name": "Dip",
+      "default_set_type": "bodyweight",
+      "muscle_group": "chest"
+    },
+    {
+      "id": "lunge",
+      "display_name": "Lunge",
+      "default_set_type": "weighted",
+      "muscle_group": "legs"
+    },
+    {
+      "id": "leg_press",
+      "display_name": "Leg press",
+      "default_set_type": "weighted",
+      "muscle_group": "legs"
+    },
+    {
+      "id": "hip_thrust",
+      "display_name": "Hip thrust",
+      "default_set_type": "weighted",
+      "muscle_group": "legs"
+    },
+    {
+      "id": "bicep_curl",
+      "display_name": "Bicep curl",
+      "default_set_type": "weighted",
+      "muscle_group": "arms"
+    },
+    {
+      "id": "tricep_pushdown",
+      "display_name": "Tricep pushdown",
+      "default_set_type": "weighted",
+      "muscle_group": "arms"
+    },
+    {
+      "id": "lateral_raise",
+      "display_name": "Lateral raise",
+      "default_set_type": "weighted",
+      "muscle_group": "shoulders"
+    },
+    {
+      "id": "plank",
+      "display_name": "Plank",
+      "default_set_type": "timed",
+      "muscle_group": "core"
+    },
+    {
+      "id": "dead_hang",
+      "display_name": "Dead hang",
+      "default_set_type": "timed",
+      "muscle_group": "back"
+    },
+    {
+      "id": "bodyweight_squat",
+      "display_name": "Bodyweight squat",
+      "default_set_type": "bodyweight",
+      "muscle_group": "legs"
+    }
+  ]
 }

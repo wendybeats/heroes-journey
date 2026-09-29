@@ -69,6 +69,13 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let isDefault: Bool?
         enum CodingKeys: String, CodingKey { case id, displayName = "display_name", palette, assetSetID = "asset_set_id", isDefault = "default" }
     }
+    public struct ExerciseDefinition: Codable, Sendable, Equatable {
+        public let id: ExerciseID
+        public let displayName: String
+        public let defaultSetType: SetType
+        public let muscleGroup: String
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", defaultSetType = "default_set_type", muscleGroup = "muscle_group" }
+    }
     public struct AvatarOptions: Codable, Sendable, Equatable {
         public let baseBodies: [String]
         public let skinPalettes: [String]
@@ -93,11 +100,12 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public let rewards: [Reward]
     public let backdrops: [Backdrop]
     public let avatarOptions: AvatarOptions
+    public let exerciseDefinitions: [ExerciseDefinition]
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "schema_version", contentVersion = "content_version"
         case families, activityTypes = "activity_types", attributes, evolutions, items, rewards, backdrops
-        case avatarOptions = "avatar_options"
+        case avatarOptions = "avatar_options", exerciseDefinitions = "exercise_definitions"
     }
 
     public static func decode(_ data: Data) throws -> ContentBundle {
@@ -110,6 +118,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public func family(_ id: FamilyID) -> Family? { families.first { $0.id == id } }
     public func evolution(_ id: EvolutionID) -> Evolution? { evolutions.first { $0.id == id } }
     public func item(_ id: ItemID) -> Item? { items.first { $0.id == id } }
+    public func exercise(_ id: ExerciseID) -> ExerciseDefinition? { exerciseDefinitions.first { $0.id == id } }
     public var defaultBackdrop: Backdrop? { backdrops.first { $0.isDefault == true } ?? backdrops.first }
 
     /// Level → reward IDs, the shape `EvaluationContext` wants.
@@ -139,6 +148,8 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         unique(families.map(\.id), "family"); unique(activityTypes.map(\.id), "activity_type")
         unique(attributes.map(\.id), "attribute"); unique(evolutions.map(\.id), "evolution")
         unique(items.map(\.id), "item"); unique(rewards.map(\.id), "reward"); unique(backdrops.map(\.id), "backdrop")
+        unique(exerciseDefinitions.map(\.id), "exercise")
+        if activityType("weightlifting") == nil || activityType("calisthenics") == nil { problems.append("strength logger needs weightlifting and calisthenics activity types") }
         for a in activityTypes where !familyIDs.contains(a.familyID) { problems.append("activity \(a.id) → unknown family \(a.familyID)") }
         for r in rewards {
             for g in r.grants {
