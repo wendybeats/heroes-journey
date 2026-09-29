@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.09.29-1",
+  "content_version": "2026.09.29-2",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -558,5 +558,30 @@
       "default_set_type": "bodyweight",
       "muscle_group": "legs"
     }
-  ]
+  ],
+  "health_workout_mapping": {
+    "notes": "HealthKit HKWorkoutActivityType names (as the adapter stringifies them) to activity type IDs. Unlisted kinds import as history only, mapped to the fallback type.",
+    "fallback_activity_type": "walking",
+    "map": {
+      "running": "running",
+      "walking": "walking",
+      "hiking": "walking",
+      "cycling": "cycling",
+      "swimming": "swimming",
+      "tennis": "tennis",
+      "boxing": "boxing",
+      "kickboxing": "kickboxing",
+      "martialArts": "mma",
+      "wrestling": "bjj",
+      "traditionalStrengthTraining": "weightlifting",
+      "functionalStrengthTraining": "weightlifting",
+      "coreTraining": "calisthenics",
+      "crossTraining": "calisthenics",
+      "yoga": "yoga",
+      "flexibility": "stretching",
+      "cooldown": "stretching",
+      "pilates": "yoga",
+      "mindAndBody": "meditation"
+    }
+  }
 }

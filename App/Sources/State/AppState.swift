@@ -21,10 +21,14 @@ final class AppState {
         var workouts: [Workout] = []
         var activeWorkout: Workout? = nil
         var preferredUnit: WeightUnit = .kg
+        var healthSync: HealthSyncState = HealthSyncState()
+        var corrections: [ActivityCorrection] = []
+        var importLog: [String: ImportDisposition] = [:]
 
-        init(userID: UserID, recipe: AvatarRecipe?, events: [ActivityEvent], ledger: ProgressionLedger, outbox: Outbox, workouts: [Workout], activeWorkout: Workout?, preferredUnit: WeightUnit) {
+        init(userID: UserID, recipe: AvatarRecipe?, events: [ActivityEvent], ledger: ProgressionLedger, outbox: Outbox, workouts: [Workout], activeWorkout: Workout?, preferredUnit: WeightUnit, healthSync: HealthSyncState, corrections: [ActivityCorrection], importLog: [String: ImportDisposition]) {
             self.userID = userID; self.recipe = recipe; self.events = events; self.ledger = ledger; self.outbox = outbox
             self.workouts = workouts; self.activeWorkout = activeWorkout; self.preferredUnit = preferredUnit
+            self.healthSync = healthSync; self.corrections = corrections; self.importLog = importLog
         }
         // v2 archives lack the workout fields; read them as empty rather than discarding the user's data.
         init(from decoder: Decoder) throws {
@@ -38,6 +42,9 @@ final class AppState {
             workouts = try c.decodeIfPresent([Workout].self, forKey: .workouts) ?? []
             activeWorkout = try c.decodeIfPresent(Workout.self, forKey: .activeWorkout)
             preferredUnit = try c.decodeIfPresent(WeightUnit.self, forKey: .preferredUnit) ?? .kg
+            healthSync = try c.decodeIfPresent(HealthSyncState.self, forKey: .healthSync) ?? HealthSyncState()
+            corrections = try c.decodeIfPresent([ActivityCorrection].self, forKey: .corrections) ?? []
+            importLog = try c.decodeIfPresent([String: ImportDisposition].self, forKey: .importLog) ?? [:]
         }
     }
 
@@ -54,6 +61,11 @@ final class AppState {
     private(set) var workouts: [Workout]
     var activeWorkout: Workout? { didSet { save() } }
     var preferredUnit: WeightUnit { didSet { save() } }
+    private(set) var healthSync: HealthSyncState
+    private(set) var corrections: [ActivityCorrection]
+    private(set) var importLog: [String: ImportDisposition]
+    private let importer = HealthKitImporter()
+    var healthAvailable: Bool { HealthKitImporter.isAvailable }
     /// The most recent confirmed receipt, for the reward moment (doc 02).
     private(set) var lastReceipt: ProgressionReceipt?
     /// PRs from the workout whose receipt is showing, if any.
@@ -64,13 +76,23 @@ final class AppState {
     var snapshot: ProgressSnapshot { ledger.snapshot(ruleset: ruleset) }
     var evolution: ContentBundle.Evolution? { bundle.evolution(forLevel: snapshot.level) }
     var pendingCount: Int { outbox.pending.count }
-    var todayEvents: [ActivityEvent] { events.filter { Calendar.current.isDateInToday($0.startedAt) }.sorted { $0.startedAt > $1.startedAt } }
+    /// Facts minus invalidated ones (doc 15 §1: the timeline is a projection over corrections).
+    var visibleEvents: [ActivityEvent] {
+        let hidden = Set(corrections.map(\.activityEventID))
+        return events.filter { !hidden.contains($0.id) }
+    }
+    var todayEvents: [ActivityEvent] { visibleEvents.filter { Calendar.current.isDateInToday($0.startedAt) }.sorted { $0.startedAt > $1.startedAt } }
+    /// How an imported event was treated, for badges in the timeline.
+    func importDisposition(for event: ActivityEvent) -> ImportDisposition? {
+        guard let ext = event.sourceExternalID, event.source == .healthImport else { return nil }
+        return importLog[ext]
+    }
 
     /// Events in the current calendar week (locale-aware week start). Facts only, no game math.
     var weekEvents: [ActivityEvent] {
         let cal = Calendar.current
         guard let interval = cal.dateInterval(of: .weekOfYear, for: Date()) else { return [] }
-        return events.filter { interval.contains($0.startedAt) }
+        return visibleEvents.filter { interval.contains($0.startedAt) }
     }
     var weekMinutes: Int { weekEvents.reduce(0) { $0 + $1.durationSeconds / 60 } }
     var weekSessions: Int { weekEvents.count }
@@ -98,6 +120,9 @@ final class AppState {
         self.workouts = archive?.workouts ?? []
         self.activeWorkout = archive?.activeWorkout
         self.preferredUnit = archive?.preferredUnit ?? .kg
+        self.healthSync = archive?.healthSync ?? HealthSyncState()
+        self.corrections = archive?.corrections ?? []
+        self.importLog = archive?.importLog ?? [:]
         let authority = ProgressionAuthority(ruleset: ruleset, levelRewards: bundle.levelRewards, calendar: .current)
         self.service = LocalAuthorityProgressionService(authority: authority, owner: user, ledger: ledger, events: events)
     }
@@ -214,6 +239,61 @@ final class AppState {
 
     func workout(for eventID: ActivityEventID) -> Workout? { workouts.first { $0.activityEventID == eventID } }
 
+    // MARK: Apple Health (doc 08)
+
+    func connectHealth() async {
+        guard healthAvailable else { healthSync.authorization = .unavailable; save(); return }
+        do {
+            try await importer.requestAuthorization()
+            healthSync.authorization = .requested   // the prompt finished; read access is not knowable
+            healthSync.lastError = nil
+        } catch {
+            healthSync.lastError = String(describing: error)
+        }
+        save()
+        await syncHealth()
+    }
+
+    /// Incremental import. Order matters: store facts, save, then advance the anchor, then submit.
+    func syncHealth() async {
+        guard healthSync.authorization == .requested else { return }
+        do {
+            let page = try await importer.fetchWorkouts(after: healthSync.anchor)
+            let now = Date()
+            var importedCount = 0
+            for item in page.imported {
+                let outcome = ImportReconciler.reconcile(
+                    item, userID: userID, existing: events,
+                    mapping: bundle.healthWorkoutMapping.map,
+                    familyOf: { self.bundle.activityType($0)?.familyID },
+                    fallbackTypeID: bundle.healthWorkoutMapping.fallbackActivityType,
+                    fallbackFamilyID: bundle.activityType(bundle.healthWorkoutMapping.fallbackActivityType)?.familyID ?? "cardio",
+                    now: now)
+                importLog[item.externalID] = outcome.disposition
+                guard let event = outcome.event else { continue }
+                events.append(event); importedCount += 1
+                if case .imported = outcome.disposition {
+                    outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
+                }
+            }
+            for ext in page.deletedExternalIDs {
+                for e in events where e.sourceExternalID == ext && e.source == .healthImport && !corrections.contains(where: { $0.activityEventID == e.id }) {
+                    corrections.append(ActivityCorrection(activityEventID: e.id, kind: .sourceDeleted, createdAt: now))
+                }
+            }
+            save()                                  // facts are durable before the anchor moves
+            healthSync.anchor = page.anchor
+            healthSync.lastSyncAt = now
+            healthSync.lastImportedCount = importedCount
+            healthSync.lastError = nil
+            save()
+            await drain(showReward: importedCount > 0)
+        } catch {
+            healthSync.lastError = String(describing: error)
+            save()
+        }
+    }
+
     // MARK: persistence
 
     private static var archiveURL: URL {
@@ -223,7 +303,7 @@ final class AppState {
     }
 
     private func save() {
-        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit)
+        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit, healthSync: healthSync, corrections: corrections, importLog: importLog)
         do {
             let data = try JSONEncoder().encode(archive)
             try data.write(to: Self.archiveURL, options: .atomic)
@@ -240,7 +320,7 @@ final class AppState {
             precondition(bundle.integrityProblems(against: ruleset).isEmpty, "content bundle failed integrity: \(bundle.integrityProblems(against: ruleset))")
             let archive = (try? Data(contentsOf: archiveURL)).flatMap { try? JSONDecoder().decode(Archive.self, from: $0) }
             let state = AppState(bundle: bundle, ruleset: ruleset, tokens: tokens, archive: archive)
-            Task { await state.drain() }  // anything left pending from a previous run
+            Task { await state.syncHealth(); await state.drain() }  // catch up, then submit anything pending
             return state
         } catch {
             fatalError("content bundle missing or invalid: \(error)")

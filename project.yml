@@ -54,10 +54,17 @@ targets:
         embed: true
       - target: HeroContent
         embed: true
+    entitlements:
+      path: App/Resources/HeroesJourney.entitlements
+      properties:
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.access: []
     info:
       path: App/Resources/Info.plist
       properties:
         CFBundleDisplayName: Heroes Journey
+        NSHealthShareUsageDescription: Heroes Journey reads your workouts from Apple Health so they count toward your character without logging them twice. Health data is never used for advertising or sold.
+        NSHealthUpdateUsageDescription: Heroes Journey does not write to Apple Health.
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UIUserInterfaceStyle: Dark

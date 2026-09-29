@@ -20,6 +20,7 @@ struct HomeView: View {
     @State private var levelUpStart: Date?
     @State private var levelFlash = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         let snapshot = shown ?? state.snapshot
@@ -68,6 +69,7 @@ struct HomeView: View {
             .animation(.easeInOut(duration: 0.25), value: state.lastReceipt == nil)
         }
         .onAppear { if shown == nil { shown = state.snapshot } }
+        .onChange(of: scenePhase) { _, phase in if phase == .active { Task { await state.syncHealth() } } }
         .onChange(of: state.snapshot) { _, new in
             // Sync silently unless a reward is showing (then wait for dismissal).
             if state.lastReceipt == nil { shown = new }
@@ -178,7 +180,11 @@ struct HomeView: View {
 
     private var todayCard: some View {
         VStack(alignment: .leading, spacing: NeoTokyo.Spacing.sm) {
-            Eyebrow(text: "Today")
+            HStack {
+                Eyebrow(text: "Today")
+                Spacer()
+                healthStatus
+            }
             if state.todayEvents.isEmpty {
                 Text("Nothing logged yet.").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.muted)
             } else {
@@ -189,6 +195,7 @@ struct HomeView: View {
                     HStack {
                         Text(state.bundle.activityType(event.activityTypeID)?.displayName ?? event.activityTypeID.rawValue)
                             .font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
+                        ImportBadge(disposition: state.importDisposition(for: event))
                         Spacer()
                         Text("\(event.durationSeconds / 60) min").font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Text.secondary)
                     }
@@ -197,6 +204,23 @@ struct HomeView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .card()
+    }
+
+    @ViewBuilder
+    private var healthStatus: some View {
+        switch state.healthSync.authorization {
+        case .notRequested where state.healthAvailable:
+            Button("Connect Apple Health") { Task { await state.connectHealth() } }
+                .font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.fallback)
+        case .requested:
+            if let at = state.healthSync.lastSyncAt {
+                Text("Health · \(at.formatted(.relative(presentation: .named)))").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
+            } else if let err = state.healthSync.lastError {
+                Text("Health · \(err.prefix(40))").font(HeroFont.caption).foregroundStyle(NeoTokyo.Hierarchy.destructive)
+            }
+        default:
+            EmptyView()
+        }
     }
 
     private func levelProgress(_ snapshot: ProgressSnapshot) -> Double {

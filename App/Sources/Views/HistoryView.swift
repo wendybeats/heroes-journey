@@ -7,7 +7,7 @@ struct HistoryView: View {
     @Environment(\.dismiss) private var dismiss
 
     private var grouped: [(Date, [ActivityEvent])] {
-        let byDay = Dictionary(grouping: state.events) { Calendar.current.startOfDay(for: $0.startedAt) }
+        let byDay = Dictionary(grouping: state.visibleEvents) { Calendar.current.startOfDay(for: $0.startedAt) }
         return byDay.keys.sorted(by: >).map { ($0, byDay[$0]!.sorted { $0.startedAt > $1.startedAt }) }
     }
 
@@ -25,7 +25,7 @@ struct HistoryView: View {
     var body: some View {
         NavigationStack {
             List {
-                if state.events.isEmpty {
+                if state.visibleEvents.isEmpty {
                     Text("No activity yet.").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.muted).listRowBackground(Color.clear)
                 }
                 ForEach(grouped, id: \.0) { day, events in
@@ -33,8 +33,11 @@ struct HistoryView: View {
                         ForEach(events, id: \.id) { event in
                             HStack {
                                 VStack(alignment: .leading) {
-                                    Text(state.bundle.activityType(event.activityTypeID)?.displayName ?? event.activityTypeID.rawValue)
-                                        .font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
+                                    HStack(spacing: 6) {
+                                        Text(state.bundle.activityType(event.activityTypeID)?.displayName ?? event.activityTypeID.rawValue)
+                                            .font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
+                                        ImportBadge(disposition: state.importDisposition(for: event))
+                                    }
                                     Text(subtitle(event))
                                         .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
                                 }

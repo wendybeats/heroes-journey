@@ -76,6 +76,11 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let muscleGroup: String
         enum CodingKeys: String, CodingKey { case id, displayName = "display_name", defaultSetType = "default_set_type", muscleGroup = "muscle_group" }
     }
+    public struct HealthWorkoutMapping: Codable, Sendable, Equatable {
+        public let fallbackActivityType: ActivityTypeID
+        public let map: [String: ActivityTypeID]
+        enum CodingKeys: String, CodingKey { case fallbackActivityType = "fallback_activity_type", map }
+    }
     public struct AvatarOptions: Codable, Sendable, Equatable {
         public let baseBodies: [String]
         public let skinPalettes: [String]
@@ -101,11 +106,12 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public let backdrops: [Backdrop]
     public let avatarOptions: AvatarOptions
     public let exerciseDefinitions: [ExerciseDefinition]
+    public let healthWorkoutMapping: HealthWorkoutMapping
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "schema_version", contentVersion = "content_version"
         case families, activityTypes = "activity_types", attributes, evolutions, items, rewards, backdrops
-        case avatarOptions = "avatar_options", exerciseDefinitions = "exercise_definitions"
+        case avatarOptions = "avatar_options", exerciseDefinitions = "exercise_definitions", healthWorkoutMapping = "health_workout_mapping"
     }
 
     public static func decode(_ data: Data) throws -> ContentBundle {
@@ -149,6 +155,9 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         unique(attributes.map(\.id), "attribute"); unique(evolutions.map(\.id), "evolution")
         unique(items.map(\.id), "item"); unique(rewards.map(\.id), "reward"); unique(backdrops.map(\.id), "backdrop")
         unique(exerciseDefinitions.map(\.id), "exercise")
+        let typeIDs = Set(activityTypes.map(\.id))
+        for (kind, id) in healthWorkoutMapping.map where !typeIDs.contains(id) { problems.append("health mapping \(kind) → unknown activity \(id)") }
+        if !typeIDs.contains(healthWorkoutMapping.fallbackActivityType) { problems.append("health mapping fallback is unknown") }
         if activityType("weightlifting") == nil || activityType("calisthenics") == nil { problems.append("strength logger needs weightlifting and calisthenics activity types") }
         for a in activityTypes where !familyIDs.contains(a.familyID) { problems.append("activity \(a.id) → unknown family \(a.familyID)") }
         for r in rewards {

@@ -74,6 +74,18 @@ Doc 02's strength flow, on the existing boundary:
 - UI: Start/Resume workout on Home, per-exercise cards with previous performance prefilled from the last finished workout, add/remove sets, kg/lb toggle, discard with confirmation, finish. PRs appear in the reward moment and in history rows.
 - Deferred, as doc 01 allows: templates and the rest timer.
 
+## Increment 5, 2026-09-29: Apple Health import
+
+Doc 08 as an adapter, doc 15's corrections applied:
+
+- `ImportedActivity` is the platform-neutral record; `HealthKitImporter` (app target only) reads workout sessions with an anchored query and stringifies the activity type. The anchor is persisted only after the imported facts are saved, so a crash cannot lose a workout.
+- Authorization state is `notRequested` / `requested` / `unavailable`. "Requested" means the prompt finished; read access is never inferred, and an empty store is never shown as denied.
+- `ImportReconciler` (pure, tested) separates the three duplications: same external ID is a duplicate; an import overlapping an in-app structured workout by 50 % or more is recorded as history only with the in-app session authoritative; unmapped kinds are history only via a fallback type. Manual logs do not suppress imports. Steps are not read yet (doc 17: step XP undecided).
+- The mapping from HealthKit workout types to activity IDs is content (`health_workout_mapping` in the bundle) and checked by bundle integrity.
+- Deleted source objects append an `ActivityCorrection`; the timeline is a projection that hides them, the fact and any granted progression remain (docs 11, 15 §1).
+- Sync runs on launch and whenever the app returns to the foreground. Timeline rows carry a provenance badge.
+- HealthKit entitlement and usage strings are in `project.yml`. Automatic data needs a real device; the simulator's Health app accepts manually added workouts.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

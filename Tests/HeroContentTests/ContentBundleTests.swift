@@ -23,6 +23,8 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(bundle.exerciseDefinitions.count, 20)
         XCTAssertEqual(bundle.exercise("bench_press")?.defaultSetType, .weighted)
         XCTAssertEqual(bundle.exercise("plank")?.defaultSetType, .timed)
+        XCTAssertEqual(bundle.healthWorkoutMapping.map["running"], "running")
+        XCTAssertEqual(bundle.healthWorkoutMapping.map["traditionalStrengthTraining"], "weightlifting")
     }
 
     func testDevRulesetDecodesAndCoversEveryFamily() throws {
