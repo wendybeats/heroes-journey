@@ -72,39 +72,65 @@ struct SceneAnchorsKey: PreferenceKey {
     }
 }
 
-/// Fullscreen level-up: 0–1.3 s aura from the character to the screen edges, fading as it grows;
-/// 0.9–1.9 s pixel-star burst from the level numeral. The counter itself is animated by Home at 1.5 s.
+/// Fullscreen level-up, Fire Emblem style: the aura pulses out from the character (0–0.25 s),
+/// tucks in for a beat (0.25–0.4 s), then snaps to the screen edges and fades (0.4–0.85 s);
+/// 0.7–1.6 s pixel-star burst from the level numeral. Home animates the counter at 1.1 s.
 struct LevelUpOverlay: View {
     let start: Date
     let characterCenter: CGPoint
     let badgeCenter: CGPoint
-    static let duration: TimeInterval = 2.0
+    static let counterDelay: TimeInterval = 1.1
 
-    private static let burst: [(angle: Double, speed: CGFloat, size: Int, gold: Bool)] = (0..<22).map { i in
-        (Double(i) / 22 * .pi * 2 + Double(i % 2) * 0.15, CGFloat(60 + (i * 37) % 50), 1 + i % 3, i % 4 != 0)
-    }
+    struct Particle { let angle: Double; let speed: Double; let size: Int; let gold: Bool }
+    private static let burst: [Particle] = {
+        var out: [Particle] = []
+        for i in 0..<22 {
+            let base: Double = Double(i) / 22.0 * Double.pi * 2.0
+            let jitter: Double = Double(i % 2) * 0.15
+            let speed: Double = Double(60 + (i * 37) % 50)
+            out.append(Particle(angle: base + jitter, speed: speed, size: 1 + i % 3, gold: i % 4 != 0))
+        }
+        return out
+    }()
     private static func easeOut(_ u: Double) -> Double { 1 - pow(1 - u, 3) }
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 60)) { timeline in
             Canvas { context, size in
                 let t = timeline.date.timeIntervalSince(start)
-                if t < 1.3 {
-                    let u = t / 1.3
-                    let radius = 40 + Self.easeOut(u) * hypot(size.width, size.height) * 0.6
+                if t < 0.85 {
+                    let edge: Double = hypot(size.width, size.height) * 0.6
+                    var radius: Double = 40
+                    var alpha: Double = 0.35
+                    if t < 0.25 {
+                        let u: Double = t / 0.25
+                        radius = 40 + Self.easeOut(u) * 70
+                    } else if t < 0.4 {
+                        let u: Double = (t - 0.25) / 0.15
+                        radius = 110 - u * u * 20
+                        alpha = 0.35 + 0.15 * u
+                    } else {
+                        let u: Double = (t - 0.4) / 0.45
+                        let e: Double = 1 - pow(2, -10 * u)
+                        radius = 90 + e * (edge - 90)
+                        alpha = 0.5 * (1 - u)
+                    }
                     let gradient = Gradient(stops: [
-                        .init(color: NeoTokyo.Hierarchy.primary.opacity(0.35 * (1 - u)), location: 0),
-                        .init(color: NeoTokyo.Hierarchy.primary.opacity(0.18 * (1 - u)), location: 0.6),
+                        .init(color: NeoTokyo.Hierarchy.primary.opacity(alpha), location: 0),
+                        .init(color: NeoTokyo.Hierarchy.primary.opacity(alpha * 0.5), location: 0.7),
                         .init(color: NeoTokyo.Hierarchy.primary.opacity(0), location: 1),
                     ])
                     context.fill(Path(CGRect(origin: .zero, size: size)),
                                  with: .radialGradient(gradient, center: characterCenter, startRadius: 0, endRadius: radius))
                 }
-                if t >= 0.9 && t < 1.9 {
-                    let u = (t - 0.9) / 1.0, e = Self.easeOut(u)
+                if t >= 0.7 && t < 1.6 {
+                    let u: Double = (t - 0.7) / 0.9
+                    let e: Double = Self.easeOut(u)
                     for p in Self.burst {
-                        let d = p.speed * e
-                        let point = CGPoint(x: badgeCenter.x + cos(p.angle) * d, y: badgeCenter.y + sin(p.angle) * d * 0.85)
+                        let d: Double = p.speed * e
+                        let px: Double = badgeCenter.x + cos(p.angle) * d
+                        let py: Double = badgeCenter.y + sin(p.angle) * d * 0.85
+                        let point = CGPoint(x: px, y: py)
                         PixelStar.draw(in: &context, center: point, size: p.size, cell: 3,
                                        color: p.gold ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.primary, opacity: 1 - u)
                     }

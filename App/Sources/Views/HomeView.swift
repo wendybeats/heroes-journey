@@ -82,7 +82,7 @@ struct HomeView: View {
                 // Doc 02 reward moment, extended (owner, 2026-09-29): aura, star burst, then the counter.
                 levelUpStart = Date()
                 Task {
-                    try? await Task.sleep(for: .milliseconds(1500))
+                    try? await Task.sleep(for: .milliseconds(Int(LevelUpOverlay.counterDelay * 1000)))
                     levelFlash = true
                     withAnimation(.easeOut(duration: 1.0)) { shown = new }
                     try? await Task.sleep(for: .milliseconds(1000))
