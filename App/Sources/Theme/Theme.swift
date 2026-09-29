@@ -88,7 +88,7 @@ struct StatNumber: View {
 }
 
 /// Text whose integer value interpolates under animation (a count-up, not a digit flip).
-struct CountingText: View, Animatable {
+struct CountingText: View, @preconcurrency Animatable {
     var value: Double
     var font: Font
     var color: Color
