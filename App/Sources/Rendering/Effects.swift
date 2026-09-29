@@ -19,13 +19,11 @@ enum PixelStar {
     }
 }
 
-/// Calm twinkle around the level numeral: eight stars on fixed orbits, each on its own phase.
+/// Calm twinkle around the level numeral: three stars on a fixed orbit centred on the numeral, each on its own phase.
 struct PixelStars: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// (dx, dy, phase) relative to the numeral's centre.
-    private static let orbit: [(CGFloat, CGFloat, Double)] = [
-        (-24, -30, 0), (36, -38, 1.1), (52, -6, 2.3), (46, 22, 3.1), (-30, 18, 4.2), (-14, -52, 5.0), (62, -26, 0.7), (-38, -6, 2.9),
-    ]
+    private static let orbit: [(CGFloat, CGFloat, Double)] = [(-26, -22, 0), (28, -26, 2.1), (24, 16, 4.2)]
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30, paused: reduceMotion)) { timeline in
@@ -33,11 +31,11 @@ struct PixelStars: View {
                 let t = timeline.date.timeIntervalSinceReferenceDate
                 let origin = CGPoint(x: size.width / 2, y: size.height / 2)
                 for (i, (dx, dy, phase)) in Self.orbit.enumerated() {
-                    let tw = max(0, sin(t * 1.6 + phase))
-                    let opacity = reduceMotion ? 0.5 : 0.25 + 0.75 * tw * tw
+                    let tw = max(0, sin(t * 1.4 + phase))
+                    let opacity = reduceMotion ? 0.5 : 0.2 + 0.8 * tw * tw
                     let starSize = reduceMotion ? 1 : 1 + Int((tw * 1.3).rounded())
                     PixelStar.draw(in: &context, center: CGPoint(x: origin.x + dx, y: origin.y + dy), size: starSize, cell: 3,
-                                   color: i % 3 == 0 ? NeoTokyo.Text.primary : NeoTokyo.Hierarchy.primary, opacity: opacity)
+                                   color: i == 1 ? NeoTokyo.Text.primary : NeoTokyo.Hierarchy.primary, opacity: opacity)
                 }
             }
         }
@@ -60,7 +58,7 @@ struct LevelBadge: View {
                 .foregroundStyle(flash ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.primary)
                 .contentTransition(.numericText(value: Double(level)))
                 .shadow(color: NeoTokyo.Hierarchy.primary.opacity(flash ? 0.8 : 0), radius: 14)
-                .overlay { PixelStars().frame(width: 160, height: 140) }
+                .overlay { PixelStars().frame(width: 120, height: 110) }  // centred on the numeral
             Text(subtitle).font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
         }
     }
