@@ -37,7 +37,7 @@ def check(label, fg, bg, minimum):
     fails += 0 if ok else 1
     print(f"{'PASS' if ok else 'FAIL'}  {r:5.2f} >= {minimum:<4}  {label}")
 
-surfaces = {k: v["hex"] for k, v in TOK["surface"].items() if k != "scene_fade"}
+surfaces = {k: v["hex"] for k, v in TOK["surface"].items() if k not in ("scene_fade", "scrim")}
 for sk, sv in surfaces.items():
     check(f"text.primary on surface.{sk}", TOK["text"]["primary"]["hex"], sv, 7.0)
     check(f"text.secondary on surface.{sk}", TOK["text"]["secondary"]["hex"], sv, 4.5)

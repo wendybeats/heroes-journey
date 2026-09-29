@@ -52,11 +52,12 @@ def main(folder, sheet=None):
             if im.size != (W, H): fail(f"{rel}: size {im.size}, need {(W, H)}"); continue
             alpha = im.getchannel("A")
             avals = {a for _, a in alpha.getcolors(W * H) or []}
-            if not avals <= {0, 255}: fail(f"{rel}: non-binary alpha values {sorted(avals - {0,255})[:5]}")
+            if m["kind"] != "backdrop" and not avals <= {0, 255}: fail(f"{rel}: non-binary alpha values {sorted(avals - {0,255})[:5]}")
             pixels = im.get_flattened_data() if hasattr(im, "get_flattened_data") else im.getdata()
-            opaque = [(r, g, b) for (r, g, b, a) in pixels if a == 255]
+            threshold = 0 if m["kind"] == "backdrop" else 254   # backdrops may carry soft alpha
+            opaque = [(r, g, b) for (r, g, b, a) in pixels if a > threshold]
             if not opaque: fail(f"{rel}: fully transparent"); continue
-            colors = {f"#{r:02X}{g:02X}{b:02X}" for r, g, b in opaque}
+            colors = {f"#{r:02X}{g:02X}{b:02X}" for r, g, b in opaque} if m["kind"] != "backdrop" else set()
             seen_colors |= colors
             if m["kind"] != "backdrop":
                 # pivot row must touch something: feet stand on the ground line (allow ±2 rows)
@@ -66,7 +67,8 @@ def main(folder, sheet=None):
             frames_for_sheet.append(im)
         ok(f"{anim}: {len(spec['frames'])} frames, {spec['frame_duration_ms']} ms, loop={spec['loop']}")
 
-    if len(seen_colors) > max_colors: fail(f"{len(seen_colors)} opaque colors > max_palette_colors {max_colors}")
+    if m["kind"] == "backdrop": ok("backdrop: palette cap and binary alpha not enforced (flattened art with soft dithered edges)")
+    elif len(seen_colors) > max_colors: fail(f"{len(seen_colors)} opaque colors > max_palette_colors {max_colors}")
     else: ok(f"{len(seen_colors)} opaque colors (max {max_colors})")
     missing = role_colors - seen_colors
     if missing: fail(f"palette_roles list colors never used in frames: {sorted(missing)}")

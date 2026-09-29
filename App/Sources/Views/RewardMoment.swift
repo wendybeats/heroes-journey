@@ -1,47 +1,63 @@
 import SwiftUI
 import HeroDomain
 
-/// Doc 02 "reward moment": shown only from a confirmed receipt. XP, attributes, unlock if any, 2–4 s.
+/// Doc 02 "reward moment", as a modal: dimmed scrim, centred glass card, high contrast.
+/// Shown only from a confirmed receipt. Tap anywhere or "Continue" to dismiss; auto-dismisses.
 struct RewardMoment: View {
     @Environment(AppState.self) private var state
     let receipt: ProgressionReceipt
 
     var body: some View {
-        VStack(spacing: NeoTokyo.Spacing.md) {
-            Text(receipt.leveledUp ? "Level \(receipt.levelAfter)" : "+\(receipt.xp) XP")
-                .font(HeroFont.statXL)
-                .foregroundStyle(NeoTokyo.Hierarchy.primary)
-            if receipt.leveledUp {
-                Text("+\(receipt.xp) XP").font(HeroFont.statMD).foregroundStyle(NeoTokyo.Text.primary)
-            }
-            HStack(spacing: NeoTokyo.Spacing.lg) {
-                ForEach(receipt.attributes.sorted { $0.key.rawValue < $1.key.rawValue }, id: \.key) { pair in
-                    Text("+\(pair.value) \(state.bundle.attributes.first { $0.id == pair.key }?.displayName ?? pair.key.rawValue)")
-                        .font(HeroFont.captionNumber)
-                        .foregroundStyle(NeoTokyo.Attribute.color(for: pair.key.rawValue))
+        ZStack {
+            NeoTokyo.Surface.scrim.opacity(0.7).ignoresSafeArea()
+                .onTapGesture { state.dismissReward() }
+            VStack(spacing: NeoTokyo.Spacing.md) {
+                Eyebrow(text: receipt.leveledUp ? "Level up" : "Logged")
+                Text(receipt.leveledUp ? "Level \(receipt.levelAfter)" : "+\(receipt.xp) XP")
+                    .font(HeroFont.statXL)
+                    .foregroundStyle(NeoTokyo.Hierarchy.primary)
+                if receipt.leveledUp {
+                    Text("+\(receipt.xp) XP").font(HeroFont.statMD).foregroundStyle(NeoTokyo.Text.primary)
                 }
+                if !receipt.attributes.isEmpty {
+                    HStack(spacing: NeoTokyo.Spacing.lg) {
+                        ForEach(receipt.attributes.sorted { $0.key.rawValue < $1.key.rawValue }, id: \.key) { pair in
+                            VStack(spacing: 2) {
+                                Text("+\(pair.value)").font(HeroFont.statSM).foregroundStyle(NeoTokyo.Attribute.color(for: pair.key.rawValue))
+                                Text(state.bundle.attributes.first { $0.id == pair.key }?.displayName ?? pair.key.rawValue)
+                                    .font(HeroFont.label).foregroundStyle(NeoTokyo.Text.secondary)
+                            }
+                        }
+                    }
+                    .padding(.top, NeoTokyo.Spacing.xs)
+                }
+                ForEach(state.lastPersonalRecords.filter { !$0.isBaseline }, id: \.setID) { pr in
+                    HStack(spacing: 6) {
+                        Image(systemName: "trophy.fill").font(HeroFont.caption)
+                        Text("\(state.bundle.exercise(pr.exerciseID)?.displayName ?? pr.exerciseID.rawValue) · \(prLabel(pr))").font(HeroFont.captionMedium)
+                    }
+                    .foregroundStyle(NeoTokyo.Hierarchy.primary)
+                }
+                if !receipt.rewardsGranted.isEmpty {
+                    Text("Unlocked: \(receipt.rewardsGranted.map(\.rawValue).joined(separator: ", "))")
+                        .font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.primary)
+                }
+                if receipt.xp == 0 {
+                    Text("Daily credit for this family is used up. It still counts in your history.")
+                        .font(HeroFont.caption).multilineTextAlignment(.center).foregroundStyle(NeoTokyo.Text.secondary)
+                }
+                Button("Continue") { state.dismissReward() }
+                    .buttonStyle(PrimaryButtonStyle())
+                    .padding(.top, NeoTokyo.Spacing.sm)
             }
-            ForEach(state.lastPersonalRecords.filter { !$0.isBaseline }, id: \.setID) { pr in
-                Text("PR · \(state.bundle.exercise(pr.exerciseID)?.displayName ?? pr.exerciseID.rawValue) · \(prLabel(pr))")
-                    .font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.primary)
-            }
-            if !receipt.rewardsGranted.isEmpty {
-                Text("Unlocked: \(receipt.rewardsGranted.map(\.rawValue).joined(separator: ", "))")
-                    .font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.primary)
-            }
-            if receipt.xp == 0 {
-                Text("Logged. Daily credit for this family is used up; it still counts in your history.")
-                    .font(HeroFont.caption).multilineTextAlignment(.center).foregroundStyle(NeoTokyo.Text.secondary)
-            }
+            .padding(NeoTokyo.Spacing.xl)
+            .frame(maxWidth: 340)
+            .glass(tint: NeoTokyo.Surface.overlay)
+            .padding(NeoTokyo.Spacing.xl)
+            .transition(.scale(scale: 0.92).combined(with: .opacity))
         }
-        .padding(NeoTokyo.Spacing.xl)
-        .background(NeoTokyo.Surface.overlay, in: RoundedRectangle(cornerRadius: NeoTokyo.Radius.lg, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: NeoTokyo.Radius.lg, style: .continuous).strokeBorder(NeoTokyo.Hierarchy.primaryDim, lineWidth: 1))
-        .padding(NeoTokyo.Spacing.xl)
-        .transition(.scale.combined(with: .opacity))
-        .onTapGesture { state.dismissReward() }
         .task {
-            try? await Task.sleep(for: .milliseconds(Int(NeoTokyo.Motion.rewardMs) + (state.lastPersonalRecords.isEmpty ? 0 : 1500)))
+            try? await Task.sleep(for: .milliseconds(4000 + (state.lastPersonalRecords.isEmpty ? 0 : 1500)))
             state.dismissReward()
         }
     }

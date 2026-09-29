@@ -17,7 +17,7 @@ struct OnboardingView: View {
         ScrollView {
             VStack(spacing: NeoTokyo.Spacing.xl) {
                 ZStack {
-                    SceneBackdrop(shades: NeoTokyo.Backdrop.rainDistrict)
+                    BackdropImage(assetSetID: "backdrop.rain_district")
                     LayeredCharacterView(recipe: draft, scale: 2)
                         .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 18)
                         .padding(.vertical, NeoTokyo.Spacing.lg)

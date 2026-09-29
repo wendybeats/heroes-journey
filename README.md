@@ -31,7 +31,7 @@ python3 Tools/validate_sprites.py assets/sprites/hero.body.ev1/rev1 --sheet /tmp
 xcodegen generate && open HeroesJourney.xcodeproj
 ```
 
-The generated `.xcodeproj` is disposable; edit `project.yml`.
+The generated `.xcodeproj` is disposable; edit `project.yml`. HeroDomain and HeroContent build as framework targets inside the project (no package resolution); if Xcode ever shows "Missing package product", delete `.build`, the `.xcodeproj` and DerivedData, then regenerate.
 
 ## Adding art
 

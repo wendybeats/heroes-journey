@@ -26,7 +26,7 @@ A fitness-first RPG whose progression is driven by real-life activity. The track
 
 ## Layout
 - `Sources/HeroDomain` — pure domain (Foundation only). `Sources/HeroContent` — bundle/manifest/token decoding.
-- `App/` — SwiftUI app built with XcodeGen (`project.yml`).
+- `App/` — SwiftUI app built with XcodeGen (`project.yml`); HeroDomain/HeroContent are framework targets there and SwiftPM targets in `Package.swift` (same sources).
 - `Content/v1/` — versioned content bundle, dev ruleset, design tokens.
 - `assets/sprites/` — sprite storage framework. `assets/references/` — art references, not shipped.
 - `Tools/` — Python gates and generators. `docs/` — blueprint and decisions.

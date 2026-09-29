@@ -9,9 +9,15 @@ struct HomeView: View {
     @State private var showLog = false
     @State private var showHistory = false
     @State private var showWorkout = false
+    /// What the numbers currently show. Held at the pre-receipt values while the reward modal is
+    /// up, then animated to the real snapshot when it closes (doc 02: reward, then visible change).
+    @State private var shown: ProgressSnapshot?
+    @State private var deltas: [AttributeID: Int] = [:]
+    @State private var xpDelta = 0
+    @State private var deltaToken = 0
 
     var body: some View {
-        let snapshot = state.snapshot
+        let snapshot = shown ?? state.snapshot
         NavigationStack {
             ScrollView {
                 VStack(spacing: NeoTokyo.Spacing.lg) {
@@ -46,6 +52,20 @@ struct HomeView: View {
             .fullScreenCover(isPresented: $showWorkout) { WorkoutView() }
             .sheet(isPresented: $showHistory) { HistoryView() }
             .overlay { if let receipt = state.lastReceipt { RewardMoment(receipt: receipt) } }
+            .animation(.easeInOut(duration: 0.25), value: state.lastReceipt == nil)
+        }
+        .onAppear { if shown == nil { shown = state.snapshot } }
+        .onChange(of: state.snapshot) { _, new in
+            // Sync silently unless a reward is showing (then wait for dismissal).
+            if state.lastReceipt == nil { shown = new }
+        }
+        .onChange(of: state.rewardToken) { _, _ in
+            let new = state.snapshot
+            let old = shown ?? new
+            xpDelta = new.totalXP - old.totalXP
+            deltas = Dictionary(uniqueKeysWithValues: new.attributes.map { ($0.key, $0.value - (old.attributes[$0.key] ?? 0)) })
+            deltaToken += 1
+            withAnimation(.easeOut(duration: 1.2)) { shown = new }
         }
     }
 
@@ -53,11 +73,11 @@ struct HomeView: View {
 
     private func sceneCard(_ snapshot: ProgressSnapshot) -> some View {
         ZStack(alignment: .bottomLeading) {
-            SceneBackdrop(shades: NeoTokyo.Backdrop.rainDistrict)
+            BackdropImage(assetSetID: state.recipe?.backdropID ?? "backdrop.rain_district")
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading, spacing: 2) {
                     Eyebrow(text: "Level")
-                    Text(snapshot.level, format: .number).font(HeroFont.statXL).foregroundStyle(NeoTokyo.Hierarchy.primary)
+                    CountingText(value: Double(snapshot.level), font: HeroFont.statXL, color: NeoTokyo.Hierarchy.primary)
                     Text(state.evolution?.displayName ?? "").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
                 }
                 Spacer()
@@ -78,20 +98,24 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: NeoTokyo.Spacing.md) {
             HStack(alignment: .firstTextBaseline) {
                 StatNumber(value: snapshot.totalXP, unit: "xp", accent: NeoTokyo.Hierarchy.primary, font: HeroFont.statLG)
+                DeltaBadge(delta: xpDelta, token: deltaToken)
                 Spacer()
                 if let next = state.ruleset.xpToNextLevel(fromTotalXP: snapshot.totalXP) {
                     Text("\(next) to Level \(snapshot.level + 1)").font(HeroFont.captionNumber).foregroundStyle(NeoTokyo.Text.secondary)
                 }
             }
             ProgressView(value: levelProgress(snapshot)).tint(NeoTokyo.Hierarchy.primary)
+                .animation(.easeOut(duration: 1.2), value: levelProgress(snapshot))
             Divider().overlay(NeoTokyo.Surface.line)
             HStack {
                 ForEach(state.bundle.attributes, id: \.id) { attribute in
                     VStack(spacing: 2) {
-                        Text(snapshot.attributes[attribute.id] ?? 0, format: .number)
-                            .font(HeroFont.statSM)
-                            .foregroundStyle(NeoTokyo.Attribute.color(for: attribute.id.rawValue))
+                        CountingText(value: Double(snapshot.attributes[attribute.id] ?? 0), font: HeroFont.statSM, color: NeoTokyo.Attribute.color(for: attribute.id.rawValue))
                         Text(attribute.displayName).font(HeroFont.label).foregroundStyle(NeoTokyo.Text.secondary)
+                    }
+                    .overlay(alignment: .top) {
+                        DeltaBadge(delta: deltas[attribute.id] ?? 0, token: deltaToken, color: NeoTokyo.Attribute.color(for: attribute.id.rawValue))
+                            .offset(y: -16)
                     }
                     .frame(maxWidth: .infinity)
                 }

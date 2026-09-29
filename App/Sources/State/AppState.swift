@@ -58,6 +58,8 @@ final class AppState {
     private(set) var lastReceipt: ProgressionReceipt?
     /// PRs from the workout whose receipt is showing, if any.
     private(set) var lastPersonalRecords: [PersonalRecord] = []
+    /// Increments when a reward modal is dismissed, so Home animates the numbers *after* it.
+    private(set) var rewardToken = 0
 
     var snapshot: ProgressSnapshot { ledger.snapshot(ruleset: ruleset) }
     var evolution: ContentBundle.Evolution? { bundle.evolution(forLevel: snapshot.level) }
@@ -132,7 +134,11 @@ final class AppState {
         }
     }
 
-    func dismissReward() { lastReceipt = nil; lastPersonalRecords = [] }
+    func dismissReward() {
+        guard lastReceipt != nil else { return }
+        lastReceipt = nil; lastPersonalRecords = []
+        rewardToken += 1
+    }
 
     // MARK: strength workouts (doc 02 "Strength workout")
 

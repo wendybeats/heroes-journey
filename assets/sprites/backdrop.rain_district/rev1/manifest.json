@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "backdrop.rain_district",
+  "revision": 1,
+  "status": "draft",
+  "kind": "backdrop",
+  "canvas": { "width": 1448, "height": 1086 },
+  "pivot": { "x": 724, "y": 1000 },
+  "layer_order": -100,
+  "max_palette_colors": 100000,
+  "animations": { "still": { "frames": ["still/000.png"], "frame_duration_ms": 1000, "loop": false, "poster_frame": 0 } },
+  "palette_roles": {},
+  "notes": "Owner-supplied Neo Tokyo alley (2026-09-29), received as lossy WebP with soft alpha and re-saved as PNG; replace with the original PNG when available. Backdrops are flattened art with dithered edges that fade into surface.base, so the binary-alpha and palette-cap gates do not apply to kind=backdrop."
+}

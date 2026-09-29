@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.09.28-3",
+  "content_version": "2026.09.29-1",
   "theme_id": "neo_tokyo_dark",
   "notes": "Derived from assets/references/2026-09-28/neo-tokyo-color-board.webp via Tools/sample_reference_colors.py, then re-ranked on 2026-09-28 (owner decision): gold is the primary accent, blue and pink are fallbacks, green is tertiary for informational numbers, coral is Knowledge. Contrast is checked by Tools/check_token_contrast.py; do not edit colors without re-running it.",
   "hierarchy": {
@@ -19,20 +19,24 @@
       "role": "App background. Deep navy-black, never pure black."
     },
     "raised": {
-      "hex": "#111A2E",
-      "role": "Cards, sheets, list rows."
+      "hex": "#0E1526",
+      "role": "Cards and rows. Close to base; elevation comes from glass, not from a color step (owner, 2026-09-29)."
     },
     "overlay": {
-      "hex": "#182642",
-      "role": "Modals, popovers, pressed states."
+      "hex": "#131B2F",
+      "role": "Sheets, modals, fields."
     },
     "line": {
-      "hex": "#25355A",
-      "role": "Hairline borders and dividers."
+      "hex": "#1C2740",
+      "role": "Hairline dividers inside cards only. Cards themselves have no border."
     },
     "scene_fade": {
       "hex": "#0A1020",
       "role": "Color that scene backdrops dither/fade into at their edges."
+    },
+    "scrim": {
+      "hex": "#05080F",
+      "role": "Modal dimming layer, at ~70% opacity."
     }
   },
   "text": {

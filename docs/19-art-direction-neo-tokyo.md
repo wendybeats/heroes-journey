@@ -76,9 +76,13 @@ Owner brief, revised 2026-09-28: fitness app, not video game; like SF Pro but mo
 - Scale (points, before Dynamic Type): stats 44 / 32 / 22 / 17; title 22, headline 17, body 16, callout 15, caption 13, label 11.
 - Eyebrow labels are 11 pt Medium, uppercase, 0.8 tracking.
 
+## Surfaces are glass (2026-09-29)
+
+Owner feedback: thin colored borders and off-color cards read as "AI". Cards now sit within a few lightness points of the background and take their elevation from material: Liquid Glass (`glassEffect`) on the iOS 26 SDK, a thin material tinted with `surface.raised` below it. No card has a border; `surface.line` is for dividers inside a card only. The reward moment is a real modal: `surface.scrim` at 70 % behind a centred glass card.
+
 ## Rules
 
-1. **Surfaces are navy, never grey, never pure black.** Lightness rises with elevation: base < raised < overlay.
+1. **Surfaces are navy, never grey, never pure black.** Elevation is glass, not a color step; raised and overlay stay within a few points of base.
 2. **One accent per region.** A card uses at most one accent color plus text. Gold first; blue, then pink, only when gold is already spent in that region.
 3. **Accents are light, never fills.** Text, icons, 1 px rules, glows. Large filled areas use `dim`. The single filled control per screen is the off-white button.
 4. **Gold means progression.** XP, level, unlocks, the character's glow. It does not decorate utility rows.
