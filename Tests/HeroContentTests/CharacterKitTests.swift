@@ -33,7 +33,7 @@ final class CharacterKitTests: XCTestCase {
         }
         for skin in bundle.avatarOptions.skinPalettes { XCTAssertNotNil(m.skinRamps[skin], "skin \(skin) has no ramp") }
         for hair in bundle.avatarOptions.hairPalettes { XCTAssertNotNil(m.hairRamps[hair], "hair \(hair) has no ramp") }
-        XCTAssertEqual(bundle.evolution(forLevel: 1)?.assetSetID, m.assetSetID)
+        XCTAssertEqual(bundle.evolution(forLevel: 5)?.assetSetID, m.assetSetID, "the suit kit is the Level 5 evolution")
     }
 
     func testRestPoseIsUnionOfLayersAndStandsOnPivot() throws {

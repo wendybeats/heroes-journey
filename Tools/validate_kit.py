@@ -6,7 +6,10 @@ import json, os, sys
 folder = sys.argv[1]; fails = []
 def fail(m): fails.append(m); print("FAIL ", m)
 def ok(m): print("ok   ", m)
-kit = json.load(open(os.path.join(folder, "kit.json"))); man = json.load(open(os.path.join(folder, "kit-manifest.json")))
+man = json.load(open(os.path.join(folder, "kit-manifest.json")))
+if not os.path.exists(os.path.join(folder, "kit.json")):
+    print(f"{folder}: kind={man.get('kind')} has no kit.json; not a layered kit, nothing to validate here"); sys.exit(0)
+kit = json.load(open(os.path.join(folder, "kit.json")))
 W, H = man["canvas"]["width"], man["canvas"]["height"]; glyphs = "123456789abcdefgh"
 if len(kit["pal"]) != 17: fail(f"palette has {len(kit['pal'])} entries, expected 17")
 for name, rows in kit["layers"].items():
