@@ -17,6 +17,21 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
         }
     }
 
+    public struct StructuredWorkout: Codable, Sendable, Equatable {
+        public let defaultMinutes: Double
+        public let liveThresholdMinutes: Double
+        public let minutesPerValidSet: Double
+        public let maxCreditedMinutes: Double
+        public init(defaultMinutes: Double, liveThresholdMinutes: Double, minutesPerValidSet: Double, maxCreditedMinutes: Double) {
+            self.defaultMinutes = defaultMinutes; self.liveThresholdMinutes = liveThresholdMinutes
+            self.minutesPerValidSet = minutesPerValidSet; self.maxCreditedMinutes = maxCreditedMinutes
+        }
+        enum CodingKeys: String, CodingKey {
+            case defaultMinutes = "default_minutes", liveThresholdMinutes = "live_threshold_minutes"
+            case minutesPerValidSet = "minutes_per_valid_set", maxCreditedMinutes = "max_credited_minutes"
+        }
+    }
+
     public let id: RulesetID
     public let version: Int
     public let status: Status
@@ -28,6 +43,8 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
     public let minimumDurationSeconds: Int
     /// Total XP required to *reach* each level; index 0 is Level 1 (always 0).
     public let levelThresholdsTotalXP: [Int]
+    /// Credit rule for structured strength sessions (nil = duration only).
+    public let structuredWorkout: StructuredWorkout?
 
     enum CodingKeys: String, CodingKey {
         case id, version, status
@@ -38,14 +55,22 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
         case dailyTaper = "daily_taper"
         case minimumDurationSeconds = "minimum_duration_seconds"
         case levelThresholdsTotalXP = "level_thresholds_total_xp"
+        case structuredWorkout = "structured_workout"
     }
 
-    public init(id: RulesetID, version: Int, status: Status, xpPerMinuteByFamily: [String: Double], attributeWeightsByFamily: [String: [String: Double]], attributePointsPerXP: Double, verificationMultiplier: [String: Double], dailyTaper: DailyTaper, minimumDurationSeconds: Int, levelThresholdsTotalXP: [Int]) {
+    public init(id: RulesetID, version: Int, status: Status, xpPerMinuteByFamily: [String: Double], attributeWeightsByFamily: [String: [String: Double]], attributePointsPerXP: Double, verificationMultiplier: [String: Double], dailyTaper: DailyTaper, minimumDurationSeconds: Int, levelThresholdsTotalXP: [Int], structuredWorkout: StructuredWorkout? = nil) {
         self.id = id; self.version = version; self.status = status
         self.xpPerMinuteByFamily = xpPerMinuteByFamily; self.attributeWeightsByFamily = attributeWeightsByFamily
         self.attributePointsPerXP = attributePointsPerXP; self.verificationMultiplier = verificationMultiplier
         self.dailyTaper = dailyTaper; self.minimumDurationSeconds = minimumDurationSeconds
-        self.levelThresholdsTotalXP = levelThresholdsTotalXP
+        self.levelThresholdsTotalXP = levelThresholdsTotalXP; self.structuredWorkout = structuredWorkout
+    }
+
+    /// Minutes an event is credited for before the daily taper. Structured sessions get a floor
+    /// of `minutesPerValidSet` per valid set and a cap; everything else is its duration.
+    public func creditedMinutes(for event: ActivityEvent) -> Double {
+        guard event.source == .structuredWorkout, let sw = structuredWorkout, let sets = event.structuredSetCount else { return event.durationMinutes }
+        return min(max(event.durationMinutes, Double(sets) * sw.minutesPerValidSet), sw.maxCreditedMinutes)
     }
 
     /// Level for a total XP amount. Levels are content, not a technical maximum (doc 05):

@@ -9,6 +9,8 @@ struct WorkoutView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showAddExercise = false
     @State private var confirmDiscard = false
+    @State private var askLength = false
+    @State private var sessionMinutes: Double? = 45
 
     var body: some View {
         NavigationStack {
@@ -39,7 +41,8 @@ struct WorkoutView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 Button("Finish workout") {
-                    if state.finishWorkout() { dismiss() }
+                    sessionMinutes = Double(state.suggestedWorkoutMinutes())
+                    askLength = true
                 }
                 .buttonStyle(PrimaryButtonStyle())
                 .disabled((state.activeWorkout?.validSetCount ?? 0) == 0)
@@ -49,6 +52,13 @@ struct WorkoutView: View {
             .sheet(isPresented: $showAddExercise) { AddExerciseSheet() }
             .confirmationDialog("Discard this workout?", isPresented: $confirmDiscard, titleVisibility: .visible) {
                 Button("Discard workout", role: .destructive) { state.discardWorkout(); dismiss() }
+            }
+            .alert("How long was this session?", isPresented: $askLength) {
+                TextField("Minutes", value: $sessionMinutes, format: .number).keyboardType(.numberPad)
+                Button("Finish") { if state.finishWorkout(sessionMinutes: sessionMinutes.map { Int($0) }) { dismiss() } }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Sessions logged after the fact default to \(Int(state.ruleset.structuredWorkout?.defaultMinutes ?? 45)) minutes. Credit is at least \(state.ruleset.structuredWorkout.map { String(format: "%.1f", $0.minutesPerValidSet) } ?? "2.5") minutes per completed set.")
             }
             .onAppear { if state.activeWorkout == nil { state.startWorkout() } }
         }

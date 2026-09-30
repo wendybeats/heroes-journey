@@ -90,14 +90,19 @@ public struct Workout: Hashable, Codable, Sendable, Identifiable {
         exercises.flatMap(\.validSets).reduce(0) { $0 + (($1.weightKg ?? 0) * Double($1.reps ?? 0)) }
     }
 
+    /// Elapsed minutes between start and finish (or now).
+    public func elapsedMinutes(now: Date) -> Double { max(0, (endedAt ?? now).timeIntervalSince(startedAt)) / 60 }
+
     /// Doc 02 step 6-8: persist, then convert to an activity fact. A workout with no valid sets
     /// is not an activity. `calisthenics` when every set is bodyweight, else `weightlifting`.
-    public func makeActivityEvent(now: Date, weightliftingID: ActivityTypeID, calisthenicsID: ActivityTypeID, familyID: FamilyID) -> ActivityEvent? {
+    /// `durationMinutes` is the session length the user confirmed (sessions are often logged
+    /// after the fact); nil uses the elapsed time. The valid set count rides along as a fact.
+    public func makeActivityEvent(now: Date, durationMinutes: Double? = nil, weightliftingID: ActivityTypeID, calisthenicsID: ActivityTypeID, familyID: FamilyID) -> ActivityEvent? {
         guard validSetCount > 0 else { return nil }
-        let end = endedAt ?? now
+        let minutes = durationMinutes ?? elapsedMinutes(now: now)
         let allBodyweight = exercises.flatMap(\.validSets).allSatisfy { $0.type == .bodyweight || $0.type == .timed }
         return ActivityEvent(userID: userID, activityTypeID: allBodyweight ? calisthenicsID : weightliftingID, familyID: familyID,
-                             startedAt: startedAt, durationSeconds: max(60, Int(end.timeIntervalSince(startedAt))),
-                             source: .structuredWorkout, verification: .structured, createdAt: now)
+                             startedAt: startedAt, durationSeconds: max(60, Int(minutes * 60)),
+                             source: .structuredWorkout, verification: .structured, structuredSetCount: validSetCount, createdAt: now)
     }
 }

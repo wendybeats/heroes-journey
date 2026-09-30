@@ -34,6 +34,8 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(ruleset.levelThresholdsTotalXP.count, 10)
         XCTAssertEqual(ruleset.levelThresholdsTotalXP.first, 0)
         XCTAssertEqual(ruleset.levelThresholdsTotalXP, ruleset.levelThresholdsTotalXP.sorted(), "monotonic")
+        XCTAssertEqual(ruleset.structuredWorkout?.defaultMinutes, 45)
+        XCTAssertEqual(ruleset.structuredWorkout?.minutesPerValidSet, 2.5)
         XCTAssertEqual(bundle.integrityProblems(against: ruleset), [])
     }
 

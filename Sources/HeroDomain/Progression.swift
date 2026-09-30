@@ -52,7 +52,7 @@ public enum ProgressionEngine {
         guard event.durationSeconds >= ruleset.minimumDurationSeconds else { return empty() }
         guard let xpPerMinute = ruleset.xpPerMinuteByFamily[event.familyID.rawValue] else { return empty() }
 
-        let minutes = event.durationMinutes
+        let minutes = ruleset.creditedMinutes(for: event)
         let credited = creditedMinutes(minutes, prior: context.priorEligibleMinutesToday, taper: ruleset.dailyTaper)
         let multiplier = ruleset.verificationMultiplier[event.verification.rawValue] ?? 1.0
         let xp = Int((credited * xpPerMinute * multiplier).rounded(.down))

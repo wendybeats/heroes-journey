@@ -32,6 +32,8 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
     public let verification: VerificationLevel
     /// Stable identifier from the external source, for import deduplication.
     public let sourceExternalID: String?
+    /// For structured workouts: number of valid sets recorded. A fact from the workout record.
+    public let structuredSetCount: Int?
     public let schemaVersion: Int
     public let createdAt: Date
 
@@ -45,6 +47,7 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
         source: ActivitySource,
         verification: VerificationLevel,
         sourceExternalID: String? = nil,
+        structuredSetCount: Int? = nil,
         createdAt: Date = Date()
     ) {
         self.id = id
@@ -56,6 +59,7 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
         self.source = source
         self.verification = verification
         self.sourceExternalID = sourceExternalID
+        self.structuredSetCount = structuredSetCount
         self.schemaVersion = Self.schemaVersion
         self.createdAt = createdAt
     }

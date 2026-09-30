@@ -85,3 +85,63 @@ final class WorkoutTests: XCTestCase {
         XCTAssertEqual(workout([WorkoutExercise(exerciseID: "x", sets: [set(.weighted, reps: 5, kg: 100), set(.weighted, reps: 3, kg: 110)])]).totalVolumeKg, 830)
     }
 }
+
+final class StructuredCreditTests: XCTestCase {
+    let user = UserID()
+    let t0 = Date(timeIntervalSince1970: 1_800_000_000)
+    var ruleset: ProgressionRuleset {
+        ProgressionRuleset(id: "ruleset.test", version: 1, status: .dev,
+            xpPerMinuteByFamily: ["strength": 2.0], attributeWeightsByFamily: ["strength": ["strength": 1.0]],
+            attributePointsPerXP: 0.5, verificationMultiplier: [:],
+            dailyTaper: .init(fullCreditMinutes: 90, taperRate: 0.25, hardCapMinutes: 240),
+            minimumDurationSeconds: 60, levelThresholdsTotalXP: [0, 60, 150],
+            structuredWorkout: .init(defaultMinutes: 45, liveThresholdMinutes: 5, minutesPerValidSet: 2.5, maxCreditedMinutes: 120))
+    }
+    func workout(sets: Int) -> Workout {
+        var w = Workout(userID: user, startedAt: t0, exercises: [WorkoutExercise(exerciseID: "bench_press", sets: (0..<sets).map { _ in WorkoutSet(type: .weighted, reps: 5, weightKg: 80, completed: true) })])
+        w.endedAt = t0.addingTimeInterval(50)   // logged after the fact in under a minute
+        return w
+    }
+    func evaluate(_ e: ActivityEvent) -> ProgressionProposal {
+        ProgressionEngine.evaluate(event: e, ruleset: ruleset, context: EvaluationContext(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:]))
+    }
+
+    func testQuickLogIsCreditedBySetsNotWallClock() {
+        // 8 sets logged in 50 s with no confirmed length: duration is the 60 s minimum, credit is 8 x 2.5 = 20 min
+        let e = workout(sets: 8).makeActivityEvent(now: t0.addingTimeInterval(50), weightliftingID: "weightlifting", calisthenicsID: "calisthenics", familyID: "strength")!
+        XCTAssertEqual(e.durationSeconds, 60); XCTAssertEqual(e.structuredSetCount, 8)
+        XCTAssertEqual(ruleset.creditedMinutes(for: e), 20)
+        XCTAssertEqual(evaluate(e).xp, 40)
+    }
+
+    func testConfirmedSessionLengthBecomesTheFactAndWinsWhenLonger() {
+        let e = workout(sets: 8).makeActivityEvent(now: t0.addingTimeInterval(50), durationMinutes: 45, weightliftingID: "weightlifting", calisthenicsID: "calisthenics", familyID: "strength")!
+        XCTAssertEqual(e.durationSeconds, 45 * 60)
+        XCTAssertEqual(ruleset.creditedMinutes(for: e), 45, "45 min > 8 sets x 2.5")
+        XCTAssertEqual(evaluate(e).xp, 90)
+    }
+
+    func testSetFloorStillAppliesToAShortConfirmedLength() {
+        let e = workout(sets: 20).makeActivityEvent(now: t0, durationMinutes: 10, weightliftingID: "weightlifting", calisthenicsID: "calisthenics", familyID: "strength")!
+        XCTAssertEqual(ruleset.creditedMinutes(for: e), 50, "20 sets x 2.5 beats a 10-minute claim")
+    }
+
+    func testCapAndNonStructuredUnchanged() {
+        let e = workout(sets: 80).makeActivityEvent(now: t0, durationMinutes: 300, weightliftingID: "weightlifting", calisthenicsID: "calisthenics", familyID: "strength")!
+        XCTAssertEqual(ruleset.creditedMinutes(for: e), 120)
+        let manual = ActivityEvent(userID: user, activityTypeID: "boxing", familyID: "combat", startedAt: t0, durationSeconds: 1800, source: .manual, verification: .selfReported, createdAt: t0)
+        XCTAssertEqual(ruleset.creditedMinutes(for: manual), 30)
+        XCTAssertNil(manual.structuredSetCount)
+    }
+
+    func testRulesetWithoutBlockFallsBackToDuration() throws {
+        let plain = ProgressionRuleset(id: "r", version: 1, status: .dev, xpPerMinuteByFamily: ["strength": 2], attributeWeightsByFamily: [:], attributePointsPerXP: 0.5, verificationMultiplier: [:], dailyTaper: .init(fullCreditMinutes: 90, taperRate: 0.25, hardCapMinutes: 240), minimumDurationSeconds: 60, levelThresholdsTotalXP: [0])
+        let e = workout(sets: 8).makeActivityEvent(now: t0, weightliftingID: "weightlifting", calisthenicsID: "calisthenics", familyID: "strength")!
+        XCTAssertEqual(plain.creditedMinutes(for: e), 1)
+        // events saved before the field existed still decode
+        let json = try JSONEncoder().encode(e)
+        var dict = try JSONSerialization.jsonObject(with: json) as! [String: Any]; dict.removeValue(forKey: "structuredSetCount")
+        let old = try JSONDecoder().decode(ActivityEvent.self, from: JSONSerialization.data(withJSONObject: dict))
+        XCTAssertNil(old.structuredSetCount)
+    }
+}

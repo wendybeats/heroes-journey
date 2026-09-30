@@ -93,6 +93,10 @@ Doc 08 as an adapter, doc 15's corrections applied:
 - Tests: A, all 128 goldens match pixel-for-pixel (a diff image is written to the temp folder on any mismatch); B, all 37 manifest layers load; C, 10 simulated minutes with a seeded generator satisfy the glance spacing, hands-out duration, no-flicker, no 0↔2 adjacency and no-blink-on-transition rules. The same A/B checks run in Python on the Linux job. D (device profiling) is manual via the debug Sprite Lab screen (1 sprite, 15-sprite grid, cache counters).
 - `HoodieCharacterView` ticks at the kit's 12 Hz from a time accumulator in the display-linked timeline, pauses when hidden or backgrounded, holds the pocketed pose under Reduce Motion, and renders at whole-number scale with nearest-neighbour. The scene sprite is back to 2× in a taller card.
 
+## Increment 7, 2026-09-30: structured workout credit
+
+Owner finding: a two-exercise, eight-set workout logged in under a minute earned 2 XP, because progression was purely duration-based and the duration was the wall clock between Start and Finish. Fix, all data-driven in the dev ruleset's `structured_workout` block: at finish the user confirms a session length (pre-filled with the elapsed time when logged live for 5+ minutes, otherwise 45); that length is the recorded duration. The event also carries the valid set count as a fact, and credit before the daily taper is max(duration, sets × 2.5 min) capped at 120. Manual logs and imports are unchanged. Five tests, including a decode of events saved before the field existed.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

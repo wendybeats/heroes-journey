@@ -219,12 +219,22 @@ final class AppState {
 
     /// Doc 02 steps 5-9: finish, persist, detect PRs, convert to an activity, submit, reward.
     /// Returns false when the workout had no valid sets (nothing is recorded).
+    /// Suggested session length for the finish prompt: elapsed time when logged live, else the ruleset default.
+    func suggestedWorkoutMinutes() -> Int {
+        guard let w = activeWorkout else { return 45 }
+        let sw = ruleset.structuredWorkout
+        let elapsed = w.elapsedMinutes(now: Date())
+        if elapsed >= (sw?.liveThresholdMinutes ?? 5) { return Int(elapsed.rounded()) }
+        return Int((sw?.defaultMinutes ?? 45).rounded())
+    }
+
     @discardableResult
-    func finishWorkout() -> Bool {
+    func finishWorkout(sessionMinutes: Int? = nil) -> Bool {
         guard var w = activeWorkout else { return false }
         let now = Date()
         w.endedAt = now
-        guard let event = w.makeActivityEvent(now: now, weightliftingID: "weightlifting", calisthenicsID: "calisthenics", familyID: "strength") else { return false }
+        let minutes = sessionMinutes.map { Double(max(1, $0)) }
+        guard let event = w.makeActivityEvent(now: now, durationMinutes: minutes, weightliftingID: "weightlifting", calisthenicsID: "calisthenics", familyID: "strength") else { return false }
         w.personalRecords = PRDetector.detect(workout: w, history: workouts)
         w.activityEventID = event.id
         workouts.append(w)
