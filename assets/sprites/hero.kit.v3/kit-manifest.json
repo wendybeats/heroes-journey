@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "hero.kit.v3",
+  "revision": 3,
+  "status": "draft",
+  "kind": "hoodie_kit",
+  "notes": "Sprite kit v3.1 hoodie outfit (owner, 2026-09-30): default for onboarding and levels 1-4; the suit (hero.kit.v2, byte-identical to this kit's suit/ folder) takes over at the Level 5 evolution. hoodie/hoodie_manifest.json and hoodie/hoodie_clips.json are the source of truth; PNGs are shipped as a folder reference and never re-exported. hoodie/tests/golden holds 128 expected 1x frames the composer must match exactly. Drafts and build scripts under source/.",
+  "canvas": { "width": 64, "height": 128 },
+  "pivot": { "x": 32, "y": 122 }
+}

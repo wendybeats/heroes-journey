@@ -1,0 +1,1797 @@
+{
+ "note": "1x (64x128) expected output of HoodieComposer.texture(for:gender:style:hairColor:skin:). Compare pixel-for-pixel (RGBA, alpha 0 or 255).",
+ "cases": [
+  {
+   "name": "male_bald_Brown_Tan_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_bald_Black_Light_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "bald",
+   "hairColor": "Black",
+   "skin": "Light",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_bald_Silver_Deep_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "bald",
+   "hairColor": "Silver",
+   "skin": "Deep",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_bald_Blonde_Fair_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "bald",
+   "hairColor": "Blonde",
+   "skin": "Fair",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_bald_Auburn_Brown_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "bald",
+   "hairColor": "Auburn",
+   "skin": "Brown",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_bald_Brown_Tan_f2_L_o0_s0_b0.png",
+   "gender": "male",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_bald_Brown_Tan_f2_R_o0_s0_b0.png",
+   "gender": "male",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_bald_Brown_Tan_f0_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 0,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_bald_Brown_Tan_f0_R_o0_s0_b0.png",
+   "gender": "male",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 0,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_bald_Brown_Tan_f1_N_o1_s0_b0.png",
+   "gender": "male",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 1,
+    "head": "N",
+    "o": 1,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_bald_Brown_Tan_f2_N_o-1_s0_b0.png",
+   "gender": "male",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": -1,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_bald_Brown_Tan_f2_L_o0_s1_b0.png",
+   "gender": "male",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 1,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_bald_Brown_Tan_f2_N_o0_s0_b1.png",
+   "gender": "male",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 1
+   }
+  },
+  {
+   "name": "male_bald_Brown_Tan_f2_N_o0_s0_b2.png",
+   "gender": "male",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "male_bald_Brown_Tan_f2_L_o0_s0_b2.png",
+   "gender": "male",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "male_bald_Brown_Tan_f2_R_o0_s0_b2.png",
+   "gender": "male",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "male_buzz_Brown_Tan_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "buzz",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_buzz_Black_Light_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "buzz",
+   "hairColor": "Black",
+   "skin": "Light",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_buzz_Silver_Deep_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "buzz",
+   "hairColor": "Silver",
+   "skin": "Deep",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_buzz_Blonde_Fair_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "buzz",
+   "hairColor": "Blonde",
+   "skin": "Fair",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_buzz_Auburn_Brown_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "buzz",
+   "hairColor": "Auburn",
+   "skin": "Brown",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_buzz_Brown_Tan_f2_L_o0_s0_b0.png",
+   "gender": "male",
+   "style": "buzz",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_buzz_Brown_Tan_f2_R_o0_s0_b0.png",
+   "gender": "male",
+   "style": "buzz",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_buzz_Brown_Tan_f0_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "buzz",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 0,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_buzz_Brown_Tan_f0_R_o0_s0_b0.png",
+   "gender": "male",
+   "style": "buzz",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 0,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_buzz_Brown_Tan_f1_N_o1_s0_b0.png",
+   "gender": "male",
+   "style": "buzz",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 1,
+    "head": "N",
+    "o": 1,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_buzz_Brown_Tan_f2_N_o-1_s0_b0.png",
+   "gender": "male",
+   "style": "buzz",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": -1,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_buzz_Brown_Tan_f2_L_o0_s1_b0.png",
+   "gender": "male",
+   "style": "buzz",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 1,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_buzz_Brown_Tan_f2_N_o0_s0_b1.png",
+   "gender": "male",
+   "style": "buzz",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 1
+   }
+  },
+  {
+   "name": "male_buzz_Brown_Tan_f2_N_o0_s0_b2.png",
+   "gender": "male",
+   "style": "buzz",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "male_buzz_Brown_Tan_f2_L_o0_s0_b2.png",
+   "gender": "male",
+   "style": "buzz",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "male_buzz_Brown_Tan_f2_R_o0_s0_b2.png",
+   "gender": "male",
+   "style": "buzz",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "male_medium_Brown_Tan_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "medium",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_medium_Black_Light_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "medium",
+   "hairColor": "Black",
+   "skin": "Light",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_medium_Silver_Deep_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "medium",
+   "hairColor": "Silver",
+   "skin": "Deep",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_medium_Blonde_Fair_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "medium",
+   "hairColor": "Blonde",
+   "skin": "Fair",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_medium_Auburn_Brown_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "medium",
+   "hairColor": "Auburn",
+   "skin": "Brown",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_medium_Brown_Tan_f2_L_o0_s0_b0.png",
+   "gender": "male",
+   "style": "medium",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_medium_Brown_Tan_f2_R_o0_s0_b0.png",
+   "gender": "male",
+   "style": "medium",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_medium_Brown_Tan_f0_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "medium",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 0,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_medium_Brown_Tan_f0_R_o0_s0_b0.png",
+   "gender": "male",
+   "style": "medium",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 0,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_medium_Brown_Tan_f1_N_o1_s0_b0.png",
+   "gender": "male",
+   "style": "medium",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 1,
+    "head": "N",
+    "o": 1,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_medium_Brown_Tan_f2_N_o-1_s0_b0.png",
+   "gender": "male",
+   "style": "medium",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": -1,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_medium_Brown_Tan_f2_L_o0_s1_b0.png",
+   "gender": "male",
+   "style": "medium",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 1,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_medium_Brown_Tan_f2_N_o0_s0_b1.png",
+   "gender": "male",
+   "style": "medium",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 1
+   }
+  },
+  {
+   "name": "male_medium_Brown_Tan_f2_N_o0_s0_b2.png",
+   "gender": "male",
+   "style": "medium",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "male_medium_Brown_Tan_f2_L_o0_s0_b2.png",
+   "gender": "male",
+   "style": "medium",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "male_medium_Brown_Tan_f2_R_o0_s0_b2.png",
+   "gender": "male",
+   "style": "medium",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "male_wolf_Brown_Tan_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "wolf",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_wolf_Black_Light_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "wolf",
+   "hairColor": "Black",
+   "skin": "Light",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_wolf_Silver_Deep_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "wolf",
+   "hairColor": "Silver",
+   "skin": "Deep",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_wolf_Blonde_Fair_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "wolf",
+   "hairColor": "Blonde",
+   "skin": "Fair",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_wolf_Auburn_Brown_f2_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "wolf",
+   "hairColor": "Auburn",
+   "skin": "Brown",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_wolf_Brown_Tan_f2_L_o0_s0_b0.png",
+   "gender": "male",
+   "style": "wolf",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_wolf_Brown_Tan_f2_R_o0_s0_b0.png",
+   "gender": "male",
+   "style": "wolf",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_wolf_Brown_Tan_f0_N_o0_s0_b0.png",
+   "gender": "male",
+   "style": "wolf",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 0,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_wolf_Brown_Tan_f0_R_o0_s0_b0.png",
+   "gender": "male",
+   "style": "wolf",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 0,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_wolf_Brown_Tan_f1_N_o1_s0_b0.png",
+   "gender": "male",
+   "style": "wolf",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 1,
+    "head": "N",
+    "o": 1,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_wolf_Brown_Tan_f2_N_o-1_s0_b0.png",
+   "gender": "male",
+   "style": "wolf",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": -1,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_wolf_Brown_Tan_f2_L_o0_s1_b0.png",
+   "gender": "male",
+   "style": "wolf",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 1,
+    "b": 0
+   }
+  },
+  {
+   "name": "male_wolf_Brown_Tan_f2_N_o0_s0_b1.png",
+   "gender": "male",
+   "style": "wolf",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 1
+   }
+  },
+  {
+   "name": "male_wolf_Brown_Tan_f2_N_o0_s0_b2.png",
+   "gender": "male",
+   "style": "wolf",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "male_wolf_Brown_Tan_f2_L_o0_s0_b2.png",
+   "gender": "male",
+   "style": "wolf",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "male_wolf_Brown_Tan_f2_R_o0_s0_b2.png",
+   "gender": "male",
+   "style": "wolf",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "female_bald_Brown_Tan_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_bald_Black_Light_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "bald",
+   "hairColor": "Black",
+   "skin": "Light",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_bald_Silver_Deep_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "bald",
+   "hairColor": "Silver",
+   "skin": "Deep",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_bald_Blonde_Fair_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "bald",
+   "hairColor": "Blonde",
+   "skin": "Fair",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_bald_Auburn_Brown_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "bald",
+   "hairColor": "Auburn",
+   "skin": "Brown",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_bald_Brown_Tan_f2_L_o0_s0_b0.png",
+   "gender": "female",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_bald_Brown_Tan_f2_R_o0_s0_b0.png",
+   "gender": "female",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_bald_Brown_Tan_f0_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 0,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_bald_Brown_Tan_f0_R_o0_s0_b0.png",
+   "gender": "female",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 0,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_bald_Brown_Tan_f1_N_o1_s0_b0.png",
+   "gender": "female",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 1,
+    "head": "N",
+    "o": 1,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_bald_Brown_Tan_f2_N_o-1_s0_b0.png",
+   "gender": "female",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": -1,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_bald_Brown_Tan_f2_L_o0_s1_b0.png",
+   "gender": "female",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 1,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_bald_Brown_Tan_f2_N_o0_s0_b1.png",
+   "gender": "female",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 1
+   }
+  },
+  {
+   "name": "female_bald_Brown_Tan_f2_N_o0_s0_b2.png",
+   "gender": "female",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "female_bald_Brown_Tan_f2_L_o0_s0_b2.png",
+   "gender": "female",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "female_bald_Brown_Tan_f2_R_o0_s0_b2.png",
+   "gender": "female",
+   "style": "bald",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "female_blunt_Brown_Tan_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "blunt",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_blunt_Black_Light_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "blunt",
+   "hairColor": "Black",
+   "skin": "Light",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_blunt_Silver_Deep_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "blunt",
+   "hairColor": "Silver",
+   "skin": "Deep",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_blunt_Blonde_Fair_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "blunt",
+   "hairColor": "Blonde",
+   "skin": "Fair",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_blunt_Auburn_Brown_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "blunt",
+   "hairColor": "Auburn",
+   "skin": "Brown",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_blunt_Brown_Tan_f2_L_o0_s0_b0.png",
+   "gender": "female",
+   "style": "blunt",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_blunt_Brown_Tan_f2_R_o0_s0_b0.png",
+   "gender": "female",
+   "style": "blunt",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_blunt_Brown_Tan_f0_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "blunt",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 0,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_blunt_Brown_Tan_f0_R_o0_s0_b0.png",
+   "gender": "female",
+   "style": "blunt",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 0,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_blunt_Brown_Tan_f1_N_o1_s0_b0.png",
+   "gender": "female",
+   "style": "blunt",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 1,
+    "head": "N",
+    "o": 1,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_blunt_Brown_Tan_f2_N_o-1_s0_b0.png",
+   "gender": "female",
+   "style": "blunt",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": -1,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_blunt_Brown_Tan_f2_L_o0_s1_b0.png",
+   "gender": "female",
+   "style": "blunt",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 1,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_blunt_Brown_Tan_f2_N_o0_s0_b1.png",
+   "gender": "female",
+   "style": "blunt",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 1
+   }
+  },
+  {
+   "name": "female_blunt_Brown_Tan_f2_N_o0_s0_b2.png",
+   "gender": "female",
+   "style": "blunt",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "female_blunt_Brown_Tan_f2_L_o0_s0_b2.png",
+   "gender": "female",
+   "style": "blunt",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "female_blunt_Brown_Tan_f2_R_o0_s0_b2.png",
+   "gender": "female",
+   "style": "blunt",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "female_long_Brown_Tan_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "long",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_long_Black_Light_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "long",
+   "hairColor": "Black",
+   "skin": "Light",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_long_Silver_Deep_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "long",
+   "hairColor": "Silver",
+   "skin": "Deep",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_long_Blonde_Fair_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "long",
+   "hairColor": "Blonde",
+   "skin": "Fair",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_long_Auburn_Brown_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "long",
+   "hairColor": "Auburn",
+   "skin": "Brown",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_long_Brown_Tan_f2_L_o0_s0_b0.png",
+   "gender": "female",
+   "style": "long",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_long_Brown_Tan_f2_R_o0_s0_b0.png",
+   "gender": "female",
+   "style": "long",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_long_Brown_Tan_f0_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "long",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 0,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_long_Brown_Tan_f0_R_o0_s0_b0.png",
+   "gender": "female",
+   "style": "long",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 0,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_long_Brown_Tan_f1_N_o1_s0_b0.png",
+   "gender": "female",
+   "style": "long",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 1,
+    "head": "N",
+    "o": 1,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_long_Brown_Tan_f2_N_o-1_s0_b0.png",
+   "gender": "female",
+   "style": "long",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": -1,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_long_Brown_Tan_f2_L_o0_s1_b0.png",
+   "gender": "female",
+   "style": "long",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 1,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_long_Brown_Tan_f2_N_o0_s0_b1.png",
+   "gender": "female",
+   "style": "long",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 1
+   }
+  },
+  {
+   "name": "female_long_Brown_Tan_f2_N_o0_s0_b2.png",
+   "gender": "female",
+   "style": "long",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "female_long_Brown_Tan_f2_L_o0_s0_b2.png",
+   "gender": "female",
+   "style": "long",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "female_long_Brown_Tan_f2_R_o0_s0_b2.png",
+   "gender": "female",
+   "style": "long",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "female_ponytail_Brown_Tan_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "ponytail",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_ponytail_Black_Light_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "ponytail",
+   "hairColor": "Black",
+   "skin": "Light",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_ponytail_Silver_Deep_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "ponytail",
+   "hairColor": "Silver",
+   "skin": "Deep",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_ponytail_Blonde_Fair_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "ponytail",
+   "hairColor": "Blonde",
+   "skin": "Fair",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_ponytail_Auburn_Brown_f2_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "ponytail",
+   "hairColor": "Auburn",
+   "skin": "Brown",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_ponytail_Brown_Tan_f2_L_o0_s0_b0.png",
+   "gender": "female",
+   "style": "ponytail",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_ponytail_Brown_Tan_f2_R_o0_s0_b0.png",
+   "gender": "female",
+   "style": "ponytail",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_ponytail_Brown_Tan_f0_N_o0_s0_b0.png",
+   "gender": "female",
+   "style": "ponytail",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 0,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_ponytail_Brown_Tan_f0_R_o0_s0_b0.png",
+   "gender": "female",
+   "style": "ponytail",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 0,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_ponytail_Brown_Tan_f1_N_o1_s0_b0.png",
+   "gender": "female",
+   "style": "ponytail",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 1,
+    "head": "N",
+    "o": 1,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_ponytail_Brown_Tan_f2_N_o-1_s0_b0.png",
+   "gender": "female",
+   "style": "ponytail",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": -1,
+    "s": 0,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_ponytail_Brown_Tan_f2_L_o0_s1_b0.png",
+   "gender": "female",
+   "style": "ponytail",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 1,
+    "b": 0
+   }
+  },
+  {
+   "name": "female_ponytail_Brown_Tan_f2_N_o0_s0_b1.png",
+   "gender": "female",
+   "style": "ponytail",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 1
+   }
+  },
+  {
+   "name": "female_ponytail_Brown_Tan_f2_N_o0_s0_b2.png",
+   "gender": "female",
+   "style": "ponytail",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "N",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "female_ponytail_Brown_Tan_f2_L_o0_s0_b2.png",
+   "gender": "female",
+   "style": "ponytail",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "L",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  },
+  {
+   "name": "female_ponytail_Brown_Tan_f2_R_o0_s0_b2.png",
+   "gender": "female",
+   "style": "ponytail",
+   "hairColor": "Brown",
+   "skin": "Tan",
+   "pose": {
+    "f": 2,
+    "head": "R",
+    "o": 0,
+    "s": 0,
+    "b": 2
+   }
+  }
+ ]
+}

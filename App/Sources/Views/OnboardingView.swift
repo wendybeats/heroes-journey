@@ -18,11 +18,11 @@ struct OnboardingView: View {
             VStack(spacing: NeoTokyo.Spacing.xl) {
                 ZStack(alignment: .bottom) {
                     BackdropImage(assetSetID: "backdrop.rain_district")
-                    LayeredCharacterView(recipe: draft, scale: HomeView.characterScale)
+                    CharacterView(recipe: draft, outfit: state.bundle.evolution(forLevel: 1)?.outfit, scale: HomeView.characterScale)
                         .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 18)
                         .padding(.bottom, NeoTokyo.Spacing.xl)
                 }
-                .frame(maxWidth: .infinity, minHeight: 320)
+                .frame(maxWidth: .infinity, minHeight: 340)
                 .clipShape(RoundedRectangle(cornerRadius: NeoTokyo.Radius.lg, style: .continuous))
 
                 VStack(alignment: .leading, spacing: NeoTokyo.Spacing.md) {

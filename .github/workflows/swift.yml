@@ -31,6 +31,8 @@ jobs:
           for m in $(find assets/sprites -name manifest.json); do
             python3 Tools/validate_sprites.py "$(dirname "$m")"
           done
+      - name: Validate hoodie kit goldens (Python mirror of HoodieKitTests A/B)
+        run: python3 Tools/validate_hoodie_kit.py assets/sprites/hero.kit.v3/hoodie
       - name: Validate layered character kits
         run: |
           set -e

@@ -32,7 +32,9 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let displayName: String
         public let minLevel: Int
         public let assetSetID: AssetSetID
-        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", minLevel = "min_level", assetSetID = "asset_set_id" }
+        /// Which renderer/outfit draws this evolution: "hoodie" (kit v3) or "suit" (kit v2). Nil = suit.
+        public let outfit: String?
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", minLevel = "min_level", assetSetID = "asset_set_id", outfit }
     }
     public struct Item: Codable, Sendable, Equatable {
         public let id: ItemID

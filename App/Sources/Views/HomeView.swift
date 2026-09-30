@@ -5,8 +5,8 @@ import HeroContent
 /// Doc 19 "fitness first": the utility (today, this week, log) carries the screen. The
 /// character is present and reacts, but sits in a compact scene rather than dominating.
 struct HomeView: View {
-    /// Sprite scale in the scene. 2.0 filled the card; 1.6 lets the backdrop read (owner, 2026-09-29).
-    static let characterScale: CGFloat = 1.6
+    /// Sprite scale in the scene: whole numbers only (kit rule). 2x with a taller card keeps the backdrop readable.
+    static let characterScale: CGFloat = 2
     @Environment(AppState.self) private var state
     @State private var showLog = false
     @State private var showHistory = false
@@ -42,6 +42,12 @@ struct HomeView: View {
                     Button { showHistory = true } label: { Image(systemName: "clock.arrow.circlepath") }
                         .foregroundStyle(NeoTokyo.Text.secondary)
                 }
+                #if DEBUG
+                ToolbarItem(placement: .topBarLeading) {
+                    NavigationLink { SpriteLabView() } label: { Image(systemName: "square.grid.3x3") }
+                        .foregroundStyle(NeoTokyo.Text.muted)
+                }
+                #endif
             }
             .safeAreaInset(edge: .bottom) {
                 HStack(spacing: NeoTokyo.Spacing.sm) {
@@ -105,7 +111,7 @@ struct HomeView: View {
             BackdropImage(assetSetID: state.recipe?.backdropID ?? "backdrop.rain_district")
             // Character stands on the road: bottom-centre, 20% smaller than the 2x sprite scale.
             if let recipe = state.recipe {
-                LayeredCharacterView(recipe: recipe, scale: HomeView.characterScale)
+                CharacterView(recipe: recipe, outfit: state.evolution?.outfit, scale: HomeView.characterScale)
                     .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)  // the character's own glow
                     .padding(.bottom, NeoTokyo.Spacing.xl)
                     .anchorPreference(key: SceneAnchorsKey.self, value: .bounds) { ["character": $0] }
@@ -115,7 +121,7 @@ struct HomeView: View {
                 .padding(NeoTokyo.Spacing.lg)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, minHeight: 320)
+        .frame(maxWidth: .infinity, minHeight: 340)
         .clipShape(RoundedRectangle(cornerRadius: NeoTokyo.Radius.lg, style: .continuous))
     }
 

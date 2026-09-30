@@ -17,7 +17,7 @@ Implemented:
 
 Verified: CI passes on macOS (`swift test`, 19 tests) and the iOS simulator build. Not yet done: an interactive simulator walkthrough.
 
-Strength logger with PR detection and Apple Health workout import are in (templates, rest timer and step data deferred). Not implemented: server sync, auth, guest claiming, analytics, entitlements, production art.
+Hoodie character kit (levels 1–4) with pixel-exact golden tests, strength logger with PR detection and Apple Health workout import are in (templates, rest timer and step data deferred). Not implemented: server sync, auth, guest claiming, analytics, entitlements, production art.
 
 ## Run
 

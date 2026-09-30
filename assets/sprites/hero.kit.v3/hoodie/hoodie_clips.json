@@ -1,0 +1,359 @@
+{
+ "version": 1,
+ "tickRate": 12,
+ "poseFields": {
+  "f": "body frame: 0 relaxed, 1 reach, 2 pocketed",
+  "head": "N neutral, L look left, R look right (rows < 27 from that head; hair layer matches)",
+  "o": "torso offset px, + up (rows < 75 move; legs fixed)",
+  "s": "upper-hair lag px (rows < 15), + right",
+  "b": "blink 0 open, 1 half, 2 closed (patch set chosen by head N/L/R)"
+ },
+ "clips": {
+  "enter": [
+   [
+    {
+     "f": 0,
+     "o": 1
+    },
+    1
+   ],
+   [
+    {
+     "f": 1,
+     "o": 1
+    },
+    2
+   ],
+   [
+    {
+     "f": 1
+    },
+    1
+   ],
+   [
+    {
+     "f": 2,
+     "o": -1
+    },
+    2
+   ],
+   [
+    {
+     "f": 2
+    },
+    1
+   ]
+  ],
+  "exit": [
+   [
+    {
+     "f": 2,
+     "o": 1
+    },
+    1
+   ],
+   [
+    {
+     "f": 1,
+     "o": 1
+    },
+    2
+   ],
+   [
+    {
+     "f": 1
+    },
+    1
+   ],
+   [
+    {
+     "f": 0,
+     "o": -1
+    },
+    2
+   ],
+   [
+    {
+     "f": 0
+    },
+    1
+   ]
+  ],
+  "glanceLeft": [
+   [
+    {
+     "o": -1
+    },
+    1
+   ],
+   [
+    {
+     "head": "L",
+     "s": 1
+    },
+    1
+   ],
+   [
+    {
+     "head": "L"
+    },
+    {
+     "min": 12,
+     "max": 22
+    }
+   ],
+   [
+    {
+     "head": "N",
+     "s": -1
+    },
+    1
+   ]
+  ],
+  "glanceRight": [
+   [
+    {
+     "o": -1
+    },
+    1
+   ],
+   [
+    {
+     "head": "R",
+     "s": -1
+    },
+    1
+   ],
+   [
+    {
+     "head": "R"
+    },
+    {
+     "min": 12,
+     "max": 22
+    }
+   ],
+   [
+    {
+     "head": "N",
+     "s": 1
+    },
+    1
+   ]
+  ],
+  "blink": [
+   [
+    {
+     "b": 1
+    },
+    1
+   ],
+   [
+    {
+     "b": 2
+    },
+    2
+   ],
+   [
+    {
+     "b": 1
+    },
+    1
+   ]
+  ],
+  "doubleBlink": [
+   [
+    {
+     "b": 1
+    },
+    1
+   ],
+   [
+    {
+     "b": 2
+    },
+    2
+   ],
+   [
+    {
+     "b": 1
+    },
+    1
+   ],
+   [
+    {},
+    2
+   ],
+   [
+    {
+     "b": 1
+    },
+    1
+   ],
+   [
+    {
+     "b": 2
+    },
+    1
+   ],
+   [
+    {
+     "b": 1
+    },
+    1
+   ]
+  ],
+  "glanceLeftBlink": [
+   [
+    {
+     "o": -1
+    },
+    1
+   ],
+   [
+    {
+     "head": "L",
+     "s": 1
+    },
+    1
+   ],
+   [
+    {
+     "head": "L"
+    },
+    {
+     "min": 5,
+     "max": 9
+    }
+   ],
+   [
+    {
+     "head": "L",
+     "b": 1
+    },
+    1
+   ],
+   [
+    {
+     "head": "L",
+     "b": 2
+    },
+    2
+   ],
+   [
+    {
+     "head": "L",
+     "b": 1
+    },
+    1
+   ],
+   [
+    {
+     "head": "L"
+    },
+    {
+     "min": 4,
+     "max": 9
+    }
+   ],
+   [
+    {
+     "head": "N",
+     "s": -1
+    },
+    1
+   ]
+  ],
+  "glanceRightBlink": [
+   [
+    {
+     "o": -1
+    },
+    1
+   ],
+   [
+    {
+     "head": "R",
+     "s": -1
+    },
+    1
+   ],
+   [
+    {
+     "head": "R"
+    },
+    {
+     "min": 5,
+     "max": 9
+    }
+   ],
+   [
+    {
+     "head": "R",
+     "b": 1
+    },
+    1
+   ],
+   [
+    {
+     "head": "R",
+     "b": 2
+    },
+    2
+   ],
+   [
+    {
+     "head": "R",
+     "b": 1
+    },
+    1
+   ],
+   [
+    {
+     "head": "R"
+    },
+    {
+     "min": 4,
+     "max": 9
+    }
+   ],
+   [
+    {
+     "head": "N",
+     "s": 1
+    },
+    1
+   ]
+  ]
+ },
+ "schedule": {
+  "glanceEverySec": [
+   3,
+   5
+  ],
+  "glanceAlternateChance": 0.7,
+  "handsInForSec": [
+   8,
+   12
+  ],
+  "handsOutForSec": [
+   3,
+   3
+  ],
+  "blinkEverySec": [
+   2.5,
+   6
+  ],
+  "doubleBlinkChance": 0.15,
+  "startState": "out",
+  "firstEnterAfterSec": 1,
+  "rules": [
+   "Clips never overlap; hands and glance clips only start when the character is idle.",
+   "Timers that fire while a clip is playing wait until it finishes; hands take priority over glances.",
+   "After a hands clip, wait at least settleAfterHandsSec before a glance.",
+   "Blinks only play during idle holds, never during a transition."
+  ],
+  "settleAfterHandsSec": 0.5,
+  "glanceBlinkChance": 0.3
+ }
+}

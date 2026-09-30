@@ -86,6 +86,13 @@ Doc 08 as an adapter, doc 15's corrections applied:
 - Sync runs on launch and whenever the app returns to the foreground. Timeline rows carry a provenance badge.
 - HealthKit entitlement and usage strings are in `project.yml`. Automatic data needs a real device; the simulator's Health app accepts manually added workouts.
 
+## Increment 6, 2026-09-30: hoodie sprite kit v3.1
+
+- The hoodie outfit (kit v3.1) is the default for onboarding and levels 1–4; the suit (kit v2) takes over at the Level 5 evolution. Outfit is a field on the evolution definition, so the swap is content and coincides with the level change. Evolution II has no art yet and renders the suit.
+- `HoodieIdleScheduler` and `HoodieComposer` are ports of the kit's drafts into `HeroContent`, logic unchanged: the generator is injectable (seeded simulation) and the composer returns an RGBA buffer the app wraps in a CGImage (no SpriteKit). Layers are decoded with ImageIO in sRGB and never re-exported; assets ship as a folder reference.
+- Tests: A, all 128 goldens match pixel-for-pixel (a diff image is written to the temp folder on any mismatch); B, all 37 manifest layers load; C, 10 simulated minutes with a seeded generator satisfy the glance spacing, hands-out duration, no-flicker, no 0↔2 adjacency and no-blink-on-transition rules. The same A/B checks run in Python on the Linux job. D (device profiling) is manual via the debug Sprite Lab screen (1 sprite, 15-sprite grid, cache counters).
+- `HoodieCharacterView` ticks at the kit's 12 Hz from a time accumulator in the display-linked timeline, pauses when hidden or backgrounded, holds the pocketed pose under Reduce Motion, and renders at whole-number scale with nearest-neighbour. The scene sprite is back to 2× in a taller card.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

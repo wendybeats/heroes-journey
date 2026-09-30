@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.09.29-2",
+  "content_version": "2026.09.30-1",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -176,19 +176,23 @@
       "id": "ev1_awakened",
       "display_name": "Awakened",
       "min_level": 1,
-      "asset_set_id": "hero.kit.v2"
+      "asset_set_id": "hero.kit.v3",
+      "outfit": "hoodie"
     },
     {
       "id": "ev2_evolution1",
       "display_name": "Evolution I",
       "min_level": 5,
-      "asset_set_id": "hero.body.ev2"
+      "asset_set_id": "hero.kit.v2",
+      "outfit": "suit"
     },
     {
       "id": "ev3_evolution2",
       "display_name": "Evolution II",
       "min_level": 10,
-      "asset_set_id": "hero.body.ev3"
+      "asset_set_id": "hero.body.ev3",
+      "outfit": "suit",
+      "notes": "Evolution II art not produced yet; renders the suit until it exists."
     }
   ],
   "items": [

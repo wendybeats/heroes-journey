@@ -1,0 +1,375 @@
+{
+ "outfit": "hoodie (default: onboarding + levels 1-5)",
+ "cell": [
+  64,
+  128
+ ],
+ "pngScale": 8,
+ "rig": {
+  "neckRow": 27,
+  "legsFixedFromRow": 75,
+  "hairLagRowsBelow": 15,
+  "note": "rows < neckRow come from the head (neutral = body frame, L/R = heads/*); rows >= neckRow from the body frame"
+ },
+ "bodies": {
+  "male": {
+   "0": "bodies/male_hoodie_00_relaxed.png",
+   "1": "bodies/male_hoodie_01_reach.png",
+   "2": "bodies/male_hoodie_02_pocketed.png"
+  },
+  "female": {
+   "0": "bodies/female_hoodie_00_relaxed.png",
+   "1": "bodies/female_hoodie_01_reach.png",
+   "2": "bodies/female_hoodie_02_pocketed.png"
+  }
+ },
+ "heads": {
+  "male": {
+   "L": "heads/male_hoodie_03_look_left.png",
+   "R": "heads/male_hoodie_04_look_right.png"
+  },
+  "female": {
+   "L": "heads/female_hoodie_03_look_left.png",
+   "R": "heads/female_hoodie_04_look_right.png"
+  }
+ },
+ "styles": {
+  "male": [
+   "buzz",
+   "medium",
+   "wolf"
+  ],
+  "female": [
+   "blunt",
+   "long",
+   "ponytail"
+  ]
+ },
+ "hair": {
+  "neutral": "hair/neutral/{gender}_hair_{style}_{front|back}.png",
+  "directional": "hair/directional/{gender}_{style}_hair_{front|back}_{look_left|look_right}.png",
+  "backLayers": [
+   "wolf",
+   "long",
+   "ponytail"
+  ],
+  "drawOrder": [
+   "hair back",
+   "head+body",
+   "blink patch",
+   "hair front"
+  ]
+ },
+ "eyePatches": {
+  "male": {
+   "N": {
+    "1": [
+     [
+      31,
+      21,
+      "#f5c69d"
+     ]
+    ],
+    "2": [
+     [
+      32,
+      20,
+      "#f5c69d"
+     ],
+     [
+      31,
+      21,
+      "#101118"
+     ],
+     [
+      32,
+      21,
+      "#101118"
+     ]
+    ]
+   },
+   "L": {
+    "1": [
+     [
+      28,
+      21,
+      "#f5c69d"
+     ]
+    ],
+    "2": [
+     [
+      27,
+      20,
+      "#f5c69d"
+     ],
+     [
+      28,
+      20,
+      "#f5c69d"
+     ],
+     [
+      27,
+      21,
+      "#101118"
+     ],
+     [
+      28,
+      21,
+      "#101118"
+     ]
+    ]
+   },
+   "R": {
+    "1": [
+     [
+      35,
+      20,
+      "#101118"
+     ]
+    ],
+    "2": [
+     [
+      34,
+      20,
+      "#f5c69d"
+     ],
+     [
+      35,
+      20,
+      "#f5c69d"
+     ],
+     [
+      36,
+      20,
+      "#f5c69d"
+     ],
+     [
+      34,
+      21,
+      "#101118"
+     ],
+     [
+      35,
+      21,
+      "#101118"
+     ],
+     [
+      36,
+      21,
+      "#101118"
+     ]
+    ]
+   }
+  },
+  "female": {
+   "N": {
+    "1": [
+     [
+      32,
+      21,
+      "#f5c69d"
+     ]
+    ],
+    "2": [
+     [
+      31,
+      20,
+      "#f5c69d"
+     ],
+     [
+      32,
+      20,
+      "#f5c69d"
+     ],
+     [
+      33,
+      20,
+      "#f5c69d"
+     ],
+     [
+      34,
+      20,
+      "#f5c69d"
+     ],
+     [
+      36,
+      20,
+      "#f5c69d"
+     ],
+     [
+      31,
+      21,
+      "#101118"
+     ],
+     [
+      32,
+      21,
+      "#101118"
+     ],
+     [
+      33,
+      21,
+      "#101118"
+     ]
+    ]
+   },
+   "L": {
+    "1": [
+     [
+      28,
+      21,
+      "#101118"
+     ]
+    ],
+    "2": [
+     [
+      27,
+      21,
+      "#f5c69d"
+     ],
+     [
+      28,
+      21,
+      "#f5c69d"
+     ],
+     [
+      27,
+      22,
+      "#101118"
+     ],
+     [
+      28,
+      22,
+      "#101118"
+     ]
+    ]
+   },
+   "R": {
+    "1": [
+     [
+      35,
+      21,
+      "#101118"
+     ]
+    ],
+    "2": [
+     [
+      35,
+      20,
+      "#f5c69d"
+     ],
+     [
+      36,
+      20,
+      "#f5c69d"
+     ],
+     [
+      34,
+      21,
+      "#101118"
+     ],
+     [
+      35,
+      21,
+      "#101118"
+     ],
+     [
+      36,
+      21,
+      "#101118"
+     ]
+    ]
+   }
+  }
+ },
+ "palette": {
+  "hairKey": [
+   "#0e2a12",
+   "#1d4a24",
+   "#2f6e37",
+   "#4a9652",
+   "#74c07a"
+  ],
+  "skinKey": [
+   "#8d6050",
+   "#b77f63",
+   "#d69b75",
+   "#eab58d",
+   "#f5c69d"
+  ],
+  "hair": {
+   "Black": [
+    "#16171f",
+    "#1f212b",
+    "#2c2f3c",
+    "#3f4456",
+    "#5d6680"
+   ],
+   "Brown": [
+    "#2a1810",
+    "#472a1a",
+    "#6b4127",
+    "#8f5d38",
+    "#b3804f"
+   ],
+   "Blonde": [
+    "#5a3f1e",
+    "#8a6a30",
+    "#b8954a",
+    "#dcc070",
+    "#f3e2a0"
+   ],
+   "Auburn": [
+    "#3a1410",
+    "#62211a",
+    "#8e3524",
+    "#b84e30",
+    "#d9744a"
+   ],
+   "Silver": [
+    "#3c4150",
+    "#626a7c",
+    "#8d95a6",
+    "#b8bfcb",
+    "#e2e6ec"
+   ]
+  },
+  "skin": {
+   "Fair": [
+    "#946451",
+    "#c08a6c",
+    "#deac8c",
+    "#f2cbae",
+    "#fbe0c8"
+   ],
+   "Light": [
+    "#8d6050",
+    "#b77f63",
+    "#d69b75",
+    "#eab58d",
+    "#f5c69d"
+   ],
+   "Tan": [
+    "#6a4029",
+    "#8c5a38",
+    "#ad744a",
+    "#c98e60",
+    "#e0a878"
+   ],
+   "Brown": [
+    "#472816",
+    "#633c22",
+    "#80502f",
+    "#9c6440",
+    "#b87a50"
+   ],
+   "Deep": [
+    "#28150c",
+    "#3b2013",
+    "#4e2d1b",
+    "#633b25",
+    "#7a4a30"
+   ]
+  }
+ }
+}
