@@ -97,6 +97,12 @@ Doc 08 as an adapter, doc 15's corrections applied:
 
 Owner finding: a two-exercise, eight-set workout logged in under a minute earned 2 XP, because progression was purely duration-based and the duration was the wall clock between Start and Finish. Fix, all data-driven in the dev ruleset's `structured_workout` block: at finish the user confirms a session length (pre-filled with the elapsed time when logged live for 5+ minutes, otherwise 45); that length is the recorded duration. The event also carries the valid set count as a fact, and credit before the daily taper is max(duration, sets × 2.5 min) capped at 120. Manual logs and imports are unchanged. Five tests, including a decode of events saved before the field existed.
 
+## Increment 8, 2026-09-30: evolution celebration, bar wrap, focused log
+
+- Evolution levels (5, 10) run a full-screen ascension instead of the plain level-up: scrim, the character rises to centre and floods flat gold, an oversized flash, the gold drains to reveal the new outfit, "Ascension is here" with the evolution name, then the character settles back into its place in the scene. Skipped under Reduce Motion.
+- The level bar never slides backwards: on level-up it fills to the end, snaps to zero without animation, then fills to the new progress.
+- The log sheet has two modes: pick an activity, then a focused screen with only the title, a large duration counter with ±5 min steps and Done; "Change" returns to the list.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

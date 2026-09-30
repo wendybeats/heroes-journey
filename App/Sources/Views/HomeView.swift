@@ -19,6 +19,8 @@ struct HomeView: View {
     @State private var deltaToken = 0
     @State private var levelUpStart: Date?
     @State private var levelFlash = false
+    @State private var ascension: (start: Date, from: String?, to: String?, name: String)?
+    @State private var barFill: Double = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
 
@@ -69,16 +71,19 @@ struct HomeView: View {
                         let cr = geo[c], br = geo[b]
                         LevelUpOverlay(start: start, characterCenter: CGPoint(x: cr.midX, y: cr.midY), badgeCenter: CGPoint(x: br.midX, y: br.midY))
                     }
+                    if let a = ascension, let recipe = state.recipe, let c = anchors["character"] {
+                        AscensionOverlay(start: a.start, recipe: recipe, fromOutfit: a.from, toOutfit: a.to, evolutionName: a.name, sceneFrame: geo[c])
+                    }
                 }
             }
             .overlay { if let receipt = state.lastReceipt { RewardMoment(receipt: receipt) } }
             .animation(.easeInOut(duration: 0.25), value: state.lastReceipt == nil)
         }
-        .onAppear { if shown == nil { shown = state.snapshot } }
+        .onAppear { if shown == nil { shown = state.snapshot; barFill = levelProgress(state.snapshot) } }
         .onChange(of: scenePhase) { _, phase in if phase == .active { Task { await state.syncHealth() } } }
         .onChange(of: state.snapshot) { _, new in
             // Sync silently unless a reward is showing (then wait for dismissal).
-            if state.lastReceipt == nil { shown = new }
+            if state.lastReceipt == nil { shown = new; barFill = levelProgress(new) }
         }
         .onChange(of: state.rewardToken) { _, _ in
             let new = state.snapshot
@@ -86,22 +91,46 @@ struct HomeView: View {
             xpDelta = new.totalXP - old.totalXP
             deltas = Dictionary(uniqueKeysWithValues: new.attributes.map { ($0.key, $0.value - (old.attributes[$0.key] ?? 0)) })
             deltaToken += 1
-            if new.level > old.level && !reduceMotion {
+            let oldEv = state.bundle.evolution(forLevel: old.level), newEv = state.bundle.evolution(forLevel: new.level)
+            if new.level > old.level && oldEv?.id != newEv?.id && !reduceMotion {
+                // Evolution: full-screen ascension. The scene swaps outfit under the overlay at the reveal.
+                ascension = (Date(), oldEv?.outfit, newEv?.outfit, newEv?.displayName ?? "")
+                Task {
+                    try? await Task.sleep(for: .milliseconds(Int(AscensionOverlay.revealAt * 1000)))
+                    levelFlash = true
+                    shown = new
+                    await wrapBar(to: levelProgress(new))
+                    try? await Task.sleep(for: .milliseconds(Int((AscensionOverlay.duration - AscensionOverlay.revealAt) * 1000) - 1300))
+                    withAnimation(.easeOut(duration: 0.6)) { levelFlash = false }
+                    ascension = nil
+                }
+            } else if new.level > old.level && !reduceMotion {
                 // Doc 02 reward moment, extended (owner, 2026-09-29): aura, star burst, then the counter.
                 levelUpStart = Date()
                 Task {
                     try? await Task.sleep(for: .milliseconds(Int(LevelUpOverlay.counterDelay * 1000)))
                     levelFlash = true
                     withAnimation(.easeOut(duration: 1.0)) { shown = new }
-                    try? await Task.sleep(for: .milliseconds(1000))
+                    await wrapBar(to: levelProgress(new))
+                    try? await Task.sleep(for: .milliseconds(200))
                     withAnimation(.easeOut(duration: 0.6)) { levelFlash = false }
                     try? await Task.sleep(for: .milliseconds(600))
                     levelUpStart = nil
                 }
             } else {
-                withAnimation(.easeOut(duration: 1.2)) { shown = new }
+                withAnimation(.easeOut(duration: 1.2)) { shown = new; barFill = levelProgress(new) }
             }
         }
+    }
+
+    /// Fill to the end, snap to zero without animation, fill to the new value (never slides backwards).
+    private func wrapBar(to target: Double) async {
+        withAnimation(.easeIn(duration: 0.45)) { barFill = 1 }
+        try? await Task.sleep(for: .milliseconds(500))
+        var noAnimation = Transaction(); noAnimation.disablesAnimations = true
+        withTransaction(noAnimation) { barFill = 0 }
+        try? await Task.sleep(for: .milliseconds(60))
+        withAnimation(.easeOut(duration: 0.8)) { barFill = target }
     }
 
     // MARK: character scene (compact)
@@ -138,8 +167,7 @@ struct HomeView: View {
                     Text("\(next) to Level \(snapshot.level + 1)").font(HeroFont.captionNumber).foregroundStyle(NeoTokyo.Text.secondary)
                 }
             }
-            ProgressView(value: levelProgress(snapshot)).tint(NeoTokyo.Hierarchy.primary)
-                .animation(.easeOut(duration: 1.2), value: levelProgress(snapshot))
+            LevelBar(fill: barFill)
             Divider().overlay(NeoTokyo.Surface.line)
             HStack {
                 ForEach(state.bundle.attributes, id: \.id) { attribute in
