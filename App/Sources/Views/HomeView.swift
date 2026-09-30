@@ -111,7 +111,8 @@ struct HomeView: View {
             BackdropImage(assetSetID: state.recipe?.backdropID ?? "backdrop.rain_district")
             // Character stands on the road: bottom-centre, 20% smaller than the 2x sprite scale.
             if let recipe = state.recipe {
-                CharacterView(recipe: recipe, outfit: state.evolution?.outfit, scale: HomeView.characterScale)
+                // Outfit follows the *displayed* level so the swap lands with the counter during the level-up sequence.
+                CharacterView(recipe: recipe, outfit: state.bundle.evolution(forLevel: snapshot.level)?.outfit, scale: HomeView.characterScale)
                     .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)  // the character's own glow
                     .padding(.bottom, NeoTokyo.Spacing.xl)
                     .anchorPreference(key: SceneAnchorsKey.self, value: .bounds) { ["character": $0] }
