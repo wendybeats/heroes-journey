@@ -153,42 +153,6 @@ final class ProgressionEngineTests: XCTestCase {
         XCTAssertEqual(decoded.id, e.id)
         XCTAssertEqual(decoded, e)
     }
-}
-
-final class BalanceLeverTests: XCTestCase {
-    let user = UserID()
-    let day = Date(timeIntervalSince1970: 1_800_000_000)
-    func ruleset(base: Int?) -> ProgressionRuleset {
-        ProgressionRuleset(id: "r", version: 1, status: .dev, xpPerMinuteByFamily: ["strength": 2.0], attributeWeightsByFamily: [:], attributePointsPerXP: 0.5,
-                           verificationMultiplier: [:], dailyTaper: .init(fullCreditMinutes: 90, taperRate: 0.25, hardCapMinutes: 240),
-                           minimumDurationSeconds: 60, levelThresholdsTotalXP: [0, 60], sessionBaseXP: base, healthHistoryWindowDays: 7)
-    }
-    func event(minutes: Int) -> ActivityEvent {
-        ActivityEvent(userID: user, activityTypeID: "weightlifting", familyID: "strength", startedAt: day, durationSeconds: minutes * 60, source: .manual, verification: .selfReported, createdAt: day)
-    }
-    func ctx(prior: Double = 0) -> EvaluationContext { EvaluationContext(priorEligibleMinutesToday: prior, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:]) }
-
-    func testSessionBaseXPAddsOnceAndIsNotTapered() {
-        XCTAssertEqual(ProgressionEngine.evaluate(event: event(minutes: 30), ruleset: ruleset(base: 5), context: ctx()).xp, 65)
-        XCTAssertEqual(ProgressionEngine.evaluate(event: event(minutes: 30), ruleset: ruleset(base: nil), context: ctx()).xp, 60)
-        // beyond the hard cap: no credited minutes, so no base either (nothing earned, nothing to reward)
-        XCTAssertEqual(ProgressionEngine.evaluate(event: event(minutes: 30), ruleset: ruleset(base: 5), context: ctx(prior: 300)).xp, 0)
-        // below the minimum duration: nothing
-        XCTAssertEqual(ProgressionEngine.evaluate(event: event(minutes: 0), ruleset: ruleset(base: 5), context: ctx()).xp, 0)
-    }
-
-    func testFirstSyncHistoryWindow() {
-        let imported = ImportedActivity(externalID: "old", sourceKind: "running", startedAt: day.addingTimeInterval(-10 * 86_400), endedAt: day.addingTimeInterval(-10 * 86_400 + 1800))
-        let recent = ImportedActivity(externalID: "new", sourceKind: "running", startedAt: day.addingTimeInterval(-2 * 86_400), endedAt: day.addingTimeInterval(-2 * 86_400 + 1800))
-        let from = day.addingTimeInterval(-7 * 86_400)
-        func run(_ i: ImportedActivity, creditFrom: Date?) -> ImportOutcome {
-            ImportReconciler.reconcile(i, userID: user, existing: [], mapping: ["running": "running"], familyOf: { _ in "cardio" }, fallbackTypeID: "walking", fallbackFamilyID: "cardio", now: day, creditFrom: creditFrom)
-        }
-        guard case .historyOnlyBeforeWindow = run(imported, creditFrom: from).disposition else { return XCTFail("10-day-old workout is history only on first sync") }
-        XCTAssertNotNil(run(imported, creditFrom: from).event, "the fact is still recorded")
-        guard case .imported = run(recent, creditFrom: from).disposition else { return XCTFail("2-day-old workout is credited") }
-        guard case .imported = run(imported, creditFrom: nil).disposition else { return XCTFail("later syncs credit everything new") }
-    }
 
     // MARK: dev-5 cross-family daily cap
 
@@ -227,3 +191,38 @@ final class BalanceLeverTests: XCTestCase {
         XCTAssertEqual(ledger.context(for: tomorrow, ruleset: capped, events: [a, b, tomorrow], levelRewards: [:], calendar: calendar).priorActivityXPToday, 0)
     }
 }
+
+final class BalanceLeverTests: XCTestCase {
+    let user = UserID()
+    let day = Date(timeIntervalSince1970: 1_800_000_000)
+    func ruleset(base: Int?) -> ProgressionRuleset {
+        ProgressionRuleset(id: "r", version: 1, status: .dev, xpPerMinuteByFamily: ["strength": 2.0], attributeWeightsByFamily: [:], attributePointsPerXP: 0.5,
+                           verificationMultiplier: [:], dailyTaper: .init(fullCreditMinutes: 90, taperRate: 0.25, hardCapMinutes: 240),
+                           minimumDurationSeconds: 60, levelThresholdsTotalXP: [0, 60], sessionBaseXP: base, healthHistoryWindowDays: 7)
+    }
+    func event(minutes: Int) -> ActivityEvent {
+        ActivityEvent(userID: user, activityTypeID: "weightlifting", familyID: "strength", startedAt: day, durationSeconds: minutes * 60, source: .manual, verification: .selfReported, createdAt: day)
+    }
+    func ctx(prior: Double = 0) -> EvaluationContext { EvaluationContext(priorEligibleMinutesToday: prior, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:]) }
+
+    func testSessionBaseXPAddsOnceAndIsNotTapered() {
+        XCTAssertEqual(ProgressionEngine.evaluate(event: event(minutes: 30), ruleset: ruleset(base: 5), context: ctx()).xp, 65)
+        XCTAssertEqual(ProgressionEngine.evaluate(event: event(minutes: 30), ruleset: ruleset(base: nil), context: ctx()).xp, 60)
+        // beyond the hard cap: no credited minutes, so no base either (nothing earned, nothing to reward)
+        XCTAssertEqual(ProgressionEngine.evaluate(event: event(minutes: 30), ruleset: ruleset(base: 5), context: ctx(prior: 300)).xp, 0)
+        // below the minimum duration: nothing
+        XCTAssertEqual(ProgressionEngine.evaluate(event: event(minutes: 0), ruleset: ruleset(base: 5), context: ctx()).xp, 0)
+    }
+
+    func testFirstSyncHistoryWindow() {
+        let imported = ImportedActivity(externalID: "old", sourceKind: "running", startedAt: day.addingTimeInterval(-10 * 86_400), endedAt: day.addingTimeInterval(-10 * 86_400 + 1800))
+        let recent = ImportedActivity(externalID: "new", sourceKind: "running", startedAt: day.addingTimeInterval(-2 * 86_400), endedAt: day.addingTimeInterval(-2 * 86_400 + 1800))
+        let from = day.addingTimeInterval(-7 * 86_400)
+        func run(_ i: ImportedActivity, creditFrom: Date?) -> ImportOutcome {
+            ImportReconciler.reconcile(i, userID: user, existing: [], mapping: ["running": "running"], familyOf: { _ in "cardio" }, fallbackTypeID: "walking", fallbackFamilyID: "cardio", now: day, creditFrom: creditFrom)
+        }
+        guard case .historyOnlyBeforeWindow = run(imported, creditFrom: from).disposition else { return XCTFail("10-day-old workout is history only on first sync") }
+        XCTAssertNotNil(run(imported, creditFrom: from).event, "the fact is still recorded")
+        guard case .imported = run(recent, creditFrom: from).disposition else { return XCTFail("2-day-old workout is credited") }
+        guard case .imported = run(imported, creditFrom: nil).disposition else { return XCTFail("later syncs credit everything new") }
+    }
