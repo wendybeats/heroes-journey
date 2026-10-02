@@ -155,6 +155,10 @@ See docs/21 §dev-5b. The derive tool now integrates a banded days-per-level sch
 
 See docs/25. Content: characters, story chapters, world name, backdrop roles, quest backdrop + walk refs; decoder, identifiers (`CharacterID`), integrity checks and a content test. Assets: four new asset sets from the owner's handoff, `kind: portrait` added to the validator and schema, `Tools/bake_walk_cycle.py` for storyboard → cells. App: `StoryView`, `Bubble`, `PortraitView`, `SpritePortrait`, `SpeakerPortrait`, `HeroFont.dialogue`; onboarding wraps the questions in the two chapters; departure uses the panorama (tiled at its own aspect) and the hooded walk.
 
+## Increment 19, 2026-10-02: owner QA batch A (bugs)
+
+Portrait kind missing from the Swift manifest decoder (portraits rendered as placeholders); story stage shows at most two bubbles, newest from below, older slides up and fades, no scrolling; onboarding scene taller with the hooded portrait until the body is chosen; "Away" badge reopens the quest screen; reward modal names the daily cap when a session earns nothing and Home shows "n / 40 activity XP today"; walk cycle re-baked at 118 px with the frame order reversed for the owner to compare.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

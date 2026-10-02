@@ -58,10 +58,17 @@ struct OnboardingView: View {
 
     private var scene: some View {
         ZStack(alignment: .bottom) {
-            BackdropImage(assetSetID: "backdrop.rain_district")
-            CharacterView(recipe: draft, outfit: state.bundle.evolution(forLevel: 1)?.outfit, scale: HomeView.characterScale)
-                .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 18)
-                .padding(.bottom, NeoTokyo.Spacing.lg)
+            BackdropImage(assetSetID: "backdrop.alley_awakening")
+            // Until the body is chosen the hero is still the hooded stranger (owner, 2026-10-02); a
+            // hood-up idle sprite is an art item, the portrait stands in meanwhile.
+            if step.rawValue < Step.body.rawValue, let hero = state.bundle.character("hero") {
+                PortraitView(assetSetID: hero.portraitAssetSetID, size: 170)
+                    .padding(.bottom, NeoTokyo.Spacing.sm)
+            } else {
+                CharacterView(recipe: draft, outfit: state.bundle.evolution(forLevel: 1)?.outfit, scale: HomeView.characterScale)
+                    .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 18)
+                    .padding(.bottom, NeoTokyo.Spacing.sm)
+            }
             HStack(spacing: 4) {
                 ForEach(Step.allCases, id: \.rawValue) { s in
                     Capsule().fill(s.rawValue <= step.rawValue ? NeoTokyo.Hierarchy.primary : NeoTokyo.Surface.line).frame(height: 3)
@@ -71,7 +78,7 @@ struct OnboardingView: View {
             .padding(.top, 56)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-        .frame(height: 300)
+        .frame(height: 360)
         .ignoresSafeArea(edges: .top)
         .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.85), .init(color: .clear, location: 1)], startPoint: .top, endPoint: .bottom))
     }

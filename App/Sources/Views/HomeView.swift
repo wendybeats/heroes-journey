@@ -167,12 +167,15 @@ struct HomeView: View {
                     .anchorPreference(key: SceneAnchorsKey.self, value: .bounds) { ["character": $0] }
             }
             if case let .away(run) = state.questState {
-                VStack(spacing: NeoTokyo.Spacing.xs) {
-                    Eyebrow(text: "Away")
-                    Countdown(until: run.returnsAt, font: HeroFont.statSM)
+                Button { departure = run } label: {
+                    VStack(spacing: NeoTokyo.Spacing.xs) {
+                        Eyebrow(text: "Away · tap to look")
+                        Countdown(until: run.returnsAt, font: HeroFont.statSM)
+                    }
+                    .padding(NeoTokyo.Spacing.md)
+                    .glass(tint: NeoTokyo.Surface.overlay)
                 }
-                .padding(NeoTokyo.Spacing.md)
-                .glass(tint: NeoTokyo.Surface.overlay)
+                .buttonStyle(.plain)
                 .padding(.bottom, NeoTokyo.Spacing.xl)
             }
             VStack(alignment: .leading, spacing: NeoTokyo.Spacing.sm) {
@@ -252,6 +255,13 @@ struct HomeView: View {
                 Eyebrow(text: "Today")
                 Spacer()
                 healthStatus
+            }
+            if let cap = state.ruleset.dailyActivityXPCap {
+                HStack(spacing: NeoTokyo.Spacing.xs) {
+                    Text("Activity XP today").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
+                    Spacer()
+                    Text("\(min(cap, state.todayActivityXP)) / \(cap)").font(HeroFont.captionNumber).foregroundStyle(state.todayActivityXP >= cap ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.primary)
+                }
             }
             if let steps = state.todaySteps {
                 HStack(alignment: .firstTextBaseline, spacing: NeoTokyo.Spacing.xs) {

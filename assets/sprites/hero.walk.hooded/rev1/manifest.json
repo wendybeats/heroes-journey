@@ -18,14 +18,14 @@
   "animations": {
     "walk": {
       "frames": [
-        "walk/000.png",
-        "walk/001.png",
-        "walk/002.png",
-        "walk/003.png",
-        "walk/004.png",
-        "walk/005.png",
+        "walk/007.png",
         "walk/006.png",
-        "walk/007.png"
+        "walk/005.png",
+        "walk/004.png",
+        "walk/003.png",
+        "walk/002.png",
+        "walk/001.png",
+        "walk/000.png"
       ],
       "frame_duration_ms": 110,
       "loop": true,
@@ -33,5 +33,5 @@
     }
   },
   "palette_roles": {},
-  "notes": "Baked by Tools/bake_walk_cycle.py from the owner's storyboard: 8 poses, shared scale 0.197, 24 colours, feet on row 122. Gender-neutral hooded figure; used for every outfit until per-outfit walks exist."
+  "notes": "Baked by Tools/bake_walk_cycle.py from the owner's storyboard: 8 poses, shared scale 0.210, 23 colours, feet on row 122. Gender-neutral hooded figure; used for every outfit until per-outfit walks exist. Frame order reversed after the owner saw it read as walking backwards (2026-10-02); figure 118 px."
 }

@@ -14,7 +14,7 @@ public struct SpriteManifest: Codable, Sendable, Equatable {
         enum CodingKeys: String, CodingKey { case frames, frameDurationMs = "frame_duration_ms", loop, posterFrame = "poster_frame" }
     }
     public enum Status: String, Codable, Sendable { case draft, accepted, retired }
-    public enum Kind: String, Codable, Sendable { case body, hair, item, backdrop, effect }
+    public enum Kind: String, Codable, Sendable { case body, hair, item, backdrop, effect, portrait }
 
     public let schemaVersion: Int
     public let assetSetID: AssetSetID

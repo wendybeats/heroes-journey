@@ -116,6 +116,11 @@ final class AppState {
     /// Real activity only: goal completions and quest returns are facts too, but not sessions.
     var activityEvents: [ActivityEvent] { visibleEvents.filter { $0.source != .goal && $0.source != .quest } }
     var todayEvents: [ActivityEvent] { activityEvents.filter { Calendar.current.isDateInToday($0.startedAt) }.sorted { $0.startedAt > $1.startedAt } }
+    /// XP granted today to real activity (what the dev-5 daily cap counts).
+    var todayActivityXP: Int {
+        let ids = Set(todayEvents.map(\.id))
+        return ledger.xp.filter { $0.reason == .activity && $0.activityEventID.map(ids.contains) == true }.reduce(0) { $0 + $1.amount }
+    }
     /// Row label for any fact, goal completions included.
     func displayName(for event: ActivityEvent) -> String {
         if let goal = event.goal { return bundle.goalTemplate(goal.templateID)?.title.replacingOccurrences(of: "{target}", with: "") ?? goal.templateID.rawValue }

@@ -22,25 +22,29 @@ struct StoryView: View {
     private var speaker: ContentBundle.Character? { state.bundle.character(beat.speaker) }
     private var isLastLine: Bool { beatIndex >= chapter.beats.count - 1 && lineCount >= beat.lines.count }
     private var heroOnRight: Bool { speaker?.side != "left" }
+    /// The last two revealed lines of the current beat, keyed by their index so transitions track identity.
+    private var visibleLines: [(offset: Int, line: ContentBundle.StoryLine)] {
+        let revealed = Array(beat.lines.prefix(lineCount).enumerated()).map { (offset: $0.offset, line: $0.element) }
+        return Array(revealed.suffix(2))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             stage
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(alignment: heroOnRight ? .leading : .trailing, spacing: NeoTokyo.Spacing.sm) {
-                        ForEach(Array(beat.lines.prefix(lineCount).enumerated()), id: \.offset) { pair in
-                            Bubble(text: pair.element.resolved(worldName: state.bundle.worldName), trailing: !heroOnRight)
-                                .id(pair.offset)
-                                .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: heroOnRight ? .leading : .trailing)
-                    .padding(.horizontal, NeoTokyo.Spacing.lg)
-                    .padding(.top, NeoTokyo.Spacing.md)
+            // Owner rule (2026-10-02): at most two bubbles on screen, no scrolling. The newest enters
+            // from below; the one before it stays; anything older slides up and fades out.
+            VStack(alignment: heroOnRight ? .leading : .trailing, spacing: NeoTokyo.Spacing.sm) {
+                ForEach(Array(visibleLines.enumerated()), id: \.element.offset) { pair in
+                    Bubble(text: pair.element.line.resolved(worldName: state.bundle.worldName), trailing: !heroOnRight)
+                        .opacity(pair.offset == 0 && visibleLines.count == 2 ? 0.55 : 1)
+                        .transition(reduceMotion ? .opacity : .asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity), removal: .move(edge: .top).combined(with: .opacity)))
                 }
-                .onChange(of: token) { _, _ in withAnimation { proxy.scrollTo(lineCount - 1, anchor: .bottom) } }
             }
+            .frame(maxWidth: .infinity, alignment: heroOnRight ? .leading : .trailing)
+            .padding(.horizontal, NeoTokyo.Spacing.lg)
+            .padding(.top, NeoTokyo.Spacing.md)
+            .frame(maxHeight: .infinity, alignment: .top)
+            .clipped()
             footer
         }
         .background(NeoTokyo.Surface.base.ignoresSafeArea())
