@@ -212,7 +212,8 @@ struct ChoiceRows: View {
     @Binding var selection: String
     var body: some View {
         VStack(spacing: NeoTokyo.Spacing.sm) {
-            ForEach(options, id: \.0) { id, label in
+            ForEach(options, id: \.0) { option in
+                let (id, label) = option
                 let on = selection == id
                 Button { selection = id } label: {
                     HStack {
