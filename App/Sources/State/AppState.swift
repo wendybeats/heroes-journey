@@ -291,6 +291,7 @@ final class AppState {
         do {
             try await importer.requestAuthorization()
             healthSync.authorization = .requested   // the prompt finished; read access is not knowable
+            healthSync.stepsRequested = true
             healthSync.lastError = nil
         } catch {
             healthSync.lastError = String(describing: error)
@@ -302,6 +303,13 @@ final class AppState {
     /// Incremental import. Order matters: store facts, save, then advance the anchor, then submit.
     func syncHealth() async {
         guard healthSync.authorization == .requested else { return }
+        if !healthSync.stepsRequested {
+            // Workouts were authorised before steps existed: ask once for the new type.
+            try? await importer.requestAuthorization()
+            healthSync.stepsRequested = true
+            save()
+        }
+        await refreshSteps()
         do {
             let firstSync = healthSync.anchor == nil
             let page = try await importer.fetchWorkouts(after: healthSync.anchor)
@@ -341,6 +349,16 @@ final class AppState {
             healthSync.lastError = String(describing: error)
             save()
         }
+    }
+
+    /// Today's step total → `todaySteps`, then goal evaluation. A read failure leaves the last value.
+    func refreshSteps() async {
+        guard healthSync.authorization == .requested else { return }
+        guard let steps = try? await importer.fetchSteps(on: Date()) else { return }
+        let before = outbox.pending.count
+        todaySteps = steps
+        evaluateGoals(now: Date())
+        if outbox.pending.count > before { save(); await drain(showReward: true) }
     }
 
     // MARK: daily goals (doc 24)

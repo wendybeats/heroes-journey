@@ -221,6 +221,12 @@ struct HomeView: View {
                 Spacer()
                 healthStatus
             }
+            if let steps = state.todaySteps {
+                HStack(alignment: .firstTextBaseline, spacing: NeoTokyo.Spacing.xs) {
+                    StatNumber(value: steps, unit: "steps")
+                    Spacer()
+                }
+            }
             if state.todayEvents.isEmpty {
                 Text("Nothing logged yet.").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.muted)
             } else {

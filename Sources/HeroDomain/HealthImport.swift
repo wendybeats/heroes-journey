@@ -94,6 +94,9 @@ public struct HealthSyncState: Codable, Sendable, Equatable {
     public var lastSyncAt: Date? = nil
     public var lastImportedCount: Int = 0
     public var lastError: String? = nil
+    /// Step reading was added after the first release of the prompt (doc 24 step 2); users who
+    /// authorised workouts only are asked once more. Absent in older archives → false.
+    public var stepsRequested: Bool = false
     public init() {}
 }
 

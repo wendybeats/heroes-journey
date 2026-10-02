@@ -18,7 +18,23 @@ final class HealthKitImporter: @unchecked Sendable {
     /// Presents the system prompt. Completion says only that the prompt finished; read access is
     /// not knowable (doc 15), so callers record `.requested`, never "granted".
     func requestAuthorization() async throws {
-        try await store.requestAuthorization(toShare: [], read: [HKObjectType.workoutType()])
+        try await store.requestAuthorization(toShare: [], read: [HKObjectType.workoutType(), HKQuantityType(.stepCount)])
+    }
+
+    /// Step total for the local calendar day containing `date`. HealthKit merges overlapping
+    /// sources (phone + watch) in a cumulative-sum statistics query, so this is not double counted.
+    /// Steps are information and a goal source, never an activity (doc 24).
+    func fetchSteps(on date: Date, calendar: Calendar = .current) async throws -> Int {
+        let start = calendar.startOfDay(for: date)
+        guard let end = calendar.date(byAdding: .day, value: 1, to: start) else { return 0 }
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+        return try await withCheckedThrowingContinuation { continuation in
+            let query = HKStatisticsQuery(quantityType: HKQuantityType(.stepCount), quantitySamplePredicate: predicate, options: .cumulativeSum) { _, stats, error in
+                if let error { continuation.resume(throwing: error); return }
+                continuation.resume(returning: Int(stats?.sumQuantity()?.doubleValue(for: .count()) ?? 0))
+            }
+            store.execute(query)
+        }
     }
 
     /// Incremental read from `anchor`. The caller persists the returned anchor only after it has

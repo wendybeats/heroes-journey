@@ -112,7 +112,13 @@ See `docs/21-balance-simulation.md`. Ruleset dev-2 (session base XP 5, first-syn
 - Content: 49 `goal_templates` in the bundle (11 primary across training/rest and every family, 16 secondary split learning/mindfulness, 22 small wins), each with 2–3 lines in the character's voice and a data-driven completion rule (`manual`, `activity_family`, `steps`, `workout_sets`). Ruleset dev-3 adds `goal_xp` {primary 8, secondary 5, small_win 3}; dev-2 archived.
 - Domain (`Goals.swift`): `GoalTemplate`, `GoalPreferences` (fixed weekday pattern per training frequency), `DayKey`, `GoalGenerator` (seeded SplitMix64, one goal per slot, interest/family targeting, no-repeat windows 1/5/7 days, weights for motivation, rare, completed-recently and offered-but-skipped), `GoalEvaluator` (auto-completion from the day's facts; goal events never satisfy activity goals). A completion is an `ActivityEvent` with `source: goal` and a `GoalReference`; the engine prices it flat and untapered and credits the template's attribute. Same service boundary, same ledger, idempotent.
 - App: archive v4 (preferences, plans, completions, seed; older archives decode), `ensureTodayPlan` on launch/foreground/after onboarding, manual completion from the row, auto-completion after log/finishWorkout/Health sync, goal receipts listed inside the activity's reward modal. Home gets a goals card under the scene: segmented quest ring (the goal count is the meter), training/rest eyebrow, rows with title, line, +n and one check. History labels goal facts.
-- Not yet: steps (preferences default to strength / mindfulness / 4 days until onboarding v2 asks), the quest itself, balance re-simulation with goals.
+- Not yet: the quest itself, balance re-simulation with goals. Preferences default to strength / mindfulness / 4 days until onboarding v2 asks.
+
+## Increment 11, 2026-10-02: steps (doc 24, build step 2)
+
+- `HealthKitImporter` reads `stepCount` (added to the authorisation set; users who authorised workouts earlier are asked once more, tracked by `HealthSyncState.stepsRequested`) and sums the local day with a cumulative-sum statistics query, which HealthKit de-duplicates across phone and watch.
+- `AppState.refreshSteps` runs inside every Health sync (launch, foreground): sets `todaySteps`, evaluates goals, drains with the reward modal when a steps goal completed. Steps are never an activity and earn nothing by themselves; a steps goal does (doc 24, doc 15's information-first stance kept).
+- Home's Today card shows the step count in white. The rest-day steps goal scales 5,000 + 400 per level.
 
 ## Still open (unchanged from README)
 
