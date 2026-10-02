@@ -38,3 +38,15 @@ A user who trains three times a week for 30 minutes reaches Level 5 in about two
 3. Lower per-session durations' weight and raise the per-session base. Benefits short sessions broadly, including reading and meditation, and compresses the gap between personas.
 
 My recommendation is 1 for the first test and to revisit with real D7 data (doc 12).
+
+## Re-run with daily goals and the quest (2026-10-02, ruleset dev-3)
+
+`python3 Tools/simulate_progression.py Content/v1/ruleset.dev-3.json --weeks 8` (and `--no-goals` for the comparison). Goal completion is modelled per persona as an independent probability per goal (light 0.55, regular 0.8, heavy 0.9); the quest fires when all three are done and pays the table's roll.
+
+| persona | L5 (activity only) | L5 (goals + quest) | L10 (activity only) | L10 (goals + quest) | XP at 21 d (before → after) |
+|---|---|---|---|---|---|
+| light | day 15 | day 10 | >56 | >56 | 581 → 778 |
+| regular | day 3 | day 3 | day 16 | day 15 | 3250 → 3613 |
+| heavy | day 4 | day 3 | day 19 | day 17 | 2870 → 3261 |
+
+Reading: goals do what doc 22 wanted for the light user (L5 five days sooner, +34 % XP) without moving the regular user's curve by more than a day. Level 10 stays out of an 8-week window for the light persona (about day 67 at this rate). That remains the open product decision from the first run: lower the upper thresholds, or accept that a 3-session week is a slow road to the top of the first content tier. Goal XP at 8/5/3 and quest XP at 6/10/16 are small enough that a user cannot out-level a training user by tapping; the simulator counts both.
