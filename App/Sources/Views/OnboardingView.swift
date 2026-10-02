@@ -102,7 +102,7 @@ struct OnboardingView: View {
     private var content: some View {
         let options = state.bundle.avatarOptions
         switch step {
-        case .awaken:
+        case .awaken, .bond:
             EmptyView()
         case .name:
             TextField("Name", text: $name)
