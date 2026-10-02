@@ -4,7 +4,7 @@ iOS-first fitness RPG: real-world activity develops a persistent pixel character
 
 > Work out in real life. Level up your RPG character.
 
-## Status (2026-09-28)
+## Status (2026-10-02)
 
 Fresh rebuild from the blueprint in `docs/`. See `docs/20-rebuild-review.md` for what changed from the earlier Codex scaffold and why, and `docs/19-art-direction-neo-tokyo.md` for the color system.
 
@@ -17,7 +17,11 @@ Implemented:
 
 Verified: CI passes on macOS (`swift test`, 19 tests) and the iOS simulator build. Not yet done: an interactive simulator walkthrough.
 
-Hoodie character kit (levels 1–4) with pixel-exact golden tests, strength logger with PR detection and Apple Health workout import are in (templates, rest timer and step data deferred). Not implemented: server sync, auth, guest claiming, analytics, entitlements, production art.
+Hoodie character kit (levels 1–4) with pixel-exact golden tests, strength logger with PR detection, Apple Health workout import and daily steps are in (workout templates and rest timer deferred).
+
+Daily loop (doc 22/24, 2026-10-02): 2–3 personalised daily goals from 49 content templates (seeded generator, auto-completion from logged, imported and step data, flat goal XP through the same engine), a 4-hour daily quest unlocked by finishing the day's goals (deterministic reward roll, departure screen with a scrolling backdrop, local notification, return reveal), a once-a-day "setting the stage" screen, Home v2 with the full-bleed companion scene, and onboarding as the first story chapter. Balance re-simulated with goals in `docs/21`.
+
+Not implemented: server sync, auth, guest claiming, analytics, entitlements, production art, a walk clip for the quest departure, story fragments.
 
 ## Run
 
