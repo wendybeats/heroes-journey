@@ -14,15 +14,21 @@ struct DepartureView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let run: QuestRun
 
+    /// The quest's panorama, else the home backdrop. Kept out of the view builder for the type checker.
+    private var questBackdrop: BackdropID {
+        if let id = state.quest?.backdropID, let set = state.bundle.backdrop(id)?.assetSetID { return BackdropID(set.rawValue) }
+        return state.recipe?.backdropID ?? BackdropID("backdrop.rain_district")
+    }
+    private var walkAssetSetID: AssetSetID? { state.quest?.walkAssetSetID }
+
     var body: some View {
         VStack(spacing: 0) {
             ZStack(alignment: .bottom) {
                 // Owner handoff 2026-10-02: the first-walk panorama (one plane, 10 s per strip in the
                 // owner's preview) and the hooded walk cycle. Scroll speed is tuned to the strip, not the
                 // stride; the owner judges foot-slide on device (walk 110 ms x 8 frames).
-                let questBackdrop = state.quest?.backdropID.flatMap { state.bundle.backdrop($0)?.assetSetID } ?? state.recipe?.backdropID ?? "backdrop.rain_district"
                 ScrollingBackdrop(assetSetID: questBackdrop, pointsPerSecond: reduceMotion ? 0 : 114, parallax: false)
-                if let walk = state.quest?.walkAssetSetID {
+                if let walk = walkAssetSetID {
                     SpritePlayer(assetSetID: walk, animation: "walk", scale: HomeView.characterScale)
                         .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)
                         .padding(.bottom, NeoTokyo.Spacing.xl)
