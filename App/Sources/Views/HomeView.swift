@@ -30,17 +30,23 @@ struct HomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: NeoTokyo.Spacing.lg) {
+                    // Home v2 (doc 24): the scene bleeds under the status bar and off the top edge; the
+                    // companion world comes first, then today's goals, then progression, then utility.
                     sceneCard(snapshot)
-                    GoalsCard()
-                    progressCard(snapshot)
-                    weekCard
-                    todayCard
+                    VStack(spacing: NeoTokyo.Spacing.lg) {
+                        GoalsCard()
+                        progressCard(snapshot)
+                        todayCard
+                        weekCard
+                    }
+                    .padding(.horizontal, NeoTokyo.Spacing.lg)
                 }
-                .padding(.horizontal, NeoTokyo.Spacing.lg)
                 .padding(.bottom, 96)
             }
+            .ignoresSafeArea(edges: .top)
             .background(NeoTokyo.Surface.base)
-            .navigationTitle(state.recipe?.name ?? "")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showHistory = true } label: { Image(systemName: "clock.arrow.circlepath") }
@@ -68,6 +74,7 @@ struct HomeView: View {
             .fullScreenCover(isPresented: $showWorkout) { WorkoutView() }
             .sheet(isPresented: $showHistory) { HistoryView() }
             .fullScreenCover(item: $departure) { run in DepartureView(run: run) }
+            .fullScreenCover(isPresented: Binding(get: { state.needsStage }, set: { if !$0 { state.dismissStage() } })) { StageView() }
             .overlayPreferenceValue(SceneAnchorsKey.self) { anchors in
                 GeometryReader { geo in
                     if let start = levelUpStart, let c = anchors["character"], let b = anchors["badge"] {
@@ -168,13 +175,17 @@ struct HomeView: View {
                 .glass(tint: NeoTokyo.Surface.overlay)
                 .padding(.bottom, NeoTokyo.Spacing.xl)
             }
-            LevelBadge(level: snapshot.level, subtitle: state.bundle.evolution(forLevel: snapshot.level)?.displayName ?? "", flash: levelFlash)
-                .anchorPreference(key: SceneAnchorsKey.self, value: .bounds) { ["badge": $0] }
-                .padding(NeoTokyo.Spacing.lg)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            VStack(alignment: .leading, spacing: NeoTokyo.Spacing.sm) {
+                Text(state.recipe?.name ?? "").font(HeroFont.headline).foregroundStyle(NeoTokyo.Text.primary)
+                LevelBadge(level: snapshot.level, subtitle: state.bundle.evolution(forLevel: snapshot.level)?.displayName ?? "", flash: levelFlash)
+                    .anchorPreference(key: SceneAnchorsKey.self, value: .bounds) { ["badge": $0] }
+            }
+            .padding(.horizontal, NeoTokyo.Spacing.lg)
+            .padding(.top, 64)   // below the status bar, since the scene ignores the top safe area
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
-        .frame(maxWidth: .infinity, minHeight: 340)
-        .clipShape(RoundedRectangle(cornerRadius: NeoTokyo.Radius.lg, style: .continuous))
+        .frame(maxWidth: .infinity, minHeight: 440)
+        .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.86), .init(color: .clear, location: 1)], startPoint: .top, endPoint: .bottom))
     }
 
     // MARK: progression (gold)

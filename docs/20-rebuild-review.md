@@ -127,6 +127,12 @@ See `docs/21-balance-simulation.md`. Ruleset dev-2 (session base XP 5, first-syn
 - App: `beginQuest` (goals done, one per day, none out) creates the run, asks notification permission at that moment only, schedules the return notification; `resolveQuestIfDue` on launch, foreground and a foreground timer, never early. `DepartureView` (full-screen: backdrop tiled and scrolled right→left on a timeline with a dimmed half-speed copy behind, idle sprite in place of the pending walk clip, dotted path to a "?" slot, countdown, Got it). Home: Begin quest button in the quest row when ready; while away the character is absent from the scene with an "Away" countdown badge; the return is shown in the existing reward modal with the tier and the return line.
 - Honest gaps: no walk clip (owner to author), a single backdrop so the parallax is the same image twice, no story fragments yet (return lines stand in), balance with goals and quests not yet simulated.
 
+## Increment 13, 2026-10-02: setting the stage + Home v2 (doc 24, build step 4)
+
+- `StageView`: once per day on first open (archive `lastStageDay`), a flat navy flood with "Day N" (archive `startedOn`, set with the first plan), the date, the character on their backdrop inside an off-white frame tilted 2°, the primary goal's line as the day's brief, today's goals with their XP, and "Begin the day". Flood and rise use the Ascension timings.
+- Home v2: the scene is full-bleed, 440 pt, under the status bar and fading into the base at its foot; name and level badge sit top-left inside it; the navigation bar is transparent. Order below: goals, progression, today, this week. Utility stays white and large; it moved down, not out (doc 22 §5: statistics live deeper).
+- Doc 19's "compact scene" line is superseded by doc 22/24 for Home only; every other screen keeps the compact rule.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

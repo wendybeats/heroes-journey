@@ -30,12 +30,14 @@ final class AppState {
         var goalCompletions: [GoalCompletion] = []
         var goalSeed: UInt64 = 0
         var questRuns: [QuestRun] = []
+        var startedOn: DayKey? = nil
+        var lastStageDay: DayKey? = nil
 
-        init(userID: UserID, recipe: AvatarRecipe?, events: [ActivityEvent], ledger: ProgressionLedger, outbox: Outbox, workouts: [Workout], activeWorkout: Workout?, preferredUnit: WeightUnit, healthSync: HealthSyncState, corrections: [ActivityCorrection], importLog: [String: ImportDisposition], goalPreferences: GoalPreferences, goalPlans: [GoalPlan], goalCompletions: [GoalCompletion], goalSeed: UInt64, questRuns: [QuestRun]) {
+        init(userID: UserID, recipe: AvatarRecipe?, events: [ActivityEvent], ledger: ProgressionLedger, outbox: Outbox, workouts: [Workout], activeWorkout: Workout?, preferredUnit: WeightUnit, healthSync: HealthSyncState, corrections: [ActivityCorrection], importLog: [String: ImportDisposition], goalPreferences: GoalPreferences, goalPlans: [GoalPlan], goalCompletions: [GoalCompletion], goalSeed: UInt64, questRuns: [QuestRun], startedOn: DayKey?, lastStageDay: DayKey?) {
             self.userID = userID; self.recipe = recipe; self.events = events; self.ledger = ledger; self.outbox = outbox
             self.workouts = workouts; self.activeWorkout = activeWorkout; self.preferredUnit = preferredUnit
             self.healthSync = healthSync; self.corrections = corrections; self.importLog = importLog
-            self.goalPreferences = goalPreferences; self.goalPlans = goalPlans; self.goalCompletions = goalCompletions; self.goalSeed = goalSeed; self.questRuns = questRuns
+            self.goalPreferences = goalPreferences; self.goalPlans = goalPlans; self.goalCompletions = goalCompletions; self.goalSeed = goalSeed; self.questRuns = questRuns; self.startedOn = startedOn; self.lastStageDay = lastStageDay
         }
         // v2 archives lack the workout fields; read them as empty rather than discarding the user's data.
         init(from decoder: Decoder) throws {
@@ -57,6 +59,8 @@ final class AppState {
             goalCompletions = try c.decodeIfPresent([GoalCompletion].self, forKey: .goalCompletions) ?? []
             goalSeed = try c.decodeIfPresent(UInt64.self, forKey: .goalSeed) ?? 0
             questRuns = try c.decodeIfPresent([QuestRun].self, forKey: .questRuns) ?? []
+            startedOn = try c.decodeIfPresent(DayKey.self, forKey: .startedOn)
+            lastStageDay = try c.decodeIfPresent(DayKey.self, forKey: .lastStageDay)
         }
     }
 
@@ -83,6 +87,9 @@ final class AppState {
     private(set) var goalCompletions: [GoalCompletion]
     private let goalSeed: UInt64
     private(set) var questRuns: [QuestRun]
+    /// Day 1 is the day the character woke (first plan). Stage screen shows once per day.
+    private(set) var startedOn: DayKey?
+    private(set) var lastStageDay: DayKey?
     /// Set when a departure was just confirmed, for the departure screen.
     var showDeparture = false
     /// Today's step total from Health, when known (increment 2 fills this in).
@@ -160,6 +167,8 @@ final class AppState {
         self.goalPlans = archive?.goalPlans ?? []
         self.goalCompletions = archive?.goalCompletions ?? []
         self.questRuns = archive?.questRuns ?? []
+        self.startedOn = archive?.startedOn
+        self.lastStageDay = archive?.lastStageDay
         self.goalSeed = (archive?.goalSeed).flatMap { $0 == 0 ? nil : $0 } ?? UInt64.random(in: 1...UInt64.max)
         let authority = ProgressionAuthority(ruleset: ruleset, levelRewards: bundle.levelRewards, calendar: .current)
         self.service = LocalAuthorityProgressionService(authority: authority, owner: user, ledger: ledger, events: events)
@@ -393,6 +402,7 @@ final class AppState {
     func ensureTodayPlan() {
         guard recipe != nil, todayPlan == nil else { return }
         let plan = GoalGenerator.plan(generatorInputs(for: today), now: Date())
+        if startedOn == nil { startedOn = today }
         goalPlans.append(plan)
         goalPlans = goalPlans.filter { today.daysSince($0.day, calendar: .current) <= 30 }   // keep the repeat window, not forever
         evaluateGoals(now: Date())
@@ -437,6 +447,13 @@ final class AppState {
         events.append(event)
         outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
     }
+
+    // MARK: setting the stage (doc 24)
+
+    var dayNumber: Int { (startedOn.map { today.daysSince($0, calendar: .current) } ?? 0) + 1 }
+    /// True until the day's stage screen has been dismissed once.
+    var needsStage: Bool { recipe != nil && todayPlan != nil && lastStageDay != today }
+    func dismissStage() { lastStageDay = today; save() }
 
     // MARK: daily quest (doc 24)
 
@@ -507,7 +524,7 @@ final class AppState {
     }
 
     private func save() {
-        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit, healthSync: healthSync, corrections: corrections, importLog: importLog, goalPreferences: goalPreferences, goalPlans: goalPlans, goalCompletions: goalCompletions, goalSeed: goalSeed, questRuns: questRuns)
+        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit, healthSync: healthSync, corrections: corrections, importLog: importLog, goalPreferences: goalPreferences, goalPlans: goalPlans, goalCompletions: goalCompletions, goalSeed: goalSeed, questRuns: questRuns, startedOn: startedOn, lastStageDay: lastStageDay)
         do {
             let data = try JSONEncoder().encode(archive)
             try data.write(to: Self.archiveURL, options: .atomic)

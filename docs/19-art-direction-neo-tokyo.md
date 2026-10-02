@@ -31,6 +31,7 @@ Owner decision, 2026-09-28. The utility has to feel strong and clear on its own;
 
 - The numbers a fitness app owes the user (minutes, sessions, sets, PRs, this week vs last) are first-class, typeset large and clean, and never hidden behind game framing.
 - The character is present and reacts, but sits in a compact scene. It does not fill the first screen.
+  - Amended 2026-10-02 (doc 22, doc 24): on Home the scene is the companion world and bleeds off the top; the utility rows follow directly under it. Other screens keep the compact scene.
 - Game vocabulary appears where it pays off (XP, level, unlocks) and is absent from utility rows.
 - The typeface must read as a training tool, not a game HUD.
 
