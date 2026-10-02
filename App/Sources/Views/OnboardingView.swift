@@ -166,14 +166,15 @@ struct OnboardingView: View {
         }
     }
 
-    /// Preview of the first day's goals as attribute deltas, with the same +n badge Home uses.
+    /// What sealing the bond grants (owner, 2026-10-02): real numbers, not a preview. The bond event
+    /// is created on "Seal the bond"; these are the same points the engine will credit.
     private var feedback: some View {
-        let plan = GoalGenerator.plan(.init(day: DayKey(Date(), calendar: .current), templates: state.bundle.goalTemplates, preferences: prefs, level: 1,
-                                            history: [], completions: [], seed: 1, calendar: .current), now: Date())
         var deltas: [AttributeID: Int] = [:]
-        for goal in plan.goals {
-            guard let t = state.bundle.goalTemplate(goal.templateID), let xp = state.ruleset.goalXP?[goal.slot.rawValue] else { continue }
-            deltas[t.attributeID, default: 0] += Int((Double(xp) * state.ruleset.attributePointsPerXP).rounded(.down))
+        if let grant = state.ruleset.bondGrant {
+            let primary = BondReference.attribute(forFamily: prefs.primaryFamily.rawValue, ruleset: state.ruleset, fallback: "strength")
+            let secondary = BondReference.attribute(forFamily: prefs.secondaryInterest, ruleset: state.ruleset, fallback: "mindfulness")
+            deltas[primary, default: 0] += grant.primaryPoints
+            deltas[secondary, default: 0] += grant.secondaryPoints
         }
         return VStack(alignment: .leading, spacing: NeoTokyo.Spacing.md) {
             HStack {
@@ -189,7 +190,7 @@ struct OnboardingView: View {
                 }
             }
             .padding(.top, NeoTokyo.Spacing.md)
-            Text("Today's goals, if done, nudge these. Training moves them far more.")
+            Text("The bond gives you this to start. Training moves it far more.")
                 .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
         }
         .card()

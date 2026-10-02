@@ -182,4 +182,25 @@ final class GoalTests: XCTestCase {
         let eleven = ActivityEvent(userID: user, activityTypeID: "weightlifting", familyID: "strength", startedAt: now, durationSeconds: 60, source: .manual, verification: .selfReported, structuredSetCount: 11)
         XCTAssertTrue(GoalEvaluator.satisfied(plan: plan, templates: tpl, completed: [], events: [eleven], steps: nil).isEmpty)
     }
+
+    func testBondSealIsOnePermanentGrantFromTheRuleset() async throws {
+        let r = ProgressionRuleset(id: "ruleset.bond", version: 1, status: .dev, xpPerMinuteByFamily: [:],
+                                   attributeWeightsByFamily: ["cardio": ["endurance": 1.0], "creativity": ["knowledge": 0.5, "mindfulness": 0.5], "learning": ["knowledge": 1.0]],
+                                   attributePointsPerXP: 0.5, verificationMultiplier: [:], dailyTaper: ruleset.dailyTaper, minimumDurationSeconds: 60,
+                                   levelThresholdsTotalXP: [0, 10], bondGrant: .init(xp: 12, primaryPoints: 6, secondaryPoints: 4))
+        let e = BondReference.makeEvent(primaryFamily: "cardio", secondaryInterest: "creativity", ruleset: r, userID: user, at: now)
+        XCTAssertEqual(e.source, .bond); XCTAssertEqual(e.bond?.primaryAttributeID, "endurance")
+        XCTAssertEqual(e.bond?.secondaryAttributeID, "knowledge", "a tie resolves alphabetically, so it is stable")
+        let p = ProgressionEngine.evaluate(event: e, ruleset: r, context: .init(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:]))
+        XCTAssertEqual(p.xp, 12); XCTAssertEqual(p.attributes, ["endurance": 6, "knowledge": 4]); XCTAssertTrue(p.leveledUp)
+        // Same attribute on both sides adds up; no bond_grant means no grant.
+        let same = BondReference.makeEvent(primaryFamily: "learning", secondaryInterest: "learning", ruleset: r, userID: user, at: now)
+        XCTAssertEqual(ProgressionEngine.evaluate(event: same, ruleset: r, context: .init(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:])).attributes, ["knowledge": 10])
+        XCTAssertTrue(ProgressionEngine.evaluate(event: e, ruleset: ruleset, context: .init(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:])).isEmpty)
+        // Idempotent at the boundary like everything else.
+        let service = LocalAuthorityProgressionService(authority: .init(ruleset: r, levelRewards: [:], calendar: calendar), owner: user)
+        let sub = ProgressionSubmission(event: e, contentVersion: "t", submittedAt: now)
+        _ = try await service.submit(sub); let again = try await service.submit(sub)
+        XCTAssertTrue(again.wasAlreadyProcessed); XCTAssertEqual(await service.ledger.snapshot(ruleset: r).totalXP, 12)
+    }
 }

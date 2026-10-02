@@ -114,7 +114,7 @@ final class AppState {
         return events.filter { !hidden.contains($0.id) }
     }
     /// Real activity only: goal completions and quest returns are facts too, but not sessions.
-    var activityEvents: [ActivityEvent] { visibleEvents.filter { $0.source != .goal && $0.source != .quest } }
+    var activityEvents: [ActivityEvent] { visibleEvents.filter { $0.source != .goal && $0.source != .quest && $0.source != .bond } }
     var todayEvents: [ActivityEvent] { activityEvents.filter { Calendar.current.isDateInToday($0.startedAt) }.sorted { $0.startedAt > $1.startedAt } }
     /// XP granted today to real activity (what the dev-5 daily cap counts).
     var todayActivityXP: Int {
@@ -125,6 +125,7 @@ final class AppState {
     func displayName(for event: ActivityEvent) -> String {
         if let goal = event.goal { return bundle.goalTemplate(goal.templateID)?.title.replacingOccurrences(of: "{target}", with: "") ?? goal.templateID.rawValue }
         if let quest = event.quest { return bundle.quest(quest.questID)?.displayName ?? quest.questID.rawValue }
+        if event.bond != nil { return "The bond" }
         return bundle.activityType(event.activityTypeID)?.displayName ?? event.activityTypeID.rawValue
     }
     /// How an imported event was treated, for badges in the timeline.
@@ -460,6 +461,14 @@ final class AppState {
     func completeOnboarding(recipe newRecipe: AvatarRecipe, preferences: GoalPreferences) {
         goalPreferences = preferences
         recipe = newRecipe
+        // Seal the bond: one permanent starting grant through the same engine (owner, 2026-10-02).
+        guard ruleset.bondGrant != nil, !events.contains(where: { $0.source == .bond }) else { return }
+        let now = Date()
+        let event = BondReference.makeEvent(primaryFamily: preferences.primaryFamily, secondaryInterest: preferences.secondaryInterest, ruleset: ruleset, userID: userID, at: now)
+        events.append(event)
+        outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
+        save()
+        Task { await drain(showReward: false) }
     }
 
     // MARK: setting the stage (doc 24)

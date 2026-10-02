@@ -10,6 +10,8 @@ public enum ActivitySource: String, Codable, Sendable, CaseIterable {
     case goal
     /// A daily quest return (doc 24). XP from the rolled reward entry.
     case quest
+    /// Sealing the bond at the end of onboarding (owner, 2026-10-02): one permanent starting grant.
+    case bond
 }
 
 /// Doc 05. All levels earn progression in MVP; kept distinct so later systems can weight them.
@@ -45,6 +47,8 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
     public let goal: GoalReference?
     /// Set when this fact is a quest return.
     public let quest: QuestReference?
+    /// Set when this fact is the bond seal.
+    public let bond: BondReference?
     public let schemaVersion: Int
     public let createdAt: Date
 
@@ -63,6 +67,7 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
         rounds: Int? = nil,
         goal: GoalReference? = nil,
         quest: QuestReference? = nil,
+        bond: BondReference? = nil,
         createdAt: Date = Date()
     ) {
         self.id = id
@@ -79,6 +84,7 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
         self.rounds = rounds
         self.goal = goal
         self.quest = quest
+        self.bond = bond
         self.schemaVersion = Self.schemaVersion
         self.createdAt = createdAt
     }

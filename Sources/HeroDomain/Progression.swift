@@ -61,6 +61,12 @@ public enum ProgressionEngine {
             xp = max(0, ruleset.goalXP?[goal.slot.rawValue] ?? 0)
             let points = Int((Double(xp) * ruleset.attributePointsPerXP).rounded(.down))
             if points > 0 { attributes[goal.attributeID] = points }
+        } else if let bond = event.bond {
+            // The bond seal: one permanent starting grant priced by the ruleset (rule 4).
+            guard let grant = ruleset.bondGrant else { return empty() }
+            xp = max(0, grant.xp)
+            if grant.primaryPoints > 0 { attributes[bond.primaryAttributeID, default: 0] += grant.primaryPoints }
+            if grant.secondaryPoints > 0 { attributes[bond.secondaryAttributeID, default: 0] += grant.secondaryPoints }
         } else if let quest = event.quest {
             // Quest return: the rolled table entry's XP, plus its content reward if never granted.
             guard let table = ruleset.dailyQuest?.rewardTable, table.indices.contains(quest.rewardIndex) else { return empty() }

@@ -170,6 +170,10 @@ Portrait kind missing from the Swift manifest decoder (portraits rendered as pla
 - D, logging: the manual log offers optional facts per activity from content (`logging_extras`: sets for strength, distance for cardio, rounds for combat). Sets logged this way satisfy set goals and get the set-based credit floor, same as the strength logger; distance and rounds are recorded facts only. History shows them.
 - E, Home: XP top-left with the delta badge, the level bar running across to the level badge top-right, the character's name under the XP; attributes in a glass strip tucked under the character's feet, above the quest card. The old progression card is gone from the layout.
 
+## Increment 22, 2026-10-02: the bond is a grant
+
+Owner: the +n preview ending at zero made no sense; sealing the bond should add XP, and a small starting stat set from the chosen physical and mental paths is wanted. Done as a fact, not a display trick: `ActivitySource.bond` with a `BondReference` (the attribute each choice feeds most, from the ruleset weights; ties alphabetical), priced by ruleset `bond_grant` {xp 12, primary 6, secondary 4}. Created once in `completeOnboarding`, submitted through the same boundary, idempotent, permanent (rule 4). The feedback screen shows these real numbers. Creativity confirmed at Knowledge 0.5 / Mindfulness 0.5. Loot box and hood-up sprite remain placeholders until the owner's art.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

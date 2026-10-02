@@ -48,7 +48,7 @@ struct HistoryView: View {
                                         .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
                                 }
                                 Spacer()
-                                Text(event.goal != nil ? "goal" : "\(event.durationSeconds / 60) min").font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Text.secondary)
+                                Text(event.goal != nil ? "goal" : (event.bond != nil ? "bond" : "\(event.durationSeconds / 60) min")).font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Text.secondary)
                                 Text("+\(xp(for: event))").font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Hierarchy.primary)
                             }
                         }

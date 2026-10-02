@@ -33,6 +33,7 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(ruleset.status, .dev, "dev balance must stay marked dev until simulated")
         XCTAssertEqual(ruleset.levelThresholdsTotalXP.count, 100, "100 levels (owner, 2026-10-02)")
         XCTAssertEqual(ruleset.dailyActivityXPCap, 40)
+        XCTAssertEqual(ruleset.bondGrant, .init(xp: 12, primaryPoints: 6, secondaryPoints: 4))
         XCTAssertEqual(ruleset.levelThresholdsTotalXP.first, 0)
         XCTAssertEqual(ruleset.levelThresholdsTotalXP, ruleset.levelThresholdsTotalXP.sorted(), "monotonic")
         XCTAssertEqual(ruleset.structuredWorkout?.defaultMinutes, 45)

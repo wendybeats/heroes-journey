@@ -345,3 +345,29 @@ public enum GoalEvaluator {
                              source: .goal, verification: .selfReported, goal: GoalReference(templateID: template.id, slot: goal.slot, attributeID: template.attributeID), createdAt: now)
     }
 }
+
+// MARK: - the bond (onboarding's one grant)
+
+/// The attributes behind the player's two onboarding choices. Priced by `ProgressionRuleset.BondGrant`.
+public struct BondReference: Hashable, Codable, Sendable {
+    public let primaryAttributeID: AttributeID
+    public let secondaryAttributeID: AttributeID
+    public init(primaryAttributeID: AttributeID, secondaryAttributeID: AttributeID) {
+        self.primaryAttributeID = primaryAttributeID; self.secondaryAttributeID = secondaryAttributeID
+    }
+    enum CodingKeys: String, CodingKey { case primaryAttributeID = "primary_attribute_id", secondaryAttributeID = "secondary_attribute_id" }
+
+    /// The attribute a family feeds most, from the ruleset's weights (ties: alphabetical, so it is stable).
+    public static func attribute(forFamily family: String, ruleset: ProgressionRuleset, fallback: AttributeID) -> AttributeID {
+        let weights = ruleset.attributeWeightsByFamily[family] ?? [:]
+        guard let best = weights.max(by: { ($0.value, $1.key) < ($1.value, $0.key) }) else { return fallback }
+        return AttributeID(best.key)
+    }
+
+    public static func makeEvent(primaryFamily: FamilyID, secondaryInterest: String, ruleset: ProgressionRuleset, userID: UserID, at now: Date, id: ActivityEventID = ActivityEventID()) -> ActivityEvent {
+        let primary = attribute(forFamily: primaryFamily.rawValue, ruleset: ruleset, fallback: "strength")
+        let secondary = attribute(forFamily: secondaryInterest, ruleset: ruleset, fallback: "mindfulness")
+        return ActivityEvent(id: id, userID: userID, activityTypeID: "bond", familyID: primaryFamily, startedAt: now, durationSeconds: 0, source: .bond, verification: .selfReported,
+                             bond: BondReference(primaryAttributeID: primary, secondaryAttributeID: secondary), createdAt: now)
+    }
+}

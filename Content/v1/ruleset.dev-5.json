@@ -214,5 +214,11 @@
       "95": 538.4,
       "100": 606.4
     }
+  },
+  "bond_grant": {
+    "xp": 12,
+    "primary_points": 6,
+    "secondary_points": 4,
+    "notes": "Owner 2026-10-02: sealing the bond is a real grant so Home never opens at zero. Smaller than the first primary goal (30 xp / 15 points)."
   }
 }
