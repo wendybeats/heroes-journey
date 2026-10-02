@@ -29,13 +29,16 @@ final class ContentBundleTests: XCTestCase {
 
     func testDevRulesetDecodesAndCoversEveryFamily() throws {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
-        let ruleset = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-1.json"))
+        let ruleset = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-2.json"))
         XCTAssertEqual(ruleset.status, .dev, "dev balance must stay marked dev until simulated")
         XCTAssertEqual(ruleset.levelThresholdsTotalXP.count, 10)
         XCTAssertEqual(ruleset.levelThresholdsTotalXP.first, 0)
         XCTAssertEqual(ruleset.levelThresholdsTotalXP, ruleset.levelThresholdsTotalXP.sorted(), "monotonic")
         XCTAssertEqual(ruleset.structuredWorkout?.defaultMinutes, 45)
         XCTAssertEqual(ruleset.structuredWorkout?.minutesPerValidSet, 2.5)
+        XCTAssertEqual(ruleset.sessionBaseXP, 5); XCTAssertEqual(ruleset.healthHistoryWindowDays, 7)
+        let archived = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-1.json"))
+        XCTAssertEqual(archived.status, .archived, "superseded rulesets stay decodable for audit")
         XCTAssertEqual(bundle.integrityProblems(against: ruleset), [])
     }
 
@@ -53,7 +56,7 @@ final class ContentBundleTests: XCTestCase {
     func testEndToEndLoopWithRealContent() throws {
         // create character → log one activity → evaluate → commit → visible level (doc 15 milestone)
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
-        let ruleset = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-1.json"))
+        let ruleset = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-2.json"))
         let type = try XCTUnwrap(bundle.activityType("boxing"))
         let user = UserID()
         let now = Date(timeIntervalSince1970: 1_800_000_000)

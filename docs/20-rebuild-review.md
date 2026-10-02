@@ -103,6 +103,10 @@ Owner finding: a two-exercise, eight-set workout logged in under a minute earned
 - The level bar never slides backwards: on level-up it fills to the end, snaps to zero without animation, then fills to the new progress.
 - The log sheet has two modes: pick an activity, then a focused screen with only the title, a large duration counter with ±5 min steps and Done; "Change" returns to the list.
 
+## Increment 9, 2026-10-02: balance
+
+See `docs/21-balance-simulation.md`. Ruleset dev-2 (session base XP 5, first-sync Health history window 7 days, dev-1 thresholds) is the loaded ruleset; dev-1 is archived. The simulator in `Tools/` mirrors the engine and is the tool for future curve changes.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

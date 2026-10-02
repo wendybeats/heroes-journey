@@ -55,7 +55,8 @@ public enum ProgressionEngine {
         let minutes = ruleset.creditedMinutes(for: event)
         let credited = creditedMinutes(minutes, prior: context.priorEligibleMinutesToday, taper: ruleset.dailyTaper)
         let multiplier = ruleset.verificationMultiplier[event.verification.rawValue] ?? 1.0
-        let xp = Int((credited * xpPerMinute * multiplier).rounded(.down))
+        let base = credited > 0 ? (ruleset.sessionBaseXP ?? 0) : 0
+        let xp = Int((credited * xpPerMinute * multiplier).rounded(.down)) + base
 
         var attributes: [AttributeID: Int] = [:]
         let weights = ruleset.attributeWeightsByFamily[event.familyID.rawValue] ?? [:]

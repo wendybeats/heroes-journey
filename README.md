@@ -39,4 +39,4 @@ Read `assets/sprites/README.md`. Generate frames externally, drop them in a new 
 
 ## Open decisions
 
-See `docs/20-rebuild-review.md` § "Still open".
+See `docs/20-rebuild-review.md` § "Still open" and the balance decision in `docs/21-balance-simulation.md`.

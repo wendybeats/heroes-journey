@@ -268,8 +268,11 @@ final class AppState {
     func syncHealth() async {
         guard healthSync.authorization == .requested else { return }
         do {
+            let firstSync = healthSync.anchor == nil
             let page = try await importer.fetchWorkouts(after: healthSync.anchor)
             let now = Date()
+            // First sync: credit only the recent window; older workouts are kept as history (doc 15).
+            let creditFrom: Date? = firstSync ? ruleset.healthHistoryWindowDays.map { now.addingTimeInterval(-Double($0) * 86_400) } : nil
             var importedCount = 0
             for item in page.imported {
                 let outcome = ImportReconciler.reconcile(
@@ -278,7 +281,7 @@ final class AppState {
                     familyOf: { self.bundle.activityType($0)?.familyID },
                     fallbackTypeID: bundle.healthWorkoutMapping.fallbackActivityType,
                     fallbackFamilyID: bundle.activityType(bundle.healthWorkoutMapping.fallbackActivityType)?.familyID ?? "cardio",
-                    now: now)
+                    now: now, creditFrom: creditFrom)
                 importLog[item.externalID] = outcome.disposition
                 guard let event = outcome.event else { continue }
                 events.append(event); importedCount += 1
@@ -325,7 +328,7 @@ final class AppState {
     static func load() -> AppState {
         do {
             let bundle = try ContentBundle.decode(Data(contentsOf: contentURL("bundle.json")))
-            let ruleset = try ProgressionRuleset.decode(Data(contentsOf: contentURL("ruleset.dev-1.json")))
+            let ruleset = try ProgressionRuleset.decode(Data(contentsOf: contentURL("ruleset.dev-2.json")))
             let tokens = try DesignTokens.decode(Data(contentsOf: contentURL("design-tokens.json")))
             precondition(bundle.integrityProblems(against: ruleset).isEmpty, "content bundle failed integrity: \(bundle.integrityProblems(against: ruleset))")
             let archive = (try? Data(contentsOf: archiveURL)).flatMap { try? JSONDecoder().decode(Archive.self, from: $0) }

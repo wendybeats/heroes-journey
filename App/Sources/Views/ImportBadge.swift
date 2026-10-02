@@ -10,7 +10,7 @@ struct ImportBadge: View {
                 switch disposition {
                 case .imported, .duplicate: return ("Health", NeoTokyo.Hierarchy.fallback)
                 case .historyOnlyOverlap: return ("In workout", NeoTokyo.Text.muted)
-                case .historyOnlyUnmapped: return ("History", NeoTokyo.Text.muted)
+                case .historyOnlyUnmapped, .historyOnlyBeforeWindow: return ("History", NeoTokyo.Text.muted)
                 }
             }()
             Text(label)

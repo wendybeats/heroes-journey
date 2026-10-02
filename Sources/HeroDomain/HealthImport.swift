@@ -25,6 +25,8 @@ public enum ImportDisposition: Hashable, Codable, Sendable {
     case historyOnlyOverlap(ActivityEventID, overlapsEventID: ActivityEventID)
     /// New fact, shown in history only: the source kind has no activity mapping.
     case historyOnlyUnmapped(ActivityEventID)
+    /// New fact, shown in history only: older than the first-sync history window (doc 15 "history import").
+    case historyOnlyBeforeWindow(ActivityEventID)
     /// Already imported (same external ID).
     case duplicate(ActivityEventID)
 }
@@ -49,7 +51,8 @@ public enum ImportReconciler {
         familyOf: (ActivityTypeID) -> FamilyID?,
         fallbackTypeID: ActivityTypeID,
         fallbackFamilyID: FamilyID,
-        now: Date
+        now: Date,
+        creditFrom: Date? = nil
     ) -> ImportOutcome {
         if let dup = existing.first(where: { $0.sourceExternalID == imported.externalID && $0.source == .healthImport }) {
             return ImportOutcome(event: nil, disposition: .duplicate(dup.id))
@@ -61,6 +64,7 @@ public enum ImportReconciler {
                                   durationSeconds: imported.durationSeconds, source: .healthImport, verification: .verified,
                                   sourceExternalID: imported.externalID, createdAt: now)
         guard mapped != nil else { return ImportOutcome(event: event, disposition: .historyOnlyUnmapped(event.id)) }
+        if let creditFrom, imported.startedAt < creditFrom { return ImportOutcome(event: event, disposition: .historyOnlyBeforeWindow(event.id)) }
         if let authoritative = existing.first(where: { $0.source == .structuredWorkout && overlapFraction(imported, $0) >= overlapThreshold }) {
             return ImportOutcome(event: event, disposition: .historyOnlyOverlap(event.id, overlapsEventID: authoritative.id))
         }
