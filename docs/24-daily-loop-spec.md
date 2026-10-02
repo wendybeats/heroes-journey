@@ -33,7 +33,7 @@ Formulated from docs 22–23 and the owner's answers of 2026-10-02. This is the 
 - Primary on a rest day (from training frequency) becomes a mobility or steps goal, not a workout.
 
 ## Rules (ruleset additions, dev-3)
-- `goal_xp`: flat per slot, e.g. primary 8, secondary 5, small_win 3. Small next to activity XP (a 45-minute session is ~95 XP). Attribute weight follows the template's attribute.
+- `goal_xp`: flat per slot. dev-3 started at 8/5/3; dev-4 (docs/21) raised it to 30/20/12 to meet the owner's level-pace targets, and fact-backed goals became non-tappable in exchange. Attribute weight follows the template's attribute.
 - `daily_quest`: `duration_minutes` 240, `unlock_rule` `all_goals`, `reward_table` with weighted entries (XP amount, optional item id, optional story fragment id). XP from a quest sits around one goal's worth, not a session's worth; the reward is the reveal and the fragment, not the number.
 - Goal and quest rewards flow through the same engine as activities: goal completion and quest return are `ActivityEvent`-like facts with their own kinds, evaluated to proposals, ledgered. No direct state mutation (architecture rule 2).
 

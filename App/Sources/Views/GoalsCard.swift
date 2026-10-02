@@ -94,6 +94,7 @@ struct QuestRing: View {
 struct GoalRow: View {
     @Environment(AppState.self) private var state
     let goal: DailyGoal
+    @State private var showLog = false
 
     var body: some View {
         let done = state.isCompleted(goal)
@@ -116,18 +117,41 @@ struct GoalRow: View {
             if let xp = state.ruleset.goalXP?[goal.slot.rawValue], !done {
                 Text("+\(xp)").font(HeroFont.captionNumber).foregroundStyle(NeoTokyo.Hierarchy.primary)
             }
-            Button {
-                state.completeGoal(goal)
-            } label: {
-                Image(systemName: done ? "checkmark" : (state.template(for: goal)?.rule.isManual == false ? "bolt" : "circle"))
-                    .font(HeroFont.headline)
-                    .foregroundStyle(done ? NeoTokyo.Text.onAccent : NeoTokyo.Text.secondary)
-                    .frame(width: 44, height: 44)
-                    .background(done ? NeoTokyo.Hierarchy.primary : NeoTokyo.Surface.overlay, in: RoundedRectangle(cornerRadius: NeoTokyo.Radius.md, style: .continuous))
+            // dev-4 (docs/21): goal XP is now worth a short session, so goals backed by a fact are
+            // completed only by that fact. Activity goals open the log; steps goals wait for Health.
+            let rule = state.template(for: goal)?.rule ?? .manual
+            switch rule {
+            case .manual, _ where done:
+                Button {
+                    state.completeGoal(goal)
+                } label: {
+                    Image(systemName: done ? "checkmark" : "circle")
+                        .font(HeroFont.headline)
+                        .foregroundStyle(done ? NeoTokyo.Text.onAccent : NeoTokyo.Text.secondary)
+                        .frame(width: 44, height: 44)
+                        .background(done ? NeoTokyo.Hierarchy.primary : NeoTokyo.Surface.overlay, in: RoundedRectangle(cornerRadius: NeoTokyo.Radius.md, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .disabled(done)
+                .accessibilityLabel(done ? "Completed" : "Mark complete")
+            case .steps:
+                VStack(spacing: 2) {
+                    Text(state.todaySteps.map { $0.formatted() } ?? "—").font(HeroFont.captionNumber).foregroundStyle(NeoTokyo.Text.primary)
+                    Text("steps").font(HeroFont.label).foregroundStyle(NeoTokyo.Text.muted)
+                }
+                .frame(width: 56)
+            default:
+                Button { showLog = true } label: {
+                    Image(systemName: "plus")
+                        .font(HeroFont.headline)
+                        .foregroundStyle(NeoTokyo.Text.secondary)
+                        .frame(width: 44, height: 44)
+                        .background(NeoTokyo.Surface.overlay, in: RoundedRectangle(cornerRadius: NeoTokyo.Radius.md, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Log activity")
+                .sheet(isPresented: $showLog) { LogSheet() }
             }
-            .buttonStyle(.plain)
-            .disabled(done)
-            .accessibilityLabel(done ? "Completed" : "Mark complete")
         }
         .padding(.vertical, NeoTokyo.Spacing.xs)
         .animation(.easeOut(duration: 0.3), value: done)

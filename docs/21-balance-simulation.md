@@ -50,3 +50,26 @@ My recommendation is 1 for the first test and to revisit with real D7 data (doc 
 | heavy | day 4 | day 3 | day 19 | day 17 | 2870 → 3261 |
 
 Reading: goals do what doc 22 wanted for the light user (L5 five days sooner, +34 % XP) without moving the regular user's curve by more than a day. Level 10 stays out of an 8-week window for the light persona (about day 67 at this rate). That remains the open product decision from the first run: lower the upper thresholds, or accept that a 3-session week is a slow road to the top of the first content tier. Goal XP at 8/5/3 and quest XP at 6/10/16 are small enough that a user cannot out-level a training user by tapping; the simulator counts both.
+
+## dev-4: tuned to the owner's targets (2026-10-02)
+
+Targets given by the owner: light user Level 5 by about day 7 and Level 10 by about day 30; heavy user Level 5 by day 3–5 and Level 10 by day 15–20. "Averages mostly"; two months to Level 10 was called far too much.
+
+What the targets imply, numerically: the heavy persona trains roughly seven times the minutes of the light persona, and the targets ask for Level 10 at day 15–20 versus day 30, a ratio of about 2:1 in XP per day. No minute-priced system gives 2:1 from a 7:1 input. Two things have to change, and dev-4 does both:
+
+1. **Session length stops paying much past 30 minutes per family per day.** Daily taper 30 min full credit, then 20 %, nothing past 90. A 45-minute session earns 33 credited minutes; a 90-minute one 42. Showing up (`session_base_xp` 15) matters more than going long. This is what holds the heavy user at day 15 instead of day 8.
+2. **Daily goals carry the light user.** Goal XP 30/20/12 (62 a day when all three are done) and quest 15/25/40. A full day of goals is worth about one short session. Doc 22/24's "goal XP stays small next to activity" is reversed: the day's loop is now the main road to Level 10 for anyone training under four days a week. Guard added with it: goals backed by a fact (an activity family, a set count, steps) can no longer be tapped done; they complete only from the log, a workout or Health. Only the manual small wins and manual secondaries are self-reported, so tapping alone cannot beat training.
+
+Thresholds also scaled by 0.9 (Level 10 at 2250).
+
+Sweep: 432 ruleset variants scored against the four targets (thresholds 0.5–1.0, goal XP ×1–4, three taper shapes, session base 5–20); every top result used the 30-minute taper and goal XP at 3–4× dev-3. Chosen row, 20 seeded runs over 8 weeks:
+
+| persona | L2 | L5 | L10 | XP day 7 | day 14 | day 21 |
+|---|---|---|---|---|---|---|
+| light (3 × 30 min/week, goals 55 %) | 1 | 6 | 33 | 462 | 920 | 1395 |
+| regular (5 sessions + reading, goals 80 %) | 1 | 2 | 10 | 1604 | 3165 | 4750 |
+| heavy (daily 60–90 min + cardio, goals 90 %) | 1 | 3 | 15 | 1096 | 2210 | 3317 |
+
+Against targets: light L5 day 6 (target 7) and L10 day 33 (target 30); heavy L5 day 3 and L10 day 15, both inside their windows. The light user's L10 is three days late at a 55 % goal completion rate; at 70 % it lands on day 29. The regular persona now reaches Level 10 in ten days, faster than the heavy one, because they also read and meditate (more families, each with its own 30-minute full-credit window). If that ordering is wrong for the product, the lever is a cross-family daily cap, which dev-4 does not add.
+
+What this means for the product, stated plainly: Level 10 arriving in 2–5 weeks for everyone makes the first content tier short. Levels 1–10 are the MVP's whole ladder (doc 01), so the evolution at Level 5 and whatever sits at Level 10 are reached inside the first month by every persona. Either that is the intended test (retention through the daily loop, not the ladder), or more levels come with the next content drop.

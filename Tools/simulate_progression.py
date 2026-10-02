@@ -7,7 +7,7 @@ Mirrors Sources/HeroDomain/Progression.swift + Ruleset.swift exactly:
   xp               = floor(tapered * xp_per_minute[family] * verification_multiplier)
 Levels from level_thresholds_total_xp. Deterministic (seeded) weekly schedules.
 
-    python3 Tools/simulate_progression.py Content/v1/ruleset.dev-3.json [--weeks 6] [--seed 1]
+    python3 Tools/simulate_progression.py Content/v1/ruleset.dev-4.json [--weeks 6] [--seed 1]
 """
 import argparse, json, random, math
 

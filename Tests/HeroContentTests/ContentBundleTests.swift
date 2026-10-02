@@ -29,15 +29,15 @@ final class ContentBundleTests: XCTestCase {
 
     func testDevRulesetDecodesAndCoversEveryFamily() throws {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
-        let ruleset = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-3.json"))
+        let ruleset = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-4.json"))
         XCTAssertEqual(ruleset.status, .dev, "dev balance must stay marked dev until simulated")
         XCTAssertEqual(ruleset.levelThresholdsTotalXP.count, 10)
         XCTAssertEqual(ruleset.levelThresholdsTotalXP.first, 0)
         XCTAssertEqual(ruleset.levelThresholdsTotalXP, ruleset.levelThresholdsTotalXP.sorted(), "monotonic")
         XCTAssertEqual(ruleset.structuredWorkout?.defaultMinutes, 45)
         XCTAssertEqual(ruleset.structuredWorkout?.minutesPerValidSet, 2.5)
-        XCTAssertEqual(ruleset.sessionBaseXP, 5); XCTAssertEqual(ruleset.healthHistoryWindowDays, 7)
-        XCTAssertEqual(ruleset.goalXP, ["primary": 8, "secondary": 5, "small_win": 3])
+        XCTAssertEqual(ruleset.sessionBaseXP, 15); XCTAssertEqual(ruleset.healthHistoryWindowDays, 7)
+        XCTAssertEqual(ruleset.goalXP, ["primary": 30, "secondary": 20, "small_win": 12])
         XCTAssertEqual(ruleset.dailyQuest?.durationMinutes, 240, "owner decision 2026-10-02")
         XCTAssertEqual(ruleset.dailyQuest?.rewardTable.map(\.tier), ["common", "uncommon", "rare"])
         XCTAssertEqual(bundle.quests.count, 1)
@@ -45,7 +45,7 @@ final class ContentBundleTests: XCTestCase {
         let archived = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-1.json"))
         XCTAssertEqual(archived.status, .archived, "superseded rulesets stay decodable for audit")
         XCTAssertEqual(bundle.integrityProblems(against: ruleset), [])
-        let previous = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-2.json"))
+        let previous = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-3.json"))
         XCTAssertEqual(previous.status, .archived)
     }
 
@@ -79,7 +79,7 @@ final class ContentBundleTests: XCTestCase {
     func testEndToEndLoopWithRealContent() throws {
         // create character → log one activity → evaluate → commit → visible level (doc 15 milestone)
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
-        let ruleset = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-3.json"))
+        let ruleset = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-4.json"))
         let type = try XCTUnwrap(bundle.activityType("boxing"))
         let user = UserID()
         let now = Date(timeIntervalSince1970: 1_800_000_000)

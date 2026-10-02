@@ -424,7 +424,8 @@ final class AppState {
 
     /// Tap on a goal row. Any goal can be self-reported (doc 22: no shame, no gatekeeping).
     func completeGoal(_ goal: DailyGoal) {
-        guard !isCompleted(goal) else { return }
+        // Only manual goals can be self-reported; the rest complete from facts (dev-4, docs/21).
+        guard !isCompleted(goal), template(for: goal)?.rule.isManual == true else { return }
         record(goal, source: .manual, now: Date())
         save()
         Task { await drain(showReward: true) }
@@ -543,7 +544,7 @@ final class AppState {
     static func load() -> AppState {
         do {
             let bundle = try ContentBundle.decode(Data(contentsOf: contentURL("bundle.json")))
-            let ruleset = try ProgressionRuleset.decode(Data(contentsOf: contentURL("ruleset.dev-3.json")))
+            let ruleset = try ProgressionRuleset.decode(Data(contentsOf: contentURL("ruleset.dev-4.json")))
             let tokens = try DesignTokens.decode(Data(contentsOf: contentURL("design-tokens.json")))
             precondition(bundle.integrityProblems(against: ruleset).isEmpty, "content bundle failed integrity: \(bundle.integrityProblems(against: ruleset))")
             let archive = (try? Data(contentsOf: archiveURL)).flatMap { try? JSONDecoder().decode(Archive.self, from: $0) }

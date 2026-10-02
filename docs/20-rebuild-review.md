@@ -139,6 +139,10 @@ See `docs/21-balance-simulation.md`. Ruleset dev-2 (session base XP 5, first-syn
 - Stat feedback before Home is a *preview*: the last screen shows the attribute deltas that today's generated goals would give, with the same `DeltaBadge` Home uses. Nothing is granted by onboarding (rule 2); the first grant is the first completed goal or activity. Doc 23's "nudge" line is implemented as this preview.
 - Apple Health is asked inside the chapter with a one-line reason and a "Not now" that moves on; account/cloud recovery is still not built (doc 22 infrastructure item).
 
+## Increment 15, 2026-10-02: balance dev-4 to the owner's pace targets
+
+See docs/21 §dev-4. Ruleset dev-4 loaded, dev-3 archived. Goals backed by facts are no longer tappable (activity goals open the log, steps goals show the Health count); `AppState.completeGoal` enforces it, the row reflects it.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

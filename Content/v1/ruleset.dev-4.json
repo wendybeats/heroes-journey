@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "id": "ruleset.dev-3",
-  "version": 3,
-  "status": "archived",
-  "notes": "DEVELOPMENT BALANCE, revision 3 (2026-10-02). dev-2 numbers unchanged plus goal_xp: flat XP per completed daily goal by slot (doc 24). Small next to activity XP (a 45 min strength session is ~95). Goal XP is untapered and credits the template's attribute at attribute_points_per_xp. Not yet simulated with goals; see docs/21 and docs/24 step 6. daily_quest added the same day (duration 240 min, XP 6/10/16 at 60/30/10).",
+  "id": "ruleset.dev-4",
+  "version": 4,
+  "status": "dev",
+  "notes": "DEVELOPMENT BALANCE, revision 4 (2026-10-02). Tuned to the owner's targets (docs/21 \u00a7dev-4): light user L5 ~day 7 and L10 ~day 30, heavy user L5 day 3-5 and L10 day 15-20. Levers: thresholds x0.9, goal_xp 30/20/12 (goals now carry a light user; see docs/21 for the consequence), quest 15/25/40, daily taper 30 min full credit then 20 % to 90 min, session_base_xp 15. Simulated with Tools/simulate_progression.py (20 seeded runs, 8 weeks): light L5 day 6 / L10 day 33, regular day 2 / day 10, heavy day 3 / day 15. Still a fixture until TestFlight data.",
   "xp_per_minute_by_family": {
     "strength": 2.0,
     "cardio": 2.0,
@@ -42,23 +42,23 @@
     "self_reported": 1.0
   },
   "daily_taper": {
-    "notes": "Per family, per local day. Minutes above full_credit_minutes earn taper_rate; minutes above hard_cap_minutes earn 0. History is still logged.",
-    "full_credit_minutes": 90,
-    "taper_rate": 0.25,
-    "hard_cap_minutes": 240
+    "notes": "Per family, per local day. Minutes above full_credit_minutes earn taper_rate; minutes above hard_cap_minutes earn 0. History is still logged. dev-4: 30 min full credit so that daily consistency, not session length, sets the pace (docs/21 targets).",
+    "full_credit_minutes": 30,
+    "taper_rate": 0.2,
+    "hard_cap_minutes": 90
   },
   "minimum_duration_seconds": 60,
   "level_thresholds_total_xp": [
     0,
-    60,
-    150,
-    280,
-    450,
-    700,
-    1000,
-    1400,
-    1900,
-    2500
+    54,
+    135,
+    252,
+    405,
+    630,
+    900,
+    1260,
+    1710,
+    2250
   ],
   "day_boundary": {
     "policy": "local_start_time",
@@ -71,31 +71,31 @@
     "minutes_per_valid_set": 2.5,
     "max_credited_minutes": 120
   },
-  "session_base_xp": 5,
+  "session_base_xp": 15,
   "health_history_window_days": 7,
   "goal_xp": {
-    "primary": 8,
-    "secondary": 5,
-    "small_win": 3
+    "primary": 30,
+    "secondary": 20,
+    "small_win": 12
   },
   "daily_quest": {
-    "notes": "Doc 24. 4 h (owner, 2026-10-02). Unlocks when every goal of the day is done. XP per return sits around one goal's worth; the reveal and the line are the reward.",
+    "notes": "Doc 24. 4 h (owner, 2026-10-02). Unlocks when every goal of the day is done. dev-4: XP 15/25/40 at 60/30/10.",
     "duration_minutes": 240,
     "unlock_rule": "all_goals",
     "reward_table": [
       {
         "weight": 60,
-        "xp": 6,
+        "xp": 15,
         "tier": "common"
       },
       {
         "weight": 30,
-        "xp": 10,
+        "xp": 25,
         "tier": "uncommon"
       },
       {
         "weight": 10,
-        "xp": 16,
+        "xp": 40,
         "tier": "rare"
       }
     ]
