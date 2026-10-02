@@ -49,10 +49,15 @@ struct StoryView: View {
         .animation(.easeOut(duration: 0.22), value: token)
     }
 
+    /// `BackdropImage` resolves by asset set id (typed as a backdrop id for historical reasons).
+    private var stageBackdrop: BackdropID {
+        BackdropID(state.bundle.backdrop(chapter.backdropID)?.assetSetID.rawValue ?? "backdrop.alley_awakening")
+    }
+
     /// Backdrop with the speaker's portrait low on one side, bleeding off the top like Home.
     private var stage: some View {
         ZStack(alignment: heroOnRight ? .bottomTrailing : .bottomLeading) {
-            BackdropImage(assetSetID: state.bundle.backdrop(chapter.backdropID)?.assetSetID ?? "backdrop.alley_awakening")
+            BackdropImage(assetSetID: stageBackdrop)
             if let speaker {
                 SpeakerPortrait(character: speaker, recipe: heroRecipe, size: 170)
                     .padding(.horizontal, NeoTokyo.Spacing.md)
