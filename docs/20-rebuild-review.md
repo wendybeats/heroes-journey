@@ -147,6 +147,10 @@ See docs/21 §dev-4. Ruleset dev-4 loaded, dev-3 archived. Goals backed by facts
 
 See docs/21 §dev-5. Engine: `daily_activity_xp_cap` with `EvaluationContext.priorActivityXPToday` (ledger-derived, same day, real activity only). Ruleset dev-5 loaded (dev-4 archived), thresholds derived by `Tools/derive_level_curve.py` and checked by its `--check`. Content: `ev4_evolution3` at Level 20 with a level reward. Simulator: `lapsed` persona added, light persona at 75 % goals.
 
+## Increment 17, 2026-10-02: scaling level curve (dev-5b)
+
+See docs/21 §dev-5b. The derive tool now integrates a banded days-per-level schedule, smooths the persona curve over 7 days and enforces non-decreasing per-level cost. Same ruleset id (dev-5); only the thresholds and the `level_curve` provenance block changed.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

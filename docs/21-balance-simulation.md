@@ -98,3 +98,25 @@ Owner direction after dev-4: Level 10 in ten days is far too fast; a light user 
 Reading: the light user hits the schedule by construction. Heavy lands at day 5 / 21 / 40 / 99 / 197, so both ascend in week one and the heavy user's Level 100 is at 6.5 months, inside the 6–12 window. The regular persona now sits between the two instead of ahead of both. The lapsed persona (same training, 55 % of goals) is the honest downside: day 9 / 40 / 78 / 194, Level 100 beyond ten months. Under this ruleset, daily goals are the difference between a 30-day and a 40-day Level 10 for the same training, which is the design intent of doc 22 made numeric.
 
 Open: the lapsed persona's Level 100 past 10 months may be fine (it is the cost of skipping the daily loop) or may need a floor; TestFlight completion rates decide. Art for Evolutions II and III is still placeholder suit.
+
+
+## dev-5b: the curve scales (2026-10-02, same day)
+
+Owner: later levels should feel heavier. Bands: 1–10 quick, 10–40 medium, 40–80 slow, 80–95 slower, 95–100 grind. 100 levels kept (60 was offered as a fallback; not needed).
+
+`Tools/derive_level_curve.py` now takes a **days-per-level schedule** instead of day anchors: control points `2:1.2, 5:2.0, 10:4.6, 40:5.0, 80:7, 95:10, 100:16` (days the consistent light user needs to gain that level, linear between points). The tool integrates the schedule into a mean day per level, reads the light persona's XP there through a 7-day moving average (the weekly training rhythm puts a wave into the raw curve), and carries the running maximum of per-level cost forward so a later level is never cheaper. `--check` in CI holds the file to this derivation.
+
+Per-level XP cost by band: 1–10: 97–314 · 10–40: 314–346 · 40–80: 346–488 · 80–95: 517–705 · 95–100: 770–1080.
+
+Days to reach (20 seeded runs, 92 weeks):
+
+| persona | L5 | L10 | L20 | L40 | L50 | L80 | L95 | L100 |
+|---|---|---|---|---|---|---|---|---|
+| light | 7 | 24 | 74 | 172 | 225 | 414 | 545 | 613 |
+| lapsed | 9 | 32 | 95 | 227 | 294 | 536 | >644 | >644 |
+| regular | 5 | 19 | 54 | 125 | 163 | 300 | 393 | 442 |
+| heavy | 5 | 17 | 48 | 113 | 148 | 272 | 358 | 402 |
+
+In months for the light user: L10 0.8 · L20 2.4 · L40 5.7 · L50 7.4 · L80 13.6 · L100 20. Heavy: L10 0.6 · L20 1.6 · L50 4.9 · L100 13.2.
+
+Trade-off made, stated plainly: the earlier "L50 at 3–6 months" cannot coexist with "L5 in week one, L10 monthly, and 10–40 no faster than 6–10". Level 6–10 averages 4.6 days a level; a rising curve means 10–40 starts there, so Level 40 is 5.7 months and Level 50 is 7.4 for the light user (4.9 for heavy). If Level 50 must be inside 6 months for the light user, the lever is the 10–40 band (lower its control point toward 4.6 days), at the cost of Level 10 arriving nearer day 20. One line in the tool's default schedule.
