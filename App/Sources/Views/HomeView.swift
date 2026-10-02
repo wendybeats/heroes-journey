@@ -11,6 +11,7 @@ struct HomeView: View {
     @State private var showLog = false
     @State private var showHistory = false
     @State private var showWorkout = false
+    @State private var departure: QuestRun?
     /// What the numbers currently show. Held at the pre-receipt values while the reward modal is
     /// up, then animated to the real snapshot when it closes (doc 02: reward, then visible change).
     @State private var shown: ProgressSnapshot?
@@ -66,6 +67,7 @@ struct HomeView: View {
             .sheet(isPresented: $showLog) { LogSheet() }
             .fullScreenCover(isPresented: $showWorkout) { WorkoutView() }
             .sheet(isPresented: $showHistory) { HistoryView() }
+            .fullScreenCover(item: $departure) { run in DepartureView(run: run) }
             .overlayPreferenceValue(SceneAnchorsKey.self) { anchors in
                 GeometryReader { geo in
                     if let start = levelUpStart, let c = anchors["character"], let b = anchors["badge"] {
@@ -81,7 +83,16 @@ struct HomeView: View {
             .animation(.easeInOut(duration: 0.25), value: state.lastReceipt == nil)
         }
         .onAppear { if shown == nil { shown = state.snapshot; barFill = levelProgress(state.snapshot) } }
-        .onChange(of: scenePhase) { _, phase in if phase == .active { state.ensureTodayPlan(); Task { await state.syncHealth() } } }
+        .onChange(of: scenePhase) { _, phase in if phase == .active { state.ensureTodayPlan(); state.resolveQuestIfDue(); Task { await state.syncHealth() } } }
+        .onChange(of: state.showDeparture) { _, show in
+            if show, let run = state.activeQuest { departure = run; state.showDeparture = false }
+        }
+        .task(id: state.activeQuest?.id) {
+            // Resolve on time while the app stays in the foreground; the notification covers the rest.
+            guard let run = state.activeQuest else { return }
+            try? await Task.sleep(for: .seconds(max(0.5, run.remaining(at: Date()))))
+            state.resolveQuestIfDue()
+        }
         .onChange(of: state.snapshot) { _, new in
             // Sync silently unless a reward is showing (then wait for dismissal).
             if state.lastReceipt == nil { shown = new; barFill = levelProgress(new) }
@@ -145,7 +156,17 @@ struct HomeView: View {
                 CharacterView(recipe: recipe, outfit: state.bundle.evolution(forLevel: snapshot.level)?.outfit, scale: HomeView.characterScale)
                     .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)  // the character's own glow
                     .padding(.bottom, NeoTokyo.Spacing.xl)
+                    .opacity(state.characterAway ? 0 : 1)   // out on the quest: the scene stays, the character is gone
                     .anchorPreference(key: SceneAnchorsKey.self, value: .bounds) { ["character": $0] }
+            }
+            if case let .away(run) = state.questState {
+                VStack(spacing: NeoTokyo.Spacing.xs) {
+                    Eyebrow(text: "Away")
+                    Countdown(until: run.returnsAt, font: HeroFont.statSM)
+                }
+                .padding(NeoTokyo.Spacing.md)
+                .glass(tint: NeoTokyo.Surface.overlay)
+                .padding(.bottom, NeoTokyo.Spacing.xl)
             }
             LevelBadge(level: snapshot.level, subtitle: state.bundle.evolution(forLevel: snapshot.level)?.displayName ?? "", flash: levelFlash)
                 .anchorPreference(key: SceneAnchorsKey.self, value: .bounds) { ["badge": $0] }

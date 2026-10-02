@@ -3,7 +3,7 @@
   "id": "ruleset.dev-3",
   "version": 3,
   "status": "dev",
-  "notes": "DEVELOPMENT BALANCE, revision 3 (2026-10-02). dev-2 numbers unchanged plus goal_xp: flat XP per completed daily goal by slot (doc 24). Small next to activity XP (a 45 min strength session is ~95). Goal XP is untapered and credits the template's attribute at attribute_points_per_xp. Not yet simulated with goals; see docs/21 and docs/24 step 6.",
+  "notes": "DEVELOPMENT BALANCE, revision 3 (2026-10-02). dev-2 numbers unchanged plus goal_xp: flat XP per completed daily goal by slot (doc 24). Small next to activity XP (a 45 min strength session is ~95). Goal XP is untapered and credits the template's attribute at attribute_points_per_xp. Not yet simulated with goals; see docs/21 and docs/24 step 6. daily_quest added the same day (duration 240 min, XP 6/10/16 at 60/30/10).",
   "xp_per_minute_by_family": {
     "strength": 2.0,
     "cardio": 2.0,
@@ -77,5 +77,27 @@
     "primary": 8,
     "secondary": 5,
     "small_win": 3
+  },
+  "daily_quest": {
+    "notes": "Doc 24. 4 h (owner, 2026-10-02). Unlocks when every goal of the day is done. XP per return sits around one goal's worth; the reveal and the line are the reward.",
+    "duration_minutes": 240,
+    "unlock_rule": "all_goals",
+    "reward_table": [
+      {
+        "weight": 60,
+        "xp": 6,
+        "tier": "common"
+      },
+      {
+        "weight": 30,
+        "xp": 10,
+        "tier": "uncommon"
+      },
+      {
+        "weight": 10,
+        "xp": 16,
+        "tier": "rare"
+      }
+    ]
   }
 }

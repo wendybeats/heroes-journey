@@ -29,12 +29,13 @@ final class AppState {
         var goalPlans: [GoalPlan] = []
         var goalCompletions: [GoalCompletion] = []
         var goalSeed: UInt64 = 0
+        var questRuns: [QuestRun] = []
 
-        init(userID: UserID, recipe: AvatarRecipe?, events: [ActivityEvent], ledger: ProgressionLedger, outbox: Outbox, workouts: [Workout], activeWorkout: Workout?, preferredUnit: WeightUnit, healthSync: HealthSyncState, corrections: [ActivityCorrection], importLog: [String: ImportDisposition], goalPreferences: GoalPreferences, goalPlans: [GoalPlan], goalCompletions: [GoalCompletion], goalSeed: UInt64) {
+        init(userID: UserID, recipe: AvatarRecipe?, events: [ActivityEvent], ledger: ProgressionLedger, outbox: Outbox, workouts: [Workout], activeWorkout: Workout?, preferredUnit: WeightUnit, healthSync: HealthSyncState, corrections: [ActivityCorrection], importLog: [String: ImportDisposition], goalPreferences: GoalPreferences, goalPlans: [GoalPlan], goalCompletions: [GoalCompletion], goalSeed: UInt64, questRuns: [QuestRun]) {
             self.userID = userID; self.recipe = recipe; self.events = events; self.ledger = ledger; self.outbox = outbox
             self.workouts = workouts; self.activeWorkout = activeWorkout; self.preferredUnit = preferredUnit
             self.healthSync = healthSync; self.corrections = corrections; self.importLog = importLog
-            self.goalPreferences = goalPreferences; self.goalPlans = goalPlans; self.goalCompletions = goalCompletions; self.goalSeed = goalSeed
+            self.goalPreferences = goalPreferences; self.goalPlans = goalPlans; self.goalCompletions = goalCompletions; self.goalSeed = goalSeed; self.questRuns = questRuns
         }
         // v2 archives lack the workout fields; read them as empty rather than discarding the user's data.
         init(from decoder: Decoder) throws {
@@ -55,6 +56,7 @@ final class AppState {
             goalPlans = try c.decodeIfPresent([GoalPlan].self, forKey: .goalPlans) ?? []
             goalCompletions = try c.decodeIfPresent([GoalCompletion].self, forKey: .goalCompletions) ?? []
             goalSeed = try c.decodeIfPresent(UInt64.self, forKey: .goalSeed) ?? 0
+            questRuns = try c.decodeIfPresent([QuestRun].self, forKey: .questRuns) ?? []
         }
     }
 
@@ -80,6 +82,9 @@ final class AppState {
     private(set) var goalPlans: [GoalPlan]
     private(set) var goalCompletions: [GoalCompletion]
     private let goalSeed: UInt64
+    private(set) var questRuns: [QuestRun]
+    /// Set when a departure was just confirmed, for the departure screen.
+    var showDeparture = false
     /// Today's step total from Health, when known (increment 2 fills this in).
     private(set) var todaySteps: Int?
     private let importer = HealthKitImporter()
@@ -101,12 +106,13 @@ final class AppState {
         let hidden = Set(corrections.map(\.activityEventID))
         return events.filter { !hidden.contains($0.id) }
     }
-    /// Real activity only: goal completions are facts too, but not sessions.
-    var activityEvents: [ActivityEvent] { visibleEvents.filter { $0.source != .goal } }
+    /// Real activity only: goal completions and quest returns are facts too, but not sessions.
+    var activityEvents: [ActivityEvent] { visibleEvents.filter { $0.source != .goal && $0.source != .quest } }
     var todayEvents: [ActivityEvent] { activityEvents.filter { Calendar.current.isDateInToday($0.startedAt) }.sorted { $0.startedAt > $1.startedAt } }
     /// Row label for any fact, goal completions included.
     func displayName(for event: ActivityEvent) -> String {
         if let goal = event.goal { return bundle.goalTemplate(goal.templateID)?.title.replacingOccurrences(of: "{target}", with: "") ?? goal.templateID.rawValue }
+        if let quest = event.quest { return bundle.quest(quest.questID)?.displayName ?? quest.questID.rawValue }
         return bundle.activityType(event.activityTypeID)?.displayName ?? event.activityTypeID.rawValue
     }
     /// How an imported event was treated, for badges in the timeline.
@@ -153,6 +159,7 @@ final class AppState {
         self.goalPreferences = archive?.goalPreferences ?? GoalPreferences()
         self.goalPlans = archive?.goalPlans ?? []
         self.goalCompletions = archive?.goalCompletions ?? []
+        self.questRuns = archive?.questRuns ?? []
         self.goalSeed = (archive?.goalSeed).flatMap { $0 == 0 ? nil : $0 } ?? UInt64.random(in: 1...UInt64.max)
         let authority = ProgressionAuthority(ruleset: ruleset, levelRewards: bundle.levelRewards, calendar: .current)
         self.service = LocalAuthorityProgressionService(authority: authority, owner: user, ledger: ledger, events: events)
@@ -431,6 +438,66 @@ final class AppState {
         outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
     }
 
+    // MARK: daily quest (doc 24)
+
+    var quest: ContentBundle.Quest? { bundle.defaultQuest }
+    var questDuration: TimeInterval { TimeInterval((ruleset.dailyQuest?.durationMinutes ?? 240) * 60) }
+    /// The run that is out, if any (unresolved).
+    var activeQuest: QuestRun? { questRuns.first { !$0.isResolved } }
+    var todayQuest: QuestRun? { questRuns.first { $0.day == today } }
+    var characterAway: Bool { activeQuest != nil }
+    enum QuestState { case locked, ready, away(QuestRun), returned(QuestRun) }
+    var questState: QuestState {
+        if let run = activeQuest { return .away(run) }
+        if let run = todayQuest, run.isResolved { return .returned(run) }
+        return questReady ? .ready : .locked
+    }
+    func questRun(for eventID: ActivityEventID) -> QuestRun? { questRuns.first { $0.activityEventID == eventID } }
+
+    /// Depart. One quest per day, only when today's goals are done; a quest already out blocks a second.
+    func beginQuest() async {
+        guard let quest, questReady, activeQuest == nil, todayQuest == nil, ruleset.dailyQuest != nil else { return }
+        let now = Date()
+        let run = QuestRun(questID: quest.id, day: today, startedAt: now, returnsAt: now.addingTimeInterval(questDuration))
+        questRuns.append(run)
+        questRuns = questRuns.filter { today.daysSince($0.day, calendar: .current) <= 30 || !$0.isResolved }
+        showDeparture = true
+        save()
+        if await QuestNotifications.requestPermission() {
+            await QuestNotifications.schedule(returnAt: run.returnsAt, characterName: recipe?.name ?? "Your character", line: quest.awayLines.first ?? "")
+        }
+    }
+
+    /// Resolve a due run: roll, record the return fact, submit, show the reveal. Never early.
+    func resolveQuestIfDue() {
+        let now = Date()
+        guard let i = questRuns.firstIndex(where: { $0.isDue(at: now) }), let table = ruleset.dailyQuest?.rewardTable,
+              let index = QuestResolver.roll(table: table, runID: questRuns[i].id) else { return }
+        let event = QuestResolver.makeEvent(for: questRuns[i], rewardIndex: index, userID: userID, familyFallback: goalPreferences.primaryFamily, at: now)
+        questRuns[i].resolvedAt = now
+        questRuns[i].reward = QuestReference(questID: questRuns[i].questID, rewardIndex: index)
+        questRuns[i].activityEventID = event.id
+        events.append(event)
+        outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
+        QuestNotifications.cancel()
+        save()
+        Task { await drain(showReward: true) }
+    }
+
+    func rewardTier(for run: QuestRun) -> String? { run.reward.flatMap { ruleset.dailyQuest?.rewardTable[safe: $0.rewardIndex]?.tier } }
+    func returnLine(for run: QuestRun) -> String {
+        guard let q = quest, let tier = rewardTier(for: run), let lines = q.returnLines[tier], !lines.isEmpty else { return "Back." }
+        return lines[Int(run.id.uuidString.hashValueStableApp % UInt64(lines.count))]
+    }
+    func awayLine(for run: QuestRun) -> String {
+        guard let q = quest, !q.awayLines.isEmpty else { return "" }
+        return q.awayLines[Int(run.id.uuidString.hashValueStableApp % UInt64(q.awayLines.count))]
+    }
+    func departLine(for run: QuestRun) -> String {
+        guard let q = quest, !q.departLines.isEmpty else { return "" }
+        return q.departLines[Int(run.id.uuidString.hashValueStableApp % UInt64(q.departLines.count))]
+    }
+
     // MARK: persistence
 
     private static var archiveURL: URL {
@@ -440,7 +507,7 @@ final class AppState {
     }
 
     private func save() {
-        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit, healthSync: healthSync, corrections: corrections, importLog: importLog, goalPreferences: goalPreferences, goalPlans: goalPlans, goalCompletions: goalCompletions, goalSeed: goalSeed)
+        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit, healthSync: healthSync, corrections: corrections, importLog: importLog, goalPreferences: goalPreferences, goalPlans: goalPlans, goalCompletions: goalCompletions, goalSeed: goalSeed, questRuns: questRuns)
         do {
             let data = try JSONEncoder().encode(archive)
             try data.write(to: Self.archiveURL, options: .atomic)
@@ -458,6 +525,7 @@ final class AppState {
             let archive = (try? Data(contentsOf: archiveURL)).flatMap { try? JSONDecoder().decode(Archive.self, from: $0) }
             let state = AppState(bundle: bundle, ruleset: ruleset, tokens: tokens, archive: archive)
             state.ensureTodayPlan()
+            state.resolveQuestIfDue()
             Task { await state.syncHealth(); await state.drain() }  // catch up, then submit anything pending
             return state
         } catch {
@@ -472,5 +540,18 @@ final class AppState {
             fatalError("missing resource Content/v1/\(file)")
         }
         return url
+    }
+}
+
+extension Array {
+    subscript(safe index: Int) -> Element? { indices.contains(index) ? self[index] : nil }
+}
+
+extension String {
+    /// FNV-1a, stable across launches (the domain has the same function, internal to its module).
+    var hashValueStableApp: UInt64 {
+        var h: UInt64 = 0xcbf2_9ce4_8422_2325
+        for b in utf8 { h ^= UInt64(b); h = h &* 0x0000_0100_0000_01B3 }
+        return h
     }
 }

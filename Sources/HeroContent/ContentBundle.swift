@@ -111,12 +111,26 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public let healthWorkoutMapping: HealthWorkoutMapping
     /// Daily goal templates (doc 24). Copy and rules are content, selection is domain.
     public let goalTemplates: [GoalTemplate]
+    /// Daily quests (doc 24). One in MVP; copy lives here, duration and rewards in the ruleset.
+    public let quests: [Quest]
+
+    public struct Quest: Codable, Sendable, Equatable {
+        public let id: QuestID
+        public let displayName: String
+        /// Shown on departure.
+        public let departLines: [String]
+        /// Shown on Home while away.
+        public let awayLines: [String]
+        /// Keyed by reward tier (`common`, `uncommon`, `rare`); shown at return.
+        public let returnLines: [String: [String]]
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", departLines = "depart_lines", awayLines = "away_lines", returnLines = "return_lines" }
+    }
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "schema_version", contentVersion = "content_version"
         case families, activityTypes = "activity_types", attributes, evolutions, items, rewards, backdrops
         case avatarOptions = "avatar_options", exerciseDefinitions = "exercise_definitions", healthWorkoutMapping = "health_workout_mapping"
-        case goalTemplates = "goal_templates"
+        case goalTemplates = "goal_templates", quests
     }
 
     public static func decode(_ data: Data) throws -> ContentBundle {
@@ -131,6 +145,8 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public func item(_ id: ItemID) -> Item? { items.first { $0.id == id } }
     public func exercise(_ id: ExerciseID) -> ExerciseDefinition? { exerciseDefinitions.first { $0.id == id } }
     public func goalTemplate(_ id: GoalTemplateID) -> GoalTemplate? { goalTemplates.first { $0.id == id } }
+    public func quest(_ id: QuestID) -> Quest? { quests.first { $0.id == id } }
+    public var defaultQuest: Quest? { quests.first }
     public var defaultBackdrop: Backdrop? { backdrops.first { $0.isDefault == true } ?? backdrops.first }
 
     /// Level → reward IDs, the shape `EvaluationContext` wants.
@@ -189,6 +205,9 @@ public struct ContentBundle: Codable, Sendable, Equatable {
             problems.append("no training-day primary goal for family \(f.id)")
         }
         if !goalTemplates.contains(where: { $0.slot == .primary && $0.tags.contains("rest") }) { problems.append("no rest-day primary goal") }
+        unique(quests.map(\.id), "quest")
+        if quests.isEmpty { problems.append("no quest defined") }
+        for q in quests where q.departLines.isEmpty || q.awayLines.isEmpty { problems.append("quest \(q.id) is missing lines") }
         return problems
     }
 
@@ -200,6 +219,15 @@ public struct ContentBundle: Codable, Sendable, Equatable {
             if ruleset.xpPerMinuteByFamily[f.id.rawValue] == nil { problems.append("ruleset has no xp rate for family \(f.id)") }
             for key in (ruleset.attributeWeightsByFamily[f.id.rawValue] ?? [:]).keys where !attributeIDs.contains(key) {
                 problems.append("ruleset weights unknown attribute \(key) for family \(f.id)")
+            }
+        }
+        if let quest = ruleset.dailyQuest {
+            let rewardIDs = Set(rewards.map(\.id))
+            if quest.rewardTable.isEmpty { problems.append("ruleset daily_quest has an empty reward table") }
+            if quest.durationMinutes <= 0 { problems.append("ruleset daily_quest duration must be positive") }
+            for entry in quest.rewardTable {
+                if let r = entry.rewardID, !rewardIDs.contains(r) { problems.append("quest reward table → unknown reward \(r)") }
+                for q in quests where q.returnLines[entry.tier]?.isEmpty ?? true { problems.append("quest \(q.id) has no return lines for tier \(entry.tier)") }
             }
         }
         return problems

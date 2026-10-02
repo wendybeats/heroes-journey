@@ -8,6 +8,8 @@ public enum ActivitySource: String, Codable, Sendable, CaseIterable {
     case healthImport = "health_import"
     /// A completed daily goal (doc 24). Flat XP from the ruleset, no minutes.
     case goal
+    /// A daily quest return (doc 24). XP from the rolled reward entry.
+    case quest
 }
 
 /// Doc 05. All levels earn progression in MVP; kept distinct so later systems can weight them.
@@ -38,6 +40,8 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
     public let structuredSetCount: Int?
     /// Set when this fact is a goal completion. Absent on every archive written before doc 24.
     public let goal: GoalReference?
+    /// Set when this fact is a quest return.
+    public let quest: QuestReference?
     public let schemaVersion: Int
     public let createdAt: Date
 
@@ -53,6 +57,7 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
         sourceExternalID: String? = nil,
         structuredSetCount: Int? = nil,
         goal: GoalReference? = nil,
+        quest: QuestReference? = nil,
         createdAt: Date = Date()
     ) {
         self.id = id
@@ -66,6 +71,7 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
         self.sourceExternalID = sourceExternalID
         self.structuredSetCount = structuredSetCount
         self.goal = goal
+        self.quest = quest
         self.schemaVersion = Self.schemaVersion
         self.createdAt = createdAt
     }

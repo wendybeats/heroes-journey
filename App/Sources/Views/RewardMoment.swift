@@ -12,12 +12,20 @@ struct RewardMoment: View {
             NeoTokyo.Surface.scrim.opacity(0.7).ignoresSafeArea()
                 .onTapGesture { state.dismissReward() }
             VStack(spacing: NeoTokyo.Spacing.md) {
-                Eyebrow(text: receipt.leveledUp ? "Level up" : (isGoal ? "Goal complete" : "Logged"))
+                Eyebrow(text: receipt.leveledUp ? "Level up" : (questRun != nil ? "Back from the quest" : (isGoal ? "Goal complete" : "Logged")))
                 Text(receipt.leveledUp ? "Level \(receipt.levelAfter)" : "+\(receipt.xp) XP")
                     .font(HeroFont.statXL)
                     .foregroundStyle(NeoTokyo.Hierarchy.primary)
                 if receipt.leveledUp {
                     Text("+\(receipt.xp) XP").font(HeroFont.statMD).foregroundStyle(NeoTokyo.Text.primary)
+                }
+                if let run = questRun {
+                    if let tier = state.rewardTier(for: run), tier != "common" {
+                        Eyebrow(text: tier)
+                    }
+                    Text(state.returnLine(for: run))
+                        .font(HeroFont.body).foregroundStyle(NeoTokyo.Text.secondary)
+                        .multilineTextAlignment(.center)
                 }
                 if !receipt.attributes.isEmpty {
                     HStack(spacing: NeoTokyo.Spacing.lg) {
@@ -49,7 +57,7 @@ struct RewardMoment: View {
                     Text("Unlocked: \(receipt.rewardsGranted.map(\.rawValue).joined(separator: ", "))")
                         .font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.primary)
                 }
-                if receipt.xp == 0 && !isGoal {
+                if receipt.xp == 0 && !isGoal && questRun == nil {
                     Text("Daily credit for this family is used up. It still counts in your history.")
                         .font(HeroFont.caption).multilineTextAlignment(.center).foregroundStyle(NeoTokyo.Text.secondary)
                 }
@@ -69,6 +77,7 @@ struct RewardMoment: View {
         }
     }
 
+    private var questRun: QuestRun? { state.questRun(for: receipt.activityEventID) }
     private var isGoal: Bool { state.goalCompletions.contains { $0.activityEventID == receipt.activityEventID } }
 
     private func goalTitle(_ r: ProgressionReceipt) -> String {

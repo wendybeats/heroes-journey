@@ -26,23 +26,45 @@ struct GoalsCard: View {
 
     /// The meter *is* the goal count (owner decision 2026-10-02).
     private var questRow: some View {
-        HStack(spacing: NeoTokyo.Spacing.md) {
-            QuestRing(done: state.todayGoalsDone, total: state.todayGoalsTotal)
-            VStack(alignment: .leading, spacing: 2) {
-                Eyebrow(text: state.isTrainingDay() ? "Training day" : "Rest day")
-                Text(state.questReady ? "Daily quest ready" : "Daily quest")
-                    .font(HeroFont.headline).foregroundStyle(NeoTokyo.Text.primary)
-                Text(questLine).font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
+        VStack(alignment: .leading, spacing: NeoTokyo.Spacing.md) {
+            HStack(spacing: NeoTokyo.Spacing.md) {
+                QuestRing(done: state.todayGoalsDone, total: state.todayGoalsTotal)
+                VStack(alignment: .leading, spacing: 2) {
+                    Eyebrow(text: state.isTrainingDay() ? "Training day" : "Rest day")
+                    Text(questTitle).font(HeroFont.headline).foregroundStyle(NeoTokyo.Text.primary)
+                    Text(questLine).font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
+                }
+                Spacer()
+                if case let .away(run) = state.questState {
+                    Countdown(until: run.returnsAt, font: HeroFont.bodyNumber)
+                }
             }
-            Spacer()
+            if case .ready = state.questState {
+                Button("Begin quest") { Task { await state.beginQuest() } }
+                    .buttonStyle(PrimaryButtonStyle())
+            }
+        }
+    }
+
+    private var questTitle: String {
+        switch state.questState {
+        case .locked: return "Daily quest"
+        case .ready: return "Daily quest ready"
+        case .away: return state.quest?.displayName ?? "Away"
+        case .returned: return "Quest complete"
         }
     }
 
     private var questLine: String {
-        let left = state.todayGoalsTotal - state.todayGoalsDone
-        if state.todayGoalsTotal == 0 { return "Goals arrive with the day." }
-        if state.questReady { return "All goals done. The road opens in the next build." }
-        return left == 1 ? "One goal left to unlock it." : "\(left) goals left to unlock it."
+        switch state.questState {
+        case .locked:
+            let left = state.todayGoalsTotal - state.todayGoalsDone
+            if state.todayGoalsTotal == 0 { return "Goals arrive with the day." }
+            return left == 1 ? "One goal left to unlock it." : "\(left) goals left to unlock it."
+        case .ready: return "All goals done. \(state.quest?.displayName ?? "The road") is open."
+        case let .away(run): return state.awayLine(for: run)
+        case let .returned(run): return state.returnLine(for: run)
+        }
     }
 }
 

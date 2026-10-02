@@ -32,6 +32,26 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
         }
     }
 
+    /// Doc 24. One quest per day, unlocked by the goal count, resolved after `durationMinutes`.
+    public struct DailyQuest: Codable, Sendable, Equatable {
+        public struct RewardEntry: Codable, Sendable, Equatable {
+            public let weight: Double
+            public let xp: Int
+            /// `common` / `uncommon` / `rare`; the bundle's quest copy is keyed by it.
+            public let tier: String
+            /// Optional content reward (bundle `rewards`) granted once.
+            public let rewardID: RewardID?
+            public init(weight: Double, xp: Int, tier: String, rewardID: RewardID? = nil) { self.weight = weight; self.xp = xp; self.tier = tier; self.rewardID = rewardID }
+            enum CodingKeys: String, CodingKey { case weight, xp, tier, rewardID = "reward_id" }
+        }
+        public let durationMinutes: Int
+        /// `all_goals` is the only rule in MVP; kept as data so partial credit is a value change.
+        public let unlockRule: String
+        public let rewardTable: [RewardEntry]
+        public init(durationMinutes: Int, unlockRule: String, rewardTable: [RewardEntry]) { self.durationMinutes = durationMinutes; self.unlockRule = unlockRule; self.rewardTable = rewardTable }
+        enum CodingKeys: String, CodingKey { case durationMinutes = "duration_minutes", unlockRule = "unlock_rule", rewardTable = "reward_table" }
+    }
+
     public let id: RulesetID
     public let version: Int
     public let status: Status
@@ -53,6 +73,7 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
     public let healthHistoryWindowDays: Int?
     /// Flat XP per completed goal, by slot (`primary`, `secondary`, `small_win`). Nil = goals earn nothing.
     public let goalXP: [String: Int]?
+    public let dailyQuest: DailyQuest?
 
     enum CodingKeys: String, CodingKey {
         case id, version, status
@@ -64,16 +85,16 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
         case minimumDurationSeconds = "minimum_duration_seconds"
         case levelThresholdsTotalXP = "level_thresholds_total_xp"
         case structuredWorkout = "structured_workout"
-        case sessionBaseXP = "session_base_xp", healthHistoryWindowDays = "health_history_window_days", goalXP = "goal_xp"
+        case sessionBaseXP = "session_base_xp", healthHistoryWindowDays = "health_history_window_days", goalXP = "goal_xp", dailyQuest = "daily_quest"
     }
 
-    public init(id: RulesetID, version: Int, status: Status, xpPerMinuteByFamily: [String: Double], attributeWeightsByFamily: [String: [String: Double]], attributePointsPerXP: Double, verificationMultiplier: [String: Double], dailyTaper: DailyTaper, minimumDurationSeconds: Int, levelThresholdsTotalXP: [Int], structuredWorkout: StructuredWorkout? = nil, sessionBaseXP: Int? = nil, healthHistoryWindowDays: Int? = nil, goalXP: [String: Int]? = nil) {
+    public init(id: RulesetID, version: Int, status: Status, xpPerMinuteByFamily: [String: Double], attributeWeightsByFamily: [String: [String: Double]], attributePointsPerXP: Double, verificationMultiplier: [String: Double], dailyTaper: DailyTaper, minimumDurationSeconds: Int, levelThresholdsTotalXP: [Int], structuredWorkout: StructuredWorkout? = nil, sessionBaseXP: Int? = nil, healthHistoryWindowDays: Int? = nil, goalXP: [String: Int]? = nil, dailyQuest: DailyQuest? = nil) {
         self.id = id; self.version = version; self.status = status
         self.xpPerMinuteByFamily = xpPerMinuteByFamily; self.attributeWeightsByFamily = attributeWeightsByFamily
         self.attributePointsPerXP = attributePointsPerXP; self.verificationMultiplier = verificationMultiplier
         self.dailyTaper = dailyTaper; self.minimumDurationSeconds = minimumDurationSeconds
         self.levelThresholdsTotalXP = levelThresholdsTotalXP; self.structuredWorkout = structuredWorkout
-        self.sessionBaseXP = sessionBaseXP; self.healthHistoryWindowDays = healthHistoryWindowDays; self.goalXP = goalXP
+        self.sessionBaseXP = sessionBaseXP; self.healthHistoryWindowDays = healthHistoryWindowDays; self.goalXP = goalXP; self.dailyQuest = dailyQuest
     }
 
     /// Minutes an event is credited for before the daily taper. Structured sessions get a floor

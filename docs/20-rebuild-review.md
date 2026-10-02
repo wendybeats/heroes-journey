@@ -120,6 +120,13 @@ See `docs/21-balance-simulation.md`. Ruleset dev-2 (session base XP 5, first-syn
 - `AppState.refreshSteps` runs inside every Health sync (launch, foreground): sets `todaySteps`, evaluates goals, drains with the reward modal when a steps goal completed. Steps are never an activity and earn nothing by themselves; a steps goal does (doc 24, doc 15's information-first stance kept).
 - Home's Today card shows the step count in white. The rest-day steps goal scales 5,000 + 400 per level.
 
+## Increment 12, 2026-10-02: daily quest (doc 24, build step 3)
+
+- Ruleset dev-3 `daily_quest`: 240 min (owner), unlock `all_goals`, reward table common/uncommon/rare at 60/30/10 weight with XP 6/10/16 and an optional content reward id per entry. Bundle `quests`: one quest ("The Lower District") with depart, away and per-tier return lines.
+- Domain (`Quest.swift`): `QuestRun` (started, returns, resolved, rolled reward, return event id), `QuestResolver.roll` (weighted, deterministic from the run id, so a replay rolls the same entry), return fact as an `ActivityEvent` with `source: quest` and a `QuestReference`; the engine prices it from the table and grants the entry's reward once. Six tests.
+- App: `beginQuest` (goals done, one per day, none out) creates the run, asks notification permission at that moment only, schedules the return notification; `resolveQuestIfDue` on launch, foreground and a foreground timer, never early. `DepartureView` (full-screen: backdrop tiled and scrolled right→left on a timeline with a dimmed half-speed copy behind, idle sprite in place of the pending walk clip, dotted path to a "?" slot, countdown, Got it). Home: Begin quest button in the quest row when ready; while away the character is absent from the scene with an "Away" countdown badge; the return is shown in the existing reward modal with the tier and the return line.
+- Honest gaps: no walk clip (owner to author), a single backdrop so the parallax is the same image twice, no story fragments yet (return lines stand in), balance with goals and quests not yet simulated.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

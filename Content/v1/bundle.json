@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.02-1",
+  "content_version": "2026.10.02-2",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -1421,6 +1421,36 @@
         "calm",
         "rare"
       ]
+    }
+  ],
+  "quests": [
+    {
+      "id": "quest.lower_district",
+      "display_name": "The Lower District",
+      "depart_lines": [
+        "The lower district at this hour. I will be back before the rain changes.",
+        "Four hours. Do not wait up; do something useful instead.",
+        "Goals done, so I go. That was the deal."
+      ],
+      "away_lines": [
+        "Somewhere below the overpass. Signal is bad.",
+        "Still walking. The city is longer than the map says.",
+        "Not back yet. Keep the light on."
+      ],
+      "return_lines": {
+        "common": [
+          "Back. Nothing dramatic, a route I had not taken. It counts.",
+          "The district was quiet. I walked it anyway."
+        ],
+        "uncommon": [
+          "Back. Someone down there knew my name before I said it. Odd.",
+          "Found a stairwell that was not on any map. Noted."
+        ],
+        "rare": [
+          "Back, and not the same. Something under the city looked at me and let me pass.",
+          "There is a door down there with my name scratched into it. I did not open it. Yet."
+        ]
+      }
     }
   ]
 }

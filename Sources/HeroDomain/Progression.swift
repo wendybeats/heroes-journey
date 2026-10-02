@@ -52,18 +52,24 @@ public enum ProgressionEngine {
         var xp: Int
         var attributes: [AttributeID: Int] = [:]
         var credited = 0.0
+        var questRewards: [RewardID] = []
         if let goal = event.goal {
             // Goal completion: flat, untapered, credited to the template's attribute (doc 24).
             xp = max(0, ruleset.goalXP?[goal.slot.rawValue] ?? 0)
             let points = Int((Double(xp) * ruleset.attributePointsPerXP).rounded(.down))
             if points > 0 { attributes[goal.attributeID] = points }
+        } else if let quest = event.quest {
+            // Quest return: the rolled table entry's XP, plus its content reward if never granted.
+            guard let table = ruleset.dailyQuest?.rewardTable, table.indices.contains(quest.rewardIndex) else { return empty() }
+            xp = max(0, table[quest.rewardIndex].xp)
+            if let reward = table[quest.rewardIndex].rewardID, !context.grantedRewardIDs.contains(reward) { questRewards.append(reward) }
         } else {
             guard let priced = activityXP(event: event, ruleset: ruleset, context: context) else { return empty() }
             xp = priced.xp; attributes = priced.attributes; credited = priced.credited
         }
 
         let levelAfter = ruleset.level(forTotalXP: context.priorTotalXP + xp)
-        var rewards: [RewardID] = []
+        var rewards: [RewardID] = questRewards
         if levelAfter > levelBefore {
             for level in (levelBefore + 1)...levelAfter {
                 for reward in context.levelRewards[level] ?? [] where !context.grantedRewardIDs.contains(reward) {
