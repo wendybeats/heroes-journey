@@ -5,6 +5,8 @@ import Foundation
 public struct EvaluationContext: Sendable, Equatable {
     /// Minutes already credited today, in the same family, before this event.
     public let priorEligibleMinutesToday: Double
+    /// Activity XP already earned today across every family, before this event (dev-5 cap).
+    public let priorActivityXPToday: Int
     /// Total XP before this event, used to detect level crossings.
     public let priorTotalXP: Int
     /// Reward IDs already granted; a level reward is proposed only if not already here.
@@ -12,8 +14,9 @@ public struct EvaluationContext: Sendable, Equatable {
     /// Level -> rewards that unlock on reaching it, from the content bundle.
     public let levelRewards: [Int: [RewardID]]
 
-    public init(priorEligibleMinutesToday: Double, priorTotalXP: Int, grantedRewardIDs: Set<RewardID>, levelRewards: [Int: [RewardID]]) {
+    public init(priorEligibleMinutesToday: Double, priorTotalXP: Int, grantedRewardIDs: Set<RewardID>, levelRewards: [Int: [RewardID]], priorActivityXPToday: Int = 0) {
         self.priorEligibleMinutesToday = priorEligibleMinutesToday
+        self.priorActivityXPToday = priorActivityXPToday
         self.priorTotalXP = priorTotalXP
         self.grantedRewardIDs = grantedRewardIDs
         self.levelRewards = levelRewards
@@ -89,7 +92,10 @@ public enum ProgressionEngine {
         let credited = creditedMinutes(minutes, prior: context.priorEligibleMinutesToday, taper: ruleset.dailyTaper)
         let multiplier = ruleset.verificationMultiplier[event.verification.rawValue] ?? 1.0
         let base = credited > 0 ? (ruleset.sessionBaseXP ?? 0) : 0
-        let xp = Int((credited * xpPerMinute * multiplier).rounded(.down)) + base
+        var xp = Int((credited * xpPerMinute * multiplier).rounded(.down)) + base
+        // dev-5 (docs/21): a day of activity is worth at most the cap, whatever the mix of families.
+        // Consistency sets the pace; volume past the cap is history, not progression.
+        if let cap = ruleset.dailyActivityXPCap { xp = max(0, min(xp, cap - context.priorActivityXPToday)) }
 
         var attributes: [AttributeID: Int] = [:]
         let weights = ruleset.attributeWeightsByFamily[event.familyID.rawValue] ?? [:]

@@ -189,4 +189,41 @@ final class BalanceLeverTests: XCTestCase {
         guard case .imported = run(recent, creditFrom: from).disposition else { return XCTFail("2-day-old workout is credited") }
         guard case .imported = run(imported, creditFrom: nil).disposition else { return XCTFail("later syncs credit everything new") }
     }
+
+    // MARK: dev-5 cross-family daily cap
+
+    func testDailyActivityCapAppliesAcrossFamiliesAndNotToGoals() {
+        let capped = ProgressionRuleset(id: "ruleset.cap", version: 1, status: .dev, xpPerMinuteByFamily: ["strength": 2.0, "learning": 1.0],
+                                        attributeWeightsByFamily: ["strength": ["strength": 1.0], "learning": ["knowledge": 1.0]], attributePointsPerXP: 0.5,
+                                        verificationMultiplier: [:], dailyTaper: ruleset.dailyTaper, minimumDurationSeconds: 60, levelThresholdsTotalXP: [0, 1000],
+                                        goalXP: ["primary": 30], dailyActivityXPCap: 40)
+        // First session: 30 min strength = 60 xp, capped to 40; attributes follow the capped amount.
+        let first = ProgressionEngine.evaluate(event: event(minutes: 30), ruleset: capped, context: context())
+        XCTAssertEqual(first.xp, 40); XCTAssertEqual(first.attributes["strength"], 20)
+        // Second session in another family on the same day: the cap is already spent.
+        let spent = EvaluationContext(priorEligibleMinutesToday: 0, priorTotalXP: 40, grantedRewardIDs: [], levelRewards: [:], priorActivityXPToday: 40)
+        let second = ProgressionEngine.evaluate(event: event(minutes: 30, family: "learning", type: "reading"), ruleset: capped, context: spent)
+        XCTAssertEqual(second.xp, 0); XCTAssertTrue(second.attributes.isEmpty)
+        XCTAssertEqual(second.eligibleMinutes, 30, "minutes are still recorded as credited for the taper; only XP is capped")
+        // Goals sit outside the cap.
+        let goal = ActivityEvent(userID: user, activityTypeID: "goal.x", familyID: "strength", startedAt: day, durationSeconds: 0, source: .goal, verification: .selfReported,
+                                 goal: GoalReference(templateID: "goal.x", slot: .primary, attributeID: "strength"), createdAt: day)
+        XCTAssertEqual(ProgressionEngine.evaluate(event: goal, ruleset: capped, context: spent).xp, 30)
+    }
+
+    func testLedgerContextCountsTodaysActivityXPAcrossFamilies() {
+        let capped = ProgressionRuleset(id: "ruleset.cap", version: 1, status: .dev, xpPerMinuteByFamily: ["strength": 2.0, "learning": 1.0],
+                                        attributeWeightsByFamily: [:], attributePointsPerXP: 0.5, verificationMultiplier: [:], dailyTaper: ruleset.dailyTaper,
+                                        minimumDurationSeconds: 60, levelThresholdsTotalXP: [0], dailyActivityXPCap: 40)
+        var ledger = ProgressionLedger()
+        let a = event(minutes: 15)                                                       // 30 xp
+        ledger.commit(ProgressionEngine.evaluate(event: a, ruleset: capped, context: context()), for: a, at: day)
+        let b = event(minutes: 30, family: "learning", type: "reading", at: day.addingTimeInterval(3600))
+        let ctx = ledger.context(for: b, ruleset: capped, events: [a, b], levelRewards: [:], calendar: calendar)
+        XCTAssertEqual(ctx.priorActivityXPToday, 30)
+        XCTAssertEqual(ctx.priorEligibleMinutesToday, 0, "per-family taper context is still per family")
+        XCTAssertEqual(ProgressionEngine.evaluate(event: b, ruleset: capped, context: ctx).xp, 10)
+        let tomorrow = event(minutes: 30, at: day.addingTimeInterval(86_400 * 2))
+        XCTAssertEqual(ledger.context(for: tomorrow, ruleset: capped, events: [a, b, tomorrow], levelRewards: [:], calendar: calendar).priorActivityXPToday, 0)
+    }
 }

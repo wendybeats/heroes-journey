@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.02-2",
+  "content_version": "2026.10.02-3",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -193,6 +193,14 @@
       "asset_set_id": "hero.body.ev3",
       "outfit": "suit",
       "notes": "Evolution II art not produced yet; renders the suit until it exists."
+    },
+    {
+      "id": "ev4_evolution3",
+      "display_name": "Evolution III",
+      "min_level": 20,
+      "asset_set_id": "hero.body.ev4",
+      "outfit": "suit",
+      "notes": "Evolution III art not produced yet; renders the suit until it exists. Third ascension at the 2-3 month mark (owner, 2026-10-02)."
     }
   ],
   "items": [
@@ -351,6 +359,19 @@
         {
           "type": "item",
           "item_id": "item.effect.pinkglow"
+        }
+      ]
+    },
+    {
+      "id": "reward.l20.evolve",
+      "trigger": {
+        "type": "level",
+        "level": 20
+      },
+      "grants": [
+        {
+          "type": "evolution",
+          "evolution_id": "ev4_evolution3"
         }
       ]
     }

@@ -85,6 +85,11 @@ public struct ProgressionLedger: Sendable, Equatable, Codable {
             $0.id != event.id && $0.familyID == event.familyID && calendar.isDate($0.startedAt, inSameDayAs: event.startedAt)
         }.map(\.id))
         let prior = processing.filter { $0.purpose == .original && sameDayIDs.contains($0.activityEventID) }.reduce(0.0) { $0 + $1.eligibleMinutes }
-        return EvaluationContext(priorEligibleMinutesToday: prior, priorTotalXP: snapshot.totalXP, grantedRewardIDs: snapshot.grantedRewards, levelRewards: levelRewards)
+        // Cross-family: XP already granted today to real activity (goal and quest facts excluded).
+        let sameDayActivityIDs = Set(events.filter {
+            $0.id != event.id && $0.goal == nil && $0.quest == nil && calendar.isDate($0.startedAt, inSameDayAs: event.startedAt)
+        }.map(\.id))
+        let priorXP = xp.filter { $0.reason == .activity && $0.activityEventID.map(sameDayActivityIDs.contains) == true }.reduce(0) { $0 + $1.amount }
+        return EvaluationContext(priorEligibleMinutesToday: prior, priorTotalXP: snapshot.totalXP, grantedRewardIDs: snapshot.grantedRewards, levelRewards: levelRewards, priorActivityXPToday: priorXP)
     }
 }

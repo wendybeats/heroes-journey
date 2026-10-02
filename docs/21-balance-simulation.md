@@ -73,3 +73,28 @@ Sweep: 432 ruleset variants scored against the four targets (thresholds 0.5–1.
 Against targets: light L5 day 6 (target 7) and L10 day 33 (target 30); heavy L5 day 3 and L10 day 15, both inside their windows. The light user's L10 is three days late at a 55 % goal completion rate; at 70 % it lands on day 29. The regular persona now reaches Level 10 in ten days, faster than the heavy one, because they also read and meditate (more families, each with its own 30-minute full-credit window). If that ordering is wrong for the product, the lever is a cross-family daily cap, which dev-4 does not add.
 
 What this means for the product, stated plainly: Level 10 arriving in 2–5 weeks for everyone makes the first content tier short. Levels 1–10 are the MVP's whole ladder (doc 01), so the evolution at Level 5 and whatever sits at Level 10 are reached inside the first month by every persona. Either that is the intended test (retention through the daily loop, not the ladder), or more levels come with the next content drop.
+
+
+## dev-5: the owner's schedule, 100 levels, a daily cap (2026-10-02)
+
+Owner direction after dev-4: Level 10 in ten days is far too fast; a light user should take about 30 days. This is V0 of a 100-level ladder with ascension tiers later. Working backwards: both pacing types should see the first ascension (Level 5) around the end of week one, the second (Level 10) is a monthly goal, the third (Level 20) a 2–3 month mark, Level 50 at 3–6 months, Level 100 at 6–12 months. Averages, not exact.
+
+**Why dev-4's regular user was so fast.** The taper is per family. A day with a strength session, 20 minutes of reading and 10 of meditation got three separate 30-minute full-credit windows and three show-up bonuses, about 150 activity XP, before goals. Nothing capped a day across families, so logging more kinds of activity multiplied XP.
+
+**What dev-5 changes.**
+1. `daily_activity_xp_cap` 40, across all families, activity only. A day of real activity is worth at most 40 XP however it is mixed; the minutes are still credited for the per-family taper and still logged. Goals (30/20/12) and the quest (10/15/25) sit outside the cap, so a full day is about 100 XP and consistency, not volume, sets the pace. Engine, ledger context and simulator all carry it; two new engine tests.
+2. 100 levels. The thresholds are **derived, not typed**: `Tools/derive_level_curve.py` simulates the light persona at 75 % goal completion and reads the mean XP at the anchor days (L5 = day 7, L10 = 30, L20 = 60, L50 = 150, L100 = 300), interpolating linearly between anchors. `--check` fails if the file drifts from the derivation. Anchors in XP: L5 490, L10 2113, L20 4169, L50 10366, L100 20668. Per-level cost is about 100 XP from Level 10 on, so a consistent light user levels every three days.
+3. A third ascension at Level 20 (`ev4_evolution3`, suit art as placeholder until authored) and its level reward, so the takeover fires at the 2-month mark.
+
+**Result** (20 seeded runs, 48 weeks; days = mean day the level is reached):
+
+| persona | L2 | L5 | L10 | L20 | L50 | L100 | XP day 7 | XP day 30 |
+|---|---|---|---|---|---|---|---|---|
+| light | 2 | 7 | 31 | 61 | 151 | 301 |
+| lapsed | 2 | 9 | 40 | 79 | 196 | >336 |
+| regular | 2 | 5 | 23 | 44 | 109 | 216 |
+| heavy | 2 | 5 | 21 | 40 | 100 | 198 |
+
+Reading: the light user hits the schedule by construction. Heavy lands at day 5 / 21 / 40 / 99 / 197, so both ascend in week one and the heavy user's Level 100 is at 6.5 months, inside the 6–12 window. The regular persona now sits between the two instead of ahead of both. The lapsed persona (same training, 55 % of goals) is the honest downside: day 9 / 40 / 78 / 194, Level 100 beyond ten months. Under this ruleset, daily goals are the difference between a 30-day and a 40-day Level 10 for the same training, which is the design intent of doc 22 made numeric.
+
+Open: the lapsed persona's Level 100 past 10 months may be fine (it is the cost of skipping the daily loop) or may need a floor; TestFlight completion rates decide. Art for Evolutions II and III is still placeholder suit.

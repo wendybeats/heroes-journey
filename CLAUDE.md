@@ -32,7 +32,7 @@ A fitness-first RPG whose progression is driven by real-life activity. The track
 - `Tools/` — Python gates and generators. `docs/` — blueprint and decisions.
 
 ## Verify before pushing
-`swift test` on macOS, `python3 Tools/check_token_contrast.py`, `python3 Tools/generate_theme_swift.py --check`, and `python3 Tools/validate_sprites.py` for any touched sprite revision. CI runs all of these.
+`swift test` on macOS, `python3 Tools/check_token_contrast.py`, `python3 Tools/generate_theme_swift.py --check`, `python3 Tools/validate_sprites.py` for any touched sprite revision, and `python3 Tools/derive_level_curve.py Content/v1/<loaded ruleset> --check` after any balance edit (thresholds are derived, never typed; re-run without `--check` to regenerate). CI runs all of these.
 
 ## Core loop
 Real activity → ActivityEvent → ProgressionEngine → XP/Attribute ledgers → reward grants → character/world feedback → desire to return.

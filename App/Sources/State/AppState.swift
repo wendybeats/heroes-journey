@@ -544,7 +544,7 @@ final class AppState {
     static func load() -> AppState {
         do {
             let bundle = try ContentBundle.decode(Data(contentsOf: contentURL("bundle.json")))
-            let ruleset = try ProgressionRuleset.decode(Data(contentsOf: contentURL("ruleset.dev-4.json")))
+            let ruleset = try ProgressionRuleset.decode(Data(contentsOf: contentURL("ruleset.dev-5.json")))
             let tokens = try DesignTokens.decode(Data(contentsOf: contentURL("design-tokens.json")))
             precondition(bundle.integrityProblems(against: ruleset).isEmpty, "content bundle failed integrity: \(bundle.integrityProblems(against: ruleset))")
             let archive = (try? Data(contentsOf: archiveURL)).flatMap { try? JSONDecoder().decode(Archive.self, from: $0) }

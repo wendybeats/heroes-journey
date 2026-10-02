@@ -143,6 +143,10 @@ See `docs/21-balance-simulation.md`. Ruleset dev-2 (session base XP 5, first-syn
 
 See docs/21 §dev-4. Ruleset dev-4 loaded, dev-3 archived. Goals backed by facts are no longer tappable (activity goals open the log, steps goals show the Health count); `AppState.completeGoal` enforces it, the row reflects it.
 
+## Increment 16, 2026-10-02: balance dev-5, 100 levels, cross-family daily cap
+
+See docs/21 §dev-5. Engine: `daily_activity_xp_cap` with `EvaluationContext.priorActivityXPToday` (ledger-derived, same day, real activity only). Ruleset dev-5 loaded (dev-4 archived), thresholds derived by `Tools/derive_level_curve.py` and checked by its `--check`. Content: `ev4_evolution3` at Level 20 with a level reward. Simulator: `lapsed` persona added, light persona at 75 % goals.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.
