@@ -201,6 +201,7 @@ final class GoalTests: XCTestCase {
         let service = LocalAuthorityProgressionService(authority: .init(ruleset: r, levelRewards: [:], calendar: calendar), owner: user)
         let sub = ProgressionSubmission(event: e, contentVersion: "t", submittedAt: now)
         _ = try await service.submit(sub); let again = try await service.submit(sub)
-        XCTAssertTrue(again.wasAlreadyProcessed); XCTAssertEqual(await service.ledger.snapshot(ruleset: r).totalXP, 12)
+        let total = await service.ledger.snapshot(ruleset: r).totalXP
+        XCTAssertTrue(again.wasAlreadyProcessed); XCTAssertEqual(total, 12)
     }
 }
