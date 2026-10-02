@@ -182,9 +182,10 @@ final class AppState {
     // MARK: logging → submission → receipt (the core loop)
 
     /// Records an immutable fact, queues it, and submits. The UI shows only the receipt.
-    func log(activityTypeID: ActivityTypeID, minutes: Int, startedAt: Date = Date()) {
+    func log(activityTypeID: ActivityTypeID, minutes: Int, sets: Int? = nil, distanceMeters: Int? = nil, rounds: Int? = nil, startedAt: Date = Date()) {
         guard let type = bundle.activityType(activityTypeID) else { return }
-        let event = ActivityEvent(userID: userID, activityTypeID: type.id, familyID: type.familyID, startedAt: startedAt, durationSeconds: minutes * 60, source: .manual, verification: .selfReported)
+        let event = ActivityEvent(userID: userID, activityTypeID: type.id, familyID: type.familyID, startedAt: startedAt, durationSeconds: minutes * 60, source: .manual, verification: .selfReported,
+                                  structuredSetCount: sets.flatMap { $0 > 0 ? $0 : nil }, distanceMeters: distanceMeters.flatMap { $0 > 0 ? $0 : nil }, rounds: rounds.flatMap { $0 > 0 ? $0 : nil })
         events.append(event)
         let submission = ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: Date())
         outbox.enqueue(submission)

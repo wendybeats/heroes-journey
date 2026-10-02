@@ -34,8 +34,8 @@ struct HomeView: View {
                     // companion world comes first, then today's goals, then progression, then utility.
                     sceneCard(snapshot)
                     VStack(spacing: NeoTokyo.Spacing.lg) {
+                        attributesRow(snapshot)
                         GoalsCard()
-                        progressCard(snapshot)
                         todayCard
                         weekCard
                     }
@@ -178,20 +178,55 @@ struct HomeView: View {
                 .buttonStyle(.plain)
                 .padding(.bottom, NeoTokyo.Spacing.xl)
             }
-            VStack(alignment: .leading, spacing: NeoTokyo.Spacing.sm) {
-                Text(state.recipe?.name ?? "").font(HeroFont.headline).foregroundStyle(NeoTokyo.Text.primary)
+            // Owner QA 2026-10-02: XP top-left, the bar running across to the level badge top-right,
+            // so the bar reads as XP travelling toward the next level.
+            HStack(alignment: .center, spacing: NeoTokyo.Spacing.md) {
+                VStack(alignment: .leading, spacing: 2) {
+                    StatNumber(value: snapshot.totalXP, unit: "xp", accent: NeoTokyo.Hierarchy.primary, font: HeroFont.statMD)
+                        .overlay(alignment: .topTrailing) { DeltaBadge(delta: xpDelta, token: deltaToken).offset(x: 28, y: -10) }
+                    Text(state.recipe?.name ?? "").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
+                }
+                VStack(spacing: 4) {
+                    LevelBar(fill: barFill)
+                    if let next = state.ruleset.xpToNextLevel(fromTotalXP: snapshot.totalXP) {
+                        Text("\(next) to go").font(HeroFont.label).foregroundStyle(NeoTokyo.Text.secondary)
+                    }
+                }
+                .frame(maxWidth: .infinity)
                 LevelBadge(level: snapshot.level, subtitle: state.bundle.evolution(forLevel: snapshot.level)?.displayName ?? "", flash: levelFlash)
                     .anchorPreference(key: SceneAnchorsKey.self, value: .bounds) { ["badge": $0] }
             }
             .padding(.horizontal, NeoTokyo.Spacing.lg)
-            .padding(.top, 64)   // below the status bar, since the scene ignores the top safe area
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .padding(.top, 60)   // below the status bar, since the scene ignores the top safe area
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .frame(maxWidth: .infinity, minHeight: 440)
         .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.86), .init(color: .clear, location: 1)], startPoint: .top, endPoint: .bottom))
     }
 
-    // MARK: progression (gold)
+    // MARK: attributes (under the character, above the quest)
+
+    private func attributesRow(_ snapshot: ProgressSnapshot) -> some View {
+        HStack {
+            ForEach(state.bundle.attributes, id: \.id) { attribute in
+                VStack(spacing: 2) {
+                    CountingText(value: Double(snapshot.attributes[attribute.id] ?? 0), font: HeroFont.statSM, color: NeoTokyo.Attribute.color(for: attribute.id.rawValue))
+                    Text(attribute.displayName).font(HeroFont.label).foregroundStyle(NeoTokyo.Text.secondary)
+                }
+                .overlay(alignment: .top) {
+                    DeltaBadge(delta: deltas[attribute.id] ?? 0, token: deltaToken, color: NeoTokyo.Attribute.color(for: attribute.id.rawValue))
+                        .offset(y: -16)
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .padding(.vertical, NeoTokyo.Spacing.md)
+        .padding(.horizontal, NeoTokyo.Spacing.sm)
+        .glass(tint: NeoTokyo.Surface.raised)
+        .padding(.top, -NeoTokyo.Spacing.xl)   // tucks up under the character's feet
+    }
+
+    // MARK: progression (gold) — kept for the level-up sequence's anchors; no longer in the layout
 
     private func progressCard(_ snapshot: ProgressSnapshot) -> some View {
         VStack(alignment: .leading, spacing: NeoTokyo.Spacing.md) {

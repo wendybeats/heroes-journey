@@ -173,4 +173,13 @@ final class GoalTests: XCTestCase {
         XCTAssertFalse(keys.contains("goal"))
         XCTAssertNil(try JSONDecoder().decode(ActivityEvent.self, from: data).goal)
     }
+
+    func testManualLogWithSetsSatisfiesTheSetGoal() {
+        let plan = GoalPlan(day: monday, goals: [DailyGoal(templateID: "p.sets", slot: .primary, day: monday, lineIndex: 0, target: nil)], generatedAt: now)
+        let tpl = [t("p.sets", .primary, rule: .workoutSets(count: 12), attr: "strength", tags: ["training", "strength"])]
+        let manual = ActivityEvent(userID: user, activityTypeID: "weightlifting", familyID: "strength", startedAt: now, durationSeconds: 60, source: .manual, verification: .selfReported, structuredSetCount: 12)
+        XCTAssertEqual(GoalEvaluator.satisfied(plan: plan, templates: tpl, completed: [], events: [manual], steps: nil).first?.source, .activity(manual.id))
+        let eleven = ActivityEvent(userID: user, activityTypeID: "weightlifting", familyID: "strength", startedAt: now, durationSeconds: 60, source: .manual, verification: .selfReported, structuredSetCount: 11)
+        XCTAssertTrue(GoalEvaluator.satisfied(plan: plan, templates: tpl, completed: [], events: [eleven], steps: nil).isEmpty)
+    }
 }

@@ -36,8 +36,11 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
     public let verification: VerificationLevel
     /// Stable identifier from the external source, for import deduplication.
     public let sourceExternalID: String?
-    /// For structured workouts: number of valid sets recorded. A fact from the workout record.
+    /// Number of valid sets: from the workout record, or self-reported on a manual log (owner QA 2026-10-02).
     public let structuredSetCount: Int?
+    /// Optional self-reported distance (cardio) and rounds (combat). Facts, not credit.
+    public let distanceMeters: Int?
+    public let rounds: Int?
     /// Set when this fact is a goal completion. Absent on every archive written before doc 24.
     public let goal: GoalReference?
     /// Set when this fact is a quest return.
@@ -56,6 +59,8 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
         verification: VerificationLevel,
         sourceExternalID: String? = nil,
         structuredSetCount: Int? = nil,
+        distanceMeters: Int? = nil,
+        rounds: Int? = nil,
         goal: GoalReference? = nil,
         quest: QuestReference? = nil,
         createdAt: Date = Date()
@@ -70,6 +75,8 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
         self.verification = verification
         self.sourceExternalID = sourceExternalID
         self.structuredSetCount = structuredSetCount
+        self.distanceMeters = distanceMeters
+        self.rounds = rounds
         self.goal = goal
         self.quest = quest
         self.schemaVersion = Self.schemaVersion

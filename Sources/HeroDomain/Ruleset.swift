@@ -99,10 +99,11 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
         self.sessionBaseXP = sessionBaseXP; self.healthHistoryWindowDays = healthHistoryWindowDays; self.goalXP = goalXP; self.dailyQuest = dailyQuest; self.dailyActivityXPCap = dailyActivityXPCap
     }
 
-    /// Minutes an event is credited for before the daily taper. Structured sessions get a floor
-    /// of `minutesPerValidSet` per valid set and a cap; everything else is its duration.
+    /// Minutes an event is credited for before the daily taper. Any session that records sets
+    /// (the strength logger, or a manual log with a set count) gets a floor of `minutesPerValidSet`
+    /// per set and a cap; everything else is its duration.
     public func creditedMinutes(for event: ActivityEvent) -> Double {
-        guard event.source == .structuredWorkout, let sw = structuredWorkout, let sets = event.structuredSetCount else { return event.durationMinutes }
+        guard let sw = structuredWorkout, let sets = event.structuredSetCount, sets > 0 else { return event.durationMinutes }
         return min(max(event.durationMinutes, Double(sets) * sw.minutesPerValidSet), sw.maxCreditedMinutes)
     }
 

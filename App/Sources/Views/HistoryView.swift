@@ -13,7 +13,13 @@ struct HistoryView: View {
 
     private func subtitle(_ event: ActivityEvent) -> String {
         let time = event.startedAt.formatted(date: .omitted, time: .shortened)
-        guard let w = state.workout(for: event.id) else { return time }
+        guard let w = state.workout(for: event.id) else {
+            var parts = [time]
+            if let s = event.structuredSetCount { parts.append("\(s) sets") }
+            if let d = event.distanceMeters { parts.append(String(format: "%.1f km", Double(d) / 1000)) }
+            if let r = event.rounds { parts.append("\(r) rounds") }
+            return parts.joined(separator: " · ")
+        }
         let prs = w.personalRecords.filter { !$0.isBaseline }.count
         return "\(time) · \(w.exercises.count) exercises · \(w.validSetCount) sets" + (prs > 0 ? " · \(prs) PR" : "")
     }

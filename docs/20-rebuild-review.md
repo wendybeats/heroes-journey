@@ -165,6 +165,11 @@ Portrait kind missing from the Swift manifest decoder (portraits rendered as pla
 - C, content: `creativity` family (drawing, music practice, journaling; 1.2 XP/min; Knowledge 0.5 / Mindfulness 0.5 pending the owner's answer) with seven goal templates; `daily_quotes` (19, public-domain sources) shown on the stage screen by day number instead of the goal line; three quest items (Clean Trainers common, Box Hoodie uncommon, Junko Pants rare; `legs` and `feet` slots added) granted once each from the reward table; quest `notification_prompt`, `subtext`, `loot_preview`.
 - F, quest: "Begin quest" opens a sheet where the character explains the absence and offers "Enable notifications" or "Not now" before any system prompt; the departure screen shows the subtext and a placeholder pixel loot box whose tap lists the three items with tiers.
 
+## Increment 21, 2026-10-02: owner QA batches D, E
+
+- D, logging: the manual log offers optional facts per activity from content (`logging_extras`: sets for strength, distance for cardio, rounds for combat). Sets logged this way satisfy set goals and get the set-based credit floor, same as the strength logger; distance and rounds are recorded facts only. History shows them.
+- E, Home: XP top-left with the delta badge, the level bar running across to the level badge top-right, the character's name under the XP; attributes in a glass strip tucked under the character's feet, above the quest card. The old progression card is gone from the layout.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

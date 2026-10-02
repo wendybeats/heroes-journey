@@ -16,10 +16,13 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let displayName: String
         public let defaultDurationSeconds: Int?
         public let loggingMode: LoggingMode
+        /// Optional facts the manual log offers for this activity: `sets`, `distance`, `rounds`.
+        public let loggingExtras: [String]?
         enum CodingKeys: String, CodingKey {
             case id, familyID = "family_id", displayName = "display_name"
-            case defaultDurationSeconds = "default_duration_seconds", loggingMode = "logging_mode"
+            case defaultDurationSeconds = "default_duration_seconds", loggingMode = "logging_mode", loggingExtras = "logging_extras"
         }
+        public func offers(_ extra: String) -> Bool { loggingExtras?.contains(extra) == true }
     }
     public struct Attribute: Codable, Sendable, Equatable {
         public let id: AttributeID

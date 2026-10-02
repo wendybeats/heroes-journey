@@ -329,7 +329,7 @@ public enum GoalEvaluator {
             case .steps:
                 if let steps, let target = goal.target, steps >= target { out.append((goal, .steps(steps))) }
             case let .workoutSets(count):
-                if let e = events.first(where: { $0.source == .structuredWorkout && ($0.structuredSetCount ?? 0) >= count }) {
+                if let e = events.first(where: { $0.goal == nil && ($0.structuredSetCount ?? 0) >= count }) {
                     out.append((goal, .activity(e.id)))
                 }
             }

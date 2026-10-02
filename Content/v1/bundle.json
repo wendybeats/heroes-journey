@@ -38,35 +38,50 @@
       "family_id": "strength",
       "display_name": "Weightlifting",
       "default_duration_seconds": 3600,
-      "logging_mode": "detailed"
+      "logging_mode": "detailed",
+      "logging_extras": [
+        "sets"
+      ]
     },
     {
       "id": "calisthenics",
       "family_id": "strength",
       "display_name": "Calisthenics",
       "default_duration_seconds": 1800,
-      "logging_mode": "detailed"
+      "logging_mode": "detailed",
+      "logging_extras": [
+        "sets"
+      ]
     },
     {
       "id": "running",
       "family_id": "cardio",
       "display_name": "Running",
       "default_duration_seconds": 1800,
-      "logging_mode": "simple"
+      "logging_mode": "simple",
+      "logging_extras": [
+        "distance"
+      ]
     },
     {
       "id": "cycling",
       "family_id": "cardio",
       "display_name": "Cycling",
       "default_duration_seconds": 2700,
-      "logging_mode": "simple"
+      "logging_mode": "simple",
+      "logging_extras": [
+        "distance"
+      ]
     },
     {
       "id": "swimming",
       "family_id": "cardio",
       "display_name": "Swimming",
       "default_duration_seconds": 1800,
-      "logging_mode": "simple"
+      "logging_mode": "simple",
+      "logging_extras": [
+        "distance"
+      ]
     },
     {
       "id": "tennis",
@@ -80,35 +95,50 @@
       "family_id": "cardio",
       "display_name": "Walking",
       "default_duration_seconds": 1800,
-      "logging_mode": "simple"
+      "logging_mode": "simple",
+      "logging_extras": [
+        "distance"
+      ]
     },
     {
       "id": "boxing",
       "family_id": "combat",
       "display_name": "Boxing",
       "default_duration_seconds": 3600,
-      "logging_mode": "simple"
+      "logging_mode": "simple",
+      "logging_extras": [
+        "rounds"
+      ]
     },
     {
       "id": "kickboxing",
       "family_id": "combat",
       "display_name": "Kickboxing",
       "default_duration_seconds": 3600,
-      "logging_mode": "simple"
+      "logging_mode": "simple",
+      "logging_extras": [
+        "rounds"
+      ]
     },
     {
       "id": "mma",
       "family_id": "combat",
       "display_name": "MMA",
       "default_duration_seconds": 3600,
-      "logging_mode": "simple"
+      "logging_mode": "simple",
+      "logging_extras": [
+        "rounds"
+      ]
     },
     {
       "id": "bjj",
       "family_id": "combat",
       "display_name": "Brazilian Jiu-Jitsu",
       "default_duration_seconds": 3600,
-      "logging_mode": "simple"
+      "logging_mode": "simple",
+      "logging_extras": [
+        "rounds"
+      ]
     },
     {
       "id": "yoga",

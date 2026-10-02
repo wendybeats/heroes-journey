@@ -10,6 +10,9 @@ struct LogSheet: View {
     @State private var query = ""
     @State private var selected: ContentBundle.ActivityType?
     @State private var minutes = 30
+    @State private var sets = 0
+    @State private var distanceHalfKm = 0   // distance in 0.5 km steps
+    @State private var rounds = 0
 
     private var recentIDs: [ActivityTypeID] {
         var seen: [ActivityTypeID] = []
@@ -48,6 +51,7 @@ struct LogSheet: View {
                 ForEach(listed, id: \.id) { activity in
                     Button {
                         minutes = max(5, (activity.defaultDurationSeconds ?? 1800) / 60)
+                        sets = 0; distanceHalfKm = 0; rounds = 0
                         selected = activity
                     } label: {
                         HStack {
@@ -80,6 +84,7 @@ struct LogSheet: View {
                     stepButton("minus") { withAnimation(.snappy) { minutes = max(5, minutes - 5) } }
                     stepButton("plus") { withAnimation(.snappy) { minutes = min(240, minutes + 5) } }
                 }
+                extras(for: activity)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, NeoTokyo.Spacing.xxl)
@@ -87,13 +92,44 @@ struct LogSheet: View {
             .padding(.horizontal, NeoTokyo.Spacing.lg)
             Spacer()
             Button("Done") {
-                state.log(activityTypeID: activity.id, minutes: minutes)
+                state.log(activityTypeID: activity.id, minutes: minutes, sets: sets, distanceMeters: distanceHalfKm * 500, rounds: rounds)
                 dismiss()
             }
             .buttonStyle(PrimaryButtonStyle())
             .padding(.horizontal, NeoTokyo.Spacing.lg)
             .padding(.bottom, NeoTokyo.Spacing.lg)
         }
+    }
+
+    /// Owner QA 2026-10-02: optional facts by family. Sets for strength (they count for set goals and
+    /// the set-based credit floor), distance for cardio, rounds for combat. All optional, all facts.
+    @ViewBuilder
+    private func extras(for activity: ContentBundle.ActivityType) -> some View {
+        // Which extras an activity offers is content (`logging_extras`), never a family switch here (rule 6).
+        if activity.offers("sets") {
+            extraRow(label: "Sets", value: sets == 0 ? "—" : "\(sets)", hint: "optional") { sets = max(0, sets - 1) } plus: { sets = min(60, sets + 1) }
+        }
+        if activity.offers("distance") {
+            extraRow(label: "Distance", value: distanceHalfKm == 0 ? "—" : String(format: "%.1f km", Double(distanceHalfKm) / 2), hint: "optional") { distanceHalfKm = max(0, distanceHalfKm - 1) } plus: { distanceHalfKm = min(200, distanceHalfKm + 1) }
+        }
+        if activity.offers("rounds") {
+            extraRow(label: "Rounds", value: rounds == 0 ? "—" : "\(rounds)", hint: "optional") { rounds = max(0, rounds - 1) } plus: { rounds = min(40, rounds + 1) }
+        }
+    }
+
+    private func extraRow(label: String, value: String, hint: String, minus: @escaping () -> Void, plus: @escaping () -> Void) -> some View {
+        HStack(spacing: NeoTokyo.Spacing.md) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label).font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
+                Text(hint).font(HeroFont.label).foregroundStyle(NeoTokyo.Text.muted)
+            }
+            Spacer()
+            Button { withAnimation(.snappy) { minus() } } label: { Image(systemName: "minus").frame(width: 40, height: 36) }.buttonStyle(SecondaryButtonStyle()).frame(width: 52)
+            Text(value).font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Text.primary).frame(minWidth: 64)
+            Button { withAnimation(.snappy) { plus() } } label: { Image(systemName: "plus").frame(width: 40, height: 36) }.buttonStyle(SecondaryButtonStyle()).frame(width: 52)
+        }
+        .padding(.top, NeoTokyo.Spacing.md)
+        .padding(.horizontal, NeoTokyo.Spacing.lg)
     }
 
     private func stepButton(_ symbol: String, action: @escaping () -> Void) -> some View {

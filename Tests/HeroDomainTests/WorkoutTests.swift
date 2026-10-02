@@ -132,6 +132,9 @@ final class StructuredCreditTests: XCTestCase {
         let manual = ActivityEvent(userID: user, activityTypeID: "boxing", familyID: "combat", startedAt: t0, durationSeconds: 1800, source: .manual, verification: .selfReported, createdAt: t0)
         XCTAssertEqual(ruleset.creditedMinutes(for: manual), 30)
         XCTAssertNil(manual.structuredSetCount)
+        // Owner QA 2026-10-02: a manual log that records sets gets the same floor as the strength logger.
+        let manualSets = ActivityEvent(userID: user, activityTypeID: "weightlifting", familyID: "strength", startedAt: t0, durationSeconds: 60, source: .manual, verification: .selfReported, structuredSetCount: 12)
+        XCTAssertEqual(ruleset.creditedMinutes(for: manualSets), 30, "12 sets x 2.5 beats a 1-minute claim")
     }
 
     func testRulesetWithoutBlockFallsBackToDuration() throws {
