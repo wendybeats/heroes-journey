@@ -29,7 +29,7 @@ final class ContentBundleTests: XCTestCase {
 
     func testDevRulesetDecodesAndCoversEveryFamily() throws {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
-        let ruleset = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-2.json"))
+        let ruleset = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-3.json"))
         XCTAssertEqual(ruleset.status, .dev, "dev balance must stay marked dev until simulated")
         XCTAssertEqual(ruleset.levelThresholdsTotalXP.count, 10)
         XCTAssertEqual(ruleset.levelThresholdsTotalXP.first, 0)
@@ -37,9 +37,28 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(ruleset.structuredWorkout?.defaultMinutes, 45)
         XCTAssertEqual(ruleset.structuredWorkout?.minutesPerValidSet, 2.5)
         XCTAssertEqual(ruleset.sessionBaseXP, 5); XCTAssertEqual(ruleset.healthHistoryWindowDays, 7)
+        XCTAssertEqual(ruleset.goalXP, ["primary": 8, "secondary": 5, "small_win": 3])
         let archived = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-1.json"))
         XCTAssertEqual(archived.status, .archived, "superseded rulesets stay decodable for audit")
         XCTAssertEqual(bundle.integrityProblems(against: ruleset), [])
+        let previous = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-2.json"))
+        XCTAssertEqual(previous.status, .archived)
+    }
+
+    func testGoalTemplatesDecodeAndCoverEverySlot() throws {
+        let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
+        XCTAssertGreaterThanOrEqual(bundle.goalTemplates.count, 40)
+        for slot in GoalSlot.allCases { XCTAssertTrue(bundle.goalTemplates.contains { $0.slot == slot }, "slot \(slot)") }
+        for interest in ["learning", "mindfulness"] {
+            XCTAssertGreaterThanOrEqual(bundle.goalTemplates.filter { $0.slot == .secondary && $0.tags.contains(interest) }.count, 6, interest)
+        }
+        XCTAssertGreaterThanOrEqual(bundle.goalTemplates.filter { $0.slot == .smallWin }.count, 20)
+        XCTAssertEqual(bundle.goalTemplate("goal.rest.steps")?.rule, .steps(base: 5000, perLevel: 400))
+        XCTAssertEqual(bundle.goalTemplate("goal.train.strength")?.rule, .activityFamily(family: "strength", minMinutes: 30))
+        XCTAssertTrue(bundle.goalTemplates.allSatisfy { $0.lines.count >= 2 }, "every goal needs at least two lines so repeats read differently")
+        // Round-trip: the rule enum's hand-written Codable must survive encode → decode.
+        let data = try JSONEncoder().encode(bundle.goalTemplates)
+        XCTAssertEqual(try JSONDecoder().decode([GoalTemplate].self, from: data), bundle.goalTemplates)
     }
 
     func testLevelRewardsAndEvolutions() throws {
@@ -56,7 +75,7 @@ final class ContentBundleTests: XCTestCase {
     func testEndToEndLoopWithRealContent() throws {
         // create character → log one activity → evaluate → commit → visible level (doc 15 milestone)
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
-        let ruleset = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-2.json"))
+        let ruleset = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-3.json"))
         let type = try XCTUnwrap(bundle.activityType("boxing"))
         let user = UserID()
         let now = Date(timeIntervalSince1970: 1_800_000_000)

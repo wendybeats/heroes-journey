@@ -34,7 +34,7 @@ struct HistoryView: View {
                             HStack {
                                 VStack(alignment: .leading) {
                                     HStack(spacing: 6) {
-                                        Text(state.bundle.activityType(event.activityTypeID)?.displayName ?? event.activityTypeID.rawValue)
+                                        Text(state.displayName(for: event))
                                             .font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
                                         ImportBadge(disposition: state.importDisposition(for: event))
                                     }
@@ -42,7 +42,7 @@ struct HistoryView: View {
                                         .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
                                 }
                                 Spacer()
-                                Text("\(event.durationSeconds / 60) min").font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Text.secondary)
+                                Text(event.goal != nil ? "goal" : "\(event.durationSeconds / 60) min").font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Text.secondary)
                                 Text("+\(xp(for: event))").font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Hierarchy.primary)
                             }
                         }

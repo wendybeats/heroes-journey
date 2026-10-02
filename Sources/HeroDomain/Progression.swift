@@ -49,8 +49,35 @@ public enum ProgressionEngine {
         func empty() -> ProgressionProposal {
             ProgressionProposal(activityEventID: event.id, rulesetID: ruleset.id, xp: 0, attributes: [:], levelBefore: levelBefore, levelAfter: levelBefore, rewardsUnlocked: [], eligibleMinutes: 0)
         }
-        guard event.durationSeconds >= ruleset.minimumDurationSeconds else { return empty() }
-        guard let xpPerMinute = ruleset.xpPerMinuteByFamily[event.familyID.rawValue] else { return empty() }
+        var xp: Int
+        var attributes: [AttributeID: Int] = [:]
+        var credited = 0.0
+        if let goal = event.goal {
+            // Goal completion: flat, untapered, credited to the template's attribute (doc 24).
+            xp = max(0, ruleset.goalXP?[goal.slot.rawValue] ?? 0)
+            let points = Int((Double(xp) * ruleset.attributePointsPerXP).rounded(.down))
+            if points > 0 { attributes[goal.attributeID] = points }
+        } else {
+            guard let priced = activityXP(event: event, ruleset: ruleset, context: context) else { return empty() }
+            xp = priced.xp; attributes = priced.attributes; credited = priced.credited
+        }
+
+        let levelAfter = ruleset.level(forTotalXP: context.priorTotalXP + xp)
+        var rewards: [RewardID] = []
+        if levelAfter > levelBefore {
+            for level in (levelBefore + 1)...levelAfter {
+                for reward in context.levelRewards[level] ?? [] where !context.grantedRewardIDs.contains(reward) {
+                    rewards.append(reward)
+                }
+            }
+        }
+        return ProgressionProposal(activityEventID: event.id, rulesetID: ruleset.id, xp: xp, attributes: attributes, levelBefore: levelBefore, levelAfter: levelAfter, rewardsUnlocked: rewards, eligibleMinutes: credited)
+    }
+
+    /// Minute-based pricing for real activity. Nil when the event earns nothing.
+    private static func activityXP(event: ActivityEvent, ruleset: ProgressionRuleset, context: EvaluationContext) -> (xp: Int, attributes: [AttributeID: Int], credited: Double)? {
+        guard event.durationSeconds >= ruleset.minimumDurationSeconds else { return nil }
+        guard let xpPerMinute = ruleset.xpPerMinuteByFamily[event.familyID.rawValue] else { return nil }
 
         let minutes = ruleset.creditedMinutes(for: event)
         let credited = creditedMinutes(minutes, prior: context.priorEligibleMinutesToday, taper: ruleset.dailyTaper)
@@ -64,17 +91,7 @@ public enum ProgressionEngine {
             let points = Int((Double(xp) * ruleset.attributePointsPerXP * weight).rounded(.down))
             if points > 0 { attributes[AttributeID(attributeKey)] = points }
         }
-
-        let levelAfter = ruleset.level(forTotalXP: context.priorTotalXP + xp)
-        var rewards: [RewardID] = []
-        if levelAfter > levelBefore {
-            for level in (levelBefore + 1)...levelAfter {
-                for reward in context.levelRewards[level] ?? [] where !context.grantedRewardIDs.contains(reward) {
-                    rewards.append(reward)
-                }
-            }
-        }
-        return ProgressionProposal(activityEventID: event.id, rulesetID: ruleset.id, xp: xp, attributes: attributes, levelBefore: levelBefore, levelAfter: levelAfter, rewardsUnlocked: rewards, eligibleMinutes: credited)
+        return (xp, attributes, credited)
     }
 
     /// Diminishing returns, not punishment (doc 05). Returns *credit-weighted* minutes.

@@ -11,7 +11,7 @@ import HeroContent
 @MainActor @Observable
 final class AppState {
     struct Archive: Codable {
-        static let schemaVersion = 3
+        static let schemaVersion = 4
         var schemaVersion = Archive.schemaVersion
         var userID: UserID
         var recipe: AvatarRecipe?
@@ -24,11 +24,17 @@ final class AppState {
         var healthSync: HealthSyncState = HealthSyncState()
         var corrections: [ActivityCorrection] = []
         var importLog: [String: ImportDisposition] = [:]
+        // v4 (doc 24): daily goals.
+        var goalPreferences: GoalPreferences = GoalPreferences()
+        var goalPlans: [GoalPlan] = []
+        var goalCompletions: [GoalCompletion] = []
+        var goalSeed: UInt64 = 0
 
-        init(userID: UserID, recipe: AvatarRecipe?, events: [ActivityEvent], ledger: ProgressionLedger, outbox: Outbox, workouts: [Workout], activeWorkout: Workout?, preferredUnit: WeightUnit, healthSync: HealthSyncState, corrections: [ActivityCorrection], importLog: [String: ImportDisposition]) {
+        init(userID: UserID, recipe: AvatarRecipe?, events: [ActivityEvent], ledger: ProgressionLedger, outbox: Outbox, workouts: [Workout], activeWorkout: Workout?, preferredUnit: WeightUnit, healthSync: HealthSyncState, corrections: [ActivityCorrection], importLog: [String: ImportDisposition], goalPreferences: GoalPreferences, goalPlans: [GoalPlan], goalCompletions: [GoalCompletion], goalSeed: UInt64) {
             self.userID = userID; self.recipe = recipe; self.events = events; self.ledger = ledger; self.outbox = outbox
             self.workouts = workouts; self.activeWorkout = activeWorkout; self.preferredUnit = preferredUnit
             self.healthSync = healthSync; self.corrections = corrections; self.importLog = importLog
+            self.goalPreferences = goalPreferences; self.goalPlans = goalPlans; self.goalCompletions = goalCompletions; self.goalSeed = goalSeed
         }
         // v2 archives lack the workout fields; read them as empty rather than discarding the user's data.
         init(from decoder: Decoder) throws {
@@ -45,6 +51,10 @@ final class AppState {
             healthSync = try c.decodeIfPresent(HealthSyncState.self, forKey: .healthSync) ?? HealthSyncState()
             corrections = try c.decodeIfPresent([ActivityCorrection].self, forKey: .corrections) ?? []
             importLog = try c.decodeIfPresent([String: ImportDisposition].self, forKey: .importLog) ?? [:]
+            goalPreferences = try c.decodeIfPresent(GoalPreferences.self, forKey: .goalPreferences) ?? GoalPreferences()
+            goalPlans = try c.decodeIfPresent([GoalPlan].self, forKey: .goalPlans) ?? []
+            goalCompletions = try c.decodeIfPresent([GoalCompletion].self, forKey: .goalCompletions) ?? []
+            goalSeed = try c.decodeIfPresent(UInt64.self, forKey: .goalSeed) ?? 0
         }
     }
 
@@ -53,7 +63,7 @@ final class AppState {
     let tokens: DesignTokens
     private let service: LocalAuthorityProgressionService
     private(set) var userID: UserID
-    var recipe: AvatarRecipe? { didSet { save() } }
+    var recipe: AvatarRecipe? { didSet { save(); if oldValue == nil { ensureTodayPlan() } } }
     private(set) var events: [ActivityEvent]
     /// Mirror of the authority's ledger, refreshed after every receipt.
     private(set) var ledger: ProgressionLedger
@@ -64,10 +74,20 @@ final class AppState {
     private(set) var healthSync: HealthSyncState
     private(set) var corrections: [ActivityCorrection]
     private(set) var importLog: [String: ImportDisposition]
+    /// Doc 24. Preferences come from onboarding (defaults until onboarding v2 asks); plans are
+    /// derived per day and kept for the no-repeat window; completions are facts.
+    var goalPreferences: GoalPreferences { didSet { save(); regenerateTodayIfUntouched() } }
+    private(set) var goalPlans: [GoalPlan]
+    private(set) var goalCompletions: [GoalCompletion]
+    private let goalSeed: UInt64
+    /// Today's step total from Health, when known (increment 2 fills this in).
+    private(set) var todaySteps: Int?
     private let importer = HealthKitImporter()
     var healthAvailable: Bool { HealthKitImporter.isAvailable }
     /// The most recent confirmed receipt, for the reward moment (doc 02).
     private(set) var lastReceipt: ProgressionReceipt?
+    /// Goal receipts confirmed in the same drain as `lastReceipt` (auto-completed by that activity).
+    private(set) var lastGoalReceipts: [ProgressionReceipt] = []
     /// PRs from the workout whose receipt is showing, if any.
     private(set) var lastPersonalRecords: [PersonalRecord] = []
     /// Increments when a reward modal is dismissed, so Home animates the numbers *after* it.
@@ -81,7 +101,14 @@ final class AppState {
         let hidden = Set(corrections.map(\.activityEventID))
         return events.filter { !hidden.contains($0.id) }
     }
-    var todayEvents: [ActivityEvent] { visibleEvents.filter { Calendar.current.isDateInToday($0.startedAt) }.sorted { $0.startedAt > $1.startedAt } }
+    /// Real activity only: goal completions are facts too, but not sessions.
+    var activityEvents: [ActivityEvent] { visibleEvents.filter { $0.source != .goal } }
+    var todayEvents: [ActivityEvent] { activityEvents.filter { Calendar.current.isDateInToday($0.startedAt) }.sorted { $0.startedAt > $1.startedAt } }
+    /// Row label for any fact, goal completions included.
+    func displayName(for event: ActivityEvent) -> String {
+        if let goal = event.goal { return bundle.goalTemplate(goal.templateID)?.title.replacingOccurrences(of: "{target}", with: "") ?? goal.templateID.rawValue }
+        return bundle.activityType(event.activityTypeID)?.displayName ?? event.activityTypeID.rawValue
+    }
     /// How an imported event was treated, for badges in the timeline.
     func importDisposition(for event: ActivityEvent) -> ImportDisposition? {
         guard let ext = event.sourceExternalID, event.source == .healthImport else { return nil }
@@ -92,7 +119,7 @@ final class AppState {
     var weekEvents: [ActivityEvent] {
         let cal = Calendar.current
         guard let interval = cal.dateInterval(of: .weekOfYear, for: Date()) else { return [] }
-        return visibleEvents.filter { interval.contains($0.startedAt) }
+        return activityEvents.filter { interval.contains($0.startedAt) }
     }
     var weekMinutes: Int { weekEvents.reduce(0) { $0 + $1.durationSeconds / 60 } }
     var weekSessions: Int { weekEvents.count }
@@ -123,6 +150,10 @@ final class AppState {
         self.healthSync = archive?.healthSync ?? HealthSyncState()
         self.corrections = archive?.corrections ?? []
         self.importLog = archive?.importLog ?? [:]
+        self.goalPreferences = archive?.goalPreferences ?? GoalPreferences()
+        self.goalPlans = archive?.goalPlans ?? []
+        self.goalCompletions = archive?.goalCompletions ?? []
+        self.goalSeed = (archive?.goalSeed).flatMap { $0 == 0 ? nil : $0 } ?? UInt64.random(in: 1...UInt64.max)
         let authority = ProgressionAuthority(ruleset: ruleset, levelRewards: bundle.levelRewards, calendar: .current)
         self.service = LocalAuthorityProgressionService(authority: authority, owner: user, ledger: ledger, events: events)
     }
@@ -136,6 +167,7 @@ final class AppState {
         events.append(event)
         let submission = ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: Date())
         outbox.enqueue(submission)
+        evaluateGoals(now: Date())
         save()
         Task { await drain(showReward: true) }
     }
@@ -147,7 +179,9 @@ final class AppState {
                 let receipt = try await service.submit(entry.submission)
                 outbox.confirm(receipt)
                 ledger = await service.ledger
-                if showReward && !receipt.wasAlreadyProcessed { lastReceipt = receipt }
+                if showReward && !receipt.wasAlreadyProcessed {
+                    if entry.submission.event.goal != nil, lastReceipt != nil { lastGoalReceipts.append(receipt) } else { lastReceipt = receipt }
+                }
                 if receipt.leveledUp, var r = recipe, let ev = bundle.evolution(forLevel: receipt.levelAfter), ev.id != r.evolutionID {
                     r.evolutionID = ev.id
                     recipe = r
@@ -161,7 +195,7 @@ final class AppState {
 
     func dismissReward() {
         guard lastReceipt != nil else { return }
-        lastReceipt = nil; lastPersonalRecords = []
+        lastReceipt = nil; lastPersonalRecords = []; lastGoalReceipts = []
         rewardToken += 1
     }
 
@@ -241,6 +275,7 @@ final class AppState {
         activeWorkout = nil
         events.append(event)
         outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
+        evaluateGoals(now: now)
         lastPersonalRecords = w.personalRecords
         save()
         Task { await drain(showReward: true) }
@@ -294,6 +329,7 @@ final class AppState {
                     corrections.append(ActivityCorrection(activityEventID: e.id, kind: .sourceDeleted, createdAt: now))
                 }
             }
+            evaluateGoals(now: now)
             save()                                  // facts are durable before the anchor moves
             healthSync.anchor = page.anchor
             healthSync.lastSyncAt = now
@@ -307,16 +343,86 @@ final class AppState {
         }
     }
 
+    // MARK: daily goals (doc 24)
+
+    var today: DayKey { DayKey(Date(), calendar: .current) }
+    var todayPlan: GoalPlan? { goalPlans.first { $0.day == today } }
+    var todayCompletions: [GoalCompletion] { goalCompletions.filter { $0.day == today } }
+    func isCompleted(_ goal: DailyGoal) -> Bool { goalCompletions.contains { $0.goalID == goal.id } }
+    var todayGoalsDone: Int { todayPlan?.goals.filter(isCompleted).count ?? 0 }
+    var todayGoalsTotal: Int { todayPlan?.goals.count ?? 0 }
+    /// The quest unlocks when every goal of the day is done (doc 24: no separate energy currency).
+    var questReady: Bool { todayGoalsTotal > 0 && todayGoalsDone == todayGoalsTotal }
+    func template(for goal: DailyGoal) -> GoalTemplate? { bundle.goalTemplate(goal.templateID) }
+    func title(for goal: DailyGoal) -> String {
+        let raw = template(for: goal)?.title ?? goal.templateID.rawValue
+        return raw.replacingOccurrences(of: "{target}", with: goal.target.map { $0.formatted() } ?? "")
+    }
+    func line(for goal: DailyGoal) -> String {
+        guard let t = template(for: goal), !t.lines.isEmpty else { return "" }
+        return t.lines[min(goal.lineIndex, t.lines.count - 1)].replacingOccurrences(of: "{target}", with: goal.target.map { $0.formatted() } ?? "")
+    }
+    func isTrainingDay() -> Bool { GoalGenerator.isTrainingDay(today, preferences: goalPreferences, calendar: .current) }
+
+    /// Make sure today has a plan. Call on launch and whenever the app comes to the foreground.
+    func ensureTodayPlan() {
+        guard recipe != nil, todayPlan == nil else { return }
+        let plan = GoalGenerator.plan(generatorInputs(for: today), now: Date())
+        goalPlans.append(plan)
+        goalPlans = goalPlans.filter { today.daysSince($0.day, calendar: .current) <= 30 }   // keep the repeat window, not forever
+        evaluateGoals(now: Date())
+        save()
+        Task { await drain(showReward: false) }
+    }
+
+    private func generatorInputs(for day: DayKey) -> GoalGenerator.Inputs {
+        .init(day: day, templates: bundle.goalTemplates, preferences: goalPreferences, level: snapshot.level,
+              history: goalPlans.filter { $0.day != day }, completions: goalCompletions, seed: goalSeed, calendar: .current)
+    }
+
+    /// Preferences changed (onboarding, settings): rebuild today only if nothing was completed yet.
+    private func regenerateTodayIfUntouched() {
+        guard todayPlan != nil, todayCompletions.isEmpty else { return }
+        goalPlans.removeAll { $0.day == today }
+        ensureTodayPlan()
+    }
+
+    /// Tap on a goal row. Any goal can be self-reported (doc 22: no shame, no gatekeeping).
+    func completeGoal(_ goal: DailyGoal) {
+        guard !isCompleted(goal) else { return }
+        record(goal, source: .manual, now: Date())
+        save()
+        Task { await drain(showReward: true) }
+    }
+
+    /// Auto-completion from the day's facts. Submissions are queued; the caller drains.
+    private func evaluateGoals(now: Date) {
+        guard let plan = todayPlan else { return }
+        let completed = Set(goalCompletions.map(\.goalID))
+        let todays = activityEvents.filter { Calendar.current.isDate($0.startedAt, inSameDayAs: now) }
+        for hit in GoalEvaluator.satisfied(plan: plan, templates: bundle.goalTemplates, completed: completed, events: todays, steps: todaySteps) {
+            record(hit.goal, source: hit.source, now: now)
+        }
+    }
+
+    private func record(_ goal: DailyGoal, source: GoalCompletion.Source, now: Date) {
+        guard let template = template(for: goal) else { return }
+        let event = GoalEvaluator.makeEvent(for: goal, template: template, userID: userID, familyFallback: goalPreferences.primaryFamily, at: now)
+        goalCompletions.append(GoalCompletion(goalID: goal.id, templateID: goal.templateID, day: goal.day, source: source, activityEventID: event.id, completedAt: now))
+        events.append(event)
+        outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
+    }
+
     // MARK: persistence
 
     private static var archiveURL: URL {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("HeroesJourney", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir.appendingPathComponent("archive.v2.json")  // v3 is backward-compatible with v2 files
+        return dir.appendingPathComponent("archive.v2.json")  // v3/v4 are backward-compatible with v2 files
     }
 
     private func save() {
-        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit, healthSync: healthSync, corrections: corrections, importLog: importLog)
+        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit, healthSync: healthSync, corrections: corrections, importLog: importLog, goalPreferences: goalPreferences, goalPlans: goalPlans, goalCompletions: goalCompletions, goalSeed: goalSeed)
         do {
             let data = try JSONEncoder().encode(archive)
             try data.write(to: Self.archiveURL, options: .atomic)
@@ -328,11 +434,12 @@ final class AppState {
     static func load() -> AppState {
         do {
             let bundle = try ContentBundle.decode(Data(contentsOf: contentURL("bundle.json")))
-            let ruleset = try ProgressionRuleset.decode(Data(contentsOf: contentURL("ruleset.dev-2.json")))
+            let ruleset = try ProgressionRuleset.decode(Data(contentsOf: contentURL("ruleset.dev-3.json")))
             let tokens = try DesignTokens.decode(Data(contentsOf: contentURL("design-tokens.json")))
             precondition(bundle.integrityProblems(against: ruleset).isEmpty, "content bundle failed integrity: \(bundle.integrityProblems(against: ruleset))")
             let archive = (try? Data(contentsOf: archiveURL)).flatMap { try? JSONDecoder().decode(Archive.self, from: $0) }
             let state = AppState(bundle: bundle, ruleset: ruleset, tokens: tokens, archive: archive)
+            state.ensureTodayPlan()
             Task { await state.syncHealth(); await state.drain() }  // catch up, then submit anything pending
             return state
         } catch {

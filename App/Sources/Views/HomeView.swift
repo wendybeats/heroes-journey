@@ -30,6 +30,7 @@ struct HomeView: View {
             ScrollView {
                 VStack(spacing: NeoTokyo.Spacing.lg) {
                     sceneCard(snapshot)
+                    GoalsCard()
                     progressCard(snapshot)
                     weekCard
                     todayCard
@@ -80,7 +81,7 @@ struct HomeView: View {
             .animation(.easeInOut(duration: 0.25), value: state.lastReceipt == nil)
         }
         .onAppear { if shown == nil { shown = state.snapshot; barFill = levelProgress(state.snapshot) } }
-        .onChange(of: scenePhase) { _, phase in if phase == .active { Task { await state.syncHealth() } } }
+        .onChange(of: scenePhase) { _, phase in if phase == .active { state.ensureTodayPlan(); Task { await state.syncHealth() } } }
         .onChange(of: state.snapshot) { _, new in
             // Sync silently unless a reward is showing (then wait for dismissal).
             if state.lastReceipt == nil { shown = new; barFill = levelProgress(new) }

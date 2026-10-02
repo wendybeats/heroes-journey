@@ -48,7 +48,7 @@ Formulated from docs 22–23 and the owner's answers of 2026-10-02. This is the 
 - Onboarding v2 (doc 23) produces the personalisation inputs and the first plan; stat feedback shown before Home.
 
 ## Build order
-1. Goals: content templates, domain generator/evaluator with tests, ruleset dev-3 `goal_xp`, Home quest row + goal rows, manual completion + auto-completion from logged activities.
+1. ✅ (increment 10, doc 20) Goals: content templates, domain generator/evaluator with tests, ruleset dev-3 `goal_xp`, Home quest row + goal rows, manual completion + auto-completion from logged activities.
 2. Steps: daily step total from HealthKit, `steps` completion rule, info row.
 3. Daily quest: quest definition + reward table in content, run/resolver with tests, Begin → Departure → notification → Return modal.
 4. Setting the stage + Home v2 recomposition.

@@ -109,11 +109,14 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public let avatarOptions: AvatarOptions
     public let exerciseDefinitions: [ExerciseDefinition]
     public let healthWorkoutMapping: HealthWorkoutMapping
+    /// Daily goal templates (doc 24). Copy and rules are content, selection is domain.
+    public let goalTemplates: [GoalTemplate]
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "schema_version", contentVersion = "content_version"
         case families, activityTypes = "activity_types", attributes, evolutions, items, rewards, backdrops
         case avatarOptions = "avatar_options", exerciseDefinitions = "exercise_definitions", healthWorkoutMapping = "health_workout_mapping"
+        case goalTemplates = "goal_templates"
     }
 
     public static func decode(_ data: Data) throws -> ContentBundle {
@@ -127,6 +130,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public func evolution(_ id: EvolutionID) -> Evolution? { evolutions.first { $0.id == id } }
     public func item(_ id: ItemID) -> Item? { items.first { $0.id == id } }
     public func exercise(_ id: ExerciseID) -> ExerciseDefinition? { exerciseDefinitions.first { $0.id == id } }
+    public func goalTemplate(_ id: GoalTemplateID) -> GoalTemplate? { goalTemplates.first { $0.id == id } }
     public var defaultBackdrop: Backdrop? { backdrops.first { $0.isDefault == true } ?? backdrops.first }
 
     /// Level → reward IDs, the shape `EvaluationContext` wants.
@@ -170,6 +174,21 @@ public struct ContentBundle: Codable, Sendable, Equatable {
             }
         }
         if !evolutions.contains(where: { $0.minLevel == 1 }) { problems.append("no evolution with min_level 1") }
+        unique(goalTemplates.map(\.id), "goal_template")
+        let attributeIDs = Set(attributes.map(\.id))
+        for t in goalTemplates {
+            if !attributeIDs.contains(t.attributeID) { problems.append("goal \(t.id) → unknown attribute \(t.attributeID)") }
+            if t.lines.isEmpty { problems.append("goal \(t.id) has no lines") }
+            if case let .activityFamily(f, _) = t.rule, !familyIDs.contains(f) { problems.append("goal \(t.id) → unknown family \(f)") }
+            for tag in t.tags where familyIDs.contains(FamilyID(tag)) == false && !["training", "rest", "learning", "mindfulness", "rare", "strength_goal", "energy", "calm", "discipline", "steps"].contains(tag) {
+                problems.append("goal \(t.id) has unknown tag \(tag)")
+            }
+        }
+        for slot in GoalSlot.allCases where !goalTemplates.contains(where: { $0.slot == slot }) { problems.append("no goal template for slot \(slot.rawValue)") }
+        for f in families where !goalTemplates.contains(where: { $0.slot == .primary && $0.tags.contains("training") && $0.tags.contains(f.id.rawValue) }) {
+            problems.append("no training-day primary goal for family \(f.id)")
+        }
+        if !goalTemplates.contains(where: { $0.slot == .primary && $0.tags.contains("rest") }) { problems.append("no rest-day primary goal") }
         return problems
     }
 

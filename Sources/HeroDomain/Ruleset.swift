@@ -51,6 +51,8 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
     /// On the first Health sync, imported workouts older than this are history only (doc 15
     /// "history import"). Nil = import everything with full credit.
     public let healthHistoryWindowDays: Int?
+    /// Flat XP per completed goal, by slot (`primary`, `secondary`, `small_win`). Nil = goals earn nothing.
+    public let goalXP: [String: Int]?
 
     enum CodingKeys: String, CodingKey {
         case id, version, status
@@ -62,16 +64,16 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
         case minimumDurationSeconds = "minimum_duration_seconds"
         case levelThresholdsTotalXP = "level_thresholds_total_xp"
         case structuredWorkout = "structured_workout"
-        case sessionBaseXP = "session_base_xp", healthHistoryWindowDays = "health_history_window_days"
+        case sessionBaseXP = "session_base_xp", healthHistoryWindowDays = "health_history_window_days", goalXP = "goal_xp"
     }
 
-    public init(id: RulesetID, version: Int, status: Status, xpPerMinuteByFamily: [String: Double], attributeWeightsByFamily: [String: [String: Double]], attributePointsPerXP: Double, verificationMultiplier: [String: Double], dailyTaper: DailyTaper, minimumDurationSeconds: Int, levelThresholdsTotalXP: [Int], structuredWorkout: StructuredWorkout? = nil, sessionBaseXP: Int? = nil, healthHistoryWindowDays: Int? = nil) {
+    public init(id: RulesetID, version: Int, status: Status, xpPerMinuteByFamily: [String: Double], attributeWeightsByFamily: [String: [String: Double]], attributePointsPerXP: Double, verificationMultiplier: [String: Double], dailyTaper: DailyTaper, minimumDurationSeconds: Int, levelThresholdsTotalXP: [Int], structuredWorkout: StructuredWorkout? = nil, sessionBaseXP: Int? = nil, healthHistoryWindowDays: Int? = nil, goalXP: [String: Int]? = nil) {
         self.id = id; self.version = version; self.status = status
         self.xpPerMinuteByFamily = xpPerMinuteByFamily; self.attributeWeightsByFamily = attributeWeightsByFamily
         self.attributePointsPerXP = attributePointsPerXP; self.verificationMultiplier = verificationMultiplier
         self.dailyTaper = dailyTaper; self.minimumDurationSeconds = minimumDurationSeconds
         self.levelThresholdsTotalXP = levelThresholdsTotalXP; self.structuredWorkout = structuredWorkout
-        self.sessionBaseXP = sessionBaseXP; self.healthHistoryWindowDays = healthHistoryWindowDays
+        self.sessionBaseXP = sessionBaseXP; self.healthHistoryWindowDays = healthHistoryWindowDays; self.goalXP = goalXP
     }
 
     /// Minutes an event is credited for before the daily taper. Structured sessions get a floor

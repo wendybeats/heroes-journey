@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "id": "ruleset.dev-2",
-  "version": 2,
-  "status": "archived",
-  "notes": "DEVELOPMENT BALANCE, revision 2 (2026-10-02). Simulated with Tools/simulate_progression.py (20 seeded runs): regular user L5 day 3, L10 day 16; heavy user L5 day 4, L10 day 19 (daily taper holds grinding); light user (3 x 30 min/week) L5 day 15 and no L10 inside 8 weeks, a product decision recorded in docs/21. session_base_xp rewards showing up (doc 00 section 3). First Health sync credits only the last health_history_window_days; older workouts are history only (doc 15). Still a fixture until TestFlight data.",
+  "id": "ruleset.dev-3",
+  "version": 3,
+  "status": "dev",
+  "notes": "DEVELOPMENT BALANCE, revision 3 (2026-10-02). dev-2 numbers unchanged plus goal_xp: flat XP per completed daily goal by slot (doc 24). Small next to activity XP (a 45 min strength session is ~95). Goal XP is untapered and credits the template's attribute at attribute_points_per_xp. Not yet simulated with goals; see docs/21 and docs/24 step 6.",
   "xp_per_minute_by_family": {
     "strength": 2.0,
     "cardio": 2.0,
@@ -72,5 +72,10 @@
     "max_credited_minutes": 120
   },
   "session_base_xp": 5,
-  "health_history_window_days": 7
+  "health_history_window_days": 7,
+  "goal_xp": {
+    "primary": 8,
+    "secondary": 5,
+    "small_win": 3
+  }
 }

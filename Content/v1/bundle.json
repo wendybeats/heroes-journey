@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.09.30-1",
+  "content_version": "2026.10.02-1",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -587,5 +587,840 @@
       "pilates": "yoga",
       "mindAndBody": "meditation"
     }
-  }
+  },
+  "goal_templates": [
+    {
+      "id": "goal.train.strength",
+      "slot": "primary",
+      "title": "Train strength for 30 min",
+      "lines": [
+        "Iron does not care how you feel. Lift anyway.",
+        "Thirty minutes under load. That is the whole ask.",
+        "Every set you log, I get a little heavier to knock down."
+      ],
+      "attribute_id": "strength",
+      "rule": {
+        "type": "activity_family",
+        "family_id": "strength",
+        "min_minutes": 30
+      },
+      "tags": [
+        "training",
+        "strength"
+      ]
+    },
+    {
+      "id": "goal.train.strength.sets",
+      "slot": "primary",
+      "title": "Log a workout with 12 sets",
+      "lines": [
+        "Twelve sets. Count them, I will.",
+        "Not the longest session. The honest one."
+      ],
+      "attribute_id": "strength",
+      "rule": {
+        "type": "workout_sets",
+        "count": 12
+      },
+      "tags": [
+        "training",
+        "strength"
+      ]
+    },
+    {
+      "id": "goal.train.cardio",
+      "slot": "primary",
+      "title": "Move for 30 min",
+      "lines": [
+        "Thirty minutes of breath you have to earn.",
+        "Run, ride, swim. I am not picky, I am counting."
+      ],
+      "attribute_id": "endurance",
+      "rule": {
+        "type": "activity_family",
+        "family_id": "cardio",
+        "min_minutes": 30
+      },
+      "tags": [
+        "training",
+        "cardio"
+      ]
+    },
+    {
+      "id": "goal.train.cardio.long",
+      "slot": "primary",
+      "title": "Go 45 min on your feet or wheels",
+      "lines": [
+        "Longer today. Pace yourself; the end is where it counts.",
+        "Forty-five minutes. The city is wider than it looks."
+      ],
+      "attribute_id": "endurance",
+      "rule": {
+        "type": "activity_family",
+        "family_id": "cardio",
+        "min_minutes": 45
+      },
+      "tags": [
+        "training",
+        "cardio"
+      ]
+    },
+    {
+      "id": "goal.train.combat",
+      "slot": "primary",
+      "title": "Train combat for 30 min",
+      "lines": [
+        "Half an hour of someone trying to hit you. Builds character, apparently.",
+        "Rounds today. Keep your hands up."
+      ],
+      "attribute_id": "endurance",
+      "rule": {
+        "type": "activity_family",
+        "family_id": "combat",
+        "min_minutes": 30
+      },
+      "tags": [
+        "training",
+        "combat"
+      ]
+    },
+    {
+      "id": "goal.train.mobility",
+      "slot": "primary",
+      "title": "Yoga or stretching, 20 min",
+      "lines": [
+        "Twenty minutes of being kind to the joints.",
+        "Range of motion is a stat too. It just does not shout."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "activity_family",
+        "family_id": "mobility",
+        "min_minutes": 20
+      },
+      "tags": [
+        "training",
+        "mobility"
+      ]
+    },
+    {
+      "id": "goal.train.learning",
+      "slot": "primary",
+      "title": "Study or read for 30 min",
+      "lines": [
+        "Thirty minutes of the page. The gym can wait a day.",
+        "Knowledge compounds. So do skipped days."
+      ],
+      "attribute_id": "knowledge",
+      "rule": {
+        "type": "activity_family",
+        "family_id": "learning",
+        "min_minutes": 30
+      },
+      "tags": [
+        "training",
+        "learning"
+      ]
+    },
+    {
+      "id": "goal.train.mindfulness",
+      "slot": "primary",
+      "title": "Sit for 15 min",
+      "lines": [
+        "Fifteen minutes of nothing. Harder than it sounds.",
+        "Breath in, breath out, repeat until the noise drops."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "activity_family",
+        "family_id": "mindfulness",
+        "min_minutes": 15
+      },
+      "tags": [
+        "training",
+        "mindfulness"
+      ]
+    },
+    {
+      "id": "goal.rest.walk",
+      "slot": "primary",
+      "title": "Walk for 20 min",
+      "lines": [
+        "Rest day. Legs still get a word in.",
+        "A walk clears the ledger. Twenty minutes."
+      ],
+      "attribute_id": "endurance",
+      "rule": {
+        "type": "activity_family",
+        "family_id": "cardio",
+        "min_minutes": 20
+      },
+      "tags": [
+        "rest"
+      ]
+    },
+    {
+      "id": "goal.rest.mobility",
+      "slot": "primary",
+      "title": "Stretch for 10 min",
+      "lines": [
+        "Rest means repair. Ten minutes of stretching helps the repair.",
+        "Tomorrow's lift is built today, slowly."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "activity_family",
+        "family_id": "mobility",
+        "min_minutes": 10
+      },
+      "tags": [
+        "rest"
+      ]
+    },
+    {
+      "id": "goal.rest.steps",
+      "slot": "primary",
+      "title": "Walk {target} steps",
+      "lines": [
+        "Rest day. The city still wants your steps.",
+        "{target} steps. No pace required, only the count."
+      ],
+      "attribute_id": "endurance",
+      "rule": {
+        "type": "steps",
+        "base": 5000,
+        "per_level": 400
+      },
+      "tags": [
+        "rest",
+        "steps"
+      ]
+    },
+    {
+      "id": "goal.learn.read10",
+      "slot": "secondary",
+      "title": "Read for 10 min",
+      "lines": [
+        "Ten pages or ten minutes. Either counts.",
+        "A chapter a day. Quietly, the shelf fills."
+      ],
+      "attribute_id": "knowledge",
+      "rule": {
+        "type": "activity_family",
+        "family_id": "learning",
+        "min_minutes": 10
+      },
+      "tags": [
+        "learning"
+      ]
+    },
+    {
+      "id": "goal.learn.study20",
+      "slot": "secondary",
+      "title": "Study something for 20 min",
+      "lines": [
+        "Twenty minutes on the thing you keep meaning to learn.",
+        "Sit with a hard topic. It gets smaller."
+      ],
+      "attribute_id": "knowledge",
+      "rule": {
+        "type": "activity_family",
+        "family_id": "learning",
+        "min_minutes": 20
+      },
+      "tags": [
+        "learning"
+      ]
+    },
+    {
+      "id": "goal.learn.oneidea",
+      "slot": "secondary",
+      "title": "Write down one idea you learned today",
+      "lines": [
+        "One idea, one line. Proof it went in.",
+        "Tell me one thing you know now that you did not this morning."
+      ],
+      "attribute_id": "knowledge",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "learning"
+      ]
+    },
+    {
+      "id": "goal.learn.podcast",
+      "slot": "secondary",
+      "title": "Listen to something that teaches, 15 min",
+      "lines": [
+        "Fifteen minutes of someone smarter than both of us.",
+        "Ears work while the legs rest."
+      ],
+      "attribute_id": "knowledge",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "learning"
+      ]
+    },
+    {
+      "id": "goal.learn.language",
+      "slot": "secondary",
+      "title": "Practise a skill for 10 min",
+      "lines": [
+        "Ten minutes of drills. Boring is how it sticks.",
+        "Practice does not need to be pretty. It needs to be today."
+      ],
+      "attribute_id": "knowledge",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "learning"
+      ]
+    },
+    {
+      "id": "goal.learn.noscroll",
+      "slot": "secondary",
+      "title": "Replace one scroll with one page",
+      "lines": [
+        "Trade a scroll for a page. Same thumb, better outcome.",
+        "One feed less, one page more."
+      ],
+      "attribute_id": "knowledge",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "learning"
+      ]
+    },
+    {
+      "id": "goal.learn.teach",
+      "slot": "secondary",
+      "title": "Explain something you know to someone",
+      "lines": [
+        "Teach it and you keep it.",
+        "Say it out loud to anyone. The dog counts."
+      ],
+      "attribute_id": "knowledge",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "learning",
+        "rare"
+      ]
+    },
+    {
+      "id": "goal.learn.review",
+      "slot": "secondary",
+      "title": "Review yesterday's notes for 5 min",
+      "lines": [
+        "Five minutes with yesterday. Memory likes a second look.",
+        "Re-read. Recall. Move on."
+      ],
+      "attribute_id": "knowledge",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "learning"
+      ]
+    },
+    {
+      "id": "goal.mind.sit5",
+      "slot": "secondary",
+      "title": "Sit quietly for 5 min",
+      "lines": [
+        "Five minutes. No phone, no plan.",
+        "Short sit. The point is that it happened."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "activity_family",
+        "family_id": "mindfulness",
+        "min_minutes": 5
+      },
+      "tags": [
+        "mindfulness",
+        "calm"
+      ]
+    },
+    {
+      "id": "goal.mind.breath",
+      "slot": "secondary",
+      "title": "Breathwork, 10 rounds",
+      "lines": [
+        "Ten slow rounds. Count them for me.",
+        "Breathe like you mean it. Ten times."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "mindfulness",
+        "calm"
+      ]
+    },
+    {
+      "id": "goal.mind.walk",
+      "slot": "secondary",
+      "title": "Walk without headphones for 10 min",
+      "lines": [
+        "Ten minutes with only the street for company.",
+        "Unplug the ears. The city has a soundtrack already."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "mindfulness",
+        "calm"
+      ]
+    },
+    {
+      "id": "goal.mind.journal",
+      "slot": "secondary",
+      "title": "Write three lines about today",
+      "lines": [
+        "Three lines. Not a diary, a receipt.",
+        "What happened, what you felt, what is next. Three lines."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "mindfulness"
+      ]
+    },
+    {
+      "id": "goal.mind.gratitude",
+      "slot": "secondary",
+      "title": "Name one thing that went right",
+      "lines": [
+        "One thing that went right. Say it, do not just think it.",
+        "Even a bad day has one line worth keeping."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "mindfulness",
+        "calm"
+      ]
+    },
+    {
+      "id": "goal.mind.sunlight",
+      "slot": "secondary",
+      "title": "Get 10 min of daylight",
+      "lines": [
+        "Daylight on the face. Ten minutes. Non-negotiable.",
+        "Go outside. The screen will keep."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "mindfulness",
+        "energy"
+      ]
+    },
+    {
+      "id": "goal.mind.screenfree",
+      "slot": "secondary",
+      "title": "One meal without a screen",
+      "lines": [
+        "Eat one meal looking at the food.",
+        "No screen at the table. Radical, I know."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "mindfulness",
+        "calm"
+      ]
+    },
+    {
+      "id": "goal.mind.bodyscan",
+      "slot": "secondary",
+      "title": "Lie still for 5 min and notice your body",
+      "lines": [
+        "Five minutes flat. Feet to head. Notice what hurts.",
+        "A scan, not a nap. Though I will not tell."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "mindfulness",
+        "rare"
+      ]
+    },
+    {
+      "id": "goal.win.water",
+      "slot": "small_win",
+      "title": "Drink a glass of water",
+      "lines": [
+        "Water. Now. Then we talk.",
+        "Hydration is the cheapest stat boost there is."
+      ],
+      "attribute_id": "endurance",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "energy"
+      ]
+    },
+    {
+      "id": "goal.win.stretch2",
+      "slot": "small_win",
+      "title": "Stretch for 2 min",
+      "lines": [
+        "Two minutes. Hamstrings, shoulders, done.",
+        "Short stretch. Long-term knees."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "calm"
+      ]
+    },
+    {
+      "id": "goal.win.walk10",
+      "slot": "small_win",
+      "title": "Walk for 10 min",
+      "lines": [
+        "Ten minutes on foot. Even to nowhere.",
+        "A short walk counts. It always has."
+      ],
+      "attribute_id": "endurance",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "energy"
+      ]
+    },
+    {
+      "id": "goal.win.stairs",
+      "slot": "small_win",
+      "title": "Take the stairs once",
+      "lines": [
+        "Stairs over lift. One flight is enough.",
+        "The lift is for groceries. Today you are not groceries."
+      ],
+      "attribute_id": "strength",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "energy"
+      ]
+    },
+    {
+      "id": "goal.win.pushups",
+      "slot": "small_win",
+      "title": "Do 10 push-ups",
+      "lines": [
+        "Ten push-ups, anywhere. The floor is everywhere.",
+        "Ten. Form over speed."
+      ],
+      "attribute_id": "strength",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "strength_goal"
+      ]
+    },
+    {
+      "id": "goal.win.squats",
+      "slot": "small_win",
+      "title": "Do 15 bodyweight squats",
+      "lines": [
+        "Fifteen squats. Kitchen, office, platform, your call.",
+        "Legs remember being used. Remind them."
+      ],
+      "attribute_id": "strength",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "strength_goal"
+      ]
+    },
+    {
+      "id": "goal.win.plank",
+      "slot": "small_win",
+      "title": "Hold a plank for 30 s",
+      "lines": [
+        "Thirty seconds. Breathe through it.",
+        "A plank is just standing up, sideways."
+      ],
+      "attribute_id": "strength",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "strength_goal"
+      ]
+    },
+    {
+      "id": "goal.win.posture",
+      "slot": "small_win",
+      "title": "Fix your posture right now",
+      "lines": [
+        "Shoulders back. There, done. Next.",
+        "Sit up. I can tell when you slump."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "calm"
+      ]
+    },
+    {
+      "id": "goal.win.breath3",
+      "slot": "small_win",
+      "title": "Take three slow breaths",
+      "lines": [
+        "Three breaths. In for four, out for six.",
+        "Slow the breath, slow the day."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "calm"
+      ]
+    },
+    {
+      "id": "goal.win.vegetable",
+      "slot": "small_win",
+      "title": "Eat one vegetable",
+      "lines": [
+        "One vegetable. Green preferred, not required.",
+        "Fuel matters. Pick something that grew."
+      ],
+      "attribute_id": "endurance",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "energy"
+      ]
+    },
+    {
+      "id": "goal.win.bedtime",
+      "slot": "small_win",
+      "title": "Set a bedtime for tonight",
+      "lines": [
+        "Pick a bedtime. Keeping it is tomorrow's win.",
+        "Sleep is when the gains get written."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "discipline"
+      ]
+    },
+    {
+      "id": "goal.win.tidy",
+      "slot": "small_win",
+      "title": "Tidy one surface",
+      "lines": [
+        "One surface. Desk, table, the chair that is a wardrobe.",
+        "Order outside helps order inside. Two minutes."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "discipline"
+      ]
+    },
+    {
+      "id": "goal.win.sun",
+      "slot": "small_win",
+      "title": "Step outside for 5 min",
+      "lines": [
+        "Five minutes of sky. Clouds count.",
+        "Go stand outside. Come back. That is it."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "energy"
+      ]
+    },
+    {
+      "id": "goal.win.message",
+      "slot": "small_win",
+      "title": "Message someone you have been meaning to",
+      "lines": [
+        "One message. Short is fine.",
+        "Someone is waiting on a reply. Be the one who sends it."
+      ],
+      "attribute_id": "knowledge",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "discipline"
+      ]
+    },
+    {
+      "id": "goal.win.plan",
+      "slot": "small_win",
+      "title": "Write tomorrow's one task",
+      "lines": [
+        "One task for tomorrow. Written, not remembered.",
+        "Decide tonight so tomorrow does not have to."
+      ],
+      "attribute_id": "knowledge",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "discipline"
+      ]
+    },
+    {
+      "id": "goal.win.nosugar",
+      "slot": "small_win",
+      "title": "Skip one sugary drink",
+      "lines": [
+        "One less sugar bomb. The body notices.",
+        "Water instead. See the other goal."
+      ],
+      "attribute_id": "endurance",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "discipline"
+      ]
+    },
+    {
+      "id": "goal.win.coldwater",
+      "slot": "small_win",
+      "title": "Finish your shower cold for 20 s",
+      "lines": [
+        "Twenty seconds cold. Loud, brief, worth it.",
+        "The cold ends. The pride does not."
+      ],
+      "attribute_id": "strength",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "rare",
+        "discipline"
+      ]
+    },
+    {
+      "id": "goal.win.handgrip",
+      "slot": "small_win",
+      "title": "Hang from something for 20 s",
+      "lines": [
+        "Twenty seconds hanging. Grip is a stat nobody trains.",
+        "Find a bar. Hold on. Count."
+      ],
+      "attribute_id": "strength",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "rare",
+        "strength_goal"
+      ]
+    },
+    {
+      "id": "goal.win.nophone",
+      "slot": "small_win",
+      "title": "First 15 min awake without the phone",
+      "lines": [
+        "Wake up before the feed does.",
+        "Fifteen minutes of morning that are yours."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "rare",
+        "calm"
+      ]
+    },
+    {
+      "id": "goal.win.stand",
+      "slot": "small_win",
+      "title": "Stand up and move once an hour",
+      "lines": [
+        "Up every hour. Chairs are a slow enemy.",
+        "Stand, roll the shoulders, sit. Repeat all day."
+      ],
+      "attribute_id": "endurance",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "energy"
+      ]
+    },
+    {
+      "id": "goal.win.balance",
+      "slot": "small_win",
+      "title": "Balance on one leg, 30 s each",
+      "lines": [
+        "Thirty seconds a side. Harder than it looks, better than it feels.",
+        "Ankles vote too. Train them."
+      ],
+      "attribute_id": "strength",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "strength_goal"
+      ]
+    },
+    {
+      "id": "goal.win.music",
+      "slot": "small_win",
+      "title": "One song, full attention",
+      "lines": [
+        "One song, nothing else. Three minutes of focus.",
+        "Listen. Just listen."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "calm",
+        "rare"
+      ]
+    }
+  ]
 }
