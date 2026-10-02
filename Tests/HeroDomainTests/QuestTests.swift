@@ -12,7 +12,7 @@ final class QuestTests: XCTestCase {
                            verificationMultiplier: [:], dailyTaper: .init(fullCreditMinutes: 90, taperRate: 0.25, hardCapMinutes: 240), minimumDurationSeconds: 60,
                            levelThresholdsTotalXP: [0, 10], dailyQuest: .init(durationMinutes: 240, unlockRule: "all_goals", rewardTable: table))
     }
-    func run(id: UUID = UUID()) -> QuestRun { QuestRun(id: id, questID: "quest.test", day: DayKey(year: 2026, month: 10, day: 5), startedAt: now, returnsAt: now.addingTimeInterval(4 * 3600)) }
+    func makeRun(id: UUID = UUID()) -> QuestRun { QuestRun(id: id, questID: "quest.test", day: DayKey(year: 2026, month: 10, day: 5), startedAt: now, returnsAt: now.addingTimeInterval(4 * 3600)) }
 
     func testRollIsDeterministicPerRunAndInsideTheTable() {
         let id = UUID()
@@ -31,7 +31,7 @@ final class QuestTests: XCTestCase {
     }
 
     func testDueOnlyAtOrAfterReturn() {
-        let r = run()
+        let r = makeRun()
         XCTAssertFalse(r.isDue(at: now)); XCTAssertFalse(r.isDue(at: now.addingTimeInterval(4 * 3600 - 1)))
         XCTAssertTrue(r.isDue(at: now.addingTimeInterval(4 * 3600)))
         XCTAssertEqual(r.remaining(at: now.addingTimeInterval(3600)), 3 * 3600)
@@ -40,7 +40,7 @@ final class QuestTests: XCTestCase {
     }
 
     func testReturnEventIsPricedFromTheTableAndGrantsTheRewardOnce() {
-        let r = run()
+        let r = makeRun()
         let rare = QuestResolver.makeEvent(for: r, rewardIndex: 2, userID: user, familyFallback: "strength", at: now)
         XCTAssertEqual(rare.source, .quest); XCTAssertEqual(rare.durationSeconds, 0)
         let fresh = EvaluationContext(priorEligibleMinutesToday: 999, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:])
@@ -53,7 +53,7 @@ final class QuestTests: XCTestCase {
     }
 
     func testOutOfRangeIndexOrMissingTableEarnsNothing() {
-        let r = run()
+        let r = makeRun()
         let bad = QuestResolver.makeEvent(for: r, rewardIndex: 9, userID: user, familyFallback: "strength", at: now)
         let ctx = EvaluationContext(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:])
         XCTAssertTrue(ProgressionEngine.evaluate(event: bad, ruleset: ruleset, context: ctx).isEmpty)
@@ -64,7 +64,7 @@ final class QuestTests: XCTestCase {
     }
 
     func testQuestRunRoundTripsThroughJSON() throws {
-        var r = run(); r.reward = QuestReference(questID: "quest.test", rewardIndex: 1); r.resolvedAt = now
+        var r = makeRun(); r.reward = QuestReference(questID: "quest.test", rewardIndex: 1); r.resolvedAt = now
         let data = try JSONEncoder().encode(r)
         XCTAssertEqual(try JSONDecoder().decode(QuestRun.self, from: data), r)
         let event = ActivityEvent(userID: user, activityTypeID: "running", familyID: "cardio", startedAt: now, durationSeconds: 600, source: .manual, verification: .selfReported, createdAt: now)
