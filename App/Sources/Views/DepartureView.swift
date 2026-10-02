@@ -20,6 +20,15 @@ struct DepartureView: View {
         return state.recipe?.backdropID ?? BackdropID("backdrop.rain_district")
     }
     private var walkAssetSetID: AssetSetID? { state.quest?.walkAssetSetID }
+    /// (item name, tier) for the loot tooltip, from the quest's preview list and the ruleset table.
+    private var lootPreview: [(String, String)] {
+        let table = state.ruleset.dailyQuest?.rewardTable ?? []
+        return (state.quest?.lootPreview ?? []).compactMap { rewardID in
+            guard let reward = state.bundle.reward(rewardID), let itemID = reward.grants.first?.itemID, let item = state.bundle.item(itemID) else { return nil }
+            let tier = table.first { $0.rewardID == rewardID }?.tier ?? item.rarity
+            return (item.displayName, tier)
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -49,8 +58,11 @@ struct DepartureView: View {
                 Text(state.departLine(for: run))
                     .font(HeroFont.body).foregroundStyle(NeoTokyo.Text.secondary)
                     .multilineTextAlignment(.center)
-                QuestPath(progress: 0)
+                QuestPath(progress: 0, lootPreview: lootPreview)
                     .padding(.horizontal, NeoTokyo.Spacing.md)
+                if let subtext = state.quest?.subtext {
+                    Text(subtext).font(HeroFont.callout).foregroundStyle(NeoTokyo.Text.secondary).multilineTextAlignment(.center)
+                }
                 Countdown(until: run.returnsAt)
             }
             .padding(NeoTokyo.Spacing.xl)
@@ -134,6 +146,9 @@ struct ScrollingBackdrop: View {
 struct QuestPath: View {
     /// 0…1 along the path.
     let progress: Double
+    /// (item name, tier) shown when the loot box is tapped. Empty = plain "?".
+    var lootPreview: [(String, String)] = []
+    @State private var showLoot = false
     var body: some View {
         HStack(spacing: NeoTokyo.Spacing.sm) {
             Image(systemName: "figure.walk").font(HeroFont.headline).foregroundStyle(NeoTokyo.Text.primary)
@@ -151,8 +166,44 @@ struct QuestPath: View {
                 .frame(height: geo.size.height)
             }
             .frame(height: 36)
-            Text("?").font(HeroFont.headline).foregroundStyle(NeoTokyo.Text.onAccent)
-                .frame(width: 36, height: 36).background(NeoTokyo.Hierarchy.primary, in: Circle())
+            Button { showLoot.toggle() } label: { LootBoxIcon().frame(width: 40, height: 40) }
+                .buttonStyle(.plain)
+                .accessibilityLabel("What might be found")
+                .popover(isPresented: $showLoot, arrowEdge: .bottom) {
+                    VStack(alignment: .leading, spacing: NeoTokyo.Spacing.sm) {
+                        Eyebrow(text: "Might be found down there")
+                        ForEach(lootPreview, id: \.0) { pair in
+                            HStack {
+                                Text(pair.0).font(HeroFont.bodyMedium).foregroundStyle(NeoTokyo.Text.primary)
+                                Spacer()
+                                Text(pair.1).font(HeroFont.label).textCase(.uppercase).foregroundStyle(pair.1 == "rare" ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.secondary)
+                            }
+                        }
+                        if lootPreview.isEmpty { Text("Nobody knows.").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.muted) }
+                    }
+                    .padding(NeoTokyo.Spacing.lg)
+                    .frame(minWidth: 240)
+                    .presentationCompactAdaptation(.popover)
+                }
+        }
+    }
+}
+
+/// Placeholder pixel loot box (owner to replace with authored art): a navy crate with a gold
+/// latch, drawn on a 3 pt grid so it sits with the sprites.
+struct LootBoxIcon: View {
+    var body: some View {
+        Canvas { context, size in
+            let cell = size.width / 12
+            func fill(_ x: Int, _ y: Int, _ w: Int, _ h: Int, _ color: Color) {
+                context.fill(Path(CGRect(x: CGFloat(x) * cell, y: CGFloat(y) * cell, width: CGFloat(w) * cell, height: CGFloat(h) * cell)), with: .color(color))
+            }
+            fill(1, 3, 10, 8, NeoTokyo.Surface.overlay)          // body
+            fill(1, 3, 10, 1, NeoTokyo.Hierarchy.fallback)        // lid edge (blue)
+            fill(0, 4, 1, 7, NeoTokyo.Surface.line); fill(11, 4, 1, 7, NeoTokyo.Surface.line)
+            fill(1, 10, 10, 1, NeoTokyo.Surface.scrim)             // base shadow
+            fill(5, 6, 2, 2, NeoTokyo.Hierarchy.primary)           // gold latch
+            fill(2, 5, 1, 1, NeoTokyo.Hierarchy.fallback); fill(9, 5, 1, 1, NeoTokyo.Hierarchy.fallback)  // rivets
         }
     }
 }

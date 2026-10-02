@@ -159,6 +159,12 @@ See docs/25. Content: characters, story chapters, world name, backdrop roles, qu
 
 Portrait kind missing from the Swift manifest decoder (portraits rendered as placeholders); story stage shows at most two bubbles, newest from below, older slides up and fades, no scrolling; onboarding scene taller with the hooded portrait until the body is chosen; "Away" badge reopens the quest screen; reward modal names the daily cap when a session earns nothing and Home shows "n / 40 activity XP today"; walk cycle re-baked at 118 px with the frame order reversed for the owner to compare.
 
+## Increment 20, 2026-10-02: owner QA batches B, C, F
+
+- B, onboarding: order is name → body (echoes the name: "Wendell.. the name of a hero") → skin ("I can barely see your face in the gloom down here") → hair style and colour on one screen → physical strengths (fist and foot glyphs in Strength pink and Endurance blue; strength training / cardio sports / combat sports / mobility-recovery) → mental strength (brain coral, leaf green; learning / mindfulness / creativity) → training days as bands (1–3, 3–5, 5–7, every day → 2/4/6/7) → motivation (fit, energy, calm, balanced) → Health → bond. The hooded portrait stands in the scene until the body is chosen.
+- C, content: `creativity` family (drawing, music practice, journaling; 1.2 XP/min; Knowledge 0.5 / Mindfulness 0.5 pending the owner's answer) with seven goal templates; `daily_quotes` (19, public-domain sources) shown on the stage screen by day number instead of the goal line; three quest items (Clean Trainers common, Box Hoodie uncommon, Junko Pants rare; `legs` and `feet` slots added) granted once each from the reward table; quest `notification_prompt`, `subtext`, `loot_preview`.
+- F, quest: "Begin quest" opens a sheet where the character explains the absence and offers "Enable notifications" or "Not now" before any system prompt; the departure screen shows the subtext and a placeholder pixel loot box whose tap lists the three items with tiers.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

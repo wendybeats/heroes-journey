@@ -485,7 +485,7 @@ final class AppState {
     func questRun(for eventID: ActivityEventID) -> QuestRun? { questRuns.first { $0.activityEventID == eventID } }
 
     /// Depart. One quest per day, only when today's goals are done; a quest already out blocks a second.
-    func beginQuest() async {
+    func beginQuest(requestNotifications: Bool = true) async {
         guard let quest, questReady, activeQuest == nil, todayQuest == nil, ruleset.dailyQuest != nil else { return }
         let now = Date()
         let run = QuestRun(questID: quest.id, day: today, startedAt: now, returnsAt: now.addingTimeInterval(questDuration))
@@ -493,7 +493,7 @@ final class AppState {
         questRuns = questRuns.filter { today.daysSince($0.day, calendar: .current) <= 30 || !$0.isResolved }
         showDeparture = true
         save()
-        if await QuestNotifications.requestPermission() {
+        if requestNotifications, await QuestNotifications.requestPermission() {
             await QuestNotifications.schedule(returnAt: run.returnsAt, characterName: recipe?.name ?? "Your character", line: quest.awayLines.first ?? "")
         }
     }

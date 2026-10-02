@@ -120,6 +120,13 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public let worldName: String?
     public let characters: [Character]
     public let storyChapters: [StoryChapter]
+    /// One per day on the stage screen, chosen by day number (owner QA 2026-10-02).
+    public let dailyQuotes: [Quote]
+
+    public struct Quote: Codable, Sendable, Equatable {
+        public let text: String
+        public let source: String
+    }
 
     public struct Quest: Codable, Sendable, Equatable {
         public let id: QuestID
@@ -128,13 +135,19 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let backdropID: BackdropID?
         /// Walk-cycle asset set (gender-neutral hooded figure until per-outfit walks exist).
         public let walkAssetSetID: AssetSetID?
+        /// Said before the notification permission prompt at the first departure.
+        public let notificationPrompt: String?
+        /// Under the path on the departure screen.
+        public let subtext: String?
+        /// Rewards shown in the loot-box tooltip, in tier order.
+        public let lootPreview: [RewardID]?
         /// Shown on departure.
         public let departLines: [String]
         /// Shown on Home while away.
         public let awayLines: [String]
         /// Keyed by reward tier (`common`, `uncommon`, `rare`); shown at return.
         public let returnLines: [String: [String]]
-        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", backdropID = "backdrop_id", walkAssetSetID = "walk_asset_set_id", departLines = "depart_lines", awayLines = "away_lines", returnLines = "return_lines" }
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", backdropID = "backdrop_id", walkAssetSetID = "walk_asset_set_id", notificationPrompt = "notification_prompt", subtext, lootPreview = "loot_preview", departLines = "depart_lines", awayLines = "away_lines", returnLines = "return_lines" }
     }
 
     /// A speaking character (doc 25). The hero is one too; its portrait is replaced by the live sprite after creation.
@@ -186,7 +199,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         case schemaVersion = "schema_version", contentVersion = "content_version"
         case families, activityTypes = "activity_types", attributes, evolutions, items, rewards, backdrops
         case avatarOptions = "avatar_options", exerciseDefinitions = "exercise_definitions", healthWorkoutMapping = "health_workout_mapping"
-        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters"
+        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters", dailyQuotes = "daily_quotes"
     }
 
     public static func decode(_ data: Data) throws -> ContentBundle {
@@ -205,6 +218,9 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public var defaultQuest: Quest? { quests.first }
     public func character(_ id: CharacterID) -> Character? { characters.first { $0.id == id } }
     public func chapter(_ id: String) -> StoryChapter? { storyChapters.first { $0.id == id } }
+    public func reward(_ id: RewardID) -> Reward? { rewards.first { $0.id == id } }
+    /// Deterministic per day number so everyone on day N reads the same line.
+    public func quote(forDay day: Int) -> Quote? { dailyQuotes.isEmpty ? nil : dailyQuotes[max(0, day - 1) % dailyQuotes.count] }
     public func backdrop(_ id: BackdropID) -> Backdrop? { backdrops.first { $0.id == id } }
     public var defaultBackdrop: Backdrop? { backdrops.first { $0.isDefault == true } ?? backdrops.first { $0.isHomeScene } }
 
@@ -255,7 +271,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
             if !attributeIDs.contains(t.attributeID) { problems.append("goal \(t.id) → unknown attribute \(t.attributeID)") }
             if t.lines.isEmpty { problems.append("goal \(t.id) has no lines") }
             if case let .activityFamily(f, _) = t.rule, !familyIDs.contains(f) { problems.append("goal \(t.id) → unknown family \(f)") }
-            for tag in t.tags where familyIDs.contains(FamilyID(tag)) == false && !["training", "rest", "learning", "mindfulness", "rare", "strength_goal", "energy", "calm", "discipline", "steps"].contains(tag) {
+            for tag in t.tags where familyIDs.contains(FamilyID(tag)) == false && !["training", "rest", "learning", "mindfulness", "creativity", "rare", "strength_goal", "energy", "calm", "discipline", "balance", "steps"].contains(tag) {
                 problems.append("goal \(t.id) has unknown tag \(tag)")
             }
         }
@@ -267,7 +283,11 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         unique(quests.map(\.id), "quest")
         if quests.isEmpty { problems.append("no quest defined") }
         for q in quests where q.departLines.isEmpty || q.awayLines.isEmpty { problems.append("quest \(q.id) is missing lines") }
-        for q in quests { if let b = q.backdropID, !backdropIDs.contains(b) { problems.append("quest \(q.id) → unknown backdrop \(b)") } }
+        for q in quests {
+            if let b = q.backdropID, !backdropIDs.contains(b) { problems.append("quest \(q.id) → unknown backdrop \(b)") }
+            for r in q.lootPreview ?? [] where !rewards.contains(where: { $0.id == r }) { problems.append("quest \(q.id) loot preview → unknown reward \(r)") }
+        }
+        if dailyQuotes.isEmpty { problems.append("no daily quotes") }
         unique(characters.map(\.id), "character"); unique(storyChapters.map(\.id), "story_chapter")
         let characterIDs = Set(characters.map(\.id))
         for ch in storyChapters {

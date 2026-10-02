@@ -6,6 +6,7 @@ import HeroDomain
 /// (a fact, then a receipt); nothing here computes XP.
 struct GoalsCard: View {
     @Environment(AppState.self) private var state
+    @State private var showDepartPrompt = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: NeoTokyo.Spacing.md) {
@@ -40,8 +41,9 @@ struct GoalsCard: View {
                 }
             }
             if case .ready = state.questState {
-                Button("Begin quest") { Task { await state.beginQuest() } }
+                Button("Begin quest") { showDepartPrompt = true }
                     .buttonStyle(PrimaryButtonStyle())
+                    .sheet(isPresented: $showDepartPrompt) { QuestDepartPrompt().presentationDetents([.medium]) }
             }
         }
     }
@@ -155,5 +157,28 @@ struct GoalRow: View {
         }
         .padding(.vertical, NeoTokyo.Spacing.xs)
         .animation(.easeOut(duration: 0.3), value: done)
+    }
+}
+
+/// Owner QA 2026-10-02: explain before the system notification prompt. The character says why
+/// they are leaving; "Enable notifications" asks the system, "Not now" departs silently.
+struct QuestDepartPrompt: View {
+    @Environment(AppState.self) private var state
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        VStack(spacing: NeoTokyo.Spacing.lg) {
+            if let recipe = state.recipe {
+                SpritePortrait(recipe: recipe, outfit: state.evolution?.outfit, size: 120)
+            }
+            Bubble(text: state.quest?.notificationPrompt ?? "Time to see if I can find anything useful around here. I'll be back in a few hours.")
+            Text("I can tell you when they're back, if you let me.").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
+            Button("Enable notifications") { dismiss(); Task { await state.beginQuest(requestNotifications: true) } }
+                .buttonStyle(PrimaryButtonStyle())
+            Button("Not now") { dismiss(); Task { await state.beginQuest(requestNotifications: false) } }
+                .buttonStyle(SecondaryButtonStyle())
+        }
+        .padding(NeoTokyo.Spacing.xl)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .background(NeoTokyo.Surface.base.ignoresSafeArea())
     }
 }

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.02-4",
+  "content_version": "2026.10.02-5",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -26,6 +26,10 @@
     {
       "id": "mindfulness",
       "display_name": "Mindfulness"
+    },
+    {
+      "id": "creativity",
+      "display_name": "Creativity"
     }
   ],
   "activity_types": [
@@ -147,6 +151,27 @@
       "display_name": "Breathwork",
       "default_duration_seconds": 600,
       "logging_mode": "simple"
+    },
+    {
+      "id": "drawing",
+      "family_id": "creativity",
+      "display_name": "Drawing / art",
+      "default_duration_seconds": 1800,
+      "logging_mode": "simple"
+    },
+    {
+      "id": "music_practice",
+      "family_id": "creativity",
+      "display_name": "Music practice",
+      "default_duration_seconds": 1800,
+      "logging_mode": "simple"
+    },
+    {
+      "id": "journaling",
+      "family_id": "creativity",
+      "display_name": "Journaling",
+      "default_duration_seconds": 900,
+      "logging_mode": "simple"
     }
   ],
   "attributes": [
@@ -238,6 +263,30 @@
       "slot": "effect",
       "rarity": "rare",
       "asset_set_id": "item.effect.pinkglow"
+    },
+    {
+      "id": "item.shoes.clean",
+      "display_name": "Clean Trainers",
+      "slot": "feet",
+      "rarity": "common",
+      "asset_set_id": "item.shoes.clean",
+      "notes": "White shoes. Art pending."
+    },
+    {
+      "id": "item.hoodie.box",
+      "display_name": "Box Hoodie",
+      "slot": "body",
+      "rarity": "uncommon",
+      "asset_set_id": "item.hoodie.box",
+      "notes": "White hoodie. Art pending."
+    },
+    {
+      "id": "item.pants.junko",
+      "display_name": "Junko Pants",
+      "slot": "legs",
+      "rarity": "rare",
+      "asset_set_id": "item.pants.junko",
+      "notes": "Red pants, white stripe down the side. Art pending."
     }
   ],
   "rewards": [
@@ -372,6 +421,42 @@
         {
           "type": "evolution",
           "evolution_id": "ev4_evolution3"
+        }
+      ]
+    },
+    {
+      "id": "reward.quest.trainers",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.shoes.clean"
+        }
+      ]
+    },
+    {
+      "id": "reward.quest.box_hoodie",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.hoodie.box"
+        }
+      ]
+    },
+    {
+      "id": "reward.quest.junko_pants",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.pants.junko"
         }
       ]
     }
@@ -1030,6 +1115,7 @@
         "type": "manual"
       },
       "tags": [
+        "balance",
         "mindfulness"
       ]
     },
@@ -1274,6 +1360,7 @@
         "type": "manual"
       },
       "tags": [
+        "balance",
         "discipline"
       ]
     },
@@ -1290,6 +1377,7 @@
         "type": "manual"
       },
       "tags": [
+        "balance",
         "discipline"
       ]
     },
@@ -1338,6 +1426,7 @@
         "type": "manual"
       },
       "tags": [
+        "balance",
         "discipline"
       ]
     },
@@ -1456,6 +1545,129 @@
         "calm",
         "rare"
       ]
+    },
+    {
+      "id": "goal.train.creativity",
+      "slot": "primary",
+      "title": "Make something for 30 min",
+      "lines": [
+        "Thirty minutes of making. Ugly is allowed; absent is not.",
+        "Draw, play, write. The city has enough consumers."
+      ],
+      "attribute_id": "knowledge",
+      "rule": {
+        "type": "activity_family",
+        "family_id": "creativity",
+        "min_minutes": 30
+      },
+      "tags": [
+        "training",
+        "creativity"
+      ]
+    },
+    {
+      "id": "goal.create.sketch",
+      "slot": "secondary",
+      "title": "Sketch for 10 min",
+      "lines": [
+        "Ten minutes with a pencil. Nobody has to see it.",
+        "Draw the thing in front of you. Badly is fine."
+      ],
+      "attribute_id": "knowledge",
+      "rule": {
+        "type": "activity_family",
+        "family_id": "creativity",
+        "min_minutes": 10
+      },
+      "tags": [
+        "creativity"
+      ]
+    },
+    {
+      "id": "goal.create.music",
+      "slot": "secondary",
+      "title": "Play or practise music for 15 min",
+      "lines": [
+        "Fifteen minutes of noise with intent.",
+        "Scales count. Humming does not."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "activity_family",
+        "family_id": "creativity",
+        "min_minutes": 15
+      },
+      "tags": [
+        "creativity"
+      ]
+    },
+    {
+      "id": "goal.create.journal",
+      "slot": "secondary",
+      "title": "Journal for 10 min",
+      "lines": [
+        "Ten minutes on the page. Write what happened, then what you felt.",
+        "A journal is a receipt for the day."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "activity_family",
+        "family_id": "creativity",
+        "min_minutes": 10
+      },
+      "tags": [
+        "creativity",
+        "balance"
+      ]
+    },
+    {
+      "id": "goal.create.photo",
+      "slot": "secondary",
+      "title": "Take one deliberate photograph",
+      "lines": [
+        "One photo, chosen. Not forty, taken.",
+        "Find a frame in this city and keep it."
+      ],
+      "attribute_id": "knowledge",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "creativity"
+      ]
+    },
+    {
+      "id": "goal.create.idea",
+      "slot": "secondary",
+      "title": "Write down three ideas",
+      "lines": [
+        "Three ideas. Two will be bad. That is the point.",
+        "Ideas rot unwritten. Three, now."
+      ],
+      "attribute_id": "knowledge",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "creativity"
+      ]
+    },
+    {
+      "id": "goal.create.finish",
+      "slot": "secondary",
+      "title": "Finish one small creative thing",
+      "lines": [
+        "Finish something. Small counts. Finished counts more.",
+        "A done sketch beats a perfect plan."
+      ],
+      "attribute_id": "mindfulness",
+      "rule": {
+        "type": "manual"
+      },
+      "tags": [
+        "creativity",
+        "rare"
+      ]
     }
   ],
   "quests": [
@@ -1487,7 +1699,14 @@
         ]
       },
       "backdrop_id": "backdrop.first_walk",
-      "walk_asset_set_id": "hero.walk.hooded"
+      "walk_asset_set_id": "hero.walk.hooded",
+      "notification_prompt": "Time to see if I can find anything useful around here. I'll be back in a few hours.",
+      "subtext": "This place is a MESS. I'll let you know if I find anything useful down here.",
+      "loot_preview": [
+        "reward.quest.trainers",
+        "reward.quest.box_hoodie",
+        "reward.quest.junko_pants"
+      ]
     }
   ],
   "world_name": null,
@@ -1596,6 +1815,84 @@
           ]
         }
       ]
+    }
+  ],
+  "daily_quotes": [
+    {
+      "text": "You have power over your mind, not outside events. Realize this, and you will find strength.",
+      "source": "Marcus Aurelius"
+    },
+    {
+      "text": "We suffer more often in imagination than in reality.",
+      "source": "Seneca"
+    },
+    {
+      "text": "It is not that we have a short time to live, but that we waste a lot of it.",
+      "source": "Seneca"
+    },
+    {
+      "text": "No man is free who is not master of himself.",
+      "source": "Epictetus"
+    },
+    {
+      "text": "First say to yourself what you would be; and then do what you have to do.",
+      "source": "Epictetus"
+    },
+    {
+      "text": "The journey of a thousand miles begins with a single step.",
+      "source": "Lao Tzu"
+    },
+    {
+      "text": "Mastering others is strength. Mastering yourself is true power.",
+      "source": "Lao Tzu"
+    },
+    {
+      "text": "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
+      "source": "Will Durant, on Aristotle"
+    },
+    {
+      "text": "The impediment to action advances action. What stands in the way becomes the way.",
+      "source": "Marcus Aurelius"
+    },
+    {
+      "text": "Waste no more time arguing about what a good man should be. Be one.",
+      "source": "Marcus Aurelius"
+    },
+    {
+      "text": "Difficulties strengthen the mind, as labour does the body.",
+      "source": "Seneca"
+    },
+    {
+      "text": "It does not matter how slowly you go as long as you do not stop.",
+      "source": "Confucius"
+    },
+    {
+      "text": "He who conquers himself is the mightiest warrior.",
+      "source": "Confucius"
+    },
+    {
+      "text": "Luck is what happens when preparation meets opportunity.",
+      "source": "Seneca"
+    },
+    {
+      "text": "Begin at once to live, and count each separate day as a separate life.",
+      "source": "Seneca"
+    },
+    {
+      "text": "Nothing great is created suddenly, any more than a bunch of grapes or a fig.",
+      "source": "Epictetus"
+    },
+    {
+      "text": "The body is the servant of the mind.",
+      "source": "James Allen"
+    },
+    {
+      "text": "Fall seven times, stand up eight.",
+      "source": "Japanese proverb"
+    },
+    {
+      "text": "Vision without action is a daydream. Action without vision is a nightmare.",
+      "source": "Japanese proverb"
     }
   ]
 }

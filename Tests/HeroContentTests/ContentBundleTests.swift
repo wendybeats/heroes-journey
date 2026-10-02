@@ -17,7 +17,7 @@ final class ContentBundleTests: XCTestCase {
     func testBundleDecodesAndIsInternallyConsistent() throws {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
         XCTAssertEqual(bundle.schemaVersion, 1)
-        XCTAssertEqual(bundle.families.count, 6)
+        XCTAssertEqual(bundle.families.count, 7)
         XCTAssertEqual(bundle.attributes.map(\.id), ["strength", "endurance", "knowledge", "mindfulness"])
         XCTAssertEqual(bundle.integrityProblems(), [])
         XCTAssertGreaterThanOrEqual(bundle.exerciseDefinitions.count, 20)

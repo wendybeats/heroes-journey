@@ -12,7 +12,8 @@ struct OnboardingView: View {
     @Environment(AppState.self) private var state
 
     /// `awaken` and `bond` are content chapters (doc 25); the rest are the guide's questions.
-    enum Step: Int, CaseIterable { case awaken, name, body, hair, hairColor, skin, primary, secondary, frequency, motivation, health, feedback, bond }
+    /// Order per owner QA 2026-10-02: skin right after body (higher-tier customisation), hair style and colour on one screen.
+    enum Step: Int, CaseIterable { case awaken, name, body, skin, hair, primary, secondary, frequency, motivation, health, feedback, bond }
 
     @State private var step: Step = .awaken
     @State private var name = ""
@@ -90,16 +91,15 @@ struct OnboardingView: View {
         // The guide asks; the answers rebuild the hero (doc 25: "Do you remember anything about your real, human self?").
         case .awaken, .bond: return ""
         case .name: return "Start with the easy one. What did they call you?"
-        case .body: return "Which of these is you? Pick the one that looks right. The world will not argue."
-        case .hair: return "The hair. You had a feeling about the hair, I can tell."
-        case .hairColor: return "And the colour. Closer."
-        case .skin: return "Nearly there. The light down here lies; pick what is true."
-        case .primary: return "Now the part that matters. When your human gets stronger, how does it happen?"
-        case .secondary: return "And the other half of them. Which one?"
-        case .frequency: return "How many days a week does your human actually train? Honest number. I plan around it."
-        case .motivation: return "Why are they doing this? One answer. I will remember it."
-        case .health: return "If their phone already counts the workouts, I can read them. Nothing gets logged twice."
-        case .feedback: return "That is who you are, then. Here is what today does to you if they do it."
+        case .body: return "\(name.trimmingCharacters(in: .whitespaces)).. the name of a hero. Which of these is you?"
+        case .skin: return "I can barely see your face in the gloom down here."
+        case .hair: return "Do you remember what looks right?"
+        case .primary: return "Pick how you most plan to develop your physical strengths."
+        case .secondary: return "Now tell me how you are most likely to build your mental strength."
+        case .frequency: return "How many days a week do you train?"
+        case .motivation: return "Now, a question for the soul.. Why are you doing this?"
+        case .health: return "Now, to make sure you and your human's progress are linked: let's connect this."
+        case .feedback: return "Who you are is clear to me now. It's time to seal the bond between you two."
         }
     }
 
@@ -124,22 +124,29 @@ struct OnboardingView: View {
                 let styles = options.hairStyles(for: raw)
                 if !styles.contains(draft.hairStyleID) { draft.hairStyleID = styles.dropFirst().first ?? styles.first ?? draft.hairStyleID }
             }))
-        case .hair:
-            ChoiceRows(options: options.hairStyles(for: draft.baseBody.rawValue).map { ($0, options.displayName($0)) }, selection: $draft.hairStyleID)
-        case .hairColor:
-            ChoiceRows(options: options.hairPalettes.map { ($0, options.displayName($0)) }, selection: $draft.hairPaletteID)
         case .skin:
             ChoiceRows(options: options.skinPalettes.map { ($0, options.displayName($0)) }, selection: $draft.skinPaletteID)
+        case .hair:
+            VStack(alignment: .leading, spacing: NeoTokyo.Spacing.md) {
+                Eyebrow(text: "Style")
+                ChoiceChips(options: options.hairStyles(for: draft.baseBody.rawValue).map { ($0, options.displayName($0)) }, selection: $draft.hairStyleID)
+                Eyebrow(text: "Colour")
+                ChoiceChips(options: options.hairPalettes.map { ($0, options.displayName($0)) }, selection: $draft.hairPaletteID)
+            }
         case .primary:
-            ChoiceRows(options: state.bundle.families.filter { !["learning", "mindfulness"].contains($0.id.rawValue) }.map { ($0.id.rawValue, $0.displayName) },
+            // Physical: the fist and the foot in the colours of the two physical attributes.
+            AttributeGlyphs(pairs: [("strength", "hand.raised.fingers.spread.fill"), ("endurance", "shoeprints.fill")])
+            ChoiceRows(options: [("strength", "Strength training"), ("cardio", "Cardio sports"), ("combat", "Combat sports"), ("mobility", "Mobility / recovery")],
                        selection: Binding(get: { prefs.primaryFamily.rawValue }, set: { prefs.primaryFamily = FamilyID($0) }))
         case .secondary:
-            ChoiceRows(options: [("learning", "Learning · books, study, skills"), ("mindfulness", "Mindfulness · breath, stillness, daylight")], selection: $prefs.secondaryInterest)
+            AttributeGlyphs(pairs: [("knowledge", "brain.head.profile"), ("mindfulness", "leaf.fill")])
+            ChoiceRows(options: [("learning", "Learning · reading, studying"), ("mindfulness", "Mindfulness · breathwork, stillness, daylight"), ("creativity", "Creativity · art, music, journaling")], selection: $prefs.secondaryInterest)
         case .frequency:
-            ChoiceRows(options: [(2, "2 days"), (3, "3 days"), (4, "4 days"), (5, "5 days"), (6, "6 days")].map { (String($0.0), $0.1) },
+            // Bands map to the generator's weekday pattern: 2, 4, 6 and 7 training days.
+            ChoiceRows(options: [("2", "1–3 days"), ("4", "3–5 days"), ("6", "5–7 days"), ("7", "Every day or more")],
                        selection: Binding(get: { String(prefs.trainingDaysPerWeek) }, set: { prefs.trainingDaysPerWeek = Int($0) ?? 4 }))
         case .motivation:
-            ChoiceRows(options: [("strength_goal", "Get stronger"), ("energy", "Have more energy"), ("calm", "A calmer head"), ("discipline", "Keep my word to myself")],
+            ChoiceRows(options: [("strength_goal", "Get more fit"), ("energy", "Have more energy"), ("calm", "Be more calm"), ("balance", "Become a more balanced person")],
                        selection: Binding(get: { prefs.motivation ?? "" }, set: { prefs.motivation = $0 }))
         case .health:
             VStack(alignment: .leading, spacing: NeoTokyo.Spacing.sm) {
@@ -226,13 +233,42 @@ struct OnboardingView: View {
     }
 }
 
-/// One line from the character, left-aligned, no bubble chrome (doc 19: no decorative borders).
-struct SpeechLine: View {
-    let text: String
+/// The attributes a question feeds, as coloured glyphs (owner QA 2026-10-02).
+struct AttributeGlyphs: View {
+    @Environment(AppState.self) private var state
+    let pairs: [(String, String)]
     var body: some View {
-        Text(text)
-            .font(HeroFont.title).foregroundStyle(NeoTokyo.Text.primary)
-            .fixedSize(horizontal: false, vertical: true)
+        HStack(spacing: NeoTokyo.Spacing.lg) {
+            ForEach(pairs, id: \.0) { pair in
+                let (attribute, symbol) = pair
+                HStack(spacing: 6) {
+                    Image(systemName: symbol).font(HeroFont.headline)
+                    Text(state.bundle.attributes.first { $0.id.rawValue == attribute }?.displayName ?? attribute).font(HeroFont.captionMedium)
+                }
+                .foregroundStyle(NeoTokyo.Attribute.color(for: attribute))
+            }
+        }
+    }
+}
+
+/// Compact wrapping chips for a secondary choice (hair style and colour share a screen).
+struct ChoiceChips: View {
+    let options: [(String, String)]
+    @Binding var selection: String
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: NeoTokyo.Spacing.sm) {
+                ForEach(options, id: \.0) { option in
+                    let (id, label) = option
+                    let on = selection == id
+                    Button(label) { selection = id }
+                        .font(HeroFont.callout)
+                        .foregroundStyle(on ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.secondary)
+                        .padding(.horizontal, NeoTokyo.Spacing.md).padding(.vertical, NeoTokyo.Spacing.sm)
+                        .glass(cornerRadius: NeoTokyo.Radius.md, tint: on ? NeoTokyo.Surface.overlay : NeoTokyo.Surface.raised)
+                }
+            }
+        }
     }
 }
 

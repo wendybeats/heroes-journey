@@ -5,7 +5,7 @@ public struct AvatarRecipe: Hashable, Codable, Sendable {
     public static let schemaVersion = 1
 
     public enum BaseBody: String, Codable, Sendable, CaseIterable { case male, female }
-    public enum Slot: String, Codable, Sendable, CaseIterable { case head, face, body, hand, back, effect }
+    public enum Slot: String, Codable, Sendable, CaseIterable { case head, face, body, legs, feet, hand, back, effect }
 
     public var name: String
     public var baseBody: BaseBody

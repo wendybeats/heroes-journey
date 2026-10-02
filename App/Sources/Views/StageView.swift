@@ -27,10 +27,15 @@ struct StageView: View {
                     framedScene
                         .rotationEffect(.degrees(-2))
                         .padding(.horizontal, NeoTokyo.Spacing.xl)
-                    Text(stageLine)
-                        .font(HeroFont.body).foregroundStyle(NeoTokyo.Text.secondary)
-                        .multilineTextAlignment(.center)
+                    if let quote = state.bundle.quote(forDay: state.dayNumber) {
+                        VStack(spacing: NeoTokyo.Spacing.xs) {
+                            Text("“\(quote.text)”")
+                                .font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
+                                .multilineTextAlignment(.center)
+                            Text(quote.source).font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
+                        }
                         .padding(.horizontal, NeoTokyo.Spacing.xl)
+                    }
                     if let plan = state.todayPlan {
                         VStack(alignment: .leading, spacing: NeoTokyo.Spacing.sm) {
                             Eyebrow(text: state.isTrainingDay() ? "Training day · today's goals" : "Rest day · today's goals")
@@ -77,9 +82,4 @@ struct StageView: View {
         .shadow(color: NeoTokyo.Surface.scrim.opacity(0.6), radius: 24, y: 12)
     }
 
-    /// The primary goal's line is the day's brief; the quest row reads from the same copy.
-    private var stageLine: String {
-        guard let plan = state.todayPlan, let primary = plan.goals.first(where: { $0.slot == .primary }) else { return "A new day. Make it count." }
-        return state.line(for: primary)
-    }
 }

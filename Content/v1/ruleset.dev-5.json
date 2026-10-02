@@ -3,14 +3,15 @@
   "id": "ruleset.dev-5",
   "version": 5,
   "status": "dev",
-  "notes": "DEVELOPMENT BALANCE, revision 5 (2026-10-02). Owner's schedule (docs/21 \u00a7dev-5): first ascension (L5) at the end of week one for both pacing types, L10 monthly, L20 at 2-3 months, L50 at 3-6 months, L100 at 6-12 months. 100 levels. Levers: daily_activity_xp_cap 40 across all families (consistency, not volume, sets the pace), goal_xp 30/20/12, quest 10/15/25, session_base_xp 15, 30-min taper kept from dev-4. Thresholds derived by Tools/derive_level_curve.py from the light persona at 75 % goal completion with a banded days-per-level schedule (1-10 quick, 10-40 medium, 40-80 slow, 80-95 slower, 95-100 grind; per-level cost never falls). Light lands at L5 day 6, L10 24, L20 71, L40 168, L50 221, L80 409, L100 606; heavy roughly 1.5x faster. Still a fixture until TestFlight data.",
+  "notes": "DEVELOPMENT BALANCE, revision 5 (2026-10-02). Owner's schedule (docs/21 \u00a7dev-5): first ascension (L5) at the end of week one for both pacing types, L10 monthly, L20 at 2-3 months, L50 at 3-6 months, L100 at 6-12 months. 100 levels. Levers: daily_activity_xp_cap 40 across all families (consistency, not volume, sets the pace), goal_xp 30/20/12, quest 10/15/25, session_base_xp 15, 30-min taper kept from dev-4. Thresholds derived by Tools/derive_level_curve.py from the light persona at 75 % goal completion with a banded days-per-level schedule (1-10 quick, 10-40 medium, 40-80 slow, 80-95 slower, 95-100 grind; per-level cost never falls). Light lands at L5 day 6, L10 24, L20 71, L40 168, L50 221, L80 409, L100 606; heavy roughly 1.5x faster. Still a fixture until TestFlight data. 2026-10-02 QA: creativity family (1.2 xp/min, knowledge 0.5 / mindfulness 0.5, owner to confirm); quest tiers grant Clean Trainers / Box Hoodie / Junko Pants once each.",
   "xp_per_minute_by_family": {
     "strength": 2.0,
     "cardio": 2.0,
     "combat": 2.0,
     "mobility": 1.5,
     "learning": 1.2,
-    "mindfulness": 1.5
+    "mindfulness": 1.5,
+    "creativity": 1.2
   },
   "attribute_weights_by_family": {
     "strength": {
@@ -33,6 +34,10 @@
     },
     "mindfulness": {
       "mindfulness": 1.0
+    },
+    "creativity": {
+      "knowledge": 0.5,
+      "mindfulness": 0.5
     }
   },
   "attribute_points_per_xp": 0.5,
@@ -176,17 +181,20 @@
       {
         "weight": 60,
         "xp": 10,
-        "tier": "common"
+        "tier": "common",
+        "reward_id": "reward.quest.trainers"
       },
       {
         "weight": 30,
         "xp": 15,
-        "tier": "uncommon"
+        "tier": "uncommon",
+        "reward_id": "reward.quest.box_hoodie"
       },
       {
         "weight": 10,
         "xp": 25,
-        "tier": "rare"
+        "tier": "rare",
+        "reward_id": "reward.quest.junko_pants"
       }
     ]
   },
