@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "hero.walk.hooded",
+  "revision": 1,
+  "status": "draft",
+  "kind": "body",
+  "canvas": {
+    "width": 64,
+    "height": 128
+  },
+  "pivot": {
+    "x": 32,
+    "y": 122
+  },
+  "layer_order": 0,
+  "max_palette_colors": 24,
+  "facing": "right",
+  "animations": {
+    "walk": {
+      "frames": [
+        "walk/000.png",
+        "walk/001.png",
+        "walk/002.png",
+        "walk/003.png",
+        "walk/004.png",
+        "walk/005.png",
+        "walk/006.png",
+        "walk/007.png"
+      ],
+      "frame_duration_ms": 110,
+      "loop": true,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Baked by Tools/bake_walk_cycle.py from the owner's storyboard: 8 poses, shared scale 0.197, 24 colours, feet on row 122. Gender-neutral hooded figure; used for every outfit until per-outfit walks exist."
+}

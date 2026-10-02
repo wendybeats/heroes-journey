@@ -1,0 +1,76 @@
+{
+  "id": "first_walk_alley_v1",
+  "status": "art_preview",
+  "title": "First walk — Neo Tokyo",
+  "image": "first-walk-panorama.png",
+  "sourcePixels": {
+    "width": 2172,
+    "height": 724
+  },
+  "direction": "right_to_left",
+  "durationSeconds": 10,
+  "preview": {
+    "viewport": {
+      "width": 480,
+      "height": 320
+    },
+    "strip": {
+      "width": 960,
+      "height": 320
+    },
+    "startCenterFraction": 0.195,
+    "logicalPixelStep": 2,
+    "baseColor": "#0A1020",
+    "loopTreatment": "Ordered pixel dissolve of the strip's ends into the base color; the raw generated PNG is not certified seamless.",
+    "dissolve": {
+      "cell": 2,
+      "horizontalWidth": 24,
+      "verticalHeight": 14,
+      "bayer4x4": [
+        [
+          0,
+          8,
+          2,
+          10
+        ],
+        [
+          12,
+          4,
+          14,
+          6
+        ],
+        [
+          3,
+          11,
+          1,
+          9
+        ],
+        [
+          15,
+          7,
+          13,
+          5
+        ]
+      ]
+    }
+  },
+  "beats": [
+    {
+      "name": "Shuttered storefront",
+      "centerFraction": 0.195,
+      "centerAtSeconds": 0
+    },
+    {
+      "name": "Faint neon shop",
+      "centerFraction": 0.487,
+      "centerAtSeconds": 2.92
+    },
+    {
+      "name": "Smoker in the recess",
+      "centerFraction": 0.814,
+      "centerAtSeconds": 6.19
+    }
+  ],
+  "motion": "Single-plane background translation only. Smoker and smoke are baked into the still.",
+  "finalCleanup": "Exact pixel grid, restricted palette and independently animated elements remain for Claude if required."
+}

@@ -1,0 +1,20 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-02",
+  "intent": "generate",
+  "reference": "../hooded-onboarding-v1/hooded-onboarding.png",
+  "reference_role": "Style and framing only; a distinct guide character",
+  "transparent_background": true,
+  "prompts": [
+    {
+      "pass": 1,
+      "prompt": "Use case: stylized-concept.\nAsset type: one transparent pixel-art dialogue portrait for the Neo Tokyo onboarding of a mobile fitness RPG.\nInput image 1 is a STYLE AND FRAMING reference: the approved hooded player portrait. Create a DIFFERENT character, the wise older male guide; match the reference's chunky pixel scale, economical shading, dark outlines, restrained palette, square shoulder portrait framing and upper-right light source.\n\nSubject: a man in his late 60s or 70s who has survived a hard life in a futuristic city. Wise, weathered, quietly paternal and reassuring. Warm attentive eyes with crow's feet, deep but simply drawn facial lines, a slightly crooked nose, one understated healed scar, relaxed brows and a very slight kind closed-mouth smile. Short receding iron-grey hair with silver highlights, short grey stubble. His expression should make a vulnerable newcomer feel safe.\nNeo Tokyo detail: an old practical titanium temple/behind-ear implant integrated into the visible side of the head, with a few clean dim blue circuitry marks. This is repaired everyday technology, not ostentatious armor. Keep both eyes human and expressive. Worn dark navy utility jacket with a simple raised workwear collar and subtle repair seam, charcoal undershirt. No hood.\n\nComposition: single head-and-shoulders portrait, square canvas with transparent background and generous space over head. The head, nose, eyes and upper torso turn in a clear three-quarter view toward SCREEN RIGHT; gaze toward the right edge, as though talking to the other character. We see both eyes but the nose points right. Complete head visible; crop just below shoulders/upper chest like the reference. Shoulders relaxed.\nStyle: bold intentional pixel clusters, hard stair-step pixel edges, approximately 128x128 logical pixel portrait enlarged 8x, dark one-logical-pixel outlines, 3–5 flat shade steps per material. High readability at small dialogue portrait sizes, not a detailed painted illustration. No anti-aliasing, gradients, blur, tiny texture or isolated pixel noise. Light from upper right, shadows lower left.\nPalette: muted navy/charcoal jacket (#101118 #1B1D27 #282B36 #373B49 #4D5365), grey/silver hair (#4B4E55 #6B6E75 #8C8F96 #B2B4BA), weathered warm skin (#8D6050 #B77F63 #D69B75 #EAB58D #F5C69D). Small restrained blue implant accent (#2E5C88 #6FA9DC). Brightest warm pixels on the face, so the humane expression is the focal point.\nOutput: one PNG portrait with genuine transparent background. No background scene, no frame, no words, no palette swatches, no extra figures. No wizard styling, robes, long beard, staff, mystical symbols, glowing eyes, weapons, fantasy armor, elaborate cybernetic mask, big neon glow or aggressive expression."
+    }
+  ],
+  "selected": "wise-guide.png",
+  "output_dimensions": {
+    "width": 1254,
+    "height": 1254
+  },
+  "generated_source": "/Users/wendellbarton/.codex/generated_images/01a0e3cf-c413-7652-aaf1-da4282a8e016/exec-4fc8c86a-f6a4-4046-93fe-fdcc51a65017.png"
+}

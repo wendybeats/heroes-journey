@@ -69,7 +69,10 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let palette: String
         public let assetSetID: AssetSetID
         public let isDefault: Bool?
-        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", palette, assetSetID = "asset_set_id", isDefault = "default" }
+        /// `home` (selectable scene, default), `story` (dialogue staging), `quest` (scrolled panorama).
+        public let role: String?
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", palette, assetSetID = "asset_set_id", isDefault = "default", role }
+        public var isHomeScene: Bool { role == nil || role == "home" }
     }
     public struct ExerciseDefinition: Codable, Sendable, Equatable {
         public let id: ExerciseID
@@ -113,24 +116,77 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public let goalTemplates: [GoalTemplate]
     /// Daily quests (doc 24). One in MVP; copy lives here, duration and rewards in the ruleset.
     public let quests: [Quest]
+    /// Undecided until the owner names the world; lines carry a `without_world` variant meanwhile.
+    public let worldName: String?
+    public let characters: [Character]
+    public let storyChapters: [StoryChapter]
 
     public struct Quest: Codable, Sendable, Equatable {
         public let id: QuestID
         public let displayName: String
+        /// Panorama scrolled behind the walking character on departure.
+        public let backdropID: BackdropID?
+        /// Walk-cycle asset set (gender-neutral hooded figure until per-outfit walks exist).
+        public let walkAssetSetID: AssetSetID?
         /// Shown on departure.
         public let departLines: [String]
         /// Shown on Home while away.
         public let awayLines: [String]
         /// Keyed by reward tier (`common`, `uncommon`, `rare`); shown at return.
         public let returnLines: [String: [String]]
-        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", departLines = "depart_lines", awayLines = "away_lines", returnLines = "return_lines" }
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", backdropID = "backdrop_id", walkAssetSetID = "walk_asset_set_id", departLines = "depart_lines", awayLines = "away_lines", returnLines = "return_lines" }
+    }
+
+    /// A speaking character (doc 25). The hero is one too; its portrait is replaced by the live sprite after creation.
+    public struct Character: Codable, Sendable, Equatable {
+        public let id: CharacterID
+        public let displayName: String
+        public let portraitAssetSetID: AssetSetID
+        /// `left` or `right`: which side of the stage the portrait sits on; bubbles sit opposite.
+        public let side: String
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", portraitAssetSetID = "portrait_asset_set_id", side }
+    }
+
+    /// One line of dialogue. Markdown emphasis (`**bold**`, `*italic*`) is allowed. `{world}` is the
+    /// world name; while it is undecided the `without_world` variant is shown.
+    public struct StoryLine: Codable, Sendable, Equatable {
+        public let text: String
+        public let withoutWorld: String?
+        public init(from decoder: Decoder) throws {
+            if let single = try? decoder.singleValueContainer().decode(String.self) { text = single; withoutWorld = nil; return }
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            text = try c.decode(String.self, forKey: .text); withoutWorld = try c.decodeIfPresent(String.self, forKey: .withoutWorld)
+        }
+        public func encode(to encoder: Encoder) throws {
+            if withoutWorld == nil { var c = encoder.singleValueContainer(); try c.encode(text) }
+            else { var c = encoder.container(keyedBy: CodingKeys.self); try c.encode(text, forKey: .text); try c.encode(withoutWorld, forKey: .withoutWorld) }
+        }
+        enum CodingKeys: String, CodingKey { case text, withoutWorld = "without_world" }
+        /// Resolved copy for a world name (nil = undecided).
+        public func resolved(worldName: String?) -> String {
+            if let worldName { return text.replacingOccurrences(of: "{world}", with: worldName) }
+            return withoutWorld ?? text.replacingOccurrences(of: " of {world}", with: "").replacingOccurrences(of: "{world}", with: "this world")
+        }
+    }
+    public struct StoryBeat: Codable, Sendable, Equatable {
+        public let speaker: CharacterID
+        public let lines: [StoryLine]
+    }
+    public struct StoryChapter: Codable, Sendable, Equatable {
+        public let id: String
+        public let title: String
+        public let backdropID: BackdropID
+        /// What follows the last line: `create_character` or `home`.
+        public let then: String
+        public let beats: [StoryBeat]
+        enum CodingKeys: String, CodingKey { case id, title, backdropID = "backdrop_id", then, beats }
     }
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "schema_version", contentVersion = "content_version"
         case families, activityTypes = "activity_types", attributes, evolutions, items, rewards, backdrops
         case avatarOptions = "avatar_options", exerciseDefinitions = "exercise_definitions", healthWorkoutMapping = "health_workout_mapping"
-        case goalTemplates = "goal_templates", quests
+        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters"
     }
 
     public static func decode(_ data: Data) throws -> ContentBundle {
@@ -147,7 +203,10 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public func goalTemplate(_ id: GoalTemplateID) -> GoalTemplate? { goalTemplates.first { $0.id == id } }
     public func quest(_ id: QuestID) -> Quest? { quests.first { $0.id == id } }
     public var defaultQuest: Quest? { quests.first }
-    public var defaultBackdrop: Backdrop? { backdrops.first { $0.isDefault == true } ?? backdrops.first }
+    public func character(_ id: CharacterID) -> Character? { characters.first { $0.id == id } }
+    public func chapter(_ id: String) -> StoryChapter? { storyChapters.first { $0.id == id } }
+    public func backdrop(_ id: BackdropID) -> Backdrop? { backdrops.first { $0.id == id } }
+    public var defaultBackdrop: Backdrop? { backdrops.first { $0.isDefault == true } ?? backdrops.first { $0.isHomeScene } }
 
     /// Level → reward IDs, the shape `EvaluationContext` wants.
     public var levelRewards: [Int: [RewardID]] {
@@ -208,6 +267,22 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         unique(quests.map(\.id), "quest")
         if quests.isEmpty { problems.append("no quest defined") }
         for q in quests where q.departLines.isEmpty || q.awayLines.isEmpty { problems.append("quest \(q.id) is missing lines") }
+        for q in quests { if let b = q.backdropID, !backdropIDs.contains(b) { problems.append("quest \(q.id) → unknown backdrop \(b)") } }
+        unique(characters.map(\.id), "character"); unique(storyChapters.map(\.id), "story_chapter")
+        let characterIDs = Set(characters.map(\.id))
+        for ch in storyChapters {
+            if !backdropIDs.contains(ch.backdropID) { problems.append("chapter \(ch.id) → unknown backdrop \(ch.backdropID)") }
+            if !["create_character", "home"].contains(ch.then) { problems.append("chapter \(ch.id) has unknown 'then' \(ch.then)") }
+            if ch.beats.isEmpty { problems.append("chapter \(ch.id) has no beats") }
+            for beat in ch.beats {
+                if !characterIDs.contains(beat.speaker) { problems.append("chapter \(ch.id) → unknown speaker \(beat.speaker)") }
+                if beat.lines.isEmpty { problems.append("chapter \(ch.id) has an empty beat") }
+                for line in beat.lines where line.text.contains("{world}") && line.withoutWorld == nil && worldName == nil {
+                    problems.append("chapter \(ch.id): line uses {world} with no world name and no without_world variant")
+                }
+            }
+        }
+        if defaultBackdrop?.isHomeScene != true { problems.append("default backdrop must be a home scene") }
         return problems
     }
 

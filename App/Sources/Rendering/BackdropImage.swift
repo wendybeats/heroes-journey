@@ -29,6 +29,27 @@ struct BackdropImage: View {
         .task(id: assetSetID) { image = Self.load(assetSetID.rawValue) }
     }
 
+    #if canImport(UIKit)
+    /// The decoded still with its pixel size, for callers that tile or crop (the scrolling panorama).
+    static func loadUIImage(_ id: String) -> UIImage? {
+        guard let root = Bundle.main.resourceURL?.appendingPathComponent("sprites/\(id)") else { return nil }
+        let revisions = ((try? FileManager.default.contentsOfDirectory(atPath: root.path)) ?? [])
+            .compactMap { name -> (Int, String)? in
+                guard name.hasPrefix("rev"), let n = Int(name.dropFirst(3)) else { return nil }
+                return (n, name)
+            }
+            .sorted { $0.0 > $1.0 }
+        for (_, rev) in revisions {
+            let folder = root.appendingPathComponent(rev)
+            guard let data = try? Data(contentsOf: folder.appendingPathComponent("manifest.json")),
+                  let manifest = try? SpriteManifest.decode(data), manifest.status != .retired,
+                  let first = manifest.animations.values.first?.frames.first else { continue }
+            if let ui = UIImage(contentsOfFile: folder.appendingPathComponent(first).path) { return ui }
+        }
+        return nil
+    }
+    #endif
+
     static func load(_ id: String) -> Image? {
         guard let root = Bundle.main.resourceURL?.appendingPathComponent("sprites/\(id)") else { return nil }
         let revisions = ((try? FileManager.default.contentsOfDirectory(atPath: root.path)) ?? [])

@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 import HeroDomain
 import HeroContent
 
@@ -14,8 +17,16 @@ struct DepartureView: View {
     var body: some View {
         VStack(spacing: 0) {
             ZStack(alignment: .bottom) {
-                ScrollingBackdrop(assetSetID: state.recipe?.backdropID ?? "backdrop.rain_district", pointsPerSecond: reduceMotion ? 0 : 28)
-                if let recipe = state.recipe {
+                // Owner handoff 2026-10-02: the first-walk panorama (one plane, 10 s per strip in the
+                // owner's preview) and the hooded walk cycle. Scroll speed is tuned to the strip, not the
+                // stride; the owner judges foot-slide on device (walk 110 ms x 8 frames).
+                let questBackdrop = state.quest?.backdropID.flatMap { state.bundle.backdrop($0)?.assetSetID } ?? state.recipe?.backdropID ?? "backdrop.rain_district"
+                ScrollingBackdrop(assetSetID: questBackdrop, pointsPerSecond: reduceMotion ? 0 : 114, parallax: false)
+                if let walk = state.quest?.walkAssetSetID {
+                    SpritePlayer(assetSetID: walk, animation: "walk", scale: HomeView.characterScale)
+                        .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)
+                        .padding(.bottom, NeoTokyo.Spacing.xl)
+                } else if let recipe = state.recipe {
                     CharacterView(recipe: recipe, outfit: state.evolution?.outfit, scale: HomeView.characterScale)
                         .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)
                         .padding(.bottom, NeoTokyo.Spacing.xl)
@@ -52,22 +63,37 @@ struct DepartureView: View {
 struct ScrollingBackdrop: View {
     let assetSetID: BackdropID
     var pointsPerSecond: Double = 28
+    /// A dimmed half-speed copy behind the strip. Off for a panorama that already has depth drawn in.
+    var parallax = true
     @State private var image: Image?
+    /// width / height of the still, so a wide panorama tiles at its own width, not the viewport's.
+    @State private var aspect: CGFloat = 4.0 / 3.0
     @State private var start = Date()
 
     var body: some View {
         GeometryReader { geo in
             TimelineView(.animation(minimumInterval: 1.0 / 30, paused: pointsPerSecond == 0)) { timeline in
                 let elapsed = timeline.date.timeIntervalSince(start)
-                let w = geo.size.width
+                let w = max(geo.size.width, (geo.size.height * aspect).rounded())
                 ZStack {
-                    layer(width: w, height: geo.size.height, offset: offset(elapsed, speed: pointsPerSecond * 0.5, width: w)).opacity(0.45)
+                    if parallax {
+                        layer(width: w, height: geo.size.height, offset: offset(elapsed, speed: pointsPerSecond * 0.5, width: w)).opacity(0.45)
+                    }
                     layer(width: w, height: geo.size.height, offset: offset(elapsed, speed: pointsPerSecond, width: w))
                         .mask(LinearGradient(colors: [.clear, .black, .black], startPoint: .top, endPoint: .bottom))
                 }
             }
         }
-        .task(id: assetSetID) { image = BackdropImage.load(assetSetID.rawValue) }
+        .task(id: assetSetID) {
+            #if canImport(UIKit)
+            if let ui = BackdropImage.loadUIImage(assetSetID.rawValue) {
+                image = Image(uiImage: ui)
+                if ui.size.height > 0 { aspect = ui.size.width / ui.size.height }
+            }
+            #else
+            image = BackdropImage.load(assetSetID.rawValue)
+            #endif
+        }
     }
 
     private func offset(_ t: TimeInterval, speed: Double, width: CGFloat) -> CGFloat {
@@ -83,6 +109,8 @@ struct ScrollingBackdrop: View {
         }
         .offset(x: offset)
         .frame(width: width, height: height, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .clipped()
     }
 
     @ViewBuilder

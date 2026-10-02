@@ -54,6 +54,11 @@ python3 Tools/validate_sprites.py assets/sprites/hero.body.ev1/rev2
 
 The validator checks manifest shape, frame count and dimensions, binary alpha, palette size, that every palette-role color actually appears, and that the pivot row has opaque pixels. It does not judge whether the art is good; look at it at 2× on a phone.
 
+## Portraits and walk cycles (2026-10-02)
+
+- `kind: portrait`: a flattened generated still (soft alpha, free palette, any canvas), like a backdrop. Rendered nearest-neighbour into a square frame. One `still` animation.
+- Walk storyboards: `Tools/bake_walk_cycle.py` registers a generated pose grid onto 64 × 128 cells (shared scale, one palette, binary alpha, feet on the pivot row, specks removed). It does not redraw poses; keep the storyboard under `rev<N>/source/`.
+
 ## Accepting a revision
 
 1. Validator passes.

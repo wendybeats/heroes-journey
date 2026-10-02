@@ -14,6 +14,8 @@ enum HeroFont {
     // UI text.
     static var title: Font { .custom(NeoTokyo.Typeface.uiSemibold, size: NeoTokyo.Typeface.title) }
     static var headline: Font { .custom(NeoTokyo.Typeface.uiSemibold, size: NeoTokyo.Typeface.headline) }
+    /// Dialogue bubbles: title size at medium weight so a full line reads at a glance.
+    static var dialogue: Font { .custom(NeoTokyo.Typeface.uiMedium, size: NeoTokyo.Typeface.title) }
     static var body: Font { .custom(NeoTokyo.Typeface.uiRegular, size: NeoTokyo.Typeface.body) }
     static var bodyMedium: Font { .custom(NeoTokyo.Typeface.uiMedium, size: NeoTokyo.Typeface.body) }
     static var callout: Font { .custom(NeoTokyo.Typeface.uiRegular, size: NeoTokyo.Typeface.callout) }

@@ -151,6 +151,10 @@ See docs/21 §dev-5. Engine: `daily_activity_xp_cap` with `EvaluationContext.pri
 
 See docs/21 §dev-5b. The derive tool now integrates a banded days-per-level schedule, smooths the persona curve over 7 days and enforces non-decreasing per-level cost. Same ruleset id (dev-5); only the thresholds and the `level_curve` provenance block changed.
 
+## Increment 18, 2026-10-02: opening chapter and the first art handoff
+
+See docs/25. Content: characters, story chapters, world name, backdrop roles, quest backdrop + walk refs; decoder, identifiers (`CharacterID`), integrity checks and a content test. Assets: four new asset sets from the owner's handoff, `kind: portrait` added to the validator and schema, `Tools/bake_walk_cycle.py` for storyboard → cells. App: `StoryView`, `Bubble`, `PortraitView`, `SpritePortrait`, `SpeakerPortrait`, `HeroFont.dialogue`; onboarding wraps the questions in the two chapters; departure uses the panorama (tiled at its own aspect) and the hooded walk.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

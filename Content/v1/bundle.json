@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.02-3",
+  "content_version": "2026.10.02-4",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -389,6 +389,20 @@
       "display_name": "Shrine Falls",
       "palette": "shrine_falls",
       "asset_set_id": "backdrop.shrine_falls"
+    },
+    {
+      "id": "backdrop.alley_awakening",
+      "display_name": "Awakening Alley",
+      "palette": "rain_district",
+      "asset_set_id": "backdrop.alley_awakening",
+      "role": "story"
+    },
+    {
+      "id": "backdrop.first_walk",
+      "display_name": "First Walk",
+      "palette": "rain_district",
+      "asset_set_id": "backdrop.first_walk",
+      "role": "quest"
     }
   ],
   "avatar_options": {
@@ -1471,7 +1485,117 @@
           "Back, and not the same. Something under the city looked at me and let me pass.",
           "There is a door down there with my name scratched into it. I did not open it. Yet."
         ]
-      }
+      },
+      "backdrop_id": "backdrop.first_walk",
+      "walk_asset_set_id": "hero.walk.hooded"
+    }
+  ],
+  "world_name": null,
+  "characters": [
+    {
+      "id": "guide.elder",
+      "display_name": "The Guide",
+      "portrait_asset_set_id": "portrait.guide_elder",
+      "side": "left",
+      "notes": "Name undecided (owner, 2026-10-02). Constant figure; portrait is the approved wise-guide-v1."
+    },
+    {
+      "id": "hero",
+      "display_name": "You",
+      "portrait_asset_set_id": "portrait.hero_hooded",
+      "side": "right",
+      "notes": "Hooded still until the player answers who they are; the live sprite's crop afterwards."
+    }
+  ],
+  "story_chapters": [
+    {
+      "id": "chapter.awakening",
+      "title": "Awakening",
+      "backdrop_id": "backdrop.alley_awakening",
+      "then": "create_character",
+      "beats": [
+        {
+          "speaker": "hero",
+          "lines": [
+            "Wha.. Where am I?"
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Ah good, you're awake.",
+            "That was a nasty uplink, one of the worst I've seen yet."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "...Uplink?"
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Yes my child..",
+            {
+              "text": "You've awoken in this, our digital world of {world}.",
+              "without_world": "You've awoken in this, our digital world."
+            },
+            "When a human in the real world decides to take the Ascension challenge, you become **soul bound** to them."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Soul bound? Sounds.. serious."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "It is.",
+            "It means right now your survival depends on the determination of your human.",
+            "Their actions in the real world make you stronger here.",
+            "But also, their failures are your failures.",
+            "My human gave up on me a long time ago..",
+            "But I see something powerful in your bond...",
+            "Perhaps you could even reach Ascension one day!"
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Ascension?"
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Ascension, yes. Grow strong enough and you can bend the very fabric of this world...",
+            "To ascend is to become powerful enough even to *escape* this digital world.",
+            "It's a lot, I know. We'll talk about it more.",
+            "...Do you remember anything about your real, human self?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter.first_training",
+      "title": "The bond",
+      "backdrop_id": "backdrop.alley_awakening",
+      "then": "home",
+      "beats": [
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "That's it, then. The bond holds.",
+            "Your human has taken the challenge. From here, every step they take in their world is a step you take in this one.",
+            "Many humans neglect themselves. It's in their nature to give up.",
+            "Not this one. Not if I can help it.",
+            "You'd better get to training. I'll be with you all the while."
+          ]
+        }
+      ]
     }
   ]
 }

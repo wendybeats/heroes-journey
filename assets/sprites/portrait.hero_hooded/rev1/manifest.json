@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "portrait.hero_hooded",
+  "revision": 1,
+  "status": "draft",
+  "kind": "portrait",
+  "canvas": {
+    "width": 1254,
+    "height": 1254
+  },
+  "pivot": {
+    "x": 627,
+    "y": 1253
+  },
+  "layer_order": 0,
+  "max_palette_colors": 100000,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner handoff 2026-10-02 (hooded-onboarding-v1). The hero before the bond: hood up, eyes and hair concealed, only nose and mouth readable. Gender-neutral; used in the opening chapter until the player answers who they are, after which the live sprite's crop is the portrait. Generated still at 1254x1254, not resampled to a logical grid; rendered with nearest-neighbour into a ~140 pt frame."
+}

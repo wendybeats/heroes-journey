@@ -11,7 +11,8 @@ import HeroContent
 struct OnboardingView: View {
     @Environment(AppState.self) private var state
 
-    enum Step: Int, CaseIterable { case awaken, name, body, hair, hairColor, skin, primary, secondary, frequency, motivation, health, feedback }
+    /// `awaken` and `bond` are content chapters (doc 25); the rest are the guide's questions.
+    enum Step: Int, CaseIterable { case awaken, name, body, hair, hairColor, skin, primary, secondary, frequency, motivation, health, feedback, bond }
 
     @State private var step: Step = .awaken
     @State private var name = ""
@@ -20,11 +21,30 @@ struct OnboardingView: View {
     @State private var healthAsked = false
 
     var body: some View {
+        Group {
+            if step == .awaken, let chapter = state.bundle.chapter("chapter.awakening") {
+                StoryView(chapter: chapter, heroRecipe: nil) { step = .name }
+            } else if step == .bond, let chapter = state.bundle.chapter("chapter.first_training") {
+                StoryView(chapter: chapter, heroRecipe: draft) { finish() }
+            } else {
+                questions
+            }
+        }
+        .animation(.easeOut(duration: 0.25), value: step)
+    }
+
+    private var questions: some View {
         VStack(spacing: 0) {
             scene
             ScrollView {
                 VStack(alignment: .leading, spacing: NeoTokyo.Spacing.lg) {
-                    SpeechLine(text: line)
+                    HStack(alignment: .top, spacing: NeoTokyo.Spacing.sm) {
+                        if let guide = state.bundle.character("guide.elder") {
+                            PortraitView(assetSetID: guide.portraitAssetSetID, size: 56)
+                                .clipShape(RoundedRectangle(cornerRadius: NeoTokyo.Radius.md, style: .continuous))
+                        }
+                        Bubble(text: line)
+                    }
                     content
                 }
                 .padding(NeoTokyo.Spacing.lg)
@@ -32,7 +52,6 @@ struct OnboardingView: View {
             footer
         }
         .background(NeoTokyo.Surface.base.ignoresSafeArea())
-        .animation(.easeOut(duration: 0.25), value: step)
     }
 
     // MARK: scene
@@ -61,18 +80,19 @@ struct OnboardingView: View {
 
     private var line: String {
         switch step {
-        case .awaken: return "…Where is this. Rain. A city I almost remember. And you. Do I know you?"
-        case .name: return "Start with the easy one. What do they call me?"
-        case .body: return "Which of these is me? Pick the one that looks right. I will not argue."
-        case .hair: return "The hair. I had a feeling about the hair."
+        // The guide asks; the answers rebuild the hero (doc 25: "Do you remember anything about your real, human self?").
+        case .awaken, .bond: return ""
+        case .name: return "Start with the easy one. What did they call you?"
+        case .body: return "Which of these is you? Pick the one that looks right. The world will not argue."
+        case .hair: return "The hair. You had a feeling about the hair, I can tell."
         case .hairColor: return "And the colour. Closer."
-        case .skin: return "Nearly there. The light here lies; pick what is true."
-        case .primary: return "Now the part that matters. When I get stronger, how does it happen?"
-        case .secondary: return "And the other half of me. Which one?"
-        case .frequency: return "How many days a week do you actually train? Honest number. I plan around it."
-        case .motivation: return "Why are we doing this? One answer. I will remember it."
-        case .health: return "If your phone already counts your workouts, I can read them. Nothing gets logged twice."
-        case .feedback: return "That is who I am, then. Here is what today does to me if we do it."
+        case .skin: return "Nearly there. The light down here lies; pick what is true."
+        case .primary: return "Now the part that matters. When your human gets stronger, how does it happen?"
+        case .secondary: return "And the other half of them. Which one?"
+        case .frequency: return "How many days a week does your human actually train? Honest number. I plan around it."
+        case .motivation: return "Why are they doing this? One answer. I will remember it."
+        case .health: return "If their phone already counts the workouts, I can read them. Nothing gets logged twice."
+        case .feedback: return "That is who you are, then. Here is what today does to you if they do it."
         }
     }
 
@@ -165,7 +185,7 @@ struct OnboardingView: View {
 
     private var footer: some View {
         HStack(spacing: NeoTokyo.Spacing.sm) {
-            if step != .awaken {
+            if step != .name {
                 Button("Back") { step = Step(rawValue: step.rawValue - 1) ?? .awaken }
                     .buttonStyle(SecondaryButtonStyle())
                     .frame(width: 96)
@@ -180,15 +200,18 @@ struct OnboardingView: View {
 
     private var nextLabel: String {
         switch step {
-        case .awaken: return "I think so"
         case .health: return healthAsked || !state.healthAvailable ? "Next" : "Not now"
-        case .feedback: return "Wake them up"
+        case .feedback: return "Seal the bond"
         default: return "Next"
         }
     }
 
     private func advance() {
         if let next = Step(rawValue: step.rawValue + 1) { step = next; return }
+        finish()
+    }
+
+    private func finish() {
         guard let ev = state.bundle.evolution(forLevel: 1), let backdrop = state.bundle.defaultBackdrop else { return }
         var r = draft
         r.name = name.trimmingCharacters(in: .whitespaces); r.evolutionID = ev.id; r.backdropID = backdrop.id

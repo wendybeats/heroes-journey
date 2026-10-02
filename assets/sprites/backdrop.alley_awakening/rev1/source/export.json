@@ -1,0 +1,28 @@
+{
+  "alphaValues" : [
+    0,
+    255
+  ],
+  "exportDimensions" : [
+    1280,
+    960
+  ],
+  "logicalDimensions" : [
+    320,
+    240
+  ],
+  "palette" : [
+    "#0A1020",
+    "#182642",
+    "#2E5C88"
+  ],
+  "pixelCounts" : [
+    30117,
+    24787,
+    2491
+  ],
+  "scale" : 4,
+  "source" : "generated-master.png",
+  "status" : "background still; character and dialogue layers separate",
+  "transparentPixels" : 19405
+}

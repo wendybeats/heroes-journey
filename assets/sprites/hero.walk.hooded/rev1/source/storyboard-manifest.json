@@ -1,0 +1,84 @@
+{
+  "id": "hooded_walk_right_storyboard_v1",
+  "status": "storyboard_for_claude",
+  "image": "hooded-walk-storyboard.png",
+  "sourcePixels": {
+    "width": 1254,
+    "height": 1254
+  },
+  "layout": {
+    "columns": 4,
+    "rows": 2,
+    "order": "row-major",
+    "registration": "not yet normalized; not a runtime atlas"
+  },
+  "direction": "screen-right",
+  "wardrobe": "Hood up; grey hoodie; black sweatpants; grey running shoes",
+  "identity": "Gender-neutral onboarding character; eyes and hair concealed",
+  "targetCell": {
+    "width": 64,
+    "height": 128
+  },
+  "suggestedCycleSeconds": {
+    "min": 0.8,
+    "max": 1
+  },
+  "backdrop": "../../quests/first-walk-v1/first-walk-panorama.png",
+  "intendedPhases": [
+    {
+      "number": 1,
+      "row": 1,
+      "column": 1,
+      "name": "Contact A"
+    },
+    {
+      "number": 2,
+      "row": 1,
+      "column": 2,
+      "name": "Down A"
+    },
+    {
+      "number": 3,
+      "row": 1,
+      "column": 3,
+      "name": "Passing A"
+    },
+    {
+      "number": 4,
+      "row": 1,
+      "column": 4,
+      "name": "Up A"
+    },
+    {
+      "number": 5,
+      "row": 2,
+      "column": 1,
+      "name": "Contact B"
+    },
+    {
+      "number": 6,
+      "row": 2,
+      "column": 2,
+      "name": "Down B"
+    },
+    {
+      "number": 7,
+      "row": 2,
+      "column": 3,
+      "name": "Passing B"
+    },
+    {
+      "number": 8,
+      "row": 2,
+      "column": 4,
+      "name": "Up B"
+    }
+  ],
+  "cleanup": [
+    "Register each frame to a shared pelvis anchor and ground baseline",
+    "Verify and redraw near/far leg alternation, especially the similar passing poses 3 and 7",
+    "Smooth arm transitions and keep hood/torso volume constant",
+    "Normalize pixel grid, palette and alpha",
+    "Match planted-foot speed to the scrolling backdrop"
+  ]
+}

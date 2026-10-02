@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "backdrop.first_walk",
+  "revision": 1,
+  "status": "draft",
+  "kind": "backdrop",
+  "canvas": {
+    "width": 2172,
+    "height": 724
+  },
+  "pivot": {
+    "x": 1086,
+    "y": 564
+  },
+  "layer_order": -100,
+  "max_palette_colors": 100000,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner handoff 2026-10-02 (first-walk-v1): side-on alley panorama for the quest departure, scrolled right-to-left and tiled. The ordered Bayer dissolve from the owner's preview (24/14 px at 960x320) is baked here at source resolution so the wrap reads as a short dark gap rather than a hard seam. Three beats: shuttered storefront, faint neon shop, smoker in the recess. Not palette-normalised; the smoker and lights are part of the still.",
+  "scroll": {
+    "direction": "right_to_left",
+    "loop_seconds": 10,
+    "ground_fraction": 0.78,
+    "beats": [
+      {
+        "name": "Shuttered storefront",
+        "center_fraction": 0.195
+      },
+      {
+        "name": "Faint neon shop",
+        "center_fraction": 0.487
+      },
+      {
+        "name": "Smoker in the recess",
+        "center_fraction": 0.814
+      }
+    ]
+  }
+}
