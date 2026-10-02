@@ -316,7 +316,7 @@ public enum GoalEvaluator {
     /// `events` are the day's activity facts (goal-derived events excluded by the caller); `steps`
     /// is the day's total when known. Pure.
     public static func satisfied(plan: GoalPlan, templates: [GoalTemplate], completed: Set<UUID>, events: [ActivityEvent], steps: Int?) -> [(goal: DailyGoal, source: GoalCompletion.Source)] {
-        var out: [(DailyGoal, GoalCompletion.Source)] = []
+        var out: [(goal: DailyGoal, source: GoalCompletion.Source)] = []
         for goal in plan.goals where !completed.contains(goal.id) {
             guard let template = templates.first(where: { $0.id == goal.templateID }) else { continue }
             switch template.rule {

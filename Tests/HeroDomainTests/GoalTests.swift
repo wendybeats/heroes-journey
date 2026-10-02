@@ -141,8 +141,8 @@ final class GoalTests: XCTestCase {
     func testGoalXPAbsentMeansGoalsEarnNothing() {
         let plan = GoalGenerator.plan(inputs(day: monday), now: now)
         let event = GoalEvaluator.makeEvent(for: plan.goals[0], template: templates[0], userID: user, familyFallback: "strength", at: now)
-        var r = ruleset
-        r = ProgressionRuleset(id: r.id, version: 1, status: .dev, xpPerMinuteByFamily: r.xpPerMinuteByFamily, attributeWeightsByFamily: r.attributeWeightsByFamily, attributePointsPerXP: 0.5, verificationMultiplier: [:], dailyTaper: r.dailyTaper, minimumDurationSeconds: 60, levelThresholdsTotalXP: r.levelThresholdsTotalXP)
+        let base = ruleset
+        let r = ProgressionRuleset(id: base.id, version: 1, status: .dev, xpPerMinuteByFamily: base.xpPerMinuteByFamily, attributeWeightsByFamily: base.attributeWeightsByFamily, attributePointsPerXP: 0.5, verificationMultiplier: [:], dailyTaper: base.dailyTaper, minimumDurationSeconds: 60, levelThresholdsTotalXP: base.levelThresholdsTotalXP)
         XCTAssertTrue(ProgressionEngine.evaluate(event: event, ruleset: r, context: .init(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:])).isEmpty)
     }
 
