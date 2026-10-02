@@ -448,6 +448,13 @@ final class AppState {
         outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
     }
 
+    /// Onboarding v2: preferences first (no plan exists yet, so nothing regenerates), then the
+    /// recipe, which creates day one's plan and queues the stage screen.
+    func completeOnboarding(recipe newRecipe: AvatarRecipe, preferences: GoalPreferences) {
+        goalPreferences = preferences
+        recipe = newRecipe
+    }
+
     // MARK: setting the stage (doc 24)
 
     var dayNumber: Int { (startedOn.map { today.daysSince($0, calendar: .current) } ?? 0) + 1 }

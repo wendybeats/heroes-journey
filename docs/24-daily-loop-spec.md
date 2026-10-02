@@ -52,8 +52,8 @@ Formulated from docs 22–23 and the owner's answers of 2026-10-02. This is the 
 2. ✅ (increment 11) Steps: daily step total from HealthKit, `steps` completion rule, info row.
 3. ✅ (increment 12) Daily quest: quest definition + reward table in content, run/resolver with tests, Begin → Departure → notification → Return modal.
 4. ✅ (increment 13) Setting the stage + Home v2 recomposition.
-5. Onboarding v2 as the first story chapter, generating day one's plan.
-6. Re-run `Tools/simulate_progression.py` with goals and quest XP; revisit the light-user decision in doc 21.
+5. ✅ (increment 14) Onboarding v2 as the first story chapter, generating day one's plan.
+6. ✅ (doc 21 re-run) Re-run `Tools/simulate_progression.py` with goals and quest XP; revisit the light-user decision in doc 21.
 
 ## Open for the owner
 - Goal copy and template list (first pass will be mine; expect edits).

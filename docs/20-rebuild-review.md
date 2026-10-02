@@ -133,6 +133,12 @@ See `docs/21-balance-simulation.md`. Ruleset dev-2 (session base XP 5, first-syn
 - Home v2: the scene is full-bleed, 440 pt, under the status bar and fading into the base at its foot; name and level badge sit top-left inside it; the navigation bar is transparent. Order below: goals, progression, today, this week. Utility stays white and large; it moved down, not out (doc 22 §5: statistics live deeper).
 - Doc 19's "compact scene" line is superseded by doc 22/24 for Home only; every other screen keeps the compact rule.
 
+## Increment 14, 2026-10-02: onboarding v2, the first story chapter (doc 24, build step 5)
+
+- Twelve single-focus screens, the character present on every one with one line: awaken, name, body, hair, hair colour, skin, primary family, secondary interest, training days, motivation, Apple Health, feedback. Large tappable rows (`ChoiceRows`), Back/Next, progress ticks over the scene. Answers fill `GoalPreferences` and seed day one's plan through `AppState.completeOnboarding`; the stage screen then opens as Day 1.
+- Stat feedback before Home is a *preview*: the last screen shows the attribute deltas that today's generated goals would give, with the same `DeltaBadge` Home uses. Nothing is granted by onboarding (rule 2); the first grant is the first completed goal or activity. Doc 23's "nudge" line is implemented as this preview.
+- Apple Health is asked inside the chapter with a one-line reason and a "Not now" that moves on; account/cloud recovery is still not built (doc 22 infrastructure item).
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.
