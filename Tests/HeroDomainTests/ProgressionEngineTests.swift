@@ -226,3 +226,4 @@ final class BalanceLeverTests: XCTestCase {
         guard case .imported = run(recent, creditFrom: from).disposition else { return XCTFail("2-day-old workout is credited") }
         guard case .imported = run(imported, creditFrom: nil).disposition else { return XCTFail("later syncs credit everything new") }
     }
+}
