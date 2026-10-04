@@ -85,5 +85,5 @@ Fast iteration, visual consistency, reusable world assets, flexible marketing pr
 
 ## Open after this pass
 - The canonical city name and the mentor's name.
-- When to promote the current sets to `approved` and switch the release gate on.
+- Promoted 2026-10-04: alley, first-walk panorama, both portraits. Still draft: `hero.walk.hooded` (owner: needs work) and the pre-handoff sets (`backdrop.rain_district`, `hero.body.ev1`, the v2/v3 kits), which predate the lifecycle and await the owner's look. The release gate stays off until those are decided.
 - First storyboard in the YAML format, to settle `content/storyboards/`.

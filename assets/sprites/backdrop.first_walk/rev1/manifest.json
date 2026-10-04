@@ -2,7 +2,7 @@
   "schema_version": 1,
   "asset_set_id": "backdrop.first_walk",
   "revision": 1,
-  "status": "draft",
+  "status": "approved",
   "kind": "backdrop",
   "canvas": {
     "width": 2172,
@@ -25,7 +25,7 @@
     }
   },
   "palette_roles": {},
-  "notes": "Owner handoff 2026-10-02 (first-walk-v1): side-on alley panorama for the quest departure, scrolled right-to-left and tiled. The ordered Bayer dissolve from the owner's preview (24/14 px at 960x320) is baked here at source resolution so the wrap reads as a short dark gap rather than a hard seam. Three beats: shuttered storefront, faint neon shop, smoker in the recess. Not palette-normalised; the smoker and lights are part of the still.",
+  "notes": "Owner handoff 2026-10-02 (first-walk-v1): side-on alley panorama for the quest departure, scrolled right-to-left and tiled. The ordered Bayer dissolve from the owner's preview (24/14 px at 960x320) is baked here at source resolution so the wrap reads as a short dark gap rather than a hard seam. Three beats: shuttered storefront, faint neon shop, smoker in the recess. Not palette-normalised; the smoker and lights are part of the still. Approved by the owner 2026-10-04.",
   "scroll": {
     "direction": "right_to_left",
     "loop_seconds": 10,

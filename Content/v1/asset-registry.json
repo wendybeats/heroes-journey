@@ -16,11 +16,11 @@
       ],
       "time": "night",
       "current_revision": 1,
-      "status": "draft",
+      "status": "approved",
       "revisions": [
         {
           "revision": 1,
-          "status": "draft",
+          "status": "approved",
           "path": "assets/sprites/backdrop.alley_awakening/rev1",
           "animations": [
             "still"
@@ -46,11 +46,11 @@
       ],
       "time": "night",
       "current_revision": 1,
-      "status": "draft",
+      "status": "approved",
       "revisions": [
         {
           "revision": 1,
-          "status": "draft",
+          "status": "approved",
           "path": "assets/sprites/backdrop.first_walk/rev1",
           "animations": [
             "still"
@@ -154,11 +154,11 @@
       "mood": [],
       "time": null,
       "current_revision": 1,
-      "status": "draft",
+      "status": "approved",
       "revisions": [
         {
           "revision": 1,
-          "status": "draft",
+          "status": "approved",
           "path": "assets/sprites/portrait.guide_elder/rev1",
           "animations": [
             "still"
@@ -180,11 +180,11 @@
       "mood": [],
       "time": null,
       "current_revision": 1,
-      "status": "draft",
+      "status": "approved",
       "revisions": [
         {
           "revision": 1,
-          "status": "draft",
+          "status": "approved",
           "path": "assets/sprites/portrait.hero_hooded/rev1",
           "animations": [
             "still"
