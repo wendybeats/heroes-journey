@@ -25,5 +25,14 @@
     }
   },
   "palette_roles": {},
-  "notes": "Owner handoff 2026-10-02 (neo-tokyo-alley-v1): three opaque colours (#0A1020, #182642, #2E5C88), binary alpha, transparent dissolve margins. The awakening alley of the opening chapter; characters and dialogue are staged over it."
+  "notes": "Owner handoff 2026-10-02 (neo-tokyo-alley-v1): three opaque colours (#0A1020, #182642, #2E5C88), binary alpha, transparent dissolve margins. The awakening alley of the opening chapter; characters and dialogue are staged over it.",
+  "world": "city",
+  "area": "under_city",
+  "scene": "awakening_alley",
+  "mood": [
+    "neon",
+    "dense",
+    "damp"
+  ],
+  "time": "night"
 }

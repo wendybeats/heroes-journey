@@ -44,5 +44,14 @@
         "center_fraction": 0.814
       }
     ]
-  }
+  },
+  "world": "city",
+  "area": "under_city",
+  "scene": "first_walk_street",
+  "mood": [
+    "quiet",
+    "neon",
+    "wet"
+  ],
+  "time": "night"
 }

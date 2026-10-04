@@ -13,7 +13,17 @@ public struct SpriteManifest: Codable, Sendable, Equatable {
         public let posterFrame: Int?
         enum CodingKeys: String, CodingKey { case frames, frameDurationMs = "frame_duration_ms", loop, posterFrame = "poster_frame" }
     }
-    public enum Status: String, Codable, Sendable { case draft, accepted, retired }
+    /// Doc 27 lifecycle. `accepted` and `retired` are the pre-2026-10-04 names, kept readable.
+    public enum Status: String, Codable, Sendable {
+        case concept, draft, review, approved, deprecated, archived
+        case accepted, retired
+        /// Whether a revision may be loaded by the app at all (doc 27: production uses approved;
+        /// drafts stay loadable until the first release so work in progress can be seen on device).
+        public var isLoadable: Bool {
+            switch self { case .approved, .accepted, .review, .draft: return true; case .concept, .deprecated, .archived, .retired: return false }
+        }
+        public var isApproved: Bool { self == .approved || self == .accepted }
+    }
     public enum Kind: String, Codable, Sendable { case body, hair, item, backdrop, effect, portrait }
 
     public let schemaVersion: Int

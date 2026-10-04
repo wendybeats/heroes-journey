@@ -174,6 +174,10 @@ Portrait kind missing from the Swift manifest decoder (portraits rendered as pla
 
 Owner: the +n preview ending at zero made no sense; sealing the bond should add XP, and a small starting stat set from the chosen physical and mental paths is wanted. Done as a fact, not a display trick: `ActivitySource.bond` with a `BondReference` (the attribute each choice feeds most, from the ruleset weights; ties alphabetical), priced by ruleset `bond_grant` {xp 12, primary 6, secondary 4}. Created once in `completeOnboarding`, submitted through the same boundary, idempotent, permanent (rule 4). The feedback screen shows these real numbers. Creativity confirmed at Knowledge 0.5 / Mindfulness 0.5. Loot box and hood-up sprite remain placeholders until the owner's art.
 
+## Increment 23, 2026-10-04: world lore and content organization
+
+`docs/26` records the owner's world story verbatim (premise, city, theme, Ascension, Shadow Self, World Guardians, accountability lore, five bands, thirteen areas, the provisional 100-level order, content model, guardrails). `docs/27` records the organization guide and a row-by-row check against the repo. Adopted: the six-state lifecycle with the old names as aliases and a loadable/approved split in the decoder and loaders; optional world/area/scene/mood/time manifest fields (filled for existing sets); a generated asset registry (`Content/v1/asset-registry.json`, tool + CI check); `areas` in the bundle with level bands and antagonists plus an integrity check that they cover 1–100 exactly; the world name set to the lore's placeholder; quest and backdrop names aligned (Under City, Rooftop Gardens); the animation naming contract and `<kind>.<area>.<name>` id convention in the sprites README; `assets/exports/` ignored. Deferred with reasons in docs/27: nested area folders, general scene definitions, storyboard files, video templates and renderers.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

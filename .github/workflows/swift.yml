@@ -25,6 +25,8 @@ jobs:
       - run: pip install pillow numpy
       - run: python3 Tools/check_token_contrast.py
       - run: python3 Tools/generate_theme_swift.py --check
+      - name: Asset registry matches the manifests (docs/27)
+        run: python3 Tools/build_asset_registry.py --check
       - name: Level curve matches its derivation (docs/21 dev-5)
         run: python3 Tools/derive_level_curve.py Content/v1/ruleset.dev-5.json --check
       - name: Validate every sprite revision

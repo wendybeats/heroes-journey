@@ -125,6 +125,20 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public let storyChapters: [StoryChapter]
     /// One per day on the stage screen, chosen by day number (owner QA 2026-10-02).
     public let dailyQuotes: [Quote]
+    /// The campaign's areas (doc 26 §8–10): data only until area content exists.
+    public let areas: [Area]
+
+    public struct Area: Codable, Sendable, Equatable {
+        public let id: AreaID
+        public let displayName: String
+        public let band: Int
+        public let theme: String
+        /// Inclusive level range the area spans in the provisional campaign order.
+        public let levels: [Int]
+        public let antagonist: String?
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", band, theme, levels, antagonist }
+        public var levelRange: ClosedRange<Int> { (levels.first ?? 1)...(levels.last ?? levels.first ?? 1) }
+    }
 
     public struct Quote: Codable, Sendable, Equatable {
         public let text: String
@@ -202,7 +216,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         case schemaVersion = "schema_version", contentVersion = "content_version"
         case families, activityTypes = "activity_types", attributes, evolutions, items, rewards, backdrops
         case avatarOptions = "avatar_options", exerciseDefinitions = "exercise_definitions", healthWorkoutMapping = "health_workout_mapping"
-        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters", dailyQuotes = "daily_quotes"
+        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters", dailyQuotes = "daily_quotes", areas
     }
 
     public static func decode(_ data: Data) throws -> ContentBundle {
@@ -222,6 +236,9 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public func character(_ id: CharacterID) -> Character? { characters.first { $0.id == id } }
     public func chapter(_ id: String) -> StoryChapter? { storyChapters.first { $0.id == id } }
     public func reward(_ id: RewardID) -> Reward? { rewards.first { $0.id == id } }
+    public func area(_ id: AreaID) -> Area? { areas.first { $0.id == id } }
+    /// The area whose level range holds `level` (doc 26 §10).
+    public func area(forLevel level: Int) -> Area? { areas.first { $0.levelRange.contains(level) } }
     /// Deterministic per day number so everyone on day N reads the same line.
     public func quote(forDay day: Int) -> Quote? { dailyQuotes.isEmpty ? nil : dailyQuotes[max(0, day - 1) % dailyQuotes.count] }
     public func backdrop(_ id: BackdropID) -> Backdrop? { backdrops.first { $0.id == id } }
@@ -291,6 +308,13 @@ public struct ContentBundle: Codable, Sendable, Equatable {
             for r in q.lootPreview ?? [] where !rewards.contains(where: { $0.id == r }) { problems.append("quest \(q.id) loot preview → unknown reward \(r)") }
         }
         if dailyQuotes.isEmpty { problems.append("no daily quotes") }
+        unique(areas.map(\.id), "area")
+        var expected = 1
+        for area in areas.sorted(by: { $0.levelRange.lowerBound < $1.levelRange.lowerBound }) {
+            if area.levels.count != 2 || area.levelRange.lowerBound != expected { problems.append("area \(area.id) levels must start at \(expected)") }
+            expected = area.levelRange.upperBound + 1
+        }
+        if !areas.isEmpty && expected != 101 { problems.append("areas must cover levels 1–100 exactly") }
         unique(characters.map(\.id), "character"); unique(storyChapters.map(\.id), "story_chapter")
         let characterIDs = Set(characters.map(\.id))
         for ch in storyChapters {

@@ -59,6 +59,14 @@ The validator checks manifest shape, frame count and dimensions, binary alpha, p
 - `kind: portrait`: a flattened generated still (soft alpha, free palette, any canvas), like a backdrop. Rendered nearest-neighbour into a square frame. One `still` animation.
 - Walk storyboards: `Tools/bake_walk_cycle.py` registers a generated pose grid onto 64 × 128 cells (shared scale, one palette, binary alpha, feet on the pivot row, specks removed). It does not redraw poses; keep the storyboard under `rev<N>/source/`.
 
+## Naming, lifecycle and area metadata (doc 27, 2026-10-04)
+
+- **IDs**: `<kind>.<area>.<name>` for world assets going forward (`backdrop.under_city.market_01`); character sets keep `hero.*`, items `item.*`, portraits `portrait.*`. Existing ids are not renamed.
+- **Status**: `concept → draft → review → approved → deprecated → archived`. The app loads approved, accepted (older name), review and draft; it never loads concept, deprecated, archived or retired. `Tools/build_asset_registry.py --require-approved` is the release gate.
+- **Area metadata**: optional `world`, `area` (an id from the bundle's `areas`), `scene`, `mood`, `time` in the manifest. `Tools/build_asset_registry.py` derives `Content/v1/asset-registry.json` from the manifests; never edit that file.
+- **Animation names** for new sets follow the shared vocabulary: `idle_neutral`, `idle_confident`, `idle_tired`, `idle_combat`, `walk_slow`, `walk_normal`, `walk_alert`, `reaction_*`, `combat_*`; environment loops `rain_loop`, `fog_loop`, `neon_flicker`, `dust_loop`, `wind_grass`, `screen_glitch`. Existing names (`idle`, `walk`, `still`; the hoodie kit's `enter/exit/glance/blink` clips) are aliases kept until those kits are rebuilt, because the app and the goldens reference them.
+- **Source / rendered / exports**: source under `rev<N>/source/`, rendered frames beside the manifest, exports (marketing renders) under `assets/exports/`, which is git-ignored.
+
 ## Accepting a revision
 
 1. Validator passes.

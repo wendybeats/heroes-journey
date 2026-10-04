@@ -42,7 +42,7 @@ struct BackdropImage: View {
         for (_, rev) in revisions {
             let folder = root.appendingPathComponent(rev)
             guard let data = try? Data(contentsOf: folder.appendingPathComponent("manifest.json")),
-                  let manifest = try? SpriteManifest.decode(data), manifest.status != .retired,
+                  let manifest = try? SpriteManifest.decode(data), manifest.status.isLoadable,
                   let first = manifest.animations.values.first?.frames.first else { continue }
             if let ui = UIImage(contentsOfFile: folder.appendingPathComponent(first).path) { return ui }
         }
@@ -61,7 +61,7 @@ struct BackdropImage: View {
         for (_, rev) in revisions {
             let folder = root.appendingPathComponent(rev)
             guard let data = try? Data(contentsOf: folder.appendingPathComponent("manifest.json")),
-                  let manifest = try? SpriteManifest.decode(data), manifest.status != .retired,
+                  let manifest = try? SpriteManifest.decode(data), manifest.status.isLoadable,
                   let first = manifest.animations.values.first?.frames.first else { continue }
             #if canImport(UIKit)
             if let ui = UIImage(contentsOfFile: folder.appendingPathComponent(first).path) { return Image(uiImage: ui) }

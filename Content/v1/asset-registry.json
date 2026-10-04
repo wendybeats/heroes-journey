@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "generated_by": "Tools/build_asset_registry.py",
+  "note": "Derived from assets/sprites/*/rev*/manifest.json. Do not edit; re-run the tool.",
+  "assets": [
+    {
+      "id": "backdrop.alley_awakening",
+      "kind": "backdrop",
+      "world": "city",
+      "area": "under_city",
+      "scene": "awakening_alley",
+      "mood": [
+        "neon",
+        "dense",
+        "damp"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "draft",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "draft",
+          "path": "assets/sprites/backdrop.alley_awakening/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 320,
+            "height": 240
+          }
+        }
+      ],
+      "source": "assets/sprites/backdrop.alley_awakening/rev1/source"
+    },
+    {
+      "id": "backdrop.first_walk",
+      "kind": "backdrop",
+      "world": "city",
+      "area": "under_city",
+      "scene": "first_walk_street",
+      "mood": [
+        "quiet",
+        "neon",
+        "wet"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "draft",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "draft",
+          "path": "assets/sprites/backdrop.first_walk/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 2172,
+            "height": 724
+          }
+        }
+      ],
+      "source": "assets/sprites/backdrop.first_walk/rev1/source"
+    },
+    {
+      "id": "backdrop.rain_district",
+      "kind": "backdrop",
+      "world": "city",
+      "area": "under_city",
+      "scene": "alley_home",
+      "mood": [
+        "neon",
+        "rain",
+        "lived_in"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "draft",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "draft",
+          "path": "assets/sprites/backdrop.rain_district/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 1448,
+            "height": 1086
+          }
+        }
+      ],
+      "source": null
+    },
+    {
+      "id": "hero.body.ev1",
+      "kind": "body",
+      "world": null,
+      "area": null,
+      "scene": null,
+      "mood": [],
+      "time": null,
+      "current_revision": 2,
+      "status": "draft",
+      "revisions": [
+        {
+          "revision": 2,
+          "status": "draft",
+          "path": "assets/sprites/hero.body.ev1/rev2",
+          "animations": [
+            "idle"
+          ],
+          "canvas": {
+            "width": 64,
+            "height": 128
+          }
+        }
+      ],
+      "source": "assets/sprites/hero.body.ev1/rev2/source"
+    },
+    {
+      "id": "hero.walk.hooded",
+      "kind": "body",
+      "world": "city",
+      "area": null,
+      "scene": null,
+      "mood": [],
+      "time": null,
+      "current_revision": 1,
+      "status": "draft",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "draft",
+          "path": "assets/sprites/hero.walk.hooded/rev1",
+          "animations": [
+            "walk"
+          ],
+          "canvas": {
+            "width": 64,
+            "height": 128
+          }
+        }
+      ],
+      "source": "assets/sprites/hero.walk.hooded/rev1/source"
+    },
+    {
+      "id": "portrait.guide_elder",
+      "kind": "portrait",
+      "world": "city",
+      "area": "under_city",
+      "scene": null,
+      "mood": [],
+      "time": null,
+      "current_revision": 1,
+      "status": "draft",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "draft",
+          "path": "assets/sprites/portrait.guide_elder/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 1254,
+            "height": 1254
+          }
+        }
+      ],
+      "source": "assets/sprites/portrait.guide_elder/rev1/source"
+    },
+    {
+      "id": "portrait.hero_hooded",
+      "kind": "portrait",
+      "world": "city",
+      "area": "under_city",
+      "scene": null,
+      "mood": [],
+      "time": null,
+      "current_revision": 1,
+      "status": "draft",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "draft",
+          "path": "assets/sprites/portrait.hero_hooded/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 1254,
+            "height": 1254
+          }
+        }
+      ],
+      "source": "assets/sprites/portrait.hero_hooded/rev1/source"
+    }
+  ],
+  "by_area": {
+    "under_city": [
+      "backdrop.alley_awakening",
+      "backdrop.first_walk",
+      "backdrop.rain_district",
+      "portrait.guide_elder",
+      "portrait.hero_hooded"
+    ],
+    "unassigned": [
+      "hero.body.ev1",
+      "hero.walk.hooded"
+    ]
+  }
+}

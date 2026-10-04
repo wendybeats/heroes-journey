@@ -33,5 +33,6 @@
     }
   },
   "palette_roles": {},
-  "notes": "Baked by Tools/bake_walk_cycle.py from the owner's storyboard: 8 poses, shared scale 0.210, 23 colours, feet on row 122. Gender-neutral hooded figure; used for every outfit until per-outfit walks exist. Frame order reversed after the owner saw it read as walking backwards (2026-10-02); figure 118 px."
+  "notes": "Baked by Tools/bake_walk_cycle.py from the owner's storyboard: 8 poses, shared scale 0.210, 23 colours, feet on row 122. Gender-neutral hooded figure; used for every outfit until per-outfit walks exist. Frame order reversed after the owner saw it read as walking backwards (2026-10-02); figure 118 px.",
+  "world": "city"
 }

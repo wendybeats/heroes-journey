@@ -76,7 +76,7 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(awakening.then, "create_character"); XCTAssertEqual(awakening.beats.count, 8)
         XCTAssertEqual(awakening.beats.first?.speaker, "hero"); XCTAssertEqual(awakening.beats.last?.lines.last?.text, "...Do you remember anything about your real, human self?")
         let worldLine = awakening.beats[3].lines[1]
-        XCTAssertNil(bundle.worldName, "undecided (owner, 2026-10-02)")
+        XCTAssertEqual(bundle.worldName, "Neo Tokyo", "placeholder per docs/26 §2")
         XCTAssertEqual(worldLine.resolved(worldName: nil), "You've awoken in this, our digital world.")
         XCTAssertEqual(worldLine.resolved(worldName: "Neo Tokyo"), "You've awoken in this, our digital world of Neo Tokyo.")
         XCTAssertEqual(bundle.defaultQuest?.backdropID, "backdrop.first_walk"); XCTAssertEqual(bundle.defaultQuest?.walkAssetSetID, "hero.walk.hooded")
@@ -86,6 +86,15 @@ final class ContentBundleTests: XCTestCase {
         let data = try JSONEncoder().encode(bundle.storyChapters)
         XCTAssertEqual(try JSONDecoder().decode([ContentBundle.StoryChapter].self, from: data), bundle.storyChapters)
         XCTAssertEqual(bundle.integrityProblems(), [])
+    }
+
+    func testAreasCoverTheCampaign() throws {
+        let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
+        XCTAssertEqual(bundle.areas.count, 13)
+        XCTAssertEqual(bundle.area(forLevel: 1)?.id, "under_city"); XCTAssertEqual(bundle.area(forLevel: 10)?.id, "under_city")
+        XCTAssertEqual(bundle.area(forLevel: 11)?.id, "colossus_gym"); XCTAssertEqual(bundle.area(forLevel: 100)?.id, "ascension_boundary")
+        XCTAssertEqual(bundle.area("grand_court")?.antagonist, "The Mirror")
+        XCTAssertEqual(bundle.defaultQuest?.displayName, "Under City")
     }
 
     func testLevelRewardsAndEvolutions() throws {

@@ -64,7 +64,7 @@ struct SpritePlayer: View {
             let folder = root.appendingPathComponent(rev)
             guard let data = try? Data(contentsOf: folder.appendingPathComponent("manifest.json")),
                   let manifest = try? SpriteManifest.decode(data),
-                  manifest.status != .retired,
+                  manifest.status.isLoadable,
                   let anim = manifest.animations[animation] else { continue }
             var images: [Image] = []
             for path in anim.frames {

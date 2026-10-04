@@ -20,3 +20,6 @@ __MACOSX/
 *.env
 *.env.*
 Secrets.*
+
+# Marketing renders and other disposable exports (doc 27 §16)
+assets/exports/

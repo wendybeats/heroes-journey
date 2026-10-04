@@ -21,6 +21,7 @@ public enum RewardTag: Sendable {}
 public enum AssetSetTag: Sendable {}
 public enum BackdropTag: Sendable {}
 public enum CharacterTag: Sendable {}
+public enum AreaTag: Sendable {}
 
 public typealias ActivityTypeID = StableID<ActivityTypeTag>
 public typealias FamilyID = StableID<FamilyTag>
@@ -32,6 +33,7 @@ public typealias RewardID = StableID<RewardTag>
 public typealias AssetSetID = StableID<AssetSetTag>
 public typealias BackdropID = StableID<BackdropTag>
 public typealias CharacterID = StableID<CharacterTag>
+public typealias AreaID = StableID<AreaTag>
 
 /// Client-generated, globally unique event identity. Generated once at log time and
 /// reused on every retry so the server can deduplicate submissions (doc 15 §3, "request retry").

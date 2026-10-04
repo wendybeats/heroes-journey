@@ -25,7 +25,10 @@ def main(folder, sheet=None):
     if fails: return
     if m["schema_version"] != 1: fail("schema_version must be 1")
     if not re.fullmatch(r"[a-z0-9_]+(\.[a-z0-9_]+)*", m["asset_set_id"]): fail(f"bad asset_set_id {m['asset_set_id']}")
-    if m["status"] not in ("draft", "accepted", "retired"): fail(f"bad status {m['status']}")
+    if m["status"] not in ("concept", "draft", "review", "approved", "deprecated", "archived", "accepted", "retired"): fail(f"bad status {m['status']}")
+    for key in ("world", "area", "scene", "time"):
+        if key in m and not isinstance(m[key], str): fail(f"{key} must be a string")
+    if "mood" in m and not (isinstance(m["mood"], list) and all(isinstance(x, str) for x in m["mood"])): fail("mood must be a list of strings")
     if m["kind"] not in ("body", "hair", "item", "backdrop", "effect", "portrait"): fail(f"bad kind {m['kind']}")
     if m["kind"] == "item" and m.get("slot") not in ("head", "face", "body", "hand", "back", "effect"): fail("items need a slot")
     rev_dir = os.path.basename(os.path.normpath(folder))

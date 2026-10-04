@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.02-5",
+  "content_version": "2026.10.04-1",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -497,27 +497,31 @@
       "display_name": "Rain District",
       "palette": "rain_district",
       "asset_set_id": "backdrop.rain_district",
-      "default": true
+      "default": true,
+      "area_id": "under_city"
     },
     {
       "id": "backdrop.shrine_falls",
-      "display_name": "Shrine Falls",
+      "display_name": "Rooftop Gardens",
       "palette": "shrine_falls",
-      "asset_set_id": "backdrop.shrine_falls"
+      "asset_set_id": "backdrop.shrine_falls",
+      "area_id": "rooftop_gardens"
     },
     {
       "id": "backdrop.alley_awakening",
       "display_name": "Awakening Alley",
       "palette": "rain_district",
       "asset_set_id": "backdrop.alley_awakening",
-      "role": "story"
+      "role": "story",
+      "area_id": "under_city"
     },
     {
       "id": "backdrop.first_walk",
       "display_name": "First Walk",
       "palette": "rain_district",
       "asset_set_id": "backdrop.first_walk",
-      "role": "quest"
+      "role": "quest",
+      "area_id": "under_city"
     }
   ],
   "avatar_options": {
@@ -1703,9 +1707,9 @@
   "quests": [
     {
       "id": "quest.lower_district",
-      "display_name": "The Lower District",
+      "display_name": "Under City",
       "depart_lines": [
-        "The lower district at this hour. I will be back before the rain changes.",
+        "The Under City at this hour. I will be back before the rain changes.",
         "Four hours. Do not wait up; do something useful instead.",
         "Goals done, so I go. That was the deal."
       ],
@@ -1736,10 +1740,11 @@
         "reward.quest.trainers",
         "reward.quest.box_hoodie",
         "reward.quest.junko_pants"
-      ]
+      ],
+      "area_id": "under_city"
     }
   ],
-  "world_name": null,
+  "world_name": "Neo Tokyo",
   "characters": [
     {
       "id": "guide.elder",
@@ -1826,7 +1831,8 @@
             "...Do you remember anything about your real, human self?"
           ]
         }
-      ]
+      ],
+      "area_id": "under_city"
     },
     {
       "id": "chapter.first_training",
@@ -1844,7 +1850,8 @@
             "You'd better get to training. I'll be with you all the while."
           ]
         }
-      ]
+      ],
+      "area_id": "under_city"
     }
   ],
   "daily_quotes": [
@@ -1923,6 +1930,152 @@
     {
       "text": "Vision without action is a daydream. Action without vision is a nightmare.",
       "source": "Japanese proverb"
+    }
+  ],
+  "world_name_note": "Placeholder (docs/26 §2): replace with the canonical city name when decided; one string.",
+  "areas": [
+    {
+      "id": "under_city",
+      "display_name": "Under City",
+      "band": 1,
+      "theme": "The unfinished self",
+      "levels": [
+        1,
+        10
+      ],
+      "antagonist": null
+    },
+    {
+      "id": "colossus_gym",
+      "display_name": "Colossus Gym",
+      "band": 1,
+      "theme": "Strength without proportion",
+      "levels": [
+        11,
+        18
+      ],
+      "antagonist": "The Colossus"
+    },
+    {
+      "id": "central_hill",
+      "display_name": "Central Hill",
+      "band": 2,
+      "theme": "Endurance without rest",
+      "levels": [
+        19,
+        25
+      ],
+      "antagonist": "The Runner"
+    },
+    {
+      "id": "warriors_dojo",
+      "display_name": "Warrior's Dojo",
+      "band": 2,
+      "theme": "Discipline without humility",
+      "levels": [
+        26,
+        32
+      ],
+      "antagonist": "The Combat Master"
+    },
+    {
+      "id": "neon_heights",
+      "display_name": "Neon Heights",
+      "band": 2,
+      "theme": "Identity as performance",
+      "levels": [
+        33,
+        38
+      ],
+      "antagonist": null
+    },
+    {
+      "id": "sub_basement",
+      "display_name": "Sub-Basement",
+      "band": 1,
+      "theme": "Buried truth",
+      "levels": [
+        39,
+        44
+      ],
+      "antagonist": null
+    },
+    {
+      "id": "rooftop_gardens",
+      "display_name": "Rooftop Gardens",
+      "band": 3,
+      "theme": "Peace without humanity",
+      "levels": [
+        45,
+        51
+      ],
+      "antagonist": "The Fallen Monk"
+    },
+    {
+      "id": "laboratory",
+      "display_name": "Laboratory",
+      "band": 3,
+      "theme": "Systems without soul",
+      "levels": [
+        52,
+        58
+      ],
+      "antagonist": null
+    },
+    {
+      "id": "upper_colony",
+      "display_name": "Upper Colony",
+      "band": 3,
+      "theme": "Optimization without struggle",
+      "levels": [
+        59,
+        65
+      ],
+      "antagonist": null
+    },
+    {
+      "id": "grand_court",
+      "display_name": "Grand Court",
+      "band": 4,
+      "theme": "Image without essence",
+      "levels": [
+        66,
+        73
+      ],
+      "antagonist": "The Mirror"
+    },
+    {
+      "id": "clock_tower",
+      "display_name": "Gothic Clock Tower",
+      "band": 4,
+      "theme": "Improvement without joy",
+      "levels": [
+        74,
+        81
+      ],
+      "antagonist": "The Perfected"
+    },
+    {
+      "id": "bridge",
+      "display_name": "The Bridge",
+      "band": 5,
+      "theme": "Motion without destination",
+      "levels": [
+        82,
+        89
+      ],
+      "antagonist": "The Cyclist"
+    },
+    {
+      "id": "ascension_boundary",
+      "display_name": "Ascension Boundary",
+      "band": 5,
+      "theme": "Integration, truth, transcendence",
+      "levels": [
+        90,
+        100
+      ],
+      "antagonist": "The Shadow Self"
     }
   ]
 }

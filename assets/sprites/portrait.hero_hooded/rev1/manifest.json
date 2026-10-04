@@ -25,5 +25,7 @@
     }
   },
   "palette_roles": {},
-  "notes": "Owner handoff 2026-10-02 (hooded-onboarding-v1). The hero before the bond: hood up, eyes and hair concealed, only nose and mouth readable. Gender-neutral; used in the opening chapter until the player answers who they are, after which the live sprite's crop is the portrait. Generated still at 1254x1254, not resampled to a logical grid; rendered with nearest-neighbour into a ~140 pt frame."
+  "notes": "Owner handoff 2026-10-02 (hooded-onboarding-v1). The hero before the bond: hood up, eyes and hair concealed, only nose and mouth readable. Gender-neutral; used in the opening chapter until the player answers who they are, after which the live sprite's crop is the portrait. Generated still at 1254x1254, not resampled to a logical grid; rendered with nearest-neighbour into a ~140 pt frame.",
+  "world": "city",
+  "area": "under_city"
 }
