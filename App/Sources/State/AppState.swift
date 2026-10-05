@@ -540,6 +540,10 @@ final class AppState {
     func completeMilestone(_ milestone: Milestone) {
         guard !storyProgress.isComplete(milestone.id) else { return }
         storyProgress = StoryDirector.complete(milestone, campaign: campaign, progress: storyProgress)
+        // Owner QA 2026-10-05: a world backdrop the story opens becomes the Home scene; the room's own backdrop does not (the room is a hub, not the world).
+        if let b = milestone.unlockBackdrop, let backdrop = bundle.backdrop(b), backdrop.role != "home_room", var r = recipe {
+            r.backdropID = backdrop.id; recipe = r
+        }
         if milestone.reward != nil, !events.contains(where: { $0.story?.milestoneID == milestone.id }) {
             let now = Date()
             let event = StoryReference.makeEvent(for: milestone, userID: userID, familyFallback: goalPreferences.primaryFamily, at: now)
@@ -682,7 +686,8 @@ final class AppState {
     var ownedHomeBackdrops: [ContentBundle.Backdrop] {
         let granted = ledger.grantedRewardIDs
         let grantedIDs = Set(bundle.rewards.filter { granted.contains($0.id) }.flatMap { $0.grants.compactMap(\.backdropID) })
-        return bundle.backdrops.filter { $0.isHomeScene && ($0.isDefault == true || grantedIDs.contains($0.id)) }
+        // Default, granted, or opened by the story (world scenes only; the room's backdrop stays in the room).
+        return bundle.backdrops.filter { ($0.isHomeScene && ($0.isDefault == true || grantedIDs.contains($0.id))) || (storyProgress.unlockedBackdrops.contains($0.id) && $0.role != "home_room") }
     }
     func setEquipped(_ item: ContentBundle.Item?, slot: AvatarRecipe.Slot) {
         guard var r = recipe else { return }

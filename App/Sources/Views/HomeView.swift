@@ -302,7 +302,7 @@ struct HomeView: View {
                     .anchorPreference(key: SceneAnchorsKey.self, value: .bounds) { ["badge": $0] }
             }
             .padding(.horizontal, NeoTokyo.Spacing.lg)
-            .padding(.top, 60)   // below the status bar, since the scene ignores the top safe area
+            .padding(.top, 104)  // below the status bar and the toolbar buttons (owner screenshot 2026-10-05: they overlapped the badge)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .frame(maxWidth: .infinity, minHeight: 440)

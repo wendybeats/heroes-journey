@@ -208,6 +208,10 @@ Owner: five white trainers is boring; duplicates should trade for XP. Duplicates
 
 1. Bond step shows the real starting numbers (counting up) with the badges, not zeros. 2. Level-up grants are off: the ten level-triggered rewards are kept as `unassigned` (their former level in the trigger) so nothing lands on level-up until the chapter decides; grants live in the ledger (`RewardGrant` rows, archive JSON), derived from the bundle's level triggers. 3. The home chapter's first beat reads as the owner wrote it; the hero's reply is gone; `then: room` opens the room when the chapter ends. 4. Room: the character stands left of the desk; appearance is hair cut and colour only. 5. `SpritePortrait` was centring an oversized image, showing the torso; it is top-aligned now, which fixes the quest prompt, the story hero portrait and the bond step. The "I can tell you when they're back" line is gone. 6. Debug-only dev controls (wrench in the Home toolbar): advance a day and back, finish the quest now, remove the daily cap (a ruleset variant on the same ledger), reset today's goals, story readout, sprite lab.
 
+## Increment 30, 2026-10-05: the story opens the world
+
+Owner: the Protein Row chapter played but Home still showed the alley. A milestone's `unlock_backdrop` now becomes the Home scene when it is a world backdrop (the room's backdrop stays with the room), and story-opened backdrops appear in the room's "Where you stand" so the player can switch back. The Home HUD moved down so the toolbar buttons no longer overlap the level badge. Chapter timing is by level, as the brief asks; Level 3 on day 2 is the heavy persona's pace.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.
