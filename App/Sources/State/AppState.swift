@@ -186,6 +186,11 @@ final class AppState {
         self.storyProgress = archive?.storyProgress ?? StoryProgress()
         self.goalSeed = (archive?.goalSeed).flatMap { $0 == 0 ? nil : $0 } ?? UInt64.random(in: 1...UInt64.max)
         self.baseRuleset = ruleset
+        // Saves from before increment 30: the story opened a world backdrop but the Home scene never switched. Catch up once.
+        if var r = self.recipe, r.backdropID == bundle.defaultBackdrop?.id {
+            let opened = bundle.campaign.milestones.compactMap(\.unlockBackdrop).filter { self.storyProgress.unlockedBackdrops.contains($0) }
+            if let last = opened.last(where: { bundle.backdrop($0)?.role != "home_room" }) { r.backdropID = last; self.recipe = r }
+        }
         let authority = ProgressionAuthority(ruleset: ruleset, levelRewards: bundle.levelRewards, calendar: .current)
         self.service = LocalAuthorityProgressionService(authority: authority, owner: user, ledger: ledger, events: events)
     }

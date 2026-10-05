@@ -109,7 +109,7 @@ struct HoodieCharacterView: View {
 
     @ViewBuilder
     private func frame(_ image: CGImage?) -> some View {
-        let w = CGFloat(store.composer?.width ?? 64) * scale.rounded(), h = CGFloat(store.composer?.height ?? 128) * scale.rounded()
+        let w = CGFloat(store.composer?.width ?? 64) * scale, h = CGFloat(store.composer?.height ?? 128) * scale   // scale is already device-pixel aligned
         if let image {
             Image(decorative: image, scale: 1).interpolation(.none).resizable().frame(width: w, height: h)
         } else {

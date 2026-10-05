@@ -22,6 +22,15 @@ enum QuestNotifications {
         try? await center.add(UNNotificationRequest(identifier: identifier, content: content, trigger: trigger))
     }
 
+    /// True once the user has answered the system prompt either way (owner QA 2026-10-05: ask once).
+    static func isDecided() async -> Bool {
+        await UNUserNotificationCenter.current().notificationSettings().authorizationStatus != .notDetermined
+    }
+    static func isAuthorized() async -> Bool {
+        let s = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
+        return s == .authorized || s == .provisional || s == .ephemeral
+    }
+
     static func cancel() {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
     }

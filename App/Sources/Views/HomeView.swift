@@ -1,12 +1,25 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 import HeroDomain
 import HeroContent
 
 /// Doc 19 "fitness first": the utility (today, this week, log) carries the screen. The
 /// character is present and reacts, but sits in a compact scene rather than dominating.
 struct HomeView: View {
-    /// Sprite scale in the scene: whole numbers only (kit rule). 2x with a taller card keeps the backdrop readable.
-    static let characterScale: CGFloat = 2
+    /// Sprite scale in points. The kit rule is "integer device pixels per sprite pixel", not integer points:
+    /// 4 device px per pixel (owner QA 2026-10-05: a third smaller than the old 6) stays crisp on 3x displays
+    /// and is 85×171 pt for the 64×128 cell. On a 2x display this is 1.333 pt, which nearest-neighbour renders
+    /// with a one-pixel step every third row; acceptable for the iPad and SE until a 2x-specific value is chosen.
+    static var characterScale: CGFloat { 4 / displayScale }
+    static var displayScale: CGFloat {
+        #if canImport(UIKit)
+        return UIScreen.main.scale
+        #else
+        return 2
+        #endif
+    }
     @Environment(AppState.self) private var state
     @State private var showLog = false
     @State private var showHistory = false

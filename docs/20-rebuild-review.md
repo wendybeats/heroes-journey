@@ -212,6 +212,10 @@ Owner: five white trainers is boring; duplicates should trade for XP. Duplicates
 
 Owner: the Protein Row chapter played but Home still showed the alley. A milestone's `unlock_backdrop` now becomes the Home scene when it is a world backdrop (the room's backdrop stays with the room), and story-opened backdrops appear in the room's "Where you stand" so the player can switch back. The Home HUD moved down so the toolbar buttons no longer overlap the level badge. Chapter timing is by level, as the brief asks; Level 3 on day 2 is the heavy persona's pace.
 
+## Increment 31, 2026-10-05: owner QA after the Level 5 run
+
+Owner reached Level 5 with the dev cap off (the ledger shows 87-XP hours). Fixes: "Begin quest" departs directly once the notification prompt has been answered; the character renders at 4 device pixels per sprite pixel (a third smaller, still integer in device pixels on 3x screens); older saves catch up to the story's opened backdrop at launch. Open for the owner: attribute scale (0.5 points per XP puts a Level 100 single-family player near 21,000 in one stat) and the wearable layers (only the trainers placeholder exists).
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

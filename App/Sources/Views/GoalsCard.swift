@@ -41,9 +41,16 @@ struct GoalsCard: View {
                 }
             }
             if case .ready = state.questState {
-                Button("Begin quest") { showDepartPrompt = true }
-                    .buttonStyle(PrimaryButtonStyle())
-                    .sheet(isPresented: $showDepartPrompt) { QuestDepartPrompt().presentationDetents([.medium]) }
+                // The notification explainer appears only until the system prompt has been answered; after that
+                // "Begin quest" departs straight away (owner QA 2026-10-05).
+                Button("Begin quest") {
+                    Task {
+                        if await QuestNotifications.isDecided() { await state.beginQuest(requestNotifications: await QuestNotifications.isAuthorized()) }
+                        else { showDepartPrompt = true }
+                    }
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                .sheet(isPresented: $showDepartPrompt) { QuestDepartPrompt().presentationDetents([.medium]) }
             }
             if state.unclaimedQuest != nil {
                 Button("Open the cache") { state.showDeparture = true }
