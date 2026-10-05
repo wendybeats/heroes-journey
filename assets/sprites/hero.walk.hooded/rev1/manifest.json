@@ -33,6 +33,6 @@
     }
   },
   "palette_roles": {},
-  "notes": "Baked by Tools/bake_walk_cycle.py from the owner's storyboard: 8 poses, shared scale 0.220, 24 colours, feet on row 138. Gender-neutral hooded figure; used for every outfit until per-outfit walks exist. 2026-10-05: 80x144 cell, figure 124 px, 4 degree forward lean (8 read as too far forward), frame order reversed, specks under 30 px removed. Draft pending the owner's look on device.",
+  "notes": "Baked by Tools/bake_walk_cycle.py from the owner's storyboard: 8 poses, shared scale 0.234, 24 colours, feet on row 138. Gender-neutral hooded figure; used for every outfit until per-outfit walks exist. 2026-10-05: 80x144 cell, figure 132 px, 4 degree forward lean, frame order reversed, specks under 30 px removed. Draft pending the owner's look on device.",
   "world": "city"
 }
