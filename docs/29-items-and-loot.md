@@ -43,6 +43,16 @@ The departure walk is one baked strip; items do not show while away until the wa
 
 Fifty layers in all; feet and legs first since they are cheapest and show on every pose.
 
+## Wearable layers landed (2026-10-06, owner handoff v3)
+
+Nine item layers per body, drawn on the **kit v2 suit** at the relaxed pose (the owner's `bodyReference`), 512×1024 at 8×, binary alpha, authored palettes (no ramp). Verified: sizes, 8×8 blocks, alpha, and fit sheets over both bodies.
+
+- **Suit (Level 5 on)**: all nine registered in `hero.kit.v2/kit-manifest.json` under `items`. The suit renderer composites them after the body in slot order (back, legs, feet, body, waist, hand, head, face, effect) and runs them through the same row remap as the body, so a belt rises with the breath and the shoes stay planted. The male arm raise and flex move the arm under a fixed wrap for the second they last; accepted.
+- **Hoodie (Levels 1–4)**: only the layers that fit the hoodie body are registered: Clean Trainers, Junko Pants, Test MAX Cap, Row Shades (feet, legs and head are shared between the two bodies). Tops, belt, wraps and vest wait for the suit; the room says so. The placeholder trainers are gone.
+- **Head items hide the hair** in both renderers: the cap is fitted to the bald head, as the handoff notes.
+- **New slot `waist`** for the belt, so a top and a belt can be worn together (hoodie, tee and vest are alternative tops in the `body` slot).
+- Not covered by this handoff and still open: head-turn and reach/pocketed frames for hoodie-kit items (the cap and shades sit still while the head glances), and the departure walk.
+
 ## Inventory stills and the claim moment (2026-10-05)
 
 Owner handoff `quest-reward-items-v1`: nine item stills and four reward caches (common, uncommon, rare, legendary), 1254×1254 generated PNGs. Stored as `kind: icon` sets (`icon.item.<name>`, `icon.cache.<tier>`) at exactly half size with soft alpha and free palette, status `review`. They are inventory art, not wearable layers; the wearable spec above still stands. The owner's belt still carries its own chain, and the sixth item is a weighted vest, so `item.chain.colossus` became `item.vest.colossus` (Colossus Vest). Each item carries `icon_asset_set_id` and a one-sentence `description`.

@@ -412,7 +412,6 @@
   "items": {
     "item.shoes.clean": {
       "slot": "feet",
-      "palette": "White",
       "frames": {
         "male": {
           "all": "items/shoes_clean/male.png"
@@ -421,7 +420,43 @@
           "all": "items/shoes_clean/female.png"
         }
       },
-      "notes": "Placeholder (doc 29): the body frames' shoe pixels lifted into the item key palette so the pipeline is proven. Owner art replaces it; the manifest entry stays."
+      "notes": "Owner handoff wearable-layers-v3, drawn on the kit v2 suit at the relaxed pose; fits the hoodie body because feet, legs and head are shared. Authored colours, no ramp."
+    },
+    "item.pants.junko": {
+      "slot": "legs",
+      "frames": {
+        "male": {
+          "all": "items/pants_junko/male.png"
+        },
+        "female": {
+          "all": "items/pants_junko/female.png"
+        }
+      },
+      "notes": "Owner handoff wearable-layers-v3, drawn on the kit v2 suit at the relaxed pose; fits the hoodie body because feet, legs and head are shared. Authored colours, no ramp."
+    },
+    "item.cap.testmax": {
+      "slot": "head",
+      "frames": {
+        "male": {
+          "all": "items/cap_testmax/male.png"
+        },
+        "female": {
+          "all": "items/cap_testmax/female.png"
+        }
+      },
+      "notes": "Owner handoff wearable-layers-v3, drawn on the kit v2 suit at the relaxed pose; fits the hoodie body because feet, legs and head are shared. Authored colours, no ramp."
+    },
+    "item.shades.row": {
+      "slot": "face",
+      "frames": {
+        "male": {
+          "all": "items/shades_row/male.png"
+        },
+        "female": {
+          "all": "items/shades_row/female.png"
+        }
+      },
+      "notes": "Owner handoff wearable-layers-v3, drawn on the kit v2 suit at the relaxed pose; fits the hoodie body because feet, legs and head are shared. Authored colours, no ramp."
     }
   }
 }

@@ -1,0 +1,23 @@
+{
+  "tool": "built-in image_gen",
+  "revision": 3,
+  "scope": "Correct male cap and sunglasses to screen-right; female accessories and all other wearables retained from v2.",
+  "jobs": [
+    {
+      "id": "test-max-cap",
+      "prompt": "Use case: precise-object-edit. Target: image 1, paired pixel-art characters wearing Test MAX caps. Supporting reference image 2 is the exact unchanged bald body template.\nCorrect ONLY the LEFT character's cap so its brim points SCREEN-RIGHT, matching the cap direction on the RIGHT character. Both characters face screen-right. The left character currently has an incorrectly left-pointing cap. Turn that cap to the right: rounded rear crown on the left, pale TM front patch on the right front panel, bill extending to the right. Keep the right character cap unchanged. Keep the same muted navy palette and readable pale blue TM patch. No hair.\nCRITICAL: preserve all body and face pixels, sizes, locations, poses, and the square paired canvas. Do not flip either body or face. Do not move/resize either character. Each character occupies one half of a square 128x128 logical art grid (two64x128 cells). Hard square pixel edges, no extra detail, no blur, upper-right light. Keep full figures and transparent background. This is a working worn-fit reference from which we will extract only cap pixels; output the full paired reference at identical framing.",
+      "refs": [
+        "/Users/wendellbarton/Documents/rpg fitness app/fitness_rpg_mvp/assets/art/wearables/area-01-v2/source/test-max-cap-worn.png",
+        "/Users/wendellbarton/Documents/rpg fitness app/fitness_rpg_mvp/assets/art/wearables/area-01-v2/reference/body-pair.png"
+      ]
+    },
+    {
+      "id": "row-shades",
+      "prompt": "Use case: precise-object-edit. Target: image 1, paired pixel-art characters with sunglasses. Supporting reference image 2 is the exact unchanged bald body template.\nCorrect ONLY the LEFT character's sunglasses to face SCREEN-RIGHT, matching the perspective of the glasses on the RIGHT character. Both characters face screen-right. Draw the arm/temple toward screen-left, larger visible near lens over the eye near x31,y21 of the left64x128cell, and the compressed far lens toward screen-right. The two glasses must visibly have the same orientation, with each fitted to its own eye line. Keep the right character's glasses unchanged. Dark navy frames, blue-grey reflection, compact pixel cluster.\nCRITICAL: preserve all body and face pixels, sizes, locations, poses, and square paired canvas. Do not flip either body or face. Do not move/resize either character. Each character occupies one half of a square128x128logical art grid(two64x128 cells). Hard square pixel edges, no blur, no extra detail, upper-right light. Keep full figures and transparent background. This is a working worn-fit reference from which we extract only glasses pixels; output the full paired reference at identical framing.",
+      "refs": [
+        "/Users/wendellbarton/Documents/rpg fitness app/fitness_rpg_mvp/assets/art/wearables/area-01-v2/source/row-shades-worn.png",
+        "/Users/wendellbarton/Documents/rpg fitness app/fitness_rpg_mvp/assets/art/wearables/area-01-v2/reference/body-pair.png"
+      ]
+    }
+  ]
+}

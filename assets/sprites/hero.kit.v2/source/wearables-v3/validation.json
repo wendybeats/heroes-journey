@@ -1,0 +1,465 @@
+{
+  "checks": [
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "male",
+      "item": "white-running-shoes",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        17,
+        109,
+        51,
+        123
+      ],
+      "opaquePixelCount": 186,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "female",
+      "item": "white-running-shoes",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        17,
+        109,
+        51,
+        123
+      ],
+      "opaquePixelCount": 183,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "male",
+      "item": "white-hoodie",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        14,
+        26,
+        50,
+        68
+      ],
+      "opaquePixelCount": 1091,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "female",
+      "item": "white-hoodie",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        16,
+        27,
+        51,
+        68
+      ],
+      "opaquePixelCount": 979,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "male",
+      "item": "red-striped-sweatpants",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        19,
+        55,
+        52,
+        114
+      ],
+      "opaquePixelCount": 1328,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "female",
+      "item": "red-striped-sweatpants",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        20,
+        55,
+        53,
+        114
+      ],
+      "opaquePixelCount": 1289,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "male",
+      "item": "test-max-cap",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        25,
+        9,
+        46,
+        20
+      ],
+      "opaquePixelCount": 148,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "female",
+      "item": "test-max-cap",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        25,
+        11,
+        44,
+        20
+      ],
+      "opaquePixelCount": 124,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "male",
+      "item": "old-gym-tee-colossus",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        18,
+        29,
+        47,
+        65
+      ],
+      "opaquePixelCount": 716,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "female",
+      "item": "old-gym-tee-colossus",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        19,
+        29,
+        46,
+        65
+      ],
+      "opaquePixelCount": 647,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "male",
+      "item": "row-shades",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        25,
+        19,
+        39,
+        23
+      ],
+      "opaquePixelCount": 33,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "female",
+      "item": "row-shades",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        25,
+        19,
+        39,
+        23
+      ],
+      "opaquePixelCount": 31,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "male",
+      "item": "chalk-wraps-white",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        15,
+        64,
+        48,
+        74
+      ],
+      "opaquePixelCount": 87,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "female",
+      "item": "chalk-wraps-white",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        17,
+        64,
+        48,
+        74
+      ],
+      "opaquePixelCount": 77,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "male",
+      "item": "lifting-belt-chain",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        22,
+        54,
+        41,
+        78
+      ],
+      "opaquePixelCount": 206,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "female",
+      "item": "lifting-belt-chain",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        22,
+        54,
+        40,
+        78
+      ],
+      "opaquePixelCount": 197,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "male",
+      "item": "colossus-weighted-vest",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        20,
+        29,
+        40,
+        62
+      ],
+      "opaquePixelCount": 535,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    },
+    {
+      "alphaValues": [
+        0,
+        255
+      ],
+      "dimensions": [
+        512,
+        1024
+      ],
+      "gender": "female",
+      "item": "colossus-weighted-vest",
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "opaqueBounds": [
+        21,
+        29,
+        40,
+        62
+      ],
+      "opaquePixelCount": 490,
+      "paletteVerified": true,
+      "solid8x8Blocks": true
+    }
+  ],
+  "revision": 3,
+  "visualFit": "Manual review; not certified by structural checks",
+  "preservation": {
+    "unchangedOtherFiles": 32,
+    "bodyReferencesHashVerified": true,
+    "changedLayerFiles": [
+      "layers/male/test-max-cap.png",
+      "layers/male/row-shades.png"
+    ],
+    "sameDirection": "screen-right"
+  }
+}

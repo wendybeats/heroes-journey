@@ -1,0 +1,36 @@
+[
+  {
+    "direction" : "screen-right",
+    "extraction" : "whole-frame registration and accessory mask; original body discarded from export",
+    "gender" : "male",
+    "item" : "test-max-cap",
+    "palette" : [
+      "101118",
+      "111A2E",
+      "25355A",
+      "415A80",
+      "6B7A9C",
+      "9FCAE8"
+    ],
+    "sourceSampleOffset" : [
+      0,
+      0
+    ]
+  },
+  {
+    "direction" : "screen-right",
+    "extraction" : "whole-frame registration and accessory mask; original body discarded from export",
+    "gender" : "male",
+    "item" : "row-shades",
+    "palette" : [
+      "101118",
+      "25355A",
+      "415A80",
+      "6B7A9C"
+    ],
+    "sourceSampleOffset" : [
+      0,
+      0
+    ]
+  }
+]

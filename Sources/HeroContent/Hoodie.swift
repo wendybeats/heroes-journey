@@ -158,7 +158,7 @@ public struct HoodieManifest: Decodable, Sendable {
         }
     }
     /// Draw order (doc 29): `back` before the body; `head`, `face`, `effect` over the front hair; the rest between body and front hair.
-    public static let itemSlotOrder = ["back", "feet", "legs", "body", "hand", "head", "face", "effect"]
+    public static let itemSlotOrder = ["back", "legs", "feet", "body", "waist", "hand", "head", "face", "effect"]
     public static let overHairSlots: Set<String> = ["head", "face", "effect"]
     public enum JSONValue: Decodable, Sendable {
         case int(Int), str(String)
@@ -284,7 +284,8 @@ public final class HoodieComposer {
         let overHair = drawn.filter { HoodieManifest.overHairSlots.contains(manifest.items![$0]!.slot) }
         let midItems = drawn.filter { !HoodieManifest.overHairSlots.contains(manifest.items![$0]!.slot) && manifest.items![$0]!.slot != "back" }
 
-        let bald = st == "bald"
+        // A head item (cap) is fitted to the bald head: hair is hidden while it is worn (owner handoff v3).
+        let bald = st == "bald" || drawn.contains { manifest.items?[$0]?.slot == "head" }
         let body = manifest.bodies[g]?[String(p.f)].flatMap(layer)
         let head = p.head == .N ? body : manifest.heads[g]?[p.head.rawValue].flatMap(layer)
         if !bald { blit(layer(HoodieManifest.hairPath(g, st, "back", p.head)), rows: { _ in true }, lag: true) }
@@ -326,6 +327,8 @@ public struct CGHoodieLayerLoader: HoodieLayerLoader {
     public let cell: (Int, Int)
     public let scale: Int
     public init(root: URL, manifest: HoodieManifest) { self.root = root; cell = (manifest.cell[0], manifest.cell[1]); scale = manifest.pngScale }
+    /// Any 8x layer folder (the suit kit's item layers use the same export rules).
+    public init(root: URL, cellWidth: Int, cellHeight: Int, scale: Int) { self.root = root; cell = (cellWidth, cellHeight); self.scale = scale }
 
     public func load(_ rel: String) -> [UInt32]? {
         let url = root.appendingPathComponent(rel)

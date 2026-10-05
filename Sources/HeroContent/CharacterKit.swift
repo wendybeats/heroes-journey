@@ -77,11 +77,24 @@ public struct CharacterKitManifest: Codable, Sendable, Equatable {
     public let hairRamps: [String: [String]]
     public let skinRamps: [String: [String]]
     public let flex: Flex
+    /// Wearable layers (doc 29, owner handoff v3): item id → slot and one 8x PNG per body, drawn on the relaxed suit.
+    public struct ItemLayer: Codable, Sendable, Equatable { public let slot: String; public let frames: [String: String] }
+    public let items: [String: ItemLayer]?
+
+    /// Draw order for equipped items: behind the body first, then up the body, then over the head.
+    public static let itemSlotOrder = ["back", "legs", "feet", "body", "waist", "hand", "head", "face", "effect"]
+    /// Equipped item ids that have layers, in draw order.
+    public func drawableItems(_ ids: [String]) -> [String] {
+        ids.filter { items?[$0] != nil }.sorted { a, b in
+            let ia = Self.itemSlotOrder.firstIndex(of: items![a]!.slot) ?? 99, ib = Self.itemSlotOrder.firstIndex(of: items![b]!.slot) ?? 99
+            return ia == ib ? a < b : ia < ib
+        }
+    }
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "schema_version", assetSetID = "asset_set_id", status, ticksPerSecond = "ticks_per_second"
         case rigRows = "rig_rows", hairIndices = "hair_indices", skinIndices = "skin_indices", styles
-        case hairRamps = "hair_ramps", skinRamps = "skin_ramps", flex
+        case hairRamps = "hair_ramps", skinRamps = "skin_ramps", flex, items
     }
 
     public static func decode(_ data: Data) throws -> CharacterKitManifest { try JSONDecoder().decode(CharacterKitManifest.self, from: data) }
@@ -143,7 +156,13 @@ public enum PoseComposer {
         }
         if p.glint && body == "male" { for d in kit.male.glint { idx[d.y * W + d.x] = d.v } }
 
-        // Row remap: legs fixed, body bounce, torso breath, head dip, hair tips lag.
+        return remapRows(idx, manifest: manifest, pose: p, empty: 0)
+    }
+
+    /// Row remap: legs fixed, body bounce, torso breath, head dip, hair tips lag. Shared by the index grid
+    /// and by item layers drawn on the rest pose, so a belt rises with the breath and shoes stay planted.
+    public static func remapRows<T>(_ idx: [T], manifest: CharacterKitManifest, pose p: CharacterPose, empty: T) -> [T] {
+        let W = CharacterKit.width, H = CharacterKit.height
         let r = manifest.rigRows
         var src = [Int](repeating: -1, count: H)
         let bands: [(Int, Int, Int)] = [
@@ -154,7 +173,7 @@ public enum PoseComposer {
         var top = 0
         while top < H && src[top] < 0 { top += 1 }
         if top < H - 1 { for d in stride(from: H - 2, through: top, by: -1) where src[d] < 0 { src[d] = src[d + 1] } }
-        var out = [UInt8](repeating: 0, count: W * H)
+        var out = [T](repeating: empty, count: W * H)
         for d in 0..<H {
             let s = src[d]; if s < 0 { continue }
             let shift = s < r.tip ? p.hairSway : 0

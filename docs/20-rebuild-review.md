@@ -220,6 +220,10 @@ Owner reached Level 5 with the dev cap off (the ledger shows 87-XP hours). Fixes
 
 Every chapter-one line replaced, kept or cut per the owner's audit (principle: make strength attractive, let the player progress, then ask what for; Cairon guides, Colossus succeeded). Onboarding prompts rewritten in `OnboardingView`. The Level 10 scene ends inside the gym on Colossus's "I know"; a new chained chapter (`next_chapter`, one link, checked by the bundle) plays the Central Hill tease outside on the gym exterior before the milestone completes. "Chad" is gone from all text; the character is "Colossus" (working title) and the card reads "Face Colossus". The room still arrives at Level 2 (owner). `Tools/export_chapter_script.py` regenerates doc 31 from content. Content 2026.10.05-7.
 
+## Increment 33, 2026-10-06: wearables on the character
+
+Owner handoff of nine wearable layers per body, drawn on the kit v2 suit at rest. Registered in the suit kit (all nine) and the hoodie kit (the four that share feet, legs and head). The suit renderer gains item compositing through the shared row remap (`PoseComposer.remapRows`), both renderers hide hair under a head item, a `waist` slot separates the belt from the tops, and the placeholder trainers are retired. Validators check the layer files; tests cover decode, draw order, remap identity and breath, and hair under the cap. Content 2026.10.06-1.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

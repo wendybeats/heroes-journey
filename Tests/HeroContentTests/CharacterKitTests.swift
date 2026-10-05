@@ -90,4 +90,29 @@ final class CharacterKitTests: XCTestCase {
         let unknown = PoseComposer.palette(kit: kit, manifest: m, hairID: "hair.nope", skinID: "skin.nope")
         XCTAssertEqual(arr(unknown[12]), arr(PoseComposer.rgb(kit.pal[12])), "unknown ramp keeps the authored placeholder")
     }
+
+    /// Doc 29 / owner handoff v3: the suit kit's item layers decode, every file exists, draw order follows the
+    /// slot list, and the shared row remap is the identity at rest and moves only the torso band on a breath.
+    func testItemLayersAndRowRemap() throws {
+        let (_, m) = try load()
+        let items = try XCTUnwrap(m.items)
+        XCTAssertEqual(items.count, 9)
+        for (id, item) in items {
+            XCTAssertTrue(CharacterKitManifest.itemSlotOrder.contains(item.slot), "\(id) slot \(item.slot)")
+            for (body, rel) in item.frames {
+                XCTAssertTrue(["male", "female"].contains(body))
+                XCTAssertTrue(FileManager.default.fileExists(atPath: RepoFiles.root.appendingPathComponent("assets/sprites/hero.kit.v2/\(rel)").path), "\(id) \(body): missing \(rel)")
+            }
+        }
+        XCTAssertEqual(m.drawableItems(["item.shades.row", "item.shoes.clean", "item.nothing", "item.belt.lifting"]), ["item.shoes.clean", "item.belt.lifting", "item.shades.row"])
+        let W = CharacterKit.width, H = CharacterKit.height
+        var layer = [Int](repeating: 0, count: W * H)
+        for y in 0..<H { layer[y * W + 10] = y + 1 }   // one column, row number + 1
+        XCTAssertEqual(PoseComposer.remapRows(layer, manifest: m, pose: .rest, empty: 0), layer, "rest pose is the identity")
+        var breath = CharacterPose(); breath.torsoRise = 1
+        let moved = PoseComposer.remapRows(layer, manifest: m, pose: breath, empty: 0)
+        let r = m.rigRows
+        XCTAssertEqual(moved[(r.seam + 2) * W + 10], layer[(r.seam + 2) * W + 10], "legs stay planted")
+        XCTAssertEqual(moved[(r.neck + 5 - 1) * W + 10], layer[(r.neck + 5) * W + 10], "torso rows rise by one on the inhale")
+    }
 }

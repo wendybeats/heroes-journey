@@ -1,0 +1,498 @@
+{
+  "schemaVersion": 1,
+  "created": "2026-10-06",
+  "kind": "registered_wearable_layers",
+  "status": "accessory_direction_corrected_for_review",
+  "description": "18 item-only layers. Male cap and Row Shades corrected to the same screen-right direction as the female accessories; all other layers unchanged from v2.",
+  "bodyReference": {
+    "assetSet": "hero.kit.v2",
+    "pose": "neutral_relaxed",
+    "male": "assets/sprites/hero.kit.v2/layers/male_body_bald.png",
+    "female": "assets/sprites/hero.kit.v2/layers/female_body_bald.png",
+    "note": "The athletic suit is also the suit component of hero.kit.v3. This export does not target hoodie body frames.",
+    "sha256": {
+      "male": "ce745c99f34098a99ae50454b63744e54523405ae980e42499d88773f37539ba",
+      "female": "9233b26f0be96d0a3e14c561734279c9594f290a151f1e3e14fe886ed36c2aa2"
+    },
+    "facing": "screen-right for both male and female"
+  },
+  "canvas": {
+    "logicalWidth": 64,
+    "logicalHeight": 128,
+    "scale": 8,
+    "pngWidth": 512,
+    "pngHeight": 1024,
+    "origin": "top-left",
+    "pivot": [
+      32,
+      122
+    ],
+    "alpha": [
+      0,
+      255
+    ]
+  },
+  "containsBaseBodyPixels": false,
+  "items": [
+    {
+      "sourceId": "white-running-shoes",
+      "displayName": "White Running Shoes",
+      "slot": "feet",
+      "palette": [
+        "#101118",
+        "#373B49",
+        "#697287",
+        "#9FACC8",
+        "#E4E9F4"
+      ],
+      "male": {
+        "file": "layers/male/white-running-shoes.png",
+        "logical": "logical/male/white-running-shoes.png",
+        "registrationRegions": [
+          [
+            17,
+            109,
+            15,
+            12
+          ],
+          [
+            43,
+            111,
+            8,
+            12
+          ]
+        ],
+        "opaqueBounds": [
+          17,
+          109,
+          51,
+          123
+        ]
+      },
+      "female": {
+        "file": "layers/female/white-running-shoes.png",
+        "logical": "logical/female/white-running-shoes.png",
+        "registrationRegions": [
+          [
+            17,
+            109,
+            15,
+            12
+          ],
+          [
+            43,
+            111,
+            8,
+            12
+          ]
+        ],
+        "opaqueBounds": [
+          17,
+          109,
+          51,
+          123
+        ]
+      },
+      "runtimeItemId": null,
+      "revision": 1
+    },
+    {
+      "sourceId": "white-hoodie",
+      "displayName": "White Hoodie",
+      "slot": "top",
+      "palette": [
+        "#101118",
+        "#495469",
+        "#71809B",
+        "#A8B4CA",
+        "#CDD4E2",
+        "#E4E9F4"
+      ],
+      "male": {
+        "file": "layers/male/white-hoodie.png",
+        "logical": "logical/male/white-hoodie.png",
+        "sourceFrameOffset": [
+          0,
+          0
+        ],
+        "opaqueBounds": [
+          14,
+          26,
+          50,
+          68
+        ]
+      },
+      "female": {
+        "file": "layers/female/white-hoodie.png",
+        "logical": "logical/female/white-hoodie.png",
+        "sourceFrameOffset": [
+          0,
+          0
+        ],
+        "opaqueBounds": [
+          16,
+          27,
+          51,
+          68
+        ]
+      },
+      "runtimeItemId": null,
+      "revision": 2
+    },
+    {
+      "sourceId": "red-striped-sweatpants",
+      "displayName": "Red Stripe Sweatpants",
+      "slot": "legs",
+      "palette": [
+        "#101118",
+        "#572337",
+        "#8D2D44",
+        "#B43C53",
+        "#D05A65",
+        "#A8B4CA",
+        "#CDD4E2"
+      ],
+      "male": {
+        "file": "layers/male/red-striped-sweatpants.png",
+        "logical": "logical/male/red-striped-sweatpants.png",
+        "sourceFrameOffset": [
+          0,
+          0
+        ],
+        "opaqueBounds": [
+          19,
+          55,
+          52,
+          114
+        ]
+      },
+      "female": {
+        "file": "layers/female/red-striped-sweatpants.png",
+        "logical": "logical/female/red-striped-sweatpants.png",
+        "sourceFrameOffset": [
+          0,
+          0
+        ],
+        "opaqueBounds": [
+          20,
+          55,
+          53,
+          114
+        ]
+      },
+      "runtimeItemId": null,
+      "revision": 2
+    },
+    {
+      "sourceId": "test-max-cap",
+      "displayName": "Test MAX Cap",
+      "slot": "head",
+      "palette": [
+        "#101118",
+        "#111A2E",
+        "#25355A",
+        "#415A80",
+        "#6B7A9C",
+        "#9FCAE8"
+      ],
+      "male": {
+        "file": "layers/male/test-max-cap.png",
+        "logical": "logical/male/test-max-cap.png",
+        "sourceFrameOffset": [
+          0,
+          0
+        ],
+        "opaqueBounds": [
+          25,
+          9,
+          46,
+          20
+        ],
+        "facing": "screen-right",
+        "revision": 3
+      },
+      "female": {
+        "file": "layers/female/test-max-cap.png",
+        "logical": "logical/female/test-max-cap.png",
+        "sourceFrameOffset": [
+          0,
+          0
+        ],
+        "opaqueBounds": [
+          25,
+          11,
+          44,
+          20
+        ],
+        "facing": "screen-right",
+        "revision": 2
+      },
+      "runtimeItemId": null,
+      "revision": 3
+    },
+    {
+      "sourceId": "old-gym-tee-colossus",
+      "displayName": "Old Gym Tee",
+      "slot": "top",
+      "palette": [
+        "#101118",
+        "#1B1D27",
+        "#282B36",
+        "#373B49",
+        "#4D5365",
+        "#9FACC8"
+      ],
+      "male": {
+        "file": "layers/male/old-gym-tee-colossus.png",
+        "logical": "logical/male/old-gym-tee-colossus.png",
+        "registrationRegions": [
+          [
+            18,
+            29,
+            29,
+            36
+          ]
+        ],
+        "opaqueBounds": [
+          18,
+          29,
+          47,
+          65
+        ]
+      },
+      "female": {
+        "file": "layers/female/old-gym-tee-colossus.png",
+        "logical": "logical/female/old-gym-tee-colossus.png",
+        "registrationRegions": [
+          [
+            19,
+            29,
+            27,
+            36
+          ]
+        ],
+        "opaqueBounds": [
+          19,
+          29,
+          46,
+          65
+        ]
+      },
+      "runtimeItemId": null,
+      "revision": 1
+    },
+    {
+      "sourceId": "row-shades",
+      "displayName": "Row Shades",
+      "slot": "eyes",
+      "palette": [
+        "#101118",
+        "#25355A",
+        "#415A80",
+        "#6B7A9C"
+      ],
+      "male": {
+        "file": "layers/male/row-shades.png",
+        "logical": "logical/male/row-shades.png",
+        "sourceFrameOffset": [
+          0,
+          0
+        ],
+        "opaqueBounds": [
+          25,
+          19,
+          39,
+          23
+        ],
+        "facing": "screen-right",
+        "revision": 3
+      },
+      "female": {
+        "file": "layers/female/row-shades.png",
+        "logical": "logical/female/row-shades.png",
+        "sourceFrameOffset": [
+          0,
+          0
+        ],
+        "opaqueBounds": [
+          25,
+          19,
+          39,
+          23
+        ],
+        "facing": "screen-right",
+        "revision": 2
+      },
+      "runtimeItemId": null,
+      "revision": 3
+    },
+    {
+      "sourceId": "chalk-wraps-white",
+      "displayName": "Chalk Wraps",
+      "slot": "hands",
+      "palette": [
+        "#101118",
+        "#373B49",
+        "#6B7A9C",
+        "#9FACC8",
+        "#E4E9F4"
+      ],
+      "male": {
+        "file": "layers/male/chalk-wraps-white.png",
+        "logical": "logical/male/chalk-wraps-white.png",
+        "registrationRegions": [
+          [
+            15,
+            64,
+            6,
+            9
+          ],
+          [
+            42,
+            65,
+            6,
+            9
+          ]
+        ],
+        "opaqueBounds": [
+          15,
+          64,
+          48,
+          74
+        ]
+      },
+      "female": {
+        "file": "layers/female/chalk-wraps-white.png",
+        "logical": "logical/female/chalk-wraps-white.png",
+        "registrationRegions": [
+          [
+            17,
+            64,
+            5,
+            9
+          ],
+          [
+            42,
+            65,
+            6,
+            9
+          ]
+        ],
+        "opaqueBounds": [
+          17,
+          64,
+          48,
+          74
+        ]
+      },
+      "runtimeItemId": null,
+      "revision": 1
+    },
+    {
+      "sourceId": "lifting-belt-chain",
+      "displayName": "Lifting Belt",
+      "slot": "waist",
+      "palette": [
+        "#101118",
+        "#51332A",
+        "#79503A",
+        "#A6744B",
+        "#697287",
+        "#9FACC8",
+        "#E4E9F4"
+      ],
+      "male": {
+        "file": "layers/male/lifting-belt-chain.png",
+        "logical": "logical/male/lifting-belt-chain.png",
+        "registrationRegions": [
+          [
+            22,
+            54,
+            19,
+            24
+          ]
+        ],
+        "opaqueBounds": [
+          22,
+          54,
+          41,
+          78
+        ]
+      },
+      "female": {
+        "file": "layers/female/lifting-belt-chain.png",
+        "logical": "logical/female/lifting-belt-chain.png",
+        "registrationRegions": [
+          [
+            22,
+            54,
+            18,
+            24
+          ]
+        ],
+        "opaqueBounds": [
+          22,
+          54,
+          40,
+          78
+        ]
+      },
+      "runtimeItemId": null,
+      "revision": 1
+    },
+    {
+      "sourceId": "colossus-weighted-vest",
+      "displayName": "Colossus Vest",
+      "slot": "top",
+      "palette": [
+        "#101118",
+        "#1B1D27",
+        "#282B36",
+        "#373B49",
+        "#4D5365",
+        "#697287",
+        "#9FACC8"
+      ],
+      "male": {
+        "file": "layers/male/colossus-weighted-vest.png",
+        "logical": "logical/male/colossus-weighted-vest.png",
+        "sourceFrameOffset": [
+          0,
+          0
+        ],
+        "opaqueBounds": [
+          20,
+          29,
+          40,
+          62
+        ]
+      },
+      "female": {
+        "file": "layers/female/colossus-weighted-vest.png",
+        "logical": "logical/female/colossus-weighted-vest.png",
+        "sourceFrameOffset": [
+          0,
+          0
+        ],
+        "opaqueBounds": [
+          21,
+          29,
+          40,
+          62
+        ]
+      },
+      "runtimeItemId": null,
+      "revision": 2
+    }
+  ],
+  "integrationNotes": [
+    "Draw layer at 0,0 with no centering or alpha-bound trimming. Use nearest-neighbor integer scaling.",
+    "Only neutral relaxed pose supplied. Do not reuse unchanged for flex, walking, pocketing or turned heads.",
+    "Hoodie, tee and vest are alternative top-slot layers. Weighted vest includes its black muscle tee.",
+    "The athletic base is an opaque full-length bodysuit; short sleeves and vest intentionally overlay it. Bare arms require a separate skin/base-body change.",
+    "The cap is registered to a bald neutral head. Apply a separate hair occlusion mask when integrating hairstyles; one is not supplied.",
+    "Source IDs are local art identifiers, not canonical runtime IDs. No app asset registry or game rules have changed.",
+    "Both heads and accessories face screen-right. Cap brim projects right; sunglasses temple extends toward the left ear. Cap uses a simplified TM patch."
+  ],
+  "revision": 3
+}

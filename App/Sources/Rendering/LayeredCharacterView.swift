@@ -17,23 +17,38 @@ final class CharacterKitStore {
     private var imageOrder: [String] = []
     private let imageCap = 400
 
+    private let layerLoader: CGHoodieLayerLoader?
+    private var itemLayers: [String: [UInt32]] = [:]
+
     private init() {
         let root = Bundle.main.resourceURL?.appendingPathComponent("sprites/hero.kit.v2")
         kit = root.flatMap { try? Data(contentsOf: $0.appendingPathComponent("kit.json")) }.flatMap { try? CharacterKit.decode($0) }
         manifest = root.flatMap { try? Data(contentsOf: $0.appendingPathComponent("kit-manifest.json")) }.flatMap { try? CharacterKitManifest.decode($0) }
+        layerLoader = root.map { CGHoodieLayerLoader(root: $0, cellWidth: CharacterKit.width, cellHeight: CharacterKit.height, scale: 8) }
+    }
+
+    /// An item's 1x RGBA layer for a body (memory-order RGBA as UInt32), cached.
+    private func itemLayer(_ id: String, body: String) -> [UInt32]? {
+        guard let rel = manifest?.items?[id]?.frames[body] else { return nil }
+        if let hit = itemLayers[rel] { return hit }
+        guard let px = layerLoader?.load(rel) else { return nil }
+        itemLayers[rel] = px; return px
     }
 
     func image(recipe: AvatarRecipe, pose: CharacterPose) -> CGImage? {
         guard let kit, let manifest else { return nil }
         let body = recipe.baseBody.rawValue
-        let styleKey = manifest.styleKey(body: body, styleID: recipe.hairStyleID)
+        // Equipped items with layers, in draw order (doc 29). A head item is fitted to the bald head, so hair is hidden under it.
+        let items = manifest.drawableItems(recipe.equipped.values.map(\.rawValue))
+        let wearsHeadItem = items.contains { manifest.items?[$0]?.slot == "head" }
+        let styleKey = wearsHeadItem ? nil : manifest.styleKey(body: body, styleID: recipe.hairStyleID)
         let poseKey = "\(body)|\(styleKey ?? "-")|\(pose.cacheKey)"
         let grid: [UInt8]
         if let cached = poseCache[poseKey] { grid = cached } else {
             grid = PoseComposer.indexGrid(kit: kit, manifest: manifest, body: body, styleKey: styleKey, pose: pose)
             poseCache[poseKey] = grid
         }
-        let imageKey = "\(poseKey)|\(recipe.hairPaletteID)|\(recipe.skinPaletteID)"
+        let imageKey = "\(poseKey)|\(recipe.hairPaletteID)|\(recipe.skinPaletteID)|\(items.joined(separator: ","))"
         if let cached = imageCache[imageKey] { return cached }
         let pal = PoseComposer.palette(kit: kit, manifest: manifest, hairID: recipe.hairPaletteID, skinID: recipe.skinPaletteID)
         let W = CharacterKit.width, H = CharacterKit.height
@@ -42,6 +57,15 @@ final class CharacterKitStore {
             let v = Int(grid[i]); if v == 0 || v > pal.count { continue }
             let c = pal[v - 1]
             bytes[i * 4] = c.0; bytes[i * 4 + 1] = c.1; bytes[i * 4 + 2] = c.2; bytes[i * 4 + 3] = 255
+        }
+        // Items were drawn on the rest pose; the same row remap moves them with the breath and keeps the feet planted.
+        for id in items {
+            guard let rest = itemLayer(id, body: body) else { continue }
+            let moved = PoseComposer.remapRows(rest, manifest: manifest, pose: pose, empty: 0)
+            for i in 0..<(W * H) where moved[i] != 0 {
+                let v = moved[i]   // memory-order RGBA read little-endian: R in the low byte
+                bytes[i * 4] = UInt8(v & 0xFF); bytes[i * 4 + 1] = UInt8((v >> 8) & 0xFF); bytes[i * 4 + 2] = UInt8((v >> 16) & 0xFF); bytes[i * 4 + 3] = 255
+            }
         }
         guard let provider = CGDataProvider(data: Data(bytes) as CFData),
               let image = CGImage(width: W, height: H, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: W * 4,

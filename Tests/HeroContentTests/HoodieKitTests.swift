@@ -124,8 +124,8 @@ final class HoodieKitTests: XCTestCase {
     }
 
     #if canImport(CoreGraphics)
-    /// E. Item layers (doc 29): every item path loads, an unknown item is ignored, and the placeholder
-    /// trainers change only the feet rows (legs are fixed, so one layer serves every pose).
+    /// E. Item layers (doc 29): every item path loads, an unknown item is ignored, and the trainers (owner
+    /// handoff v3, rows 109–122) change only the feet rows (legs are fixed, so one layer serves every pose).
     func testItemLayersComposeOnlyWhereAuthored() throws {
         let (m, _) = try loadKit()
         let loader = CGHoodieLayerLoader(root: Self.kitRoot, manifest: m)
@@ -139,7 +139,11 @@ final class HoodieKitTests: XCTestCase {
                 let shod = composer.pixels(for: pose, gender: g, style: "bald", hairColor: "Black", skin: "Light", items: ["item.shoes.clean"])
                 XCTAssertNotEqual(bare, shod, "\(g) \(pose.cacheKey): the trainers must show")
                 let W = composer.width
-                for i in 0..<bare.count where bare[i] != shod[i] { XCTAssertGreaterThanOrEqual(i / W, 112, "\(g): changed pixel above the feet at row \(i / W)") }
+                for i in 0..<bare.count where bare[i] != shod[i] { XCTAssertGreaterThanOrEqual(i / W, 109, "\(g): changed pixel above the feet at row \(i / W)") }
+                // A cap hides the hair: with the cap on, a styled head composes like the bald one plus the cap rows.
+                let styled = composer.pixels(for: pose, gender: g, style: g == "male" ? "wolf" : "long", hairColor: "Black", skin: "Light", items: ["item.cap.testmax"])
+                let baldCap = composer.pixels(for: pose, gender: g, style: "bald", hairColor: "Black", skin: "Light", items: ["item.cap.testmax"])
+                XCTAssertEqual(styled, baldCap, "\(g): hair must be hidden under a head item")
                 XCTAssertEqual(composer.pixels(for: pose, gender: g, style: "bald", hairColor: "Black", skin: "Light", items: ["item.nothing"]), bare)
             }
         }

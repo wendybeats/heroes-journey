@@ -27,8 +27,8 @@ Build: branch `claude/tender-hamilton-d57cv9`, commit in the increment 28 entry 
 18. Eight resolved runs without a rare → the ninth roll is rare (pity). Hard to reach in a day; verify by reading the tier eyebrow over several days or accept the unit test.
 
 ## D. Items on the character
-19. Room → Equipment: claimed items list with their stills. Equip Clean Trainers → the character's shoes turn white on Home and in the room, in every idle pose (relaxed, reach, pocketed, head turns, breathing).
-20. Unequip → shoes return. Equipping any other item changes nothing on the sprite (no layers yet) and the caption says so.
+19. Room → Equipment: claimed items list with their stills. Before Level 5 (hoodie): trainers, Junko Pants, cap and shades show on the character in every idle pose; the cap hides the hair. Tops, belt, wraps and vest list but do not show yet.
+20. From Level 5 (suit): every item shows. Belt and a top together; cap hides hair; shoes stay planted while the torso breathes. Unequip restores.
 21. Reduce Motion on: the cache does not pulse; the character holds the pocketed pose with trainers still visible.
 
 ## E. Regressions to spot-check

@@ -30,7 +30,7 @@ def main(folder, sheet=None):
         if key in m and not isinstance(m[key], str): fail(f"{key} must be a string")
     if "mood" in m and not (isinstance(m["mood"], list) and all(isinstance(x, str) for x in m["mood"])): fail("mood must be a list of strings")
     if m["kind"] not in ("body", "hair", "item", "backdrop", "effect", "portrait", "icon"): fail(f"bad kind {m['kind']}")
-    if m["kind"] == "item" and m.get("slot") not in ("head", "face", "body", "hand", "back", "effect"): fail("items need a slot")
+    if m["kind"] == "item" and m.get("slot") not in ("head", "face", "body", "legs", "feet", "waist", "hand", "back", "effect"): fail("items need a slot")
     rev_dir = os.path.basename(os.path.normpath(folder))
     if rev_dir != f"rev{m['revision']}": fail(f"folder {rev_dir} does not match revision {m['revision']}")
     set_dir = os.path.basename(os.path.dirname(os.path.normpath(folder)))

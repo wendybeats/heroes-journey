@@ -32,6 +32,10 @@ for body in ("male", "female"):
     for state, patches in kit[body]["eye"].items():
         if any(not (0 <= x < W and 0 <= y < H) for x, y, v in patches): fail(f"{body} eye {state}: patch outside canvas")
 ok("patches in range; ramps well-formed; every style has a layer")
+for iid, it in (man.get("items") or {}).items():
+    for g, rel in it["frames"].items():
+        if not os.path.exists(os.path.join(folder, rel)): fail(f"item {iid}: missing layer {rel}")
+if man.get("items"): ok(f"{len(man['items'])} item layer sets present")
 seam = man["rig_rows"]["seam"]
 for arm, patches in kit["male"]["arms"].items():
     if any(y >= seam for _, y, _ in patches): fail(f"arm {arm} reaches below the seam row {seam}")
