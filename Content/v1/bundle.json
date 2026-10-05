@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.05-2",
+  "content_version": "2026.10.05-3",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -545,8 +545,7 @@
       "palette": "rain_district",
       "asset_set_id": "backdrop.under_city.protein_row_walk_01",
       "role": "quest",
-      "area_id": "under_city",
-      "notes": "Side-on panorama; not assigned to a quest yet (owner decision pending)."
+      "area_id": "under_city"
     },
     {
       "id": "backdrop.colossus_gym.exterior_01",
@@ -1783,6 +1782,42 @@
         "reward.quest.junko_pants"
       ],
       "area_id": "under_city"
+    },
+    {
+      "id": "quest.protein_row",
+      "display_name": "Protein Row",
+      "area_id": "under_city",
+      "unlocked_by_milestone": "under_city.3.protein_row",
+      "backdrop_id": "backdrop.under_city.protein_row_walk_01",
+      "walk_asset_set_id": "hero.walk.hooded",
+      "notification_prompt": "Protein Row is awake at this hour. Four hours; I want to hear what they say about the gym.",
+      "subtext": "Pill stores, an old gym, a man in sunglasses who never moves. Somebody here knows about Colossus.",
+      "loot_preview": [
+        "reward.quest.trainers",
+        "reward.quest.box_hoodie",
+        "reward.quest.junko_pants"
+      ],
+      "depart_lines": [
+        "Protein Row. If the sunglasses man talks, I will listen.",
+        "Four hours on the Row. Do your goals; I will do mine."
+      ],
+      "away_lines": [
+        "Outside the Test MAX place. Everyone in there is shouting about growth.",
+        "Still on the Row. The old gym's door is open and nobody goes in."
+      ],
+      "return_lines": {
+        "common": [
+          "Back. The Row smells like whey and rain. I asked about the gym; people looked away.",
+          "Back. Walked the whole street twice. The sunglasses man nodded once."
+        ],
+        "uncommon": [
+          "Back. A woman at the pill store said Colossus used to train at the old gym. Used to.",
+          "Back. Somebody left a torn Colossus flyer on the crates. I kept it."
+        ],
+        "rare": [
+          "Back. The old gym's owner said one thing: 'Everyone goes in wanting to be stronger. Some forget why.'"
+        ]
+      }
     },
     {
       "id": "quest.colossus_gym_01",

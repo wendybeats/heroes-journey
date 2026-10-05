@@ -51,7 +51,7 @@ Not changed: the engine, ledgers, rulesets, goals, the quest timer, onboarding's
 |---|---|---|---|
 | Alleyway | `backdrop.alley_awakening` (exists, approved) | backdrop role `story`, `under_city` | 1 (awakening), revisits |
 | Player Home | `backdrop.under_city.home_01` (rev1 in review, scene-01 room-v1) | backdrop role `home_room` | 2 onward, persistent |
-| Protein Row | `backdrop.under_city.protein_row_01` (rev1 in review, locations-v2 supplement store); street panorama `backdrop.under_city.protein_row_walk_01` registered, unassigned | backdrop role `story`; also a walk panorama for the quest if desired | 3–4, later revisits |
+| Protein Row | `backdrop.under_city.protein_row_01` (rev1 in review, locations-v2 supplement store); street panorama `backdrop.under_city.protein_row_walk_01` scrolled by `quest.protein_row` (Levels 3–4) | backdrop role `story`; also a walk panorama for the quest if desired | 3–4, later revisits |
 | Colossus Gym exterior | `backdrop.colossus_gym.exterior_01` (rev1 in review, locations-v2) | backdrop role `story` | 5 (unlock), 6 |
 | Colossus Gym interior | `backdrop.colossus_gym.interior_01` (rev1 in review, locations-v2 panorama; the gym quests scroll it) | backdrop roles `story` and `quest` | 6–10 |
 
