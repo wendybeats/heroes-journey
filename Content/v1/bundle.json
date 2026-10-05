@@ -2491,7 +2491,7 @@
     },
     {
       "id": "chapter.colossus_reveal",
-      "title": "Chad Colossus",
+      "title": "Colossus",
       "backdrop_id": "backdrop.colossus_gym.interior_01",
       "then": "return",
       "area_id": "under_city",

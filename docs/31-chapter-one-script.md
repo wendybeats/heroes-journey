@@ -118,7 +118,7 @@ Each plays once, when its level is reached and the screen is quiet (no reward mo
 - **Cairon:** That's why people stay.
 - **Cairon:** Just remember: more is very good at finding reasons to become more.
 
-### Chad Colossus  `chapter.colossus_reveal`
+### Colossus  `chapter.colossus_reveal`
 **Trigger:** Level 8, automatic  
 **Backdrop:** `backdrop.colossus_gym.interior_01` · **then:** return
 
