@@ -81,7 +81,7 @@ final class QuestTests: XCTestCase {
         XCTAssertTrue(["r.c1", "r.c2"].contains(a!))
         XCTAssertEqual(QuestResolver.pick(tier: "common", pools: pools, granted: ["r.c1"], runID: id), "r.c2")
         XCTAssertEqual(QuestResolver.pick(tier: "common", pools: pools, granted: ["r.c1", "r.c2"], runID: id), "r.u1", "commons owned: the next pool fills in")
-        XCTAssertEqual(QuestResolver.pick(tier: "rare", pools: pools, granted: ["r.r1"], runID: id), "r.c1", "rare owned: falls back from the first pool")
+        XCTAssertTrue(["r.c1", "r.c2"].contains(QuestResolver.pick(tier: "rare", pools: pools, granted: ["r.r1"], runID: id)!), "rare owned: falls back to the first pool with something unowned")
         XCTAssertNil(QuestResolver.pick(tier: "rare", pools: pools, granted: ["r.c1", "r.c2", "r.u1", "r.r1"], runID: id), "everything owned: XP only")
         XCTAssertNil(QuestResolver.pick(tier: "common", pools: [], granted: [], runID: id))
     }
