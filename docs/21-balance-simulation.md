@@ -125,3 +125,7 @@ Trade-off made, stated plainly: the earlier "L50 at 3–6 months" cannot coexist
 
 Two quest variables, no threshold change (the derived curve still checks). `pity_rare_after: 7`: after seven resolved runs without a rare roll, the next roll is the rare row; it resets on any rare roll, even one that fell back to a lower item because the rare pool was owned. `trade_in_xp` 10/15/25 by tier: added by the engine when a return cannot grant anything new, so an owned pool doubles the row's XP instead of returning empty. Expected daily XP rises only for players who have cleared a quest's pool (three returns on the first walk), by at most 25 on a rare. The simulator does not model pools yet; the light persona's Level 10 day moves by less than a day on the most generous assumption (every return a trade-in).
 
+## dev-5d: attribute scale (2026-10-05)
+
+`attribute_points_per_xp` 0.5 → 0.1 (owner). At 0.5 a single-family player would reach about 21,000 in one attribute by Level 100 (42,359 total XP); at 0.1 the ceiling is about 4,200, with goals adding their own points on top. Attributes were already integers (points round down per fact; the UI rounds the animated counter), so no display change. Thresholds untouched; the curve check still passes. Existing ledgers keep their earlier points (facts are not re-priced).
+
