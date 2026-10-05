@@ -89,7 +89,7 @@ final class AppState {
     var goalPreferences: GoalPreferences { didSet { save(); regenerateTodayIfUntouched() } }
     private(set) var goalPlans: [GoalPlan]
     private(set) var goalCompletions: [GoalCompletion]
-    private let goalSeed: UInt64
+    private var goalSeed: UInt64   // var only for the debug goal reset
     private(set) var questRuns: [QuestRun]
     /// Day 1 is the day the character woke (first plan). Stage screen shows once per day.
     private(set) var startedOn: DayKey?
