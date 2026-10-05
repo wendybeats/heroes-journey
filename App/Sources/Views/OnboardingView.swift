@@ -40,8 +40,8 @@ struct OnboardingView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: NeoTokyo.Spacing.lg) {
                     HStack(alignment: .top, spacing: NeoTokyo.Spacing.sm) {
-                        if let guide = state.bundle.character("guide.elder") {
-                            PortraitView(assetSetID: guide.portraitAssetSetID, size: 56)
+                        if let guide = state.bundle.character("guide.elder"), let set = guide.portraitAssetSetID {
+                            PortraitView(assetSetID: set, size: 56)
                                 .clipShape(RoundedRectangle(cornerRadius: NeoTokyo.Radius.md, style: .continuous))
                         }
                         Bubble(text: line)

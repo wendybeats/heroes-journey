@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.04-1",
+  "content_version": "2026.10.05-1",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -522,6 +522,42 @@
       "asset_set_id": "backdrop.first_walk",
       "role": "quest",
       "area_id": "under_city"
+    },
+    {
+      "id": "backdrop.under_city.home_01",
+      "display_name": "Your Room",
+      "palette": "rain_district",
+      "asset_set_id": "backdrop.under_city.home_01",
+      "role": "home_room",
+      "area_id": "under_city",
+      "notes": "Art pending; the loader falls back to the dithered bands."
+    },
+    {
+      "id": "backdrop.under_city.protein_row_01",
+      "display_name": "Protein Row",
+      "palette": "rain_district",
+      "asset_set_id": "backdrop.under_city.protein_row_01",
+      "role": "story",
+      "area_id": "under_city",
+      "notes": "Art pending."
+    },
+    {
+      "id": "backdrop.colossus_gym.exterior_01",
+      "display_name": "Colossus Gym",
+      "palette": "rain_district",
+      "asset_set_id": "backdrop.colossus_gym.exterior_01",
+      "role": "story",
+      "area_id": "colossus_gym",
+      "notes": "Art pending."
+    },
+    {
+      "id": "backdrop.colossus_gym.interior_01",
+      "display_name": "Colossus Gym · inside",
+      "palette": "rain_district",
+      "asset_set_id": "backdrop.colossus_gym.interior_01",
+      "role": "quest",
+      "area_id": "colossus_gym",
+      "notes": "Art pending; the first-walk panorama stands in for the scroll until then."
     }
   ],
   "avatar_options": {
@@ -1742,16 +1778,124 @@
         "reward.quest.junko_pants"
       ],
       "area_id": "under_city"
+    },
+    {
+      "id": "quest.colossus_gym_01",
+      "display_name": "Colossus Gym · the floor",
+      "area_id": "colossus_gym",
+      "unlocked_by_milestone": "under_city.5.gym_unlock",
+      "duration_minutes": 480,
+      "backdrop_id": "backdrop.first_walk",
+      "walk_asset_set_id": "hero.walk.hooded",
+      "on_return_chapter": "chapter.gym_floor_end",
+      "notification_prompt": "The gym runs all night. Eight hours; I will come back with something.",
+      "subtext": "Iron, chains, and people who forgot what day it is.",
+      "loot_preview": [
+        "reward.quest.trainers",
+        "reward.quest.box_hoodie",
+        "reward.quest.junko_pants"
+      ],
+      "depart_lines": [
+        "The front desk did not ask my name. Nobody here has one.",
+        "Eight hours on the floor. Count the plates for me."
+      ],
+      "away_lines": [
+        "Somewhere between the squat racks. It does not end.",
+        "Still lifting. Everyone is still lifting."
+      ],
+      "return_lines": {
+        "common": [
+          "Back. My arms are not mine. Someone down there has not left in a year."
+        ],
+        "uncommon": [
+          "Back. A man gave me his old chalk and would not say why."
+        ],
+        "rare": [
+          "Back. There is a door at the end of the floor that nobody looks at."
+        ]
+      }
+    },
+    {
+      "id": "quest.colossus_gym_02",
+      "display_name": "Colossus Gym · deeper",
+      "area_id": "colossus_gym",
+      "unlocked_by_milestone": "under_city.7.deeper",
+      "duration_minutes": 480,
+      "backdrop_id": "backdrop.first_walk",
+      "walk_asset_set_id": "hero.walk.hooded",
+      "on_return_chapter": "chapter.gym_deeper_end",
+      "notification_prompt": "The gym runs all night. Eight hours; I will come back with something.",
+      "subtext": "Iron, chains, and people who forgot what day it is.",
+      "loot_preview": [
+        "reward.quest.trainers",
+        "reward.quest.box_hoodie",
+        "reward.quest.junko_pants"
+      ],
+      "depart_lines": [
+        "Lower floor. The lights are red down there.",
+        "Eight hours. If I do not come back, assume I am still at it."
+      ],
+      "away_lines": [
+        "Below the floor. The music stopped a while ago.",
+        "Chains. More chains than people now."
+      ],
+      "return_lines": {
+        "common": [
+          "Back. The weights down there are not for lifting. They are for staying."
+        ],
+        "uncommon": [
+          "Back. Found a logbook. Same name, every page, every year."
+        ],
+        "rare": [
+          "Back. Someone whispered his name like it was a prayer. Chad."
+        ]
+      }
+    },
+    {
+      "id": "quest.colossus_gym_03",
+      "display_name": "Colossus Gym · the last floor",
+      "area_id": "colossus_gym",
+      "unlocked_by_milestone": "under_city.9.final",
+      "duration_minutes": 480,
+      "backdrop_id": "backdrop.first_walk",
+      "walk_asset_set_id": "hero.walk.hooded",
+      "on_return_chapter": "chapter.final_approach_end",
+      "notification_prompt": "The gym runs all night. Eight hours; I will come back with something.",
+      "subtext": "Iron, chains, and people who forgot what day it is.",
+      "loot_preview": [
+        "reward.quest.trainers",
+        "reward.quest.box_hoodie",
+        "reward.quest.junko_pants"
+      ],
+      "depart_lines": [
+        "The last floor. He is down there. I can hear the plates.",
+        "Eight hours. Then it is him and me."
+      ],
+      "away_lines": [
+        "At the bottom. The air is heavy here.",
+        "He has not noticed me yet."
+      ],
+      "return_lines": {
+        "common": [
+          "Back. He is ready. So am I, I think."
+        ],
+        "uncommon": [
+          "Back. He asked why I came. I did not have an answer yet."
+        ],
+        "rare": [
+          "Back. He is enormous, and he looked tired."
+        ]
+      }
     }
   ],
   "world_name": "Neo Tokyo",
   "characters": [
     {
       "id": "guide.elder",
-      "display_name": "The Guide",
+      "display_name": "Cairon",
       "portrait_asset_set_id": "portrait.guide_elder",
       "side": "left",
-      "notes": "Name undecided (owner, 2026-10-02). Constant figure; portrait is the approved wise-guide-v1."
+      "notes": "Mentor. Named Cairon by the owner 2026-10-05 (provisional)."
     },
     {
       "id": "hero",
@@ -1759,6 +1903,13 @@
       "portrait_asset_set_id": "portrait.hero_hooded",
       "side": "right",
       "notes": "Hooded still until the player answers who they are; the live sprite's crop afterwards."
+    },
+    {
+      "id": "chad_colossus",
+      "display_name": "Chad Colossus",
+      "portrait_asset_set_id": null,
+      "side": "left",
+      "notes": "Antagonist of the Under City / Colossus Gym (doc 26 §9). Portrait pending; the stage shows a named placeholder until it lands."
     }
   ],
   "story_chapters": [
@@ -1852,6 +2003,355 @@
         }
       ],
       "area_id": "under_city"
+    },
+    {
+      "id": "chapter.home",
+      "title": "Your room",
+      "backdrop_id": "backdrop.under_city.home_01",
+      "then": "return",
+      "area_id": "under_city",
+      "beats": [
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Here. It is not much. Nobody in the Under City has much.",
+            "It was mine, once. Now it is yours. Come back here when you need to think, or change how you look to yourself."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "A room. I will take it."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Everything you earn down here ends up on these walls. Give it time."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter.protein_row",
+      "title": "Protein Row",
+      "backdrop_id": "backdrop.under_city.protein_row_01",
+      "then": "return",
+      "area_id": "under_city",
+      "beats": [
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Protein Row. Gyms, shakes, people who talk about nothing else.",
+            "You will like it. Everyone here is trying to become something."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "What is at the end of the street?"
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "The Colossus Gym. We will get to that. Train first."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter.rumors",
+      "title": "Rumours",
+      "backdrop_id": "backdrop.under_city.protein_row_01",
+      "then": "return",
+      "area_id": "under_city",
+      "beats": [
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "They say the man who built the Gym never left it. They say he is still inside, still lifting.",
+            "They say a lot of things on this street."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Is any of it true?"
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Enough of it. You are not ready for the door yet. Soon."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter.gym_gate",
+      "title": "The Gym opens",
+      "backdrop_id": "backdrop.colossus_gym.exterior_01",
+      "then": "return",
+      "area_id": "under_city",
+      "beats": [
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Look at you. That is the first change, and it will not be the last.",
+            "The Gym's door is open to you now. It was not before."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "What is in there?"
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Everyone who ever wanted to be stronger. Some of them are still deciding why."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter.gym_floor_one",
+      "title": "The floor",
+      "backdrop_id": "backdrop.colossus_gym.interior_01",
+      "then": "return",
+      "area_id": "under_city",
+      "beats": [
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Floor one looks like any gym. That is the point. Nobody notices when it stops being one."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "I can handle a gym."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Go on, then. Come back and tell me what you saw."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter.gym_floor_end",
+      "title": "After the floor",
+      "backdrop_id": "backdrop.colossus_gym.interior_01",
+      "then": "return",
+      "area_id": "under_city",
+      "beats": [
+        {
+          "speaker": "hero",
+          "lines": [
+            "Nobody down there leaves. They just keep going."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Motion is easy. Stopping is the skill. Remember that when the plates feel good."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter.gym_deeper",
+      "title": "Deeper",
+      "backdrop_id": "backdrop.colossus_gym.interior_01",
+      "then": "return",
+      "area_id": "under_city",
+      "beats": [
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "The lower floors are where the culture lives. It was a good culture, once.",
+            "Watch for the moment it tips. It always tips."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Tips into what?"
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Into more. Only ever more."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter.gym_deeper_end",
+      "title": "The logbook",
+      "backdrop_id": "backdrop.colossus_gym.interior_01",
+      "then": "return",
+      "area_id": "under_city",
+      "beats": [
+        {
+          "speaker": "hero",
+          "lines": [
+            "There is a name in every logbook down there. The same name."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Chad Colossus. He built this place to get strong. He got strong. Then he kept building."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter.colossus_reveal",
+      "title": "Chad Colossus",
+      "backdrop_id": "backdrop.colossus_gym.interior_01",
+      "then": "return",
+      "area_id": "under_city",
+      "beats": [
+        {
+          "speaker": "chad_colossus",
+          "lines": [
+            "You are new. New ones always look at the plates first. Look at me.",
+            "I have not missed a day in eleven years. Not one. Do you know what that makes me?"
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Strong."
+          ]
+        },
+        {
+          "speaker": "chad_colossus",
+          "lines": [
+            "Strong. Yes. Say the other word. The one you are thinking."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "...Alone."
+          ]
+        },
+        {
+          "speaker": "chad_colossus",
+          "lines": [
+            "Get stronger. Then come and tell me I am wrong."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter.final_approach",
+      "title": "The last floor",
+      "backdrop_id": "backdrop.colossus_gym.interior_01",
+      "then": "return",
+      "area_id": "under_city",
+      "beats": [
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "The last floor is his. He is not a monster. That is what makes this hard."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "What do I say to him?"
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Say what you are improving for. If you can answer that, you are already past him."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter.final_approach_end",
+      "title": "Ready",
+      "backdrop_id": "backdrop.colossus_gym.interior_01",
+      "then": "return",
+      "area_id": "under_city",
+      "beats": [
+        {
+          "speaker": "hero",
+          "lines": [
+            "He is waiting. I think he wants to be asked."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Then ask. When you are ready, not before."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter.colossus_resolution",
+      "title": "What are you improving for?",
+      "backdrop_id": "backdrop.colossus_gym.interior_01",
+      "then": "return",
+      "area_id": "under_city",
+      "beats": [
+        {
+          "speaker": "chad_colossus",
+          "lines": [
+            "Eleven years. Every plate on this floor has my hands on it. Tell me what you have."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "A room. A street. Someone waiting for me outside the screen."
+          ]
+        },
+        {
+          "speaker": "chad_colossus",
+          "lines": [
+            "That is nothing."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "It is a reason. What is yours?"
+          ]
+        },
+        {
+          "speaker": "chad_colossus",
+          "lines": [
+            "..."
+          ]
+        },
+        {
+          "speaker": "chad_colossus",
+          "lines": [
+            "I used to know."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "That is the whole lesson, and he taught it better than I could. Everyone comes here to become stronger. Some forget why.",
+            "The Under City is behind you now. There is a hill above us, green and wired, where the running never stops. Central Hill. When you are ready."
+          ]
+        }
+      ]
     }
   ],
   "daily_quotes": [
@@ -2077,5 +2577,85 @@
       ],
       "antagonist": "The Shadow Self"
     }
-  ]
+  ],
+  "campaign": {
+    "chapters": [
+      {
+        "id": "chapter.under_city",
+        "area_id": "under_city",
+        "display_name": "Under City / Colossus",
+        "levels": [
+          1,
+          10
+        ],
+        "milestones": [
+          {
+            "id": "under_city.1.awakening",
+            "level": 1,
+            "story_chapter": "chapter.awakening",
+            "notes": "Played inside onboarding; recorded complete when the bond is sealed."
+          },
+          {
+            "id": "under_city.2.home",
+            "level": 2,
+            "story_chapter": "chapter.home",
+            "unlock_feature": "home_room",
+            "unlock_backdrop": "backdrop.under_city.home_01"
+          },
+          {
+            "id": "under_city.3.protein_row",
+            "level": 3,
+            "story_chapter": "chapter.protein_row",
+            "unlock_backdrop": "backdrop.under_city.protein_row_01"
+          },
+          {
+            "id": "under_city.4.rumors",
+            "level": 4,
+            "story_chapter": "chapter.rumors"
+          },
+          {
+            "id": "under_city.5.gym_unlock",
+            "level": 5,
+            "story_chapter": "chapter.gym_gate",
+            "unlock_backdrop": "backdrop.colossus_gym.exterior_01",
+            "unlock_quest": "quest.colossus_gym_01",
+            "notes": "The evolution itself is reward.l5.evolve, granted by the engine at the level; this beat follows the Ascension takeover."
+          },
+          {
+            "id": "under_city.6.enter",
+            "level": 6,
+            "story_chapter": "chapter.gym_floor_one"
+          },
+          {
+            "id": "under_city.7.deeper",
+            "level": 7,
+            "story_chapter": "chapter.gym_deeper",
+            "unlock_quest": "quest.colossus_gym_02"
+          },
+          {
+            "id": "under_city.8.reveal",
+            "level": 8,
+            "story_chapter": "chapter.colossus_reveal"
+          },
+          {
+            "id": "under_city.9.final",
+            "level": 9,
+            "story_chapter": "chapter.final_approach",
+            "unlock_quest": "quest.colossus_gym_03"
+          },
+          {
+            "id": "under_city.10.resolution",
+            "level": 10,
+            "trigger": "manual",
+            "trigger_label": "Face Chad Colossus",
+            "story_chapter": "chapter.colossus_resolution",
+            "completes_chapter": true,
+            "tease_area": "central_hill",
+            "reward": null,
+            "notes": "Owner 2026-10-05: manual trigger; encounter scene and conventions TBD; completion reward TBD (room upgrade or feature unlock)."
+          }
+        ]
+      }
+    ]
+  }
 }

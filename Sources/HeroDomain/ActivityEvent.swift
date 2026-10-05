@@ -12,6 +12,8 @@ public enum ActivitySource: String, Codable, Sendable, CaseIterable {
     case quest
     /// Sealing the bond at the end of onboarding (owner, 2026-10-02): one permanent starting grant.
     case bond
+    /// A campaign milestone that grants something (doc 28): the grant goes through the engine once.
+    case story
 }
 
 /// Doc 05. All levels earn progression in MVP; kept distinct so later systems can weight them.
@@ -49,6 +51,8 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
     public let quest: QuestReference?
     /// Set when this fact is the bond seal.
     public let bond: BondReference?
+    /// Set when this fact is a story milestone grant.
+    public let story: StoryReference?
     public let schemaVersion: Int
     public let createdAt: Date
 
@@ -68,6 +72,7 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
         goal: GoalReference? = nil,
         quest: QuestReference? = nil,
         bond: BondReference? = nil,
+        story: StoryReference? = nil,
         createdAt: Date = Date()
     ) {
         self.id = id
@@ -85,6 +90,7 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
         self.goal = goal
         self.quest = quest
         self.bond = bond
+        self.story = story
         self.schemaVersion = Self.schemaVersion
         self.createdAt = createdAt
     }

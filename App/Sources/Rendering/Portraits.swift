@@ -65,8 +65,16 @@ struct SpeakerPortrait: View {
     var body: some View {
         if character.id == "hero", let recipe {
             SpritePortrait(recipe: recipe, outfit: state.bundle.evolution(forLevel: 1)?.outfit, size: size)
+        } else if let set = character.portraitAssetSetID {
+            PortraitView(assetSetID: set, size: size)
         } else {
-            PortraitView(assetSetID: character.portraitAssetSetID, size: size)
+            // Unauthored portrait: a named stand-in so the scene still reads (Chad Colossus until his art lands).
+            VStack(spacing: NeoTokyo.Spacing.xs) {
+                Image(systemName: "person.fill").font(HeroFont.statLG).foregroundStyle(NeoTokyo.Text.muted)
+                Text(character.displayName).font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
+            }
+            .frame(width: size, height: size)
+            .glass(cornerRadius: NeoTokyo.Radius.md, tint: NeoTokyo.Surface.overlay)
         }
     }
 }

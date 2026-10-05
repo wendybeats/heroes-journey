@@ -88,6 +88,21 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(bundle.integrityProblems(), [])
     }
 
+    func testCampaignContentResolvesAndCoversLevelsOneToTen() throws {
+        let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
+        XCTAssertEqual(bundle.campaign.chapters.map(\.id), ["chapter.under_city"])
+        let levels = bundle.campaign.milestones.map(\.level)
+        XCTAssertEqual(levels, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        XCTAssertEqual(bundle.campaign.milestone("under_city.10.resolution")?.trigger, .manual)
+        XCTAssertEqual(bundle.campaign.milestone("under_city.10.resolution")?.teaseArea, "central_hill")
+        XCTAssertEqual(bundle.campaign.milestone("under_city.2.home")?.unlockFeature, "home_room")
+        XCTAssertEqual(bundle.quests.map(\.id), ["quest.lower_district", "quest.colossus_gym_01", "quest.colossus_gym_02", "quest.colossus_gym_03"])
+        XCTAssertEqual(bundle.quests[1].durationMinutes, 480); XCTAssertEqual(bundle.quests[1].unlockedByMilestone, "under_city.5.gym_unlock")
+        XCTAssertEqual(bundle.character("guide.elder")?.displayName, "Cairon"); XCTAssertEqual(bundle.character("chad_colossus")?.displayName, "Chad Colossus")
+        XCTAssertNil(bundle.character("chad_colossus")?.portraitAssetSetID, "portrait pending")
+        XCTAssertEqual(bundle.integrityProblems(), [])
+    }
+
     func testAreasCoverTheCampaign() throws {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
         XCTAssertEqual(bundle.areas.count, 13)

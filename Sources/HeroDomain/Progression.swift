@@ -67,6 +67,10 @@ public enum ProgressionEngine {
             xp = max(0, grant.xp)
             if grant.primaryPoints > 0 { attributes[bond.primaryAttributeID, default: 0] += grant.primaryPoints }
             if grant.secondaryPoints > 0 { attributes[bond.secondaryAttributeID, default: 0] += grant.secondaryPoints }
+        } else if let story = event.story {
+            // Story milestone: no XP (the ruleset may price it later); its reward is granted once.
+            xp = 0
+            if let reward = story.rewardID, !context.grantedRewardIDs.contains(reward) { questRewards.append(reward) }
         } else if let quest = event.quest {
             // Quest return: the rolled table entry's XP, plus its content reward if never granted.
             guard let table = ruleset.dailyQuest?.rewardTable, table.indices.contains(quest.rewardIndex) else { return empty() }

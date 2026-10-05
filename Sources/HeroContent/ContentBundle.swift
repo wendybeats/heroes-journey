@@ -127,6 +127,8 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public let dailyQuotes: [Quote]
     /// The campaign's areas (doc 26 §8–10): data only until area content exists.
     public let areas: [Area]
+    /// Chapters of milestones bound to levels (doc 28). The director plays them; nothing else reads levels for story.
+    public let campaign: Campaign
 
     public struct Area: Codable, Sendable, Equatable {
         public let id: AreaID
@@ -158,20 +160,30 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let subtext: String?
         /// Rewards shown in the loot-box tooltip, in tier order.
         public let lootPreview: [RewardID]?
+        /// Campaign placement (doc 28). A quest with `unlocked_by_milestone` is offered once that milestone is complete.
+        public let areaID: AreaID?
+        public let unlockedByMilestone: MilestoneID?
+        /// Overrides the ruleset's daily quest duration (owner 2026-10-05: gym quests run 8 h).
+        public let durationMinutes: Int?
+        /// Chapter played at the return reveal: the quest's end scene.
+        public let onReturnChapter: String?
         /// Shown on departure.
         public let departLines: [String]
         /// Shown on Home while away.
         public let awayLines: [String]
         /// Keyed by reward tier (`common`, `uncommon`, `rare`); shown at return.
         public let returnLines: [String: [String]]
-        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", backdropID = "backdrop_id", walkAssetSetID = "walk_asset_set_id", notificationPrompt = "notification_prompt", subtext, lootPreview = "loot_preview", departLines = "depart_lines", awayLines = "away_lines", returnLines = "return_lines" }
+        /// Chapter played before departure on this quest, once (gym floors). Optional.
+        public let onDepartChapter: String?
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", backdropID = "backdrop_id", walkAssetSetID = "walk_asset_set_id", notificationPrompt = "notification_prompt", subtext, lootPreview = "loot_preview", areaID = "area_id", unlockedByMilestone = "unlocked_by_milestone", durationMinutes = "duration_minutes", onReturnChapter = "on_return_chapter", onDepartChapter = "on_depart_chapter", departLines = "depart_lines", awayLines = "away_lines", returnLines = "return_lines" }
     }
 
     /// A speaking character (doc 25). The hero is one too; its portrait is replaced by the live sprite after creation.
     public struct Character: Codable, Sendable, Equatable {
         public let id: CharacterID
         public let displayName: String
-        public let portraitAssetSetID: AssetSetID
+        /// Nil while the portrait is unauthored: the stage shows a named placeholder.
+        public let portraitAssetSetID: AssetSetID?
         /// `left` or `right`: which side of the stage the portrait sits on; bubbles sit opposite.
         public let side: String
         enum CodingKeys: String, CodingKey { case id, displayName = "display_name", portraitAssetSetID = "portrait_asset_set_id", side }
@@ -206,7 +218,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let id: String
         public let title: String
         public let backdropID: BackdropID
-        /// What follows the last line: `create_character` or `home`.
+        /// What follows the last line: `create_character`, `home`, or `return` (back to wherever it was shown).
         public let then: String
         public let beats: [StoryBeat]
         enum CodingKeys: String, CodingKey { case id, title, backdropID = "backdrop_id", then, beats }
@@ -216,7 +228,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         case schemaVersion = "schema_version", contentVersion = "content_version"
         case families, activityTypes = "activity_types", attributes, evolutions, items, rewards, backdrops
         case avatarOptions = "avatar_options", exerciseDefinitions = "exercise_definitions", healthWorkoutMapping = "health_workout_mapping"
-        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters", dailyQuotes = "daily_quotes", areas
+        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters", dailyQuotes = "daily_quotes", areas, campaign
     }
 
     public static func decode(_ data: Data) throws -> ContentBundle {
@@ -314,12 +326,33 @@ public struct ContentBundle: Codable, Sendable, Equatable {
             if area.levels.count != 2 || area.levelRange.lowerBound != expected { problems.append("area \(area.id) levels must start at \(expected)") }
             expected = area.levelRange.upperBound + 1
         }
-        if !areas.isEmpty && expected != 101 { problems.append("areas must cover levels 1–100 exactly") }
+        if !areas.isEmpty && expected <= 1 { problems.append("areas must cover a contiguous range from level 1") }
+        // Campaign: ids unique, references resolve, levels inside the chapter, at most one completion per chapter.
+        unique(campaign.milestones.map(\.id.rawValue), "milestone")
+        let areaIDs = Set(areas.map(\.id)), chapterIDs = Set(storyChapters.map(\.id)), questIDs = Set(quests.map(\.id)), rewardIDsAll = Set(rewards.map(\.id))
+        for ch in campaign.chapters {
+            if !areaIDs.contains(ch.areaID) { problems.append("campaign chapter \(ch.id) → unknown area \(ch.areaID)") }
+            if ch.milestones.filter(\.completesChapter).count > 1 { problems.append("campaign chapter \(ch.id) completes more than once") }
+            for m in ch.milestones {
+                if !ch.levelRange.contains(m.level) { problems.append("milestone \(m.id) level \(m.level) outside chapter \(ch.id)") }
+                if let s = m.storyChapter, !chapterIDs.contains(s) { problems.append("milestone \(m.id) → unknown story chapter \(s)") }
+                if let b = m.unlockBackdrop, !backdropIDs.contains(b) { problems.append("milestone \(m.id) → unknown backdrop \(b)") }
+                if let q = m.unlockQuest, !questIDs.contains(q) { problems.append("milestone \(m.id) → unknown quest \(q)") }
+                if let r = m.reward, !rewardIDsAll.contains(r) { problems.append("milestone \(m.id) → unknown reward \(r)") }
+                if let t = m.teaseArea, !areaIDs.contains(t) { problems.append("milestone \(m.id) → unknown tease area \(t)") }
+                if m.trigger == .manual && m.triggerLabel == nil { problems.append("milestone \(m.id) is manual but has no trigger_label") }
+            }
+        }
+        let milestoneIDs = Set(campaign.milestones.map(\.id))
+        for q in quests {
+            if let g = q.unlockedByMilestone, !milestoneIDs.contains(g) { problems.append("quest \(q.id) → unknown milestone \(g)") }
+            for c in [q.onReturnChapter, q.onDepartChapter].compactMap({ $0 }) where !chapterIDs.contains(c) { problems.append("quest \(q.id) → unknown chapter \(c)") }
+        }
         unique(characters.map(\.id), "character"); unique(storyChapters.map(\.id), "story_chapter")
         let characterIDs = Set(characters.map(\.id))
         for ch in storyChapters {
             if !backdropIDs.contains(ch.backdropID) { problems.append("chapter \(ch.id) → unknown backdrop \(ch.backdropID)") }
-            if !["create_character", "home"].contains(ch.then) { problems.append("chapter \(ch.id) has unknown 'then' \(ch.then)") }
+            if !["create_character", "home", "return"].contains(ch.then) { problems.append("chapter \(ch.id) has unknown 'then' \(ch.then)") }
             if ch.beats.isEmpty { problems.append("chapter \(ch.id) has no beats") }
             for beat in ch.beats {
                 if !characterIDs.contains(beat.speaker) { problems.append("chapter \(ch.id) → unknown speaker \(beat.speaker)") }
