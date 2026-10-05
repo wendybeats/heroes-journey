@@ -120,7 +120,8 @@ final class ContentBundleTests: XCTestCase {
     func testLevelRewardsAndEvolutions() throws {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
         let rewards = bundle.levelRewards
-        XCTAssertEqual(Set(rewards.keys), Set(2...10).union([20]), "every level 2–10 has a reward (doc 05); the third ascension sits at 20")
+        XCTAssertTrue(rewards.isEmpty, "owner 2026-10-05: level-up grants are off; the former level rewards stay defined as unassigned")
+        XCTAssertEqual(bundle.rewards.filter { $0.trigger.type == "unassigned" }.count, 10, "the ten former level rewards are kept for the chapter to assign")
         XCTAssertEqual(bundle.evolution(forLevel: 1)?.id, "ev1_awakened")
         XCTAssertEqual(bundle.evolution(forLevel: 4)?.id, "ev1_awakened")
         XCTAssertEqual(bundle.evolution(forLevel: 5)?.id, "ev2_evolution1")
