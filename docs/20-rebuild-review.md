@@ -216,6 +216,10 @@ Owner: the Protein Row chapter played but Home still showed the alley. A milesto
 
 Owner reached Level 5 with the dev cap off (the ledger shows 87-XP hours). Fixes: "Begin quest" departs directly once the notification prompt has been answered; the character renders at 4 device pixels per sprite pixel (a third smaller, still integer in device pixels on 3x screens); older saves catch up to the story's opened backdrop at launch. Open for the owner: attribute scale (0.5 points per XP puts a Level 100 single-family player near 21,000 in one stat) and the wearable layers (only the trainers placeholder exists).
 
+## Increment 32, 2026-10-05: the owner's dialogue rewrite
+
+Every chapter-one line replaced, kept or cut per the owner's audit (principle: make strength attractive, let the player progress, then ask what for; Cairon guides, Colossus succeeded). Onboarding prompts rewritten in `OnboardingView`. The Level 10 scene ends inside the gym on Colossus's "I know"; a new chained chapter (`next_chapter`, one link, checked by the bundle) plays the Central Hill tease outside on the gym exterior before the milestone completes. "Chad" is gone from all text; the character is "Colossus" (working title) and the card reads "Face Colossus". The room still arrives at Level 2 (owner). `Tools/export_chapter_script.py` regenerates doc 31 from content. Content 2026.10.05-7.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

@@ -68,7 +68,7 @@ struct SpeakerPortrait: View {
         } else if let set = character.portraitAssetSetID {
             PortraitView(assetSetID: set, size: size)
         } else {
-            // Unauthored portrait: a named stand-in so the scene still reads (Chad Colossus until his art lands).
+            // Unauthored portrait: a named stand-in so the scene still reads (Colossus until his art lands).
             VStack(spacing: NeoTokyo.Spacing.xs) {
                 Image(systemName: "person.fill").font(HeroFont.statLG).foregroundStyle(NeoTokyo.Text.muted)
                 Text(character.displayName).font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)

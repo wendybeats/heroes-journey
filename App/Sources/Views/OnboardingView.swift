@@ -90,16 +90,17 @@ struct OnboardingView: View {
         switch step {
         // The guide asks; the answers rebuild the hero (doc 25: "Do you remember anything about your real, human self?").
         case .awaken, .bond: return ""
-        case .name: return "Start with the easy one. What did they call you?"
-        case .body: return "\(name.trimmingCharacters(in: .whitespaces)).. the name of a hero. Which of these is you?"
+        // Owner rewrite 2026-10-05 (docs/31 audit): Cairon asks, never flatters; the questions are about the human.
+        case .name: return "Start with the easy part. What's your name?"
+        case .body: return "\(name.trimmingCharacters(in: .whitespaces)). Good. Hold onto that. Now, what looks like you?"
         case .skin: return "I can barely see your face in the gloom down here."
         case .hair: return "Do you remember what looks right?"
-        case .primary: return "Pick how you most plan to develop your physical strengths."
-        case .secondary: return "Now tell me how you are most likely to build your mental strength."
-        case .frequency: return "How many days a week do you train?"
-        case .motivation: return "Now, a question for the soul.. Why are you doing this?"
-        case .health: return "Now, to make sure you and your human's progress are linked: let's connect this."
-        case .feedback: return "Who you are is clear to me now. It's time to seal the bond between you two."
+        case .primary: return "What does your human do when they want to get stronger?"
+        case .secondary: return "And outside the body? What do they work on?"
+        case .frequency: return "How often do they usually train?"
+        case .motivation: return "One harder question. Why did they start?"
+        case .health: return "All right. Let's see if the bond reaches all the way through."
+        case .feedback: return "There you are. Let's make the connection permanent."
         }
     }
 

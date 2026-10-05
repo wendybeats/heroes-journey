@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.05-6",
+  "content_version": "2026.10.05-7",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -1898,8 +1898,8 @@
       "display_name": "Under City",
       "depart_lines": [
         "The Under City at this hour. I will be back before the rain changes.",
-        "Four hours. Do not wait up; do something useful instead.",
-        "Goals done, so I go. That was the deal."
+        "Four hours. Keep our side of the bond busy while I'm gone.",
+        "You did your part. My turn."
       ],
       "away_lines": [
         "Somewhere below the overpass. Signal is bad.",
@@ -1916,14 +1916,14 @@
           "Found a stairwell that was not on any map. Noted."
         ],
         "rare": [
-          "Back, and not the same. Something under the city looked at me and let me pass.",
+          "Something under the city watched me walk past. I don't think it was a person.",
           "There is a door down there with my name scratched into it. I did not open it. Yet."
         ]
       },
       "backdrop_id": "backdrop.first_walk",
       "walk_asset_set_id": "hero.walk.hooded",
-      "notification_prompt": "Time to see if I can find anything useful around here. I'll be back in a few hours.",
-      "subtext": "This place is a MESS. I'll let you know if I find anything useful down here.",
+      "notification_prompt": "I'm going to look around. If this really is my home now, I should probably know what's outside the alley.",
+      "subtext": "I have no idea where anything is. Good place to start.",
       "area_id": "under_city",
       "loot": {
         "common": [
@@ -1944,11 +1944,11 @@
       "unlocked_by_milestone": "under_city.3.protein_row",
       "backdrop_id": "backdrop.under_city.protein_row_walk_01",
       "walk_asset_set_id": "hero.walk.hooded",
-      "notification_prompt": "Protein Row is awake at this hour. Four hours; I want to hear what they say about the gym.",
-      "subtext": "Pill stores, an old gym, a man in sunglasses who never moves. Somebody here knows about Colossus.",
+      "notification_prompt": "Protein Row's still awake. I'm going to find out why everyone goes quiet when I mention the Gym.",
+      "subtext": "Supplement shops, old gyms, and a man in sunglasses who apparently never moves. Somebody here knows Colossus.",
       "depart_lines": [
         "Protein Row. If the sunglasses man talks, I will listen.",
-        "Four hours on the Row. Do your goals; I will do mine."
+        "Four hours on the Row. You train there. I'll train here."
       ],
       "away_lines": [
         "Outside the Test MAX place. Everyone in there is shouting about growth.",
@@ -1960,11 +1960,11 @@
           "Back. Walked the whole street twice. The sunglasses man nodded once."
         ],
         "uncommon": [
-          "Back. A woman at the pill store said Colossus used to train at the old gym. Used to.",
+          "Back. Woman at the supplement shop said Colossus used to train at the old gym. Used to.",
           "Back. Somebody left a torn Colossus flyer on the crates. I kept it."
         ],
         "rare": [
-          "Back. The old gym's owner said one thing: 'Everyone goes in wanting to be stronger. Some forget why.'"
+          "Back. Asked the old gym owner about Colossus. He laughed and said, \"That boy got exactly what he wanted.\""
         ]
       },
       "loot": {
@@ -1990,19 +1990,19 @@
       "backdrop_id": "backdrop.colossus_gym.interior_01",
       "walk_asset_set_id": "hero.walk.hooded",
       "on_return_chapter": "chapter.gym_floor_end",
-      "notification_prompt": "The gym runs all night. Eight hours; I will come back with something.",
-      "subtext": "Iron, chains, and people who forgot what day it is.",
+      "notification_prompt": "Door's still open. I'm going in. Don't expect me back before morning.",
+      "subtext": "Old iron, bad lighting, good equipment. I think I'm going to like this place.",
       "depart_lines": [
-        "The front desk did not ask my name. Nobody here has one.",
-        "Eight hours on the floor. Count the plates for me."
+        "Front desk didn't ask my name. Just pointed at the racks.",
+        "Eight hours. Let's see if this place deserves the reputation."
       ],
       "away_lines": [
-        "Somewhere between the squat racks. It does not end.",
+        "Still here. This place is bigger inside than it looked from the Row.",
         "Still lifting. Everyone is still lifting."
       ],
       "return_lines": {
         "common": [
-          "Back. My arms are not mine. Someone down there has not left in a year."
+          "Back. Arms are wrecked. Going again when they'll let me."
         ],
         "uncommon": [
           "Back. A man gave me his old chalk and would not say why."
@@ -2032,8 +2032,8 @@
       "backdrop_id": "backdrop.colossus_gym.interior_01",
       "walk_asset_set_id": "hero.walk.hooded",
       "on_return_chapter": "chapter.gym_deeper_end",
-      "notification_prompt": "The gym runs all night. Eight hours; I will come back with something.",
-      "subtext": "Iron, chains, and people who forgot what day it is.",
+      "notification_prompt": "Found stairs behind the main floor. Going down this time.",
+      "subtext": "Same Gym. Less light. Nobody talks down there.",
       "depart_lines": [
         "Lower floor. The lights are red down there.",
         "Eight hours. If I do not come back, assume I am still at it."
@@ -2044,13 +2044,13 @@
       ],
       "return_lines": {
         "common": [
-          "Back. The weights down there are not for lifting. They are for staying."
+          "Back. Nobody down there talks about going home."
         ],
         "uncommon": [
           "Back. Found a logbook. Same name, every page, every year."
         ],
         "rare": [
-          "Back. Someone whispered his name like it was a prayer. Chad."
+          "Back. Heard someone say \"Colossus\" before a set. Like they were asking for help."
         ]
       },
       "loot": {
@@ -2077,25 +2077,25 @@
       "backdrop_id": "backdrop.colossus_gym.interior_01",
       "walk_asset_set_id": "hero.walk.hooded",
       "on_return_chapter": "chapter.final_approach_end",
-      "notification_prompt": "The gym runs all night. Eight hours; I will come back with something.",
-      "subtext": "Iron, chains, and people who forgot what day it is.",
+      "notification_prompt": "Going back down. He's there this time.",
+      "subtext": "Last floor. No music. No crowd. Just the sound of plates.",
       "depart_lines": [
         "The last floor. He is down there. I can hear the plates.",
-        "Eight hours. Then it is him and me."
+        "I'm going to train first. Then I'm going to ask him again."
       ],
       "away_lines": [
         "At the bottom. The air is heavy here.",
-        "He has not noticed me yet."
+        "He noticed me. Didn't stop his set."
       ],
       "return_lines": {
         "common": [
-          "Back. He is ready. So am I, I think."
+          "Back. He asked if I'm stronger now. I said yes."
         ],
         "uncommon": [
           "Back. He asked why I came. I did not have an answer yet."
         ],
         "rare": [
-          "Back. He is enormous, and he looked tired."
+          "Back. Up close, he doesn't look angry. He looks tired."
         ]
       },
       "loot": {
@@ -2133,10 +2133,10 @@
     },
     {
       "id": "chad_colossus",
-      "display_name": "Chad Colossus",
+      "display_name": "Colossus",
       "portrait_asset_set_id": null,
       "side": "left",
-      "notes": "Antagonist of the Under City / Colossus Gym (doc 26 §9). Portrait pending; the stage shows a named placeholder until it lands."
+      "notes": "Antagonist of the Under City / Colossus Gym (doc 26 §9). Portrait pending; the stage shows a named placeholder until it lands. Working title (owner 2026-10-05); 'Chad' dropped from all text until the name is settled."
     }
   ],
   "story_chapters": [
@@ -2149,14 +2149,14 @@
         {
           "speaker": "hero",
           "lines": [
-            "Wha.. Where am I?"
+            "Where... am I?"
           ]
         },
         {
           "speaker": "guide.elder",
           "lines": [
-            "Ah good, you're awake.",
-            "That was a nasty uplink, one of the worst I've seen yet."
+            "There you are. Easy. Don't stand yet.",
+            "Rough uplink. You came through harder than most."
           ]
         },
         {
@@ -2168,30 +2168,27 @@
         {
           "speaker": "guide.elder",
           "lines": [
-            "Yes my child..",
-            {
-              "text": "You've awoken in this, our digital world of {world}.",
-              "without_world": "You've awoken in this, our digital world."
-            },
-            "When a human in the real world decides to take the Ascension challenge, you become **soul bound** to them."
+            "That's what we call it.",
+            "You're in the Under City. That's enough geography for now.",
+            "More important: there's someone on the other side of you. A human. *Your* human."
           ]
         },
         {
           "speaker": "hero",
           "lines": [
-            "Soul bound? Sounds.. serious."
+            "My human?"
           ]
         },
         {
           "speaker": "guide.elder",
           "lines": [
-            "It is.",
-            "It means right now your survival depends on the determination of your human.",
+            "You can feel them, can't you? Faintly.",
+            "What they do out there changes what you can become in here.",
             "Their actions in the real world make you stronger here.",
-            "But also, their failures are your failures.",
-            "My human gave up on me a long time ago..",
-            "But I see something powerful in your bond...",
-            "Perhaps you could even reach Ascension one day!"
+            "When they move, you move. When they stop... well. The city can wait a very long time.",
+            "Mine stopped answering a long time ago.",
+            "Yours is loud, though. New bonds usually aren't.",
+            "Maybe you'll make a real run at Ascension."
           ]
         },
         {
@@ -2203,10 +2200,22 @@
         {
           "speaker": "guide.elder",
           "lines": [
-            "Ascension, yes. Grow strong enough and you can bend the very fabric of this world...",
-            "To ascend is to become powerful enough even to *escape* this digital world.",
-            "It's a lot, I know. We'll talk about it more.",
-            "...Do you remember anything about your real, human self?"
+            "That's what everyone down here wants eventually. Get strong enough and the rules of this place start to loosen around you.",
+            "They say someone strong enough can even leave."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Leave?"
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "This place.",
+            "One impossible thing at a time.",
+            "First things first. Do you remember who you are?"
           ]
         }
       ],
@@ -2222,10 +2231,9 @@
           "speaker": "guide.elder",
           "lines": [
             "That's it, then. The bond holds.",
-            "Your human has taken the challenge. From here, every step they take in their world is a step you take in this one.",
-            "Many humans neglect themselves. It's in their nature to give up.",
-            "Not this one. Not if I can help it.",
-            "You'd better get to training. I'll be with you all the while."
+            "From here on, what they do out there reaches you here. Training. Movement. The things they keep showing up for.",
+            "Let's see what the two of you can do.",
+            "Come on. You shouldn't spend your first night in an alley."
           ]
         }
       ],
@@ -2241,15 +2249,10 @@
         {
           "speaker": "guide.elder",
           "lines": [
-            "I can already see you're getting stronger out there.",
+            "You're changing already. Small things, but they're there.",
             "You're welcome to stay here. It's not much.",
-            "It was mine, once. Now it is yours. Come back here when you need to think, or change how you look to yourself."
-          ]
-        },
-        {
-          "speaker": "guide.elder",
-          "lines": [
-            "Everything you earn down here ends up on these walls. Give it time."
+            "It was mine once. Now it's yours. Change your clothes, clear your head, hide from the rain. Whatever you need.",
+            "Looks empty now. Give it time. Places remember what you bring back to them."
           ]
         }
       ]
@@ -2264,20 +2267,32 @@
         {
           "speaker": "guide.elder",
           "lines": [
-            "Protein Row. Gyms, shakes, people who talk about nothing else.",
-            "You will like it. Everyone here is trying to become something."
+            "Protein Row. Half the street sells strength. The other half sells something that promises it faster.",
+            "I think you'll like it. Nobody down here is embarrassed about wanting to become more."
           ]
         },
         {
           "speaker": "hero",
           "lines": [
-            "What is at the end of the street?"
+            "What's that at the end?"
           ]
         },
         {
           "speaker": "guide.elder",
           "lines": [
-            "The Colossus Gym. We will get to that. Train first."
+            "Colossus Gym."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Can we go?"
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Not yet."
           ]
         }
       ]
@@ -2292,8 +2307,8 @@
         {
           "speaker": "guide.elder",
           "lines": [
-            "They say the man who built the Gym never left it. They say he is still inside, still lifting.",
-            "They say a lot of things on this street."
+            "See that old man by the shake stand? Ask him who built the Gym and he'll tell you Colossus hasn't missed a day in eleven years.",
+            "Ask the woman next door and she'll tell you twelve. Protein Row improves a story every time it tells it."
           ]
         },
         {
@@ -2305,7 +2320,7 @@
         {
           "speaker": "guide.elder",
           "lines": [
-            "Enough of it. You are not ready for the door yet. Soon."
+            "Enough. And before you ask again: the door still won't take you."
           ]
         }
       ]
@@ -2320,20 +2335,33 @@
         {
           "speaker": "guide.elder",
           "lines": [
-            "Look at you. That is the first change, and it will not be the last.",
-            "The Gym's door is open to you now. It was not before."
+            "There. See it?"
           ]
         },
         {
           "speaker": "hero",
           "lines": [
-            "What is in there?"
+            "See what?"
           ]
         },
         {
           "speaker": "guide.elder",
           "lines": [
-            "Everyone who ever wanted to be stronger. Some of them are still deciding why."
+            "You.",
+            "The Gym's door is open to you now. It wasn't before."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "So what finally let me in?"
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "You did.",
+            "Go see it for yourself. Just remember the way back out."
           ]
         }
       ]
@@ -2348,19 +2376,20 @@
         {
           "speaker": "guide.elder",
           "lines": [
-            "Floor one looks like any gym. That is the point. Nobody notices when it stops being one."
+            "Not what you expected?"
           ]
         },
         {
           "speaker": "hero",
           "lines": [
-            "I can handle a gym."
+            "It looks like a gym."
           ]
         },
         {
           "speaker": "guide.elder",
           "lines": [
-            "Go on, then. Come back and tell me what you saw."
+            "It is a gym.",
+            "Go on. Train with them."
           ]
         }
       ]
@@ -2375,13 +2404,25 @@
         {
           "speaker": "hero",
           "lines": [
-            "Nobody down there leaves. They just keep going."
+            "They're still down there. Some of them were there when I arrived."
           ]
         },
         {
           "speaker": "guide.elder",
           "lines": [
-            "Motion is easy. Stopping is the skill. Remember that when the plates feel good."
+            "Did you like it?"
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Yeah."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "That's why they're still there."
           ]
         }
       ]
@@ -2396,20 +2437,21 @@
         {
           "speaker": "guide.elder",
           "lines": [
-            "The lower floors are where the culture lives. It was a good culture, once.",
-            "Watch for the moment it tips. It always tips."
+            "You're going back?"
           ]
         },
         {
           "speaker": "hero",
           "lines": [
-            "Tips into what?"
+            "I got stronger."
           ]
         },
         {
           "speaker": "guide.elder",
           "lines": [
-            "Into more. Only ever more."
+            "I know.",
+            "That's why people stay.",
+            "Just remember: more is very good at finding reasons to become more."
           ]
         }
       ]
@@ -2424,13 +2466,25 @@
         {
           "speaker": "hero",
           "lines": [
-            "There is a name in every logbook down there. The same name."
+            "I found the old training logs. Same name on every page."
           ]
         },
         {
           "speaker": "guide.elder",
           "lines": [
-            "Chad Colossus. He built this place to get strong. He got strong. Then he kept building."
+            "Colossus."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Every day. Eleven years."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Told you some of the stories were true."
           ]
         }
       ]
@@ -2445,32 +2499,50 @@
         {
           "speaker": "chad_colossus",
           "lines": [
-            "You are new. New ones always look at the plates first. Look at me.",
-            "I have not missed a day in eleven years. Not one. Do you know what that makes me?"
+            "You're new."
           ]
         },
         {
           "speaker": "hero",
           "lines": [
-            "Strong."
+            "That obvious?"
           ]
         },
         {
           "speaker": "chad_colossus",
           "lines": [
-            "Strong. Yes. Say the other word. The one you are thinking."
+            "You still look around.",
+            "Eleven years. No missed days. Fever. Blackouts. Broken ribs. Didn't matter."
           ]
         },
         {
           "speaker": "hero",
           "lines": [
-            "...Alone."
+            "Why?"
           ]
         },
         {
           "speaker": "chad_colossus",
           "lines": [
-            "Get stronger. Then come and tell me I am wrong."
+            "Because every time I left, I came back weaker than I wanted to be."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Stronger than what?"
+          ]
+        },
+        {
+          "speaker": "chad_colossus",
+          "lines": [
+            "Yesterday."
+          ]
+        },
+        {
+          "speaker": "chad_colossus",
+          "lines": [
+            "Get stronger. Then ask me again."
           ]
         }
       ]
@@ -2485,19 +2557,55 @@
         {
           "speaker": "guide.elder",
           "lines": [
-            "The last floor is his. He is not a monster. That is what makes this hard."
+            "So. You met him."
           ]
         },
         {
           "speaker": "hero",
           "lines": [
-            "What do I say to him?"
+            "He's not what I expected."
           ]
         },
         {
           "speaker": "guide.elder",
           "lines": [
-            "Say what you are improving for. If you can answer that, you are already past him."
+            "No. He's exactly what he wanted to become."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "He asked me why."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "And?"
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "I don't know yet."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Good."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Good?"
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Means you're still asking."
           ]
         }
       ]
@@ -2512,20 +2620,20 @@
         {
           "speaker": "hero",
           "lines": [
-            "He is waiting. I think he wants to be asked."
+            "He's waiting for me."
           ]
         },
         {
           "speaker": "guide.elder",
           "lines": [
-            "Then ask. When you are ready, not before."
+            "Then don't keep him waiting."
           ]
         }
       ]
     },
     {
       "id": "chapter.colossus_resolution",
-      "title": "What are you improving for?",
+      "title": "Tomorrow",
       "backdrop_id": "backdrop.colossus_gym.interior_01",
       "then": "return",
       "area_id": "under_city",
@@ -2533,25 +2641,49 @@
         {
           "speaker": "chad_colossus",
           "lines": [
-            "Eleven years. Every plate on this floor has my hands on it. Tell me what you have."
+            "You came back."
           ]
         },
         {
           "speaker": "hero",
           "lines": [
-            "A room. A street. Someone waiting for me outside the screen."
+            "You told me to get stronger."
           ]
         },
         {
           "speaker": "chad_colossus",
           "lines": [
-            "That is nothing."
+            "And?"
           ]
         },
         {
           "speaker": "hero",
           "lines": [
-            "It is a reason. What is yours?"
+            "I did."
+          ]
+        },
+        {
+          "speaker": "chad_colossus",
+          "lines": [
+            "Then you understand."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "I understand why it feels good."
+          ]
+        },
+        {
+          "speaker": "chad_colossus",
+          "lines": [
+            "..."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "What were you training for?"
           ]
         },
         {
@@ -2563,14 +2695,91 @@
         {
           "speaker": "chad_colossus",
           "lines": [
-            "I used to know."
+            "First?"
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "First."
+          ]
+        },
+        {
+          "speaker": "chad_colossus",
+          "lines": [
+            "I was tired of being weak."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "And now?"
+          ]
+        },
+        {
+          "speaker": "chad_colossus",
+          "lines": [
+            "Now I don't know how to stop being strong."
+          ]
+        },
+        {
+          "speaker": "chad_colossus",
+          "lines": [
+            "Don't miss tomorrow."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "I won't."
+          ]
+        },
+        {
+          "speaker": "chad_colossus",
+          "lines": [
+            "I know."
+          ]
+        }
+      ],
+      "next_chapter": "chapter.up"
+    },
+    {
+      "id": "chapter.up",
+      "title": "Up",
+      "backdrop_id": "backdrop.colossus_gym.exterior_01",
+      "then": "return",
+      "area_id": "under_city",
+      "beats": [
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Ready to get out of here?"
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Where to?"
           ]
         },
         {
           "speaker": "guide.elder",
           "lines": [
-            "That is the whole lesson, and he taught it better than I could. Everyone comes here to become stronger. Some forget why.",
-            "The Under City is behind you now. There is a hill above us, green and wired, where the running never stops. Central Hill. When you are ready."
+            "Up.",
+            "There's a hill above the old transit line. Trees made of wire. Trails that never seem to end."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Sounds peaceful."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "It is.",
+            "Mostly."
           ]
         }
       ]
@@ -2869,7 +3078,7 @@
             "id": "under_city.10.resolution",
             "level": 10,
             "trigger": "manual",
-            "trigger_label": "Face Chad Colossus",
+            "trigger_label": "Face Colossus",
             "story_chapter": "chapter.colossus_resolution",
             "completes_chapter": true,
             "tease_area": "central_hill",

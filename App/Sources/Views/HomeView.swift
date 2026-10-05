@@ -37,6 +37,7 @@ struct HomeView: View {
     @State private var barFill: Double = 0
     /// The chapter being played from Home (doc 28): a due milestone's scene, or a quest's end scene.
     @State private var storyScene: StoryScene?
+    @State private var chaining = false
     @State private var showRoom = false
     #if DEBUG
     @State private var showDev = false
@@ -105,6 +106,15 @@ struct HomeView: View {
             .fullScreenCover(item: $storyScene) { scene in
                 StoryView(chapter: scene.chapter, heroRecipe: state.recipe) {
                     storyScene = nil
+                    // A chained chapter plays next on its own backdrop; the milestone completes after the chain.
+                    if let nextID = scene.chapter.nextChapter, let next = state.bundle.chapter(nextID) {
+                        chaining = true
+                        Task { @MainActor in
+                            try? await Task.sleep(for: .milliseconds(650))
+                            storyScene = StoryScene(chapter: next, milestone: scene.milestone); chaining = false
+                        }
+                        return
+                    }
                     // Recorded on finish, so an interrupted scene replays rather than being lost (idempotent).
                     if let milestone = scene.milestone { state.completeMilestone(milestone) } else { state.clearPendingReturnChapter() }
                     // `then: room` (chapter.home): land in the room the chapter just gave you.
@@ -196,7 +206,7 @@ struct HomeView: View {
 
     private var storyIdle: Bool {
         state.lastReceipt == nil && ascension == nil && levelUpStart == nil && !state.needsStage && state.unclaimedQuest == nil
-            && departure == nil && storyScene == nil && !showWorkout && !showLog && !showHistory && !showRoom
+            && departure == nil && storyScene == nil && !chaining && !showWorkout && !showLog && !showHistory && !showRoom
     }
 
     /// Present the next scene once the screen has settled. The delay lets a dismissal finish before

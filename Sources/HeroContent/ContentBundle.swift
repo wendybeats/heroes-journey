@@ -232,7 +232,10 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         /// What follows the last line: `create_character`, `home`, `return` (back to wherever it was shown), or `room` (open the player's room).
         public let then: String
         public let beats: [StoryBeat]
-        enum CodingKeys: String, CodingKey { case id, title, backdropID = "backdrop_id", then, beats }
+        /// A chapter that plays straight after this one, on its own backdrop (owner 2026-10-05: the Colossus
+        /// scene ends inside, the Central Hill tease is said outside). The milestone completes after the chain.
+        public let nextChapter: String?
+        enum CodingKeys: String, CodingKey { case id, title, backdropID = "backdrop_id", then, beats, nextChapter = "next_chapter" }
     }
 
     enum CodingKeys: String, CodingKey {
@@ -368,6 +371,10 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         for ch in storyChapters {
             if !backdropIDs.contains(ch.backdropID) { problems.append("chapter \(ch.id) → unknown backdrop \(ch.backdropID)") }
             if !["create_character", "home", "return", "room"].contains(ch.then) { problems.append("chapter \(ch.id) has unknown 'then' \(ch.then)") }
+            if let next = ch.nextChapter {
+                if next == ch.id || !chapterIDs.contains(next) { problems.append("chapter \(ch.id) → unknown or self next_chapter \(next)") }
+                else if storyChapters.first(where: { $0.id == next })?.nextChapter != nil { problems.append("chapter \(ch.id): next_chapter chains are one link long") }
+            }
             if ch.beats.isEmpty { problems.append("chapter \(ch.id) has no beats") }
             for beat in ch.beats {
                 if !characterIDs.contains(beat.speaker) { problems.append("chapter \(ch.id) → unknown speaker \(beat.speaker)") }
