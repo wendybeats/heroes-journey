@@ -33,6 +33,6 @@
     }
   },
   "palette_roles": {},
-  "notes": "Baked by Tools/bake_walk_cycle.py from the owner's storyboard: 8 poses, shared scale 0.234, 24 colours, feet on row 138. Gender-neutral hooded figure; used for every outfit until per-outfit walks exist. 2026-10-05: 80x144 cell, figure 132 px, 4 degree lean, reversed order, specks removed, hands gloved dark grey (no skin tone on the hooded walker; owner decision). Draft pending the owner's look on device.",
+  "notes": "Baked by Tools/bake_walk_cycle.py from the owner's storyboard: 8 poses, shared scale 0.234, 24 colours, feet on row 138. Gender-neutral hooded figure; used for every outfit until per-outfit walks exist. 2026-10-05: 80x144 cell, figure 132 px, 4 degree lean, reversed order, specks under 60 px removed, hands gloved dark grey (owner: no skin tone on the hooded walker). Bake: --figure-height 132 --lean 4 --min-component 60 --gloves #3A3F4B. Draft pending the owner's look on device.",
   "world": "city"
 }
