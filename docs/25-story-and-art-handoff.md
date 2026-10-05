@@ -16,6 +16,11 @@ Storyboards: `assets/references/2026-10-02/story/01–06`. World name: undecided
 |---|---|---|
 | `backdrops/neo-tokyo-alley-v1` | `backdrop.alley_awakening/rev1` | Clean 320×240, three colours, transparent dissolve margins. Story staging. |
 | `quests/first-walk-v1` | `backdrop.first_walk/rev1` | 2172×724 side-on panorama with three beats; the owner's Bayer end-dissolve baked at source resolution so the wrap is a short dark gap. Scrolled right→left at 10 s per strip, tiled at its own width. |
+| `scene-01/room-v1` | `backdrop.under_city.home_01/rev1` | 1448×1086 still, soft dithered perimeter, unchanged. The room hub scene (role `home_room`). In review. |
+| `scene-01/locations-v2` supplement store | `backdrop.under_city.protein_row_01/rev1` | 1448×1086 still, unchanged. Protein Row story staging. v2 (readability pass) adopted over v1. In review. |
+| `scene-01/locations-v2` Test MAX street | `backdrop.under_city.protein_row_walk_01/rev1` | 2172×724 panorama, end dissolve baked by `Tools/bake_panorama_dissolve.py`. Registered as a quest scroll, not yet assigned to a quest. In review. |
+| `scene-01/locations-v2` Colossus exterior | `backdrop.colossus_gym.exterior_01/rev1` | 1448×1086 still, unchanged. The Level 5 gate chapter. In review. |
+| `scene-01/locations-v2` Colossus interior | `backdrop.colossus_gym.interior_01/rev1` | 2172×724 panorama, end dissolve baked. Scrolled by the three gym quests and the still behind the gym chapters. In review. |
 | `portraits/wise-guide-v1`, `portraits/hooded-onboarding-v1` | `portrait.guide_elder/rev1`, `portrait.hero_hooded/rev1` | 1254² stills kept unresampled; nearest-neighbour into a 150–170 pt frame. |
 | `animations/hooded-walk-right-v1` | `hero.walk.hooded/rev1` | 8 storyboard poses baked by `Tools/bake_walk_cycle.py`: shared scale so the figure is 111 px (matches the hoodie kit), one 24-colour palette, binary alpha, feet on row 122, stray specks removed. 110 ms × 8 = 0.88 s gait. Gender-neutral; used for every outfit on departure until per-outfit walks exist. |
 

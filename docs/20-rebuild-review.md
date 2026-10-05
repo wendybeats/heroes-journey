@@ -188,6 +188,10 @@ Built from the owner's Levels 1–10 brief after the inspection report in `docs/
 - App: the Home director presents the next due beat as a full-screen scene once the screen is quiet (no reward modal, level-up, ascension, stage, or other cover); a quest's end scene plays after its return reveal; manual beats sit on a card until tapped ("Face Chad Colossus"); the room (`RoomView`: appearance, equipment, home scene, progress, settings, history) opens from the toolbar once the story unlocks it at Level 2. The quest the player is sent on follows the story (`StoryDirector.currentQuest`), and its duration comes from content.
 - Tests: director ordering, manual gating, idempotent completion, story grant once, campaign content resolution across Levels 1–10.
 
+## Increment 25, 2026-10-05: scene-one art landed
+
+Owner handoff of the Under City locations (room-v1, locations-v1 and its v2 readability revision). v2 adopted for all four locations; v1 is superseded and not stored. Five backdrop sets at `rev1`, status `review` (loadable; the owner promotes to `approved`): the room, the supplement storefront, the Protein Row street panorama, the Colossus Gym exterior, and the interior panorama. Stills are stored unchanged. The two panoramas get the owner's Bayer end dissolve baked at source resolution by the new `Tools/bake_panorama_dissolve.py` (the first-walk bake was done by hand; this makes it reproducible). Bundle 2026.10.05-2: the pending notes are gone, the three gym quests scroll the interior, and the street panorama is registered but unassigned (the first daily quest keeps the approved first walk until the owner chooses). Registry rebuilt (12 sets). Nothing in the app changed: every scene already loaded by asset id.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

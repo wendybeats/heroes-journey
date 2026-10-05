@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "backdrop.under_city.protein_row_01",
+  "revision": 1,
+  "status": "review",
+  "kind": "backdrop",
+  "canvas": {
+    "width": 1448,
+    "height": 1086
+  },
+  "pivot": {
+    "x": 724,
+    "y": 900
+  },
+  "layer_order": -100,
+  "max_palette_colors": 200000,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner handoff 2026-10-05 (scene-01 locations-v2): built-in imagegen still, preserved unchanged (soft dithered perimeter into #0A1020, not palette-normalised). Supplement storefront with the 4X GROWTH billboard: Protein Row story staging (chapters home \u2192 rumours). v2 readability pass adopted over v1 (brighter cool-blue signage and overhead light).",
+  "world": "city",
+  "area": "under_city",
+  "scene": "protein_row",
+  "mood": [
+    "neon",
+    "dense",
+    "damp"
+  ],
+  "time": "night"
+}

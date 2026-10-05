@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "backdrop.colossus_gym.exterior_01",
+  "revision": 1,
+  "status": "review",
+  "kind": "backdrop",
+  "canvas": {
+    "width": 1448,
+    "height": 1086
+  },
+  "pivot": {
+    "x": 724,
+    "y": 900
+  },
+  "layer_order": -100,
+  "max_palette_colors": 200000,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner handoff 2026-10-05 (scene-01 locations-v2): built-in imagegen still, preserved unchanged (soft dithered perimeter into #0A1020, not palette-normalised). Colossus Gym across the street: COLOSSUS GYM sign, outsized plates and barbell. Story staging for the Level 5 gate chapter. v2 adopted (clearer sign, rim light on the iron).",
+  "world": "city",
+  "area": "colossus_gym",
+  "scene": "gym_gate",
+  "mood": [
+    "iron",
+    "neon",
+    "damp"
+  ],
+  "time": "night"
+}

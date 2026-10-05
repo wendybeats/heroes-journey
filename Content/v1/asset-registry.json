@@ -34,6 +34,66 @@
       "source": "assets/sprites/backdrop.alley_awakening/rev1/source"
     },
     {
+      "id": "backdrop.colossus_gym.exterior_01",
+      "kind": "backdrop",
+      "world": "city",
+      "area": "colossus_gym",
+      "scene": "gym_gate",
+      "mood": [
+        "iron",
+        "neon",
+        "damp"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/backdrop.colossus_gym.exterior_01/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 1448,
+            "height": 1086
+          }
+        }
+      ],
+      "source": "assets/sprites/backdrop.colossus_gym.exterior_01/rev1/source"
+    },
+    {
+      "id": "backdrop.colossus_gym.interior_01",
+      "kind": "backdrop",
+      "world": "city",
+      "area": "colossus_gym",
+      "scene": "gym_floor",
+      "mood": [
+        "iron",
+        "dim",
+        "loud"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/backdrop.colossus_gym.interior_01/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 2172,
+            "height": 724
+          }
+        }
+      ],
+      "source": "assets/sprites/backdrop.colossus_gym.interior_01/rev1/source"
+    },
+    {
       "id": "backdrop.first_walk",
       "kind": "backdrop",
       "world": "city",
@@ -92,6 +152,96 @@
         }
       ],
       "source": null
+    },
+    {
+      "id": "backdrop.under_city.home_01",
+      "kind": "backdrop",
+      "world": "city",
+      "area": "under_city",
+      "scene": "home_room",
+      "mood": [
+        "quiet",
+        "dim",
+        "inhabited"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/backdrop.under_city.home_01/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 1448,
+            "height": 1086
+          }
+        }
+      ],
+      "source": "assets/sprites/backdrop.under_city.home_01/rev1/source"
+    },
+    {
+      "id": "backdrop.under_city.protein_row_01",
+      "kind": "backdrop",
+      "world": "city",
+      "area": "under_city",
+      "scene": "protein_row",
+      "mood": [
+        "neon",
+        "dense",
+        "damp"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/backdrop.under_city.protein_row_01/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 1448,
+            "height": 1086
+          }
+        }
+      ],
+      "source": "assets/sprites/backdrop.under_city.protein_row_01/rev1/source"
+    },
+    {
+      "id": "backdrop.under_city.protein_row_walk_01",
+      "kind": "backdrop",
+      "world": "city",
+      "area": "under_city",
+      "scene": "protein_row_street",
+      "mood": [
+        "neon",
+        "quiet",
+        "wet"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/backdrop.under_city.protein_row_walk_01/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 2172,
+            "height": 724
+          }
+        }
+      ],
+      "source": "assets/sprites/backdrop.under_city.protein_row_walk_01/rev1/source"
     },
     {
       "id": "hero.body.ev1",
@@ -203,8 +353,15 @@
       "backdrop.alley_awakening",
       "backdrop.first_walk",
       "backdrop.rain_district",
+      "backdrop.under_city.home_01",
+      "backdrop.under_city.protein_row_01",
+      "backdrop.under_city.protein_row_walk_01",
       "portrait.guide_elder",
       "portrait.hero_hooded"
+    ],
+    "colossus_gym": [
+      "backdrop.colossus_gym.exterior_01",
+      "backdrop.colossus_gym.interior_01"
     ],
     "unassigned": [
       "hero.body.ev1",

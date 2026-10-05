@@ -1,0 +1,26 @@
+{
+  "id": "scene01_undercity_room_v1",
+  "scene": "scene_01",
+  "act": "Act I — Wake Up",
+  "location": "Under City home",
+  "status": "generated_art_for_review",
+  "file": "undercity-room.png",
+  "pixels": [
+    1448,
+    1086
+  ],
+  "alpha": true,
+  "baseColor": "#0A1020",
+  "features": [
+    "Window overlooking the Under City street",
+    "Paper street map on a small worn desk",
+    "Analog radio",
+    "Stacked books and visible pencils",
+    "Narrow cot"
+  ],
+  "rendering": "Static background; protagonist remains separate",
+  "limitations": [
+    "Generated source preserved unchanged; exact pixel grid and palette have not been normalized",
+    "No separate interactive objects or animation layers"
+  ]
+}

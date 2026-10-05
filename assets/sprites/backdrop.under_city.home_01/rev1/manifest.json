@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "backdrop.under_city.home_01",
+  "revision": 1,
+  "status": "review",
+  "kind": "backdrop",
+  "canvas": {
+    "width": 1448,
+    "height": 1086
+  },
+  "pivot": {
+    "x": 724,
+    "y": 980
+  },
+  "layer_order": -100,
+  "max_palette_colors": 200000,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner handoff 2026-10-05 (scene-01 room-v1): built-in imagegen still, preserved unchanged (soft dithered perimeter into #0A1020, not palette-normalised). The player's first home: cot, worn desk with a paper street map (illustrative, not canonical routes), radio, books, window on the Under City street. Furnishings are flattened into the still. Role home_room; the character stands in front of it in the room hub.",
+  "world": "city",
+  "area": "under_city",
+  "scene": "home_room",
+  "mood": [
+    "quiet",
+    "dim",
+    "inhabited"
+  ],
+  "time": "night"
+}

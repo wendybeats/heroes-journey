@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "backdrop.colossus_gym.interior_01",
+  "revision": 1,
+  "status": "review",
+  "kind": "backdrop",
+  "canvas": {
+    "width": 2172,
+    "height": 724
+  },
+  "pivot": {
+    "x": 1086,
+    "y": 564
+  },
+  "layer_order": -100,
+  "max_palette_colors": 200000,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner handoff 2026-10-05 (scene-01 locations-v2): inside Colossus Gym, side-on panorama for the three gym quests (oversized machines with a standing lifter and a bald seated lifter, protein caf\u00e9 with 100G PROTEIN SHAKE / PROTEIN BAR signage, pyramid of discarded iron). Bayer end dissolve baked at source resolution by Tools/bake_panorama_dissolve.py. Also the still behind the gym chapters until an interior still exists.",
+  "scroll": {
+    "direction": "right_to_left",
+    "loop_seconds": 10,
+    "ground_fraction": 0.78,
+    "beats": [
+      {
+        "name": "Oversized machines and lifters",
+        "center_fraction": 0.2
+      },
+      {
+        "name": "Protein caf\u00e9",
+        "center_fraction": 0.5
+      },
+      {
+        "name": "Pyramid of discarded equipment",
+        "center_fraction": 0.83
+      }
+    ]
+  },
+  "world": "city",
+  "area": "colossus_gym",
+  "scene": "gym_floor",
+  "mood": [
+    "iron",
+    "dim",
+    "loud"
+  ],
+  "time": "night"
+}

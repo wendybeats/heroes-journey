@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.05-1",
+  "content_version": "2026.10.05-2",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -529,8 +529,7 @@
       "palette": "rain_district",
       "asset_set_id": "backdrop.under_city.home_01",
       "role": "home_room",
-      "area_id": "under_city",
-      "notes": "Art pending; the loader falls back to the dithered bands."
+      "area_id": "under_city"
     },
     {
       "id": "backdrop.under_city.protein_row_01",
@@ -538,8 +537,16 @@
       "palette": "rain_district",
       "asset_set_id": "backdrop.under_city.protein_row_01",
       "role": "story",
+      "area_id": "under_city"
+    },
+    {
+      "id": "backdrop.under_city.protein_row_walk_01",
+      "display_name": "Protein Row · street",
+      "palette": "rain_district",
+      "asset_set_id": "backdrop.under_city.protein_row_walk_01",
+      "role": "quest",
       "area_id": "under_city",
-      "notes": "Art pending."
+      "notes": "Side-on panorama; not assigned to a quest yet (owner decision pending)."
     },
     {
       "id": "backdrop.colossus_gym.exterior_01",
@@ -547,8 +554,7 @@
       "palette": "rain_district",
       "asset_set_id": "backdrop.colossus_gym.exterior_01",
       "role": "story",
-      "area_id": "colossus_gym",
-      "notes": "Art pending."
+      "area_id": "colossus_gym"
     },
     {
       "id": "backdrop.colossus_gym.interior_01",
@@ -556,8 +562,7 @@
       "palette": "rain_district",
       "asset_set_id": "backdrop.colossus_gym.interior_01",
       "role": "quest",
-      "area_id": "colossus_gym",
-      "notes": "Art pending; the first-walk panorama stands in for the scroll until then."
+      "area_id": "colossus_gym"
     }
   ],
   "avatar_options": {
@@ -1785,7 +1790,7 @@
       "area_id": "colossus_gym",
       "unlocked_by_milestone": "under_city.5.gym_unlock",
       "duration_minutes": 480,
-      "backdrop_id": "backdrop.first_walk",
+      "backdrop_id": "backdrop.colossus_gym.interior_01",
       "walk_asset_set_id": "hero.walk.hooded",
       "on_return_chapter": "chapter.gym_floor_end",
       "notification_prompt": "The gym runs all night. Eight hours; I will come back with something.",
@@ -1821,7 +1826,7 @@
       "area_id": "colossus_gym",
       "unlocked_by_milestone": "under_city.7.deeper",
       "duration_minutes": 480,
-      "backdrop_id": "backdrop.first_walk",
+      "backdrop_id": "backdrop.colossus_gym.interior_01",
       "walk_asset_set_id": "hero.walk.hooded",
       "on_return_chapter": "chapter.gym_deeper_end",
       "notification_prompt": "The gym runs all night. Eight hours; I will come back with something.",
@@ -1857,7 +1862,7 @@
       "area_id": "colossus_gym",
       "unlocked_by_milestone": "under_city.9.final",
       "duration_minutes": 480,
-      "backdrop_id": "backdrop.first_walk",
+      "backdrop_id": "backdrop.colossus_gym.interior_01",
       "walk_asset_set_id": "hero.walk.hooded",
       "on_return_chapter": "chapter.final_approach_end",
       "notification_prompt": "The gym runs all night. Eight hours; I will come back with something.",

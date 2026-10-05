@@ -1,0 +1,164 @@
+{
+  "id": "scene01_location_expansion_v2",
+  "scene": "scene_01",
+  "act": "Act I — Wake Up",
+  "actLevelRange": [
+    1,
+    20
+  ],
+  "route": "Under City → Colossus Gym",
+  "created": "2026-10-05",
+  "status": "readability_revision_for_review",
+  "assets": [
+    {
+      "id": "scene01_supplement_store_still_v2",
+      "file": "v1-supplement-store-still.png",
+      "type": "still",
+      "title": "Supplement store",
+      "pixels": [
+        1448,
+        1086
+      ],
+      "alpha": true,
+      "signs": [
+        "SUPPLEMENTS",
+        "4X GROWTH"
+      ]
+    },
+    {
+      "id": "scene01_supplement_street_scroll_v2",
+      "file": "v1-supplement-street-scroller.png",
+      "type": "scroller",
+      "title": "Test MAX street",
+      "pixels": [
+        2172,
+        724
+      ],
+      "alpha": false,
+      "startCenterFraction": 0.19,
+      "beats": [
+        {
+          "label": "Test MAX pill store",
+          "centerFraction": 0.19
+        },
+        {
+          "label": "Old gym and sunglasses NPC",
+          "centerFraction": 0.52
+        },
+        {
+          "label": "Service frontage and faded poster",
+          "centerFraction": 0.81
+        }
+      ],
+      "signs": [
+        "Test MAX",
+        "GYM"
+      ]
+    },
+    {
+      "id": "scene01_colossus_exterior_still_v2",
+      "file": "v2-colossus-exterior-still.png",
+      "type": "still",
+      "title": "Colossus Gym exterior",
+      "pixels": [
+        1448,
+        1086
+      ],
+      "alpha": true,
+      "signs": [
+        "COLOSSUS GYM"
+      ]
+    },
+    {
+      "id": "scene01_colossus_interior_scroll_v2",
+      "file": "v2-colossus-interior-scroller.png",
+      "type": "scroller",
+      "title": "Inside Colossus Gym",
+      "pixels": [
+        2172,
+        724
+      ],
+      "alpha": false,
+      "startCenterFraction": 0.2,
+      "beats": [
+        {
+          "label": "Oversized machines, standing lifter and bald seated lifter",
+          "centerFraction": 0.2
+        },
+        {
+          "label": "Protein café",
+          "centerFraction": 0.5
+        },
+        {
+          "label": "Pyramid of discarded equipment",
+          "centerFraction": 0.83
+        }
+      ],
+      "signs": [
+        "100G PROTEIN SHAKE",
+        "PROTEIN BAR"
+      ]
+    }
+  ],
+  "rendering": {
+    "base": "#0A1020",
+    "sceneryMotion": "right_to_left",
+    "playerFacing": "right",
+    "player": "Separate foreground sprite, not baked into backgrounds",
+    "npcMotion": "NPCs and props are painted into each still"
+  },
+  "scrollPreview": {
+    "durationSeconds": 10,
+    "viewport": [
+      480,
+      320
+    ],
+    "strip": [
+      960,
+      320
+    ],
+    "positionStepPixels": 2,
+    "base": "#0A1020",
+    "horizontalDissolvePixels": 24,
+    "verticalDissolvePixels": 14,
+    "bayer4x4": [
+      [
+        0,
+        8,
+        2,
+        10
+      ],
+      [
+        12,
+        4,
+        14,
+        6
+      ],
+      [
+        3,
+        11,
+        1,
+        9
+      ],
+      [
+        15,
+        7,
+        13,
+        5
+      ]
+    ],
+    "maskCellPixels": 2
+  },
+  "limitations": [
+    "Generated sources preserved without palette/grid normalization",
+    "Panorama edges are not certified exact seamless tiles; preview uses a short dark dithered transition",
+    "NPC animation, parallax and runtime integration are not included"
+  ],
+  "revision": 2,
+  "previousVersion": "../locations-v1",
+  "changes": [
+    "Selective brighter cool-blue signage and overhead light across all four assets",
+    "Scroller 1: Test MAX pill store replaces 4X GROWTH retailer",
+    "Scroller 2: seated lifter is bald; standing lifter retains short hair"
+  ]
+}

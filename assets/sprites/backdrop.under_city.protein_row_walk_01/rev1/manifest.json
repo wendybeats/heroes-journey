@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "backdrop.under_city.protein_row_walk_01",
+  "revision": 1,
+  "status": "review",
+  "kind": "backdrop",
+  "canvas": {
+    "width": 2172,
+    "height": 724
+  },
+  "pivot": {
+    "x": 1086,
+    "y": 564
+  },
+  "layer_order": -100,
+  "max_palette_colors": 200000,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner handoff 2026-10-05 (scene-01 locations-v2): side-on Protein Row panorama (Test MAX pill store, old gym with the sunglasses NPC, service frontage with a faded poster) for a quest scroll, right-to-left. The owner's Bayer end dissolve is baked at source resolution by Tools/bake_panorama_dissolve.py (24/14 px at 960 wide, 2 px cells). Not yet assigned to a quest: the first daily quest keeps the approved first-walk panorama until the owner decides.",
+  "scroll": {
+    "direction": "right_to_left",
+    "loop_seconds": 10,
+    "ground_fraction": 0.78,
+    "beats": [
+      {
+        "name": "Test MAX pill store",
+        "center_fraction": 0.19
+      },
+      {
+        "name": "Old gym and sunglasses NPC",
+        "center_fraction": 0.52
+      },
+      {
+        "name": "Service frontage and faded poster",
+        "center_fraction": 0.81
+      }
+    ]
+  },
+  "world": "city",
+  "area": "under_city",
+  "scene": "protein_row_street",
+  "mood": [
+    "neon",
+    "quiet",
+    "wet"
+  ],
+  "time": "night"
+}
