@@ -190,14 +190,15 @@ final class ContentBundleTests: XCTestCase {
 
     /// Doc 29: every quest has tiered loot pools that resolve, and the tooltip preview is one reward per tier.
     func testQuestLootPoolsResolve() throws {
-        let bundle = try ContentBundle.loadDev()
+        let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
         for q in bundle.quests {
             XCTAssertFalse(q.lootPools.isEmpty, "\(q.id) has no loot")
-            XCTAssertEqual(q.lootPools.map(\.tier), ["common", "uncommon", "rare"], q.id.rawValue)
+            XCTAssertEqual(q.lootPools.map { $0.tier }, ["common", "uncommon", "rare"], q.id.rawValue)
             for pool in q.lootPools { for r in pool.rewards { XCTAssertNotNil(bundle.reward(r)?.grants.first?.itemID, "\(q.id) \(r) must grant an item") } }
             XCTAssertEqual(q.previewRewards.count, 3, q.id.rawValue)
         }
         XCTAssertEqual(bundle.quest("quest.protein_row")?.loot?["rare"], ["reward.quest.row_shades"])
-        XCTAssertEqual(Set(bundle.quests.flatMap { $0.lootPools.flatMap(\.rewards) }).count, 9, "nine quest items across chapter one")
+        let allLoot: [RewardID] = bundle.quests.flatMap { q in q.lootPools.flatMap { $0.rewards } }
+        XCTAssertEqual(Set(allLoot).count, 9, "nine quest items across chapter one")
     }
 }
