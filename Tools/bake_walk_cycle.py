@@ -21,6 +21,7 @@ ap.add_argument("--pivot-y", type=int, default=122); ap.add_argument("--colors",
 ap.add_argument("--ms", type=int, default=110); ap.add_argument("--anim", default="walk"); ap.add_argument("--asset-set-id", required=True)
 ap.add_argument("--direction", default="right", help="which way the source faces; frames are kept as drawn")
 ap.add_argument("--min-component", type=int, default=12, help="opaque islands smaller than this many pixels are removed")
+ap.add_argument("--gloves", default=None, help="hex colour; skin-toned palette entries become this grey, shaded darker/lighter with the source (owner 2026-10-05: gloves instead of a skin tone on the hooded walker)")
 ap.add_argument("--lean", type=float, default=0.0, help="forward lean in degrees: a shear that moves the head toward the facing direction, feet fixed (owner 2026-10-05: the storyboard stands too upright)")
 a = ap.parse_args()
 cols, rows = (int(v) for v in a.grid.lower().split("x")); cw, ch = (int(v) for v in a.cell.lower().split("x"))
@@ -60,6 +61,23 @@ for s in scaled: strip.paste(s, (x, 0)); x += s.width
 alpha = strip.getchannel("A").point(lambda v: 255 if v > 127 else 0)
 rgb = strip.convert("RGB")
 q = rgb.quantize(colors=a.colors, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).convert("RGB")
+if a.gloves:
+    # Skin tones: warm hue, some saturation, mid lightness. Each becomes the glove grey scaled by its own lightness.
+    import colorsys
+    g = tuple(int(a.gloves.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+    gl = colorsys.rgb_to_hls(*(c / 255 for c in g))[1]
+    mapping = {}
+    for (r, gg, b) in {px for px in q.getdata()}:
+        h, l, s = colorsys.rgb_to_hls(r / 255, gg / 255, b / 255)
+        if 0.0 <= h <= 0.14 and s > 0.05 and 0.4 <= l <= 0.9:   # quantised skin is desaturated; warm + mid-light is enough
+            factor = l / 0.65                     # keep knuckle/shadow contrast around the glove's base lightness
+            nl = max(0.08, min(0.6, gl * factor))
+            nr, ng, nb = colorsys.hls_to_rgb(0.6, nl, 0.05)
+            mapping[(r, gg, b)] = (int(nr * 255), int(ng * 255), int(nb * 255))
+    if mapping:
+        data = [mapping.get(px, px) for px in q.getdata()]
+        q.putdata(data)
+    print("gloved", len(mapping), "skin colours")
 q.putalpha(alpha)
 frames = []; x = 0
 os.makedirs(os.path.join(a.out, a.anim), exist_ok=True)
