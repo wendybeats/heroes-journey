@@ -54,7 +54,7 @@ struct RewardMoment: View {
                     .foregroundStyle(NeoTokyo.Hierarchy.primary)
                 }
                 if !receipt.rewardsGranted.isEmpty {
-                    Text("Unlocked: \(receipt.rewardsGranted.map(\.rawValue).joined(separator: ", "))")
+                    Text("Unlocked: \(receipt.rewardsGranted.map { state.rewardDisplayName($0) }.joined(separator: ", "))")
                         .font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.primary)
                 }
                 if receipt.xp == 0 && !isGoal && questRun == nil {

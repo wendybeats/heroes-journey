@@ -71,4 +71,31 @@ final class QuestTests: XCTestCase {
         let keys = try XCTUnwrap(JSONSerialization.jsonObject(with: try JSONEncoder().encode(event)) as? [String: Any]).keys
         XCTAssertFalse(keys.contains("quest"))
     }
+
+    /// Doc 29: the quest's own pool decides the reward; owned ones are skipped, lower pools fill in, deterministic per run.
+    func testPickPrefersUngrantedInTierThenAnyPool() {
+        let pools = [LootPool(tier: "common", rewards: ["r.c1", "r.c2"]), LootPool(tier: "uncommon", rewards: ["r.u1"]), LootPool(tier: "rare", rewards: ["r.r1"])]
+        let id = UUID()
+        let a = QuestResolver.pick(tier: "common", pools: pools, granted: [], runID: id)
+        XCTAssertEqual(a, QuestResolver.pick(tier: "common", pools: pools, granted: [], runID: id))
+        XCTAssertTrue(["r.c1", "r.c2"].contains(a!))
+        XCTAssertEqual(QuestResolver.pick(tier: "common", pools: pools, granted: ["r.c1"], runID: id), "r.c2")
+        XCTAssertEqual(QuestResolver.pick(tier: "common", pools: pools, granted: ["r.c1", "r.c2"], runID: id), "r.u1", "commons owned: the next pool fills in")
+        XCTAssertEqual(QuestResolver.pick(tier: "rare", pools: pools, granted: ["r.r1"], runID: id), "r.c1", "rare owned: falls back from the first pool")
+        XCTAssertNil(QuestResolver.pick(tier: "rare", pools: pools, granted: ["r.c1", "r.c2", "r.u1", "r.r1"], runID: id), "everything owned: XP only")
+        XCTAssertNil(QuestResolver.pick(tier: "common", pools: [], granted: [], runID: id))
+    }
+
+    func testEngineGrantsTheRewardRecordedOnTheFactOverTheTableRow() {
+        let r = makeRun()
+        let fresh = EvaluationContext(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:])
+        let chosen = QuestResolver.makeEvent(for: r, rewardIndex: 0, rewardID: "reward.quest.cap", userID: user, familyFallback: "strength", at: now)
+        let p = ProgressionEngine.evaluate(event: chosen, ruleset: ruleset, context: fresh)
+        XCTAssertEqual(p.xp, 6, "XP still comes from the rolled row"); XCTAssertEqual(p.rewardsUnlocked, ["reward.quest.cap"])
+        let owned = EvaluationContext(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: ["reward.quest.cap"], levelRewards: [:])
+        XCTAssertEqual(ProgressionEngine.evaluate(event: chosen, ruleset: ruleset, context: owned).rewardsUnlocked, [], "never twice")
+        // Old facts without a chosen reward decode and still use the table row.
+        let data = try! JSONEncoder().encode(QuestReference(questID: "quest.test", rewardIndex: 2))
+        XCTAssertNil(try! JSONDecoder().decode(QuestReference.self, from: data).rewardID)
+    }
 }

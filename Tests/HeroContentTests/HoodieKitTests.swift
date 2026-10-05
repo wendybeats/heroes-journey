@@ -122,4 +122,27 @@ final class HoodieKitTests: XCTestCase {
         XCTAssertEqual(bundle.evolution(forLevel: 5)?.outfit, "suit")
         XCTAssertEqual(bundle.evolution(forLevel: 5)?.assetSetID, "hero.kit.v2")
     }
+
+    #if canImport(CoreGraphics)
+    /// E. Item layers (doc 29): every item path loads, an unknown item is ignored, and the placeholder
+    /// trainers change only the feet rows (legs are fixed, so one layer serves every pose).
+    func testItemLayersComposeOnlyWhereAuthored() throws {
+        let (m, _) = try loadKit()
+        let loader = CGHoodieLayerLoader(root: Self.kitRoot, manifest: m)
+        XCTAssertFalse(m.allItemLayerPaths.isEmpty)
+        for p in m.allItemLayerPaths { XCTAssertNotNil(loader.load(p), "item layer missing: \(p)") }
+        XCTAssertEqual(m.drawableItems(["item.nothing", "item.shoes.clean"]), ["item.shoes.clean"])
+        let composer = HoodieComposer(manifest: m, loader: loader)
+        for g in ["male", "female"] {
+            for pose in [HoodiePose(f: 0), HoodiePose(f: 1, head: .L, o: 1), .pocketed] {
+                let bare = composer.pixels(for: pose, gender: g, style: "bald", hairColor: "Black", skin: "Light")
+                let shod = composer.pixels(for: pose, gender: g, style: "bald", hairColor: "Black", skin: "Light", items: ["item.shoes.clean"])
+                XCTAssertNotEqual(bare, shod, "\(g) \(pose.cacheKey): the trainers must show")
+                let W = composer.width
+                for i in 0..<bare.count where bare[i] != shod[i] { XCTAssertGreaterThanOrEqual(i / W, 112, "\(g): changed pixel above the feet at row \(i / W)") }
+                XCTAssertEqual(composer.pixels(for: pose, gender: g, style: "bald", hairColor: "Black", skin: "Light", items: ["item.nothing"]), bare)
+            }
+        }
+    }
+    #endif
 }

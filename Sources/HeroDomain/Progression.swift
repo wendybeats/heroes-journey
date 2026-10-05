@@ -75,7 +75,7 @@ public enum ProgressionEngine {
             // Quest return: the rolled table entry's XP, plus its content reward if never granted.
             guard let table = ruleset.dailyQuest?.rewardTable, table.indices.contains(quest.rewardIndex) else { return empty() }
             xp = max(0, table[quest.rewardIndex].xp)
-            if let reward = table[quest.rewardIndex].rewardID, !context.grantedRewardIDs.contains(reward) { questRewards.append(reward) }
+            if let reward = quest.rewardID ?? table[quest.rewardIndex].rewardID, !context.grantedRewardIDs.contains(reward) { questRewards.append(reward) }
         } else {
             guard let priced = activityXP(event: event, ruleset: ruleset, context: context) else { return empty() }
             xp = priced.xp; attributes = priced.attributes; credited = priced.credited

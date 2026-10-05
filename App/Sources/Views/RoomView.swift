@@ -104,7 +104,7 @@ struct RoomView: View {
                             .foregroundStyle(equipped ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.secondary)
                     }
                 }
-                Text("Equipped items show on your character once their art is in the kit.").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
+                Text("An item shows on your character once its layers are in the kit; until then it is listed here.").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

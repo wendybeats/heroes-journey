@@ -23,7 +23,7 @@ struct DepartureView: View {
     /// (item name, tier) for the loot tooltip, from the quest's preview list and the ruleset table.
     private var lootPreview: [(String, String)] {
         let table = state.ruleset.dailyQuest?.rewardTable ?? []
-        return (state.quest?.lootPreview ?? []).compactMap { rewardID in
+        return (state.quest?.previewRewards ?? []).compactMap { rewardID in
             guard let reward = state.bundle.reward(rewardID), let itemID = reward.grants.first?.itemID, let item = state.bundle.item(itemID) else { return nil }
             let tier = table.first { $0.rewardID == rewardID }?.tier ?? item.rarity
             return (item.displayName, tier)

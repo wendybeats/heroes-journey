@@ -12,8 +12,18 @@ public typealias QuestID = StableID<QuestTag>
 public struct QuestReference: Hashable, Codable, Sendable {
     public let questID: QuestID
     public let rewardIndex: Int
-    public init(questID: QuestID, rewardIndex: Int) { self.questID = questID; self.rewardIndex = rewardIndex }
-    enum CodingKeys: String, CodingKey { case questID = "quest_id", rewardIndex = "reward_index" }
+    /// The reward chosen from the quest's own loot pool at resolution (doc 29). nil = the ruleset
+    /// table's reward for that row. Recorded on the fact so the engine never has to choose.
+    public let rewardID: RewardID?
+    public init(questID: QuestID, rewardIndex: Int, rewardID: RewardID? = nil) { self.questID = questID; self.rewardIndex = rewardIndex; self.rewardID = rewardID }
+    enum CodingKeys: String, CodingKey { case questID = "quest_id", rewardIndex = "reward_index", rewardID = "reward_id" }
+}
+
+/// A quest's rewards for one tier (content). Pools are consulted in the order given.
+public struct LootPool: Hashable, Sendable {
+    public let tier: String
+    public let rewards: [RewardID]
+    public init(tier: String, rewards: [RewardID]) { self.tier = tier; self.rewards = rewards }
 }
 
 /// One departure. `resolvedAt`/`reward` are set when the character returns (first open after
@@ -55,9 +65,20 @@ public enum QuestResolver {
         return table.count - 1
     }
 
+    /// Choose the reward for a rolled tier from the quest's pools: an ungranted reward of that tier
+    /// first, else an ungranted one from any pool in order (so a common roll can still hand out
+    /// something new once the commons are owned), else nil (XP only). Deterministic per run.
+    public static func pick(tier: String, pools: [LootPool], granted: Set<RewardID>, runID: UUID) -> RewardID? {
+        var rng = SeededGenerator(seed: runID.uuidString.hashValueStable &+ 0x9E37)
+        func choose(_ list: [RewardID]) -> RewardID? { list.isEmpty ? nil : list[Int(rng.next() % UInt64(list.count))] }
+        if let pool = pools.first(where: { $0.tier == tier }), let r = choose(pool.rewards.filter { !granted.contains($0) }) { return r }
+        for pool in pools { if let r = choose(pool.rewards.filter { !granted.contains($0) }) { return r } }
+        return nil
+    }
+
     /// The return fact. Zero duration; the engine prices it from the ruleset table.
-    public static func makeEvent(for run: QuestRun, rewardIndex: Int, userID: UserID, familyFallback: FamilyID, at now: Date, id: ActivityEventID = ActivityEventID()) -> ActivityEvent {
+    public static func makeEvent(for run: QuestRun, rewardIndex: Int, rewardID: RewardID? = nil, userID: UserID, familyFallback: FamilyID, at now: Date, id: ActivityEventID = ActivityEventID()) -> ActivityEvent {
         ActivityEvent(id: id, userID: userID, activityTypeID: ActivityTypeID(run.questID.rawValue), familyID: familyFallback, startedAt: now, durationSeconds: 0,
-                      source: .quest, verification: .selfReported, quest: QuestReference(questID: run.questID, rewardIndex: rewardIndex), createdAt: now)
+                      source: .quest, verification: .selfReported, quest: QuestReference(questID: run.questID, rewardIndex: rewardIndex, rewardID: rewardID), createdAt: now)
     }
 }

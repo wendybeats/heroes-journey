@@ -139,7 +139,27 @@ public struct HoodieManifest: Decodable, Sendable {
     public struct Palette: Decodable, Sendable {
         public let hairKey: [String], skinKey: [String]
         public let hair: [String: [String]], skin: [String: [String]]
+        /// Item layers are authored in `itemKey`; an item's `palette` names a ramp in `item` (doc 29).
+        public let itemKey: [String]?
+        public let item: [String: [String]]?
     }
+    /// An equippable item's layers (doc 29). `frames`: gender → frame key → path, where the key is
+    /// `all` (one layer for every pose; legs and feet never move), `0`/`1`/`2` (per body frame) or
+    /// `L`/`R` (per head turn, for head and face items).
+    public struct ItemLayer: Decodable, Sendable {
+        public let slot: String
+        public let frames: [String: [String: String]]
+        public let palette: String?
+        public func path(gender g: String, pose p: HoodiePose) -> String? {
+            guard let f = frames[g] else { return nil }
+            if let all = f["all"] { return all }
+            if p.head != .N, let turned = f[p.head.rawValue] { return turned }
+            return f[String(p.f)]
+        }
+    }
+    /// Draw order (doc 29): `back` before the body; `head`, `face`, `effect` over the front hair; the rest between body and front hair.
+    public static let itemSlotOrder = ["back", "feet", "legs", "body", "hand", "head", "face", "effect"]
+    public static let overHairSlots: Set<String> = ["head", "face", "effect"]
     public enum JSONValue: Decodable, Sendable {
         case int(Int), str(String)
         public init(from d: Decoder) throws {
@@ -155,6 +175,20 @@ public struct HoodieManifest: Decodable, Sendable {
     public let hair: Hair
     public let eyePatches: [String: [String: [String: [[JSONValue]]]]] // gender -> head -> "1"/"2" -> [[x,y,"#hex"]]
     public let palette: Palette
+    /// item id → layers. Optional; a kit without items composes exactly as before.
+    public let items: [String: ItemLayer]?
+
+    /// Every item layer path (test B for items).
+    public var allItemLayerPaths: [String] {
+        Set((items ?? [:]).values.flatMap { $0.frames.values.flatMap { $0.values } }).sorted()
+    }
+    /// Equipped item ids sorted into draw order; unknown ids and ids without layers are dropped.
+    public func drawableItems(_ ids: [String]) -> [String] {
+        ids.filter { items?[$0] != nil }.sorted { a, b in
+            let ia = Self.itemSlotOrder.firstIndex(of: items![a]!.slot) ?? 99, ib = Self.itemSlotOrder.firstIndex(of: items![b]!.slot) ?? 99
+            return ia == ib ? a < b : ia < ib
+        }
+    }
 
     public static func decode(_ data: Data) throws -> HoodieManifest { try JSONDecoder().decode(HoodieManifest.self, from: data) }
 
@@ -220,8 +254,9 @@ public final class HoodieComposer {
     }
 
     /// gender "male"/"female"; style e.g. "medium" or "bald"; hairColor/skin keys from the manifest palette.
-    public func pixels(for p: HoodiePose, gender g: String, style st: String, hairColor hc: String, skin sk: String) -> [UInt32] {
-        let key = "\(g)|\(st)|\(hc)|\(sk)|\(p.cacheKey)"
+    public func pixels(for p: HoodiePose, gender g: String, style st: String, hairColor hc: String, skin sk: String, items equipped: [String] = []) -> [UInt32] {
+        let drawn = manifest.drawableItems(equipped)
+        let key = "\(g)|\(st)|\(hc)|\(sk)|\(p.cacheKey)|\(drawn.joined(separator: ","))"
         if let hit = cache[key] { return hit }
         let W = width, H = height, rig = manifest.rig
         var px = [UInt32](repeating: 0, count: W * H)
@@ -233,16 +268,35 @@ public final class HoodieComposer {
                     let v = src[y * W + sx]; if v != 0 { px[y * W + x] = v } }
             }
         }
+        // Item layers, recoloured from the item key palette to the item's ramp before compositing (doc 29).
+        func itemPixels(_ id: String) -> [UInt32]? {
+            guard let item = manifest.items?[id], let rel = item.path(gender: g, pose: p), var src = layer(rel) else { return nil }
+            if let ramp = item.palette, let key = manifest.palette.itemKey, let colors = manifest.palette.item?[ramp] {
+                var swap: [UInt32: UInt32] = [:]
+                for (k, v) in zip(key, colors) { swap[Self.pack(k)] = Self.pack(v) }
+                for i in 0..<src.count where src[i] != 0 { if let v = swap[src[i]] { src[i] = v } }
+            }
+            return src
+        }
+        func blitItems(_ ids: [String]) { for id in ids { blit(itemPixels(id), rows: { _ in true }, lag: false) } }
+        let bySlot = Dictionary(grouping: drawn) { manifest.items![$0]!.slot }
+        let backItems = bySlot["back"] ?? []
+        let overHair = drawn.filter { HoodieManifest.overHairSlots.contains(manifest.items![$0]!.slot) }
+        let midItems = drawn.filter { !HoodieManifest.overHairSlots.contains(manifest.items![$0]!.slot) && manifest.items![$0]!.slot != "back" }
+
         let bald = st == "bald"
         let body = manifest.bodies[g]?[String(p.f)].flatMap(layer)
         let head = p.head == .N ? body : manifest.heads[g]?[p.head.rawValue].flatMap(layer)
         if !bald { blit(layer(HoodieManifest.hairPath(g, st, "back", p.head)), rows: { _ in true }, lag: true) }
+        blitItems(backItems)
         blit(head, rows: { $0 < rig.neckRow }, lag: false)
         blit(body, rows: { $0 >= rig.neckRow }, lag: false)
         if p.b > 0, let patch = manifest.eyePatches[g]?[p.head.rawValue]?[String(p.b)] {
             for e in patch { if case .int(let x) = e[0], case .int(let y) = e[1], case .str(let h) = e[2] { px[y * W + x] = Self.pack(h) } }
         }
+        blitItems(midItems)
         if !bald { blit(layer(HoodieManifest.hairPath(g, st, "front", p.head)), rows: { _ in true }, lag: true) }
+        blitItems(overHair)
 
         // torso offset: rows above the planted legs move by o (+ up); the gap repeats the first leg row
         var out = [UInt32](repeating: 0, count: W * H)

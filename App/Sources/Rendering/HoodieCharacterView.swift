@@ -27,11 +27,11 @@ final class HoodieKitStore {
         } else { composer = nil; clips = nil }
     }
 
-    func image(pose: HoodiePose, gender: String, style: String, hairColor: String, skin: String) -> CGImage? {
+    func image(pose: HoodiePose, gender: String, style: String, hairColor: String, skin: String, items: [String] = []) -> CGImage? {
         guard let composer else { return nil }
-        let key = "\(gender)|\(style)|\(hairColor)|\(skin)|\(pose.cacheKey)"
+        let key = "\(gender)|\(style)|\(hairColor)|\(skin)|\(pose.cacheKey)|\(items.joined(separator: ","))"
         if let hit = images[key] { return hit }
-        var px = composer.pixels(for: pose, gender: gender, style: style, hairColor: hairColor, skin: skin)
+        var px = composer.pixels(for: pose, gender: gender, style: style, hairColor: hairColor, skin: skin, items: items)
         let W = composer.width, H = composer.height
         let img: CGImage? = px.withUnsafeMutableBytes { buf in
             CGContext(data: buf.baseAddress, width: W, height: H, bitsPerComponent: 8, bytesPerRow: W * 4,
@@ -45,6 +45,10 @@ final class HoodieKitStore {
 /// Recipe option IDs → kit keys ("hair.wolf" → "wolf", "skin.deep" → "Deep", "hair.black" → "Black").
 enum HoodieVariant {
     static func style(_ id: String) -> String { id.hasPrefix("hair.") ? String(id.dropFirst(5)) : id }
+    /// Equipped item ids in slot order; the composer drops any without layers in the kit.
+    static func items(_ recipe: AvatarRecipe) -> [String] {
+        recipe.equipped.sorted { $0.key.rawValue < $1.key.rawValue }.map { $0.value.rawValue }
+    }
     static func ramp(_ id: String) -> String {
         let raw = id.split(separator: ".").last.map(String.init) ?? id
         return raw.prefix(1).uppercased() + raw.dropFirst()
@@ -93,7 +97,7 @@ struct HoodieCharacterView: View {
                 return driver.pose
             }()
             frame(store.image(pose: pose, gender: recipe.baseBody.rawValue, style: HoodieVariant.style(recipe.hairStyleID),
-                              hairColor: HoodieVariant.ramp(recipe.hairPaletteID), skin: HoodieVariant.ramp(recipe.skinPaletteID)))
+                              hairColor: HoodieVariant.ramp(recipe.hairPaletteID), skin: HoodieVariant.ramp(recipe.skinPaletteID), items: HoodieVariant.items(recipe)))
         }
         .onAppear {
             visible = true

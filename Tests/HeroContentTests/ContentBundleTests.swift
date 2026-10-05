@@ -187,4 +187,17 @@ final class ContentBundleTests: XCTestCase {
         }
         XCTAssertTrue(FileManager.default.fileExists(atPath: RepoFiles.root.appendingPathComponent("App/Resources/Fonts/OFL.txt").path), "font license must ship")
     }
+
+    /// Doc 29: every quest has tiered loot pools that resolve, and the tooltip preview is one reward per tier.
+    func testQuestLootPoolsResolve() throws {
+        let bundle = try ContentBundle.loadDev()
+        for q in bundle.quests {
+            XCTAssertFalse(q.lootPools.isEmpty, "\(q.id) has no loot")
+            XCTAssertEqual(q.lootPools.map(\.tier), ["common", "uncommon", "rare"], q.id.rawValue)
+            for pool in q.lootPools { for r in pool.rewards { XCTAssertNotNil(bundle.reward(r)?.grants.first?.itemID, "\(q.id) \(r) must grant an item") } }
+            XCTAssertEqual(q.previewRewards.count, 3, q.id.rawValue)
+        }
+        XCTAssertEqual(bundle.quest("quest.protein_row")?.loot?["rare"], ["reward.quest.row_shades"])
+        XCTAssertEqual(Set(bundle.quests.flatMap { $0.lootPools.flatMap(\.rewards) }).count, 9, "nine quest items across chapter one")
+    }
 }

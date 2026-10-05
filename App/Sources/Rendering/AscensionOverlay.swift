@@ -9,7 +9,7 @@ enum StillCharacter {
     static func image(recipe: AvatarRecipe, outfit: String?) -> CGImage? {
         if outfit == "hoodie" {
             return HoodieKitStore.shared.image(pose: .pocketed, gender: recipe.baseBody.rawValue, style: HoodieVariant.style(recipe.hairStyleID),
-                                               hairColor: HoodieVariant.ramp(recipe.hairPaletteID), skin: HoodieVariant.ramp(recipe.skinPaletteID))
+                                               hairColor: HoodieVariant.ramp(recipe.hairPaletteID), skin: HoodieVariant.ramp(recipe.skinPaletteID), items: HoodieVariant.items(recipe))
         }
         return CharacterKitStore.shared.image(recipe: recipe, pose: .rest)
     }

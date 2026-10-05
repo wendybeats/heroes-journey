@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.05-3",
+  "content_version": "2026.10.05-4",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -317,6 +317,54 @@
       "rarity": "rare",
       "asset_set_id": "item.pants.junko",
       "notes": "Red pants, white stripe down the side. Art pending."
+    },
+    {
+      "id": "item.cap.testmax",
+      "display_name": "Test MAX Cap",
+      "slot": "head",
+      "rarity": "common",
+      "asset_set_id": "item.cap.testmax",
+      "notes": "A branded cap from the pill store on Protein Row. Art pending (doc 29)."
+    },
+    {
+      "id": "item.tee.oldgym",
+      "display_name": "Old Gym Tee",
+      "slot": "body",
+      "rarity": "uncommon",
+      "asset_set_id": "item.tee.oldgym",
+      "notes": "Faded tee from the old gym where Colossus once trained. Art pending (doc 29)."
+    },
+    {
+      "id": "item.shades.row",
+      "display_name": "Row Shades",
+      "slot": "face",
+      "rarity": "rare",
+      "asset_set_id": "item.shades.row",
+      "notes": "The sunglasses man's spares. He never explained. Art pending (doc 29)."
+    },
+    {
+      "id": "item.wraps.chalk",
+      "display_name": "Chalk Wraps",
+      "slot": "hand",
+      "rarity": "common",
+      "asset_set_id": "item.wraps.chalk",
+      "notes": "Wrist wraps, white with chalk. Someone's old pair. Art pending (doc 29)."
+    },
+    {
+      "id": "item.belt.lifting",
+      "display_name": "Lifting Belt",
+      "slot": "body",
+      "rarity": "uncommon",
+      "asset_set_id": "item.belt.lifting",
+      "notes": "A worn leather belt from the Colossus floor. Art pending (doc 29)."
+    },
+    {
+      "id": "item.chain.colossus",
+      "display_name": "Colossus Chain",
+      "slot": "body",
+      "rarity": "rare",
+      "asset_set_id": "item.chain.colossus",
+      "notes": "A heavy chain from the deep floor. It is never taken off willingly. Art pending (doc 29)."
     }
   ],
   "rewards": [
@@ -487,6 +535,78 @@
         {
           "type": "item",
           "item_id": "item.pants.junko"
+        }
+      ]
+    },
+    {
+      "id": "reward.quest.testmax_cap",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.cap.testmax"
+        }
+      ]
+    },
+    {
+      "id": "reward.quest.oldgym_tee",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.tee.oldgym"
+        }
+      ]
+    },
+    {
+      "id": "reward.quest.row_shades",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.shades.row"
+        }
+      ]
+    },
+    {
+      "id": "reward.quest.chalk_wraps",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.wraps.chalk"
+        }
+      ]
+    },
+    {
+      "id": "reward.quest.lifting_belt",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.belt.lifting"
+        }
+      ]
+    },
+    {
+      "id": "reward.quest.colossus_chain",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.chain.colossus"
         }
       ]
     }
@@ -1776,12 +1896,18 @@
       "walk_asset_set_id": "hero.walk.hooded",
       "notification_prompt": "Time to see if I can find anything useful around here. I'll be back in a few hours.",
       "subtext": "This place is a MESS. I'll let you know if I find anything useful down here.",
-      "loot_preview": [
-        "reward.quest.trainers",
-        "reward.quest.box_hoodie",
-        "reward.quest.junko_pants"
-      ],
-      "area_id": "under_city"
+      "area_id": "under_city",
+      "loot": {
+        "common": [
+          "reward.quest.trainers"
+        ],
+        "uncommon": [
+          "reward.quest.box_hoodie"
+        ],
+        "rare": [
+          "reward.quest.junko_pants"
+        ]
+      }
     },
     {
       "id": "quest.protein_row",
@@ -1792,11 +1918,6 @@
       "walk_asset_set_id": "hero.walk.hooded",
       "notification_prompt": "Protein Row is awake at this hour. Four hours; I want to hear what they say about the gym.",
       "subtext": "Pill stores, an old gym, a man in sunglasses who never moves. Somebody here knows about Colossus.",
-      "loot_preview": [
-        "reward.quest.trainers",
-        "reward.quest.box_hoodie",
-        "reward.quest.junko_pants"
-      ],
       "depart_lines": [
         "Protein Row. If the sunglasses man talks, I will listen.",
         "Four hours on the Row. Do your goals; I will do mine."
@@ -1817,6 +1938,19 @@
         "rare": [
           "Back. The old gym's owner said one thing: 'Everyone goes in wanting to be stronger. Some forget why.'"
         ]
+      },
+      "loot": {
+        "common": [
+          "reward.quest.testmax_cap",
+          "reward.quest.trainers"
+        ],
+        "uncommon": [
+          "reward.quest.oldgym_tee",
+          "reward.quest.box_hoodie"
+        ],
+        "rare": [
+          "reward.quest.row_shades"
+        ]
       }
     },
     {
@@ -1830,11 +1964,6 @@
       "on_return_chapter": "chapter.gym_floor_end",
       "notification_prompt": "The gym runs all night. Eight hours; I will come back with something.",
       "subtext": "Iron, chains, and people who forgot what day it is.",
-      "loot_preview": [
-        "reward.quest.trainers",
-        "reward.quest.box_hoodie",
-        "reward.quest.junko_pants"
-      ],
       "depart_lines": [
         "The front desk did not ask my name. Nobody here has one.",
         "Eight hours on the floor. Count the plates for me."
@@ -1853,6 +1982,17 @@
         "rare": [
           "Back. There is a door at the end of the floor that nobody looks at."
         ]
+      },
+      "loot": {
+        "common": [
+          "reward.quest.chalk_wraps"
+        ],
+        "uncommon": [
+          "reward.quest.lifting_belt"
+        ],
+        "rare": [
+          "reward.quest.colossus_chain"
+        ]
       }
     },
     {
@@ -1866,11 +2006,6 @@
       "on_return_chapter": "chapter.gym_deeper_end",
       "notification_prompt": "The gym runs all night. Eight hours; I will come back with something.",
       "subtext": "Iron, chains, and people who forgot what day it is.",
-      "loot_preview": [
-        "reward.quest.trainers",
-        "reward.quest.box_hoodie",
-        "reward.quest.junko_pants"
-      ],
       "depart_lines": [
         "Lower floor. The lights are red down there.",
         "Eight hours. If I do not come back, assume I am still at it."
@@ -1889,6 +2024,20 @@
         "rare": [
           "Back. Someone whispered his name like it was a prayer. Chad."
         ]
+      },
+      "loot": {
+        "common": [
+          "reward.quest.chalk_wraps",
+          "reward.quest.testmax_cap"
+        ],
+        "uncommon": [
+          "reward.quest.lifting_belt",
+          "reward.quest.oldgym_tee"
+        ],
+        "rare": [
+          "reward.quest.colossus_chain",
+          "reward.quest.junko_pants"
+        ]
       }
     },
     {
@@ -1902,11 +2051,6 @@
       "on_return_chapter": "chapter.final_approach_end",
       "notification_prompt": "The gym runs all night. Eight hours; I will come back with something.",
       "subtext": "Iron, chains, and people who forgot what day it is.",
-      "loot_preview": [
-        "reward.quest.trainers",
-        "reward.quest.box_hoodie",
-        "reward.quest.junko_pants"
-      ],
       "depart_lines": [
         "The last floor. He is down there. I can hear the plates.",
         "Eight hours. Then it is him and me."
@@ -1924,6 +2068,21 @@
         ],
         "rare": [
           "Back. He is enormous, and he looked tired."
+        ]
+      },
+      "loot": {
+        "common": [
+          "reward.quest.chalk_wraps",
+          "reward.quest.trainers"
+        ],
+        "uncommon": [
+          "reward.quest.lifting_belt",
+          "reward.quest.box_hoodie"
+        ],
+        "rare": [
+          "reward.quest.colossus_chain",
+          "reward.quest.row_shades",
+          "reward.quest.junko_pants"
         ]
       }
     }

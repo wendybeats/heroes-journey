@@ -65,6 +65,10 @@ for g, sts in m["styles"].items():
 for g in m["bodies"]:
     for rel in list(m["bodies"][g].values()) + list(m["heads"][g].values()):
         if layer(rel) is None: missing.append(rel)
+for iid, it in (m.get("items") or {}).items():
+    for g, fr in it["frames"].items():
+        for rel in fr.values():
+            if layer(rel) is None: missing.append(f"{iid}: {rel}")
 print("manifest files missing:", missing or "none")
 if missing: fails.append("missing layers")
 for g in m["bodies"]:

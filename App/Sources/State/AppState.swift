@@ -555,9 +555,12 @@ final class AppState {
         let now = Date()
         guard let i = questRuns.firstIndex(where: { $0.isDue(at: now) }), let table = ruleset.dailyQuest?.rewardTable,
               let index = QuestResolver.roll(table: table, runID: questRuns[i].id) else { return }
-        let event = QuestResolver.makeEvent(for: questRuns[i], rewardIndex: index, userID: userID, familyFallback: goalPreferences.primaryFamily, at: now)
+        // The quest's own loot pool decides what the rolled tier hands out, preferring something not yet owned (doc 29).
+        let pools = bundle.quest(questRuns[i].questID)?.lootPools ?? []
+        let chosen = QuestResolver.pick(tier: table[index].tier, pools: pools, granted: ledger.grantedRewardIDs, runID: questRuns[i].id)
+        let event = QuestResolver.makeEvent(for: questRuns[i], rewardIndex: index, rewardID: chosen, userID: userID, familyFallback: goalPreferences.primaryFamily, at: now)
         questRuns[i].resolvedAt = now
-        questRuns[i].reward = QuestReference(questID: questRuns[i].questID, rewardIndex: index)
+        questRuns[i].reward = QuestReference(questID: questRuns[i].questID, rewardIndex: index, rewardID: chosen)
         questRuns[i].activityEventID = event.id
         events.append(event)
         outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
@@ -567,6 +570,14 @@ final class AppState {
         Task { await drain(showReward: true) }
     }
 
+    /// What a reward is called when it lands: the item, backdrop or evolution it grants, else its id.
+    func rewardDisplayName(_ id: RewardID) -> String {
+        guard let reward = bundle.reward(id), let grant = reward.grants.first else { return id.rawValue }
+        if let i = grant.itemID, let item = bundle.item(i) { return item.displayName }
+        if let b = grant.backdropID, let backdrop = bundle.backdrop(b) { return backdrop.displayName }
+        if let e = grant.evolutionID, let ev = bundle.evolutions.first(where: { $0.id == e }) { return ev.displayName }
+        return id.rawValue
+    }
     func rewardTier(for run: QuestRun) -> String? { run.reward.flatMap { ruleset.dailyQuest?.rewardTable[safe: $0.rewardIndex]?.tier } }
     func returnLine(for run: QuestRun) -> String {
         guard let q = bundle.quest(run.questID) ?? quest, let tier = rewardTier(for: run), let lines = q.returnLines[tier], !lines.isEmpty else { return "Back." }

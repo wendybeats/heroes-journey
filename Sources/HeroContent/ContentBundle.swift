@@ -158,8 +158,11 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let notificationPrompt: String?
         /// Under the path on the departure screen.
         public let subtext: String?
-        /// Rewards shown in the loot-box tooltip, in tier order.
+        /// Rewards shown in the loot-box tooltip, in tier order. Optional: derived from `loot` when absent.
         public let lootPreview: [RewardID]?
+        /// This quest's reward pools by tier (doc 29). The ruleset table rolls the tier; the app picks an
+        /// ungranted reward from the pool. Absent = the ruleset row's reward.
+        public let loot: [String: [RewardID]]?
         /// Campaign placement (doc 28). A quest with `unlocked_by_milestone` is offered once that milestone is complete.
         public let areaID: AreaID?
         public let unlockedByMilestone: MilestoneID?
@@ -175,7 +178,11 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let returnLines: [String: [String]]
         /// Chapter played before departure on this quest, once (gym floors). Optional.
         public let onDepartChapter: String?
-        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", backdropID = "backdrop_id", walkAssetSetID = "walk_asset_set_id", notificationPrompt = "notification_prompt", subtext, lootPreview = "loot_preview", areaID = "area_id", unlockedByMilestone = "unlocked_by_milestone", durationMinutes = "duration_minutes", onReturnChapter = "on_return_chapter", onDepartChapter = "on_depart_chapter", departLines = "depart_lines", awayLines = "away_lines", returnLines = "return_lines" }
+        public static let tierOrder = ["common", "uncommon", "rare"]
+        /// One reward per tier for the loot tooltip: the explicit preview, else the first of each pool.
+        public var previewRewards: [RewardID] { lootPreview ?? Self.tierOrder.compactMap { loot?[$0]?.first } }
+        public var lootPools: [LootPool] { Self.tierOrder.compactMap { t in loot?[t].map { LootPool(tier: t, rewards: $0) } } }
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", backdropID = "backdrop_id", walkAssetSetID = "walk_asset_set_id", notificationPrompt = "notification_prompt", subtext, lootPreview = "loot_preview", loot, areaID = "area_id", unlockedByMilestone = "unlocked_by_milestone", durationMinutes = "duration_minutes", onReturnChapter = "on_return_chapter", onDepartChapter = "on_depart_chapter", departLines = "depart_lines", awayLines = "away_lines", returnLines = "return_lines" }
     }
 
     /// A speaking character (doc 25). The hero is one too; its portrait is replaced by the live sprite after creation.
@@ -318,6 +325,10 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         for q in quests {
             if let b = q.backdropID, !backdropIDs.contains(b) { problems.append("quest \(q.id) → unknown backdrop \(b)") }
             for r in q.lootPreview ?? [] where !rewards.contains(where: { $0.id == r }) { problems.append("quest \(q.id) loot preview → unknown reward \(r)") }
+            for (tier, pool) in q.loot ?? [:] {
+                if !Quest.tierOrder.contains(tier) { problems.append("quest \(q.id) loot tier \(tier) is not a reward tier") }
+                for r in pool where !rewards.contains(where: { $0.id == r }) { problems.append("quest \(q.id) loot \(tier) → unknown reward \(r)") }
+            }
         }
         if dailyQuotes.isEmpty { problems.append("no daily quotes") }
         unique(areas.map(\.id), "area")
