@@ -32,12 +32,13 @@ final class AppState {
         var questRuns: [QuestRun] = []
         var startedOn: DayKey? = nil
         var lastStageDay: DayKey? = nil
+        var storyProgress: StoryProgress = StoryProgress()
 
-        init(userID: UserID, recipe: AvatarRecipe?, events: [ActivityEvent], ledger: ProgressionLedger, outbox: Outbox, workouts: [Workout], activeWorkout: Workout?, preferredUnit: WeightUnit, healthSync: HealthSyncState, corrections: [ActivityCorrection], importLog: [String: ImportDisposition], goalPreferences: GoalPreferences, goalPlans: [GoalPlan], goalCompletions: [GoalCompletion], goalSeed: UInt64, questRuns: [QuestRun], startedOn: DayKey?, lastStageDay: DayKey?) {
+        init(userID: UserID, recipe: AvatarRecipe?, events: [ActivityEvent], ledger: ProgressionLedger, outbox: Outbox, workouts: [Workout], activeWorkout: Workout?, preferredUnit: WeightUnit, healthSync: HealthSyncState, corrections: [ActivityCorrection], importLog: [String: ImportDisposition], goalPreferences: GoalPreferences, goalPlans: [GoalPlan], goalCompletions: [GoalCompletion], goalSeed: UInt64, questRuns: [QuestRun], startedOn: DayKey?, lastStageDay: DayKey?, storyProgress: StoryProgress) {
             self.userID = userID; self.recipe = recipe; self.events = events; self.ledger = ledger; self.outbox = outbox
             self.workouts = workouts; self.activeWorkout = activeWorkout; self.preferredUnit = preferredUnit
             self.healthSync = healthSync; self.corrections = corrections; self.importLog = importLog
-            self.goalPreferences = goalPreferences; self.goalPlans = goalPlans; self.goalCompletions = goalCompletions; self.goalSeed = goalSeed; self.questRuns = questRuns; self.startedOn = startedOn; self.lastStageDay = lastStageDay
+            self.goalPreferences = goalPreferences; self.goalPlans = goalPlans; self.goalCompletions = goalCompletions; self.goalSeed = goalSeed; self.questRuns = questRuns; self.startedOn = startedOn; self.lastStageDay = lastStageDay; self.storyProgress = storyProgress
         }
         // v2 archives lack the workout fields; read them as empty rather than discarding the user's data.
         init(from decoder: Decoder) throws {
@@ -61,6 +62,7 @@ final class AppState {
             questRuns = try c.decodeIfPresent([QuestRun].self, forKey: .questRuns) ?? []
             startedOn = try c.decodeIfPresent(DayKey.self, forKey: .startedOn)
             lastStageDay = try c.decodeIfPresent(DayKey.self, forKey: .lastStageDay)
+            storyProgress = try c.decodeIfPresent(StoryProgress.self, forKey: .storyProgress) ?? StoryProgress()
         }
     }
 
@@ -90,6 +92,10 @@ final class AppState {
     /// Day 1 is the day the character woke (first plan). Stage screen shows once per day.
     private(set) var startedOn: DayKey?
     private(set) var lastStageDay: DayKey?
+    /// Doc 28: what the player has experienced and unlocked. Levels make beats eligible; this records them.
+    private(set) var storyProgress: StoryProgress
+    /// A quest's end scene waiting to play after its return reveal.
+    private(set) var pendingReturnChapter: String?
     /// Set when a departure was just confirmed, for the departure screen.
     var showDeparture = false
     /// Today's step total from Health, when known (increment 2 fills this in).
@@ -175,6 +181,7 @@ final class AppState {
         self.questRuns = archive?.questRuns ?? []
         self.startedOn = archive?.startedOn
         self.lastStageDay = archive?.lastStageDay
+        self.storyProgress = archive?.storyProgress ?? StoryProgress()
         self.goalSeed = (archive?.goalSeed).flatMap { $0 == 0 ? nil : $0 } ?? UInt64.random(in: 1...UInt64.max)
         let authority = ProgressionAuthority(ruleset: ruleset, levelRewards: bundle.levelRewards, calendar: .current)
         self.service = LocalAuthorityProgressionService(authority: authority, owner: user, ledger: ledger, events: events)
@@ -467,9 +474,41 @@ final class AppState {
         let event = BondReference.makeEvent(primaryFamily: preferences.primaryFamily, secondaryInterest: preferences.secondaryInterest, ruleset: ruleset, userID: userID, at: now)
         events.append(event)
         outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
+        // The awakening was played inside onboarding: record its milestone so the director never replays it.
+        for m in bundle.campaign.milestones where m.level <= 1 && m.storyChapter == "chapter.awakening" {
+            storyProgress = StoryDirector.complete(m, campaign: bundle.campaign, progress: storyProgress)
+        }
         save()
         Task { await drain(showReward: false) }
     }
+
+    // MARK: story director (doc 28)
+
+    var campaign: Campaign { bundle.campaign }
+    /// The next beat to play automatically, if the player's level has reached it.
+    var nextStoryBeat: Milestone? { StoryDirector.nextAuto(level: snapshot.level, campaign: campaign, progress: storyProgress) }
+    /// Manual beats the player can start now (boss encounters).
+    var offeredMilestones: [Milestone] { StoryDirector.offered(level: snapshot.level, campaign: campaign, progress: storyProgress) }
+    func hasFeature(_ feature: String) -> Bool { storyProgress.hasFeature(feature) }
+    var currentChapter: CampaignChapter? { campaign.chapters.first { !storyProgress.completedChapters.contains($0.id) && $0.levelRange.contains(snapshot.level) } ?? campaign.chapters.last }
+
+    /// Record a beat as experienced, apply its unlocks, and route its reward through the engine (once).
+    func completeMilestone(_ milestone: Milestone) {
+        guard !storyProgress.isComplete(milestone.id) else { return }
+        storyProgress = StoryDirector.complete(milestone, campaign: campaign, progress: storyProgress)
+        if milestone.reward != nil, !events.contains(where: { $0.story?.milestoneID == milestone.id }) {
+            let now = Date()
+            let event = StoryReference.makeEvent(for: milestone, userID: userID, familyFallback: goalPreferences.primaryFamily, at: now)
+            events.append(event)
+            outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
+            save()
+            Task { await drain(showReward: true) }
+            return
+        }
+        save()
+    }
+
+    func clearPendingReturnChapter() { pendingReturnChapter = nil }
 
     // MARK: setting the stage (doc 24)
 
@@ -480,8 +519,11 @@ final class AppState {
 
     // MARK: daily quest (doc 24)
 
-    var quest: ContentBundle.Quest? { bundle.defaultQuest }
-    var questDuration: TimeInterval { TimeInterval((ruleset.dailyQuest?.durationMinutes ?? 240) * 60) }
+    /// The quest the story has reached: the last one unlocked by a completed milestone, else the first ungated one (doc 28).
+    var quest: ContentBundle.Quest? { StoryDirector.currentQuest(quests: bundle.quests, id: \.id, unlockedBy: \.unlockedByMilestone, progress: storyProgress) ?? bundle.defaultQuest }
+    func questDefinition(_ id: QuestID) -> ContentBundle.Quest? { bundle.quest(id) }
+    /// Content may override the ruleset's duration (gym quests run 8 h; owner 2026-10-05).
+    var questDuration: TimeInterval { TimeInterval((quest?.durationMinutes ?? ruleset.dailyQuest?.durationMinutes ?? 240) * 60) }
     /// The run that is out, if any (unresolved).
     var activeQuest: QuestRun? { questRuns.first { !$0.isResolved } }
     var todayQuest: QuestRun? { questRuns.first { $0.day == today } }
@@ -519,6 +561,7 @@ final class AppState {
         questRuns[i].activityEventID = event.id
         events.append(event)
         outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
+        pendingReturnChapter = bundle.quest(questRuns[i].questID)?.onReturnChapter   // the quest's end scene, after the reveal
         QuestNotifications.cancel()
         save()
         Task { await drain(showReward: true) }
@@ -526,16 +569,47 @@ final class AppState {
 
     func rewardTier(for run: QuestRun) -> String? { run.reward.flatMap { ruleset.dailyQuest?.rewardTable[safe: $0.rewardIndex]?.tier } }
     func returnLine(for run: QuestRun) -> String {
-        guard let q = quest, let tier = rewardTier(for: run), let lines = q.returnLines[tier], !lines.isEmpty else { return "Back." }
+        guard let q = bundle.quest(run.questID) ?? quest, let tier = rewardTier(for: run), let lines = q.returnLines[tier], !lines.isEmpty else { return "Back." }
         return lines[Int(run.id.uuidString.hashValueStableApp % UInt64(lines.count))]
     }
     func awayLine(for run: QuestRun) -> String {
-        guard let q = quest, !q.awayLines.isEmpty else { return "" }
+        guard let q = bundle.quest(run.questID) ?? quest, !q.awayLines.isEmpty else { return "" }
         return q.awayLines[Int(run.id.uuidString.hashValueStableApp % UInt64(q.awayLines.count))]
     }
     func departLine(for run: QuestRun) -> String {
-        guard let q = quest, !q.departLines.isEmpty else { return "" }
+        guard let q = bundle.quest(run.questID) ?? quest, !q.departLines.isEmpty else { return "" }
         return q.departLines[Int(run.id.uuidString.hashValueStableApp % UInt64(q.departLines.count))]
+    }
+
+    // MARK: the room (doc 28: the player's home, a persistent hub that accumulates)
+
+    /// Items the ledger has granted, resolved through the bundle's rewards (never from UI state).
+    var ownedItems: [ContentBundle.Item] {
+        let granted = ledger.grantedRewardIDs
+        var ids: [ItemID] = []
+        for reward in bundle.rewards where granted.contains(reward.id) {
+            for g in reward.grants { if let i = g.itemID, !ids.contains(i) { ids.append(i) } }
+        }
+        return ids.compactMap { bundle.item($0) }
+    }
+    /// Home scenes the player may stand in: the default plus any granted by a reward.
+    var ownedHomeBackdrops: [ContentBundle.Backdrop] {
+        let granted = ledger.grantedRewardIDs
+        let grantedIDs = Set(bundle.rewards.filter { granted.contains($0.id) }.flatMap { $0.grants.compactMap(\.backdropID) })
+        return bundle.backdrops.filter { $0.isHomeScene && ($0.isDefault == true || grantedIDs.contains($0.id)) }
+    }
+    func setEquipped(_ item: ContentBundle.Item?, slot: AvatarRecipe.Slot) {
+        guard var r = recipe else { return }
+        if let item { r.equipped[slot] = item.id } else { r.equipped.removeValue(forKey: slot) }
+        recipe = r
+    }
+    func setHomeBackdrop(_ backdrop: ContentBundle.Backdrop) {
+        guard var r = recipe, ownedHomeBackdrops.contains(where: { $0.id == backdrop.id }) else { return }
+        r.backdropID = backdrop.id; recipe = r
+    }
+    func updateAppearance(_ change: (inout AvatarRecipe) -> Void) {
+        guard var r = recipe else { return }
+        change(&r); recipe = r
     }
 
     // MARK: persistence
@@ -547,7 +621,7 @@ final class AppState {
     }
 
     private func save() {
-        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit, healthSync: healthSync, corrections: corrections, importLog: importLog, goalPreferences: goalPreferences, goalPlans: goalPlans, goalCompletions: goalCompletions, goalSeed: goalSeed, questRuns: questRuns, startedOn: startedOn, lastStageDay: lastStageDay)
+        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit, healthSync: healthSync, corrections: corrections, importLog: importLog, goalPreferences: goalPreferences, goalPlans: goalPlans, goalCompletions: goalCompletions, goalSeed: goalSeed, questRuns: questRuns, startedOn: startedOn, lastStageDay: lastStageDay, storyProgress: storyProgress)
         do {
             let data = try JSONEncoder().encode(archive)
             try data.write(to: Self.archiveURL, options: .atomic)

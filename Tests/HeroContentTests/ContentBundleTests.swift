@@ -43,7 +43,7 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(ruleset.dailyQuest?.durationMinutes, 240, "owner decision 2026-10-02")
         XCTAssertEqual(ruleset.dailyQuest?.rewardTable.map(\.tier), ["common", "uncommon", "rare"])
         XCTAssertEqual(ruleset.dailyQuest?.rewardTable.map(\.xp), [10, 15, 25])
-        XCTAssertEqual(bundle.quests.count, 1)
+        XCTAssertEqual(bundle.quests.count, 4, "the street quest and three gym quests (doc 28)")
         XCTAssertEqual(bundle.defaultQuest?.returnLines.keys.sorted(), ["common", "rare", "uncommon"])
         let archived = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-1.json"))
         XCTAssertEqual(archived.status, .archived, "superseded rulesets stay decodable for audit")
@@ -70,8 +70,9 @@ final class ContentBundleTests: XCTestCase {
 
     func testStoryContentDecodesAndResolvesTheWorldName() throws {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
-        XCTAssertEqual(bundle.characters.map(\.id), ["guide.elder", "hero"])
-        XCTAssertEqual(bundle.storyChapters.map(\.id), ["chapter.awakening", "chapter.first_training"])
+        XCTAssertEqual(bundle.characters.map(\.id), ["guide.elder", "hero", "chad_colossus"])
+        XCTAssertEqual(Array(bundle.storyChapters.map(\.id).prefix(2)), ["chapter.awakening", "chapter.first_training"])
+        XCTAssertEqual(bundle.storyChapters.count, 14)
         let awakening = try XCTUnwrap(bundle.chapter("chapter.awakening"))
         XCTAssertEqual(awakening.then, "create_character"); XCTAssertEqual(awakening.beats.count, 8)
         XCTAssertEqual(awakening.beats.first?.speaker, "hero"); XCTAssertEqual(awakening.beats.last?.lines.last?.text, "...Do you remember anything about your real, human self?")
