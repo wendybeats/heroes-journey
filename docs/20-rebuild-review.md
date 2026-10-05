@@ -200,6 +200,10 @@ Owner: quests must keep rewarding, and the character must be customisable early.
 
 Owner handoff of nine quest item stills and four reward caches, stored as a new `kind: icon` (inventory art, not wearable layers) at half size, status `review`. Content items gained their still and a one-sentence description; the sixth gym item is now the Colossus Vest, matching the art. The reveal is no longer automatic: the return grants silently, Home and the goals card point at the cache, the quest screen stops the walk and glows the cache for the rolled tier, and tapping it opens the claim modal (still, name, rarity, sentence, Claim). Claim is state on the run (`claimedAt`, older runs decode as unclaimed), shows the receipt and queues the end scene; the story director waits for an unclaimed cache. Doc 29 updated. Tests: older runs decode, every quest item has a still and sentence, cache manifests decode as icons.
 
+## Increment 28, 2026-10-05: pity and trade-in (doc 29, dev-5c)
+
+Owner: five white trainers is boring; duplicates should trade for XP. Duplicates already cannot happen, so the build targets the owned-pool case. Ruleset dev-5 gains `pity_rare_after: 7` (resolver forces the rare row after a drought, counted from run history) and `trade_in_xp` 10/15/25 (engine adds it when a return grants nothing new). The claim modal shows the traded item dimmed with the XP. Tests: pity threshold and off states, trade-in on owned table and chosen rewards, ruleset fields decode. Curve check unchanged.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

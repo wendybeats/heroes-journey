@@ -110,4 +110,31 @@ final class QuestTests: XCTestCase {
         var claimed = old; claimed.claimedAt = now
         XCTAssertTrue(claimed.isClaimed)
     }
+
+    /// Doc 29: pity forces the rare row once the drought is long enough; off by default; still deterministic.
+    func testPityForcesTheRareRowAfterTheDrought() {
+        let id = UUID()
+        XCTAssertEqual(QuestResolver.roll(table: table, runID: id, runsSinceRare: 6, pityAfter: 7), QuestResolver.roll(table: table, runID: id))
+        XCTAssertEqual(QuestResolver.roll(table: table, runID: id, runsSinceRare: 7, pityAfter: 7), 2)
+        XCTAssertEqual(QuestResolver.roll(table: table, runID: id, runsSinceRare: 40, pityAfter: nil), QuestResolver.roll(table: table, runID: id), "no pity configured")
+        XCTAssertEqual(QuestResolver.roll(table: table, runID: id, runsSinceRare: 40, pityAfter: 0), QuestResolver.roll(table: table, runID: id), "zero means off")
+    }
+
+    /// Doc 29: when nothing new can be granted, the tier's trade-in XP is added; a fresh grant gets none.
+    func testTradeInXPWhenTheDropIsAlreadyOwned() {
+        let r = makeRun()
+        let rs = ProgressionRuleset(id: "ruleset.test", version: 1, status: .dev, xpPerMinuteByFamily: ["strength": 2.0], attributeWeightsByFamily: [:], attributePointsPerXP: 0.5,
+                                    verificationMultiplier: [:], dailyTaper: .init(fullCreditMinutes: 90, taperRate: 0.25, hardCapMinutes: 240), minimumDurationSeconds: 60,
+                                    levelThresholdsTotalXP: [0, 1000], dailyQuest: .init(durationMinutes: 240, unlockRule: "all_goals", rewardTable: table, pityRareAfter: 7, tradeInXP: ["common": 10, "rare": 25]))
+        let fresh = EvaluationContext(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:])
+        let owned = EvaluationContext(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: ["reward.quest.rare", "reward.quest.cap"], levelRewards: [:])
+        let rareNew = QuestResolver.makeEvent(for: r, rewardIndex: 2, userID: user, familyFallback: "strength", at: now)
+        XCTAssertEqual(ProgressionEngine.evaluate(event: rareNew, ruleset: rs, context: fresh).xp, 16, "a new grant: row XP only")
+        XCTAssertEqual(ProgressionEngine.evaluate(event: rareNew, ruleset: rs, context: owned).xp, 16 + 25, "owned: row XP plus the rare trade-in")
+        let capOwned = QuestResolver.makeEvent(for: r, rewardIndex: 0, rewardID: "reward.quest.cap", userID: user, familyFallback: "strength", at: now)
+        XCTAssertEqual(ProgressionEngine.evaluate(event: capOwned, ruleset: rs, context: owned).xp, 6 + 10, "chosen reward owned: common trade-in")
+        let noReward = QuestResolver.makeEvent(for: r, rewardIndex: 1, userID: user, familyFallback: "strength", at: now)
+        XCTAssertEqual(ProgressionEngine.evaluate(event: noReward, ruleset: rs, context: fresh).xp, 10, "a row with no reward and no trade-in for its tier: row XP")
+        XCTAssertEqual(ProgressionEngine.evaluate(event: rareNew, ruleset: ruleset, context: owned).xp, 16, "ruleset without trade-in: unchanged")
+    }
 }

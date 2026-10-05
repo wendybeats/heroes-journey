@@ -48,8 +48,14 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
         /// `all_goals` is the only rule in MVP; kept as data so partial credit is a value change.
         public let unlockRule: String
         public let rewardTable: [RewardEntry]
-        public init(durationMinutes: Int, unlockRule: String, rewardTable: [RewardEntry]) { self.durationMinutes = durationMinutes; self.unlockRule = unlockRule; self.rewardTable = rewardTable }
-        enum CodingKeys: String, CodingKey { case durationMinutes = "duration_minutes", unlockRule = "unlock_rule", rewardTable = "reward_table" }
+        /// Pity (doc 29): after this many resolved runs without a `rare` roll, the next roll is rare. nil = off.
+        public let pityRareAfter: Int?
+        /// Trade-in (doc 29): bonus XP by tier when the return grants nothing new (the pool is owned). Absent tier = 0.
+        public let tradeInXP: [String: Int]?
+        public init(durationMinutes: Int, unlockRule: String, rewardTable: [RewardEntry], pityRareAfter: Int? = nil, tradeInXP: [String: Int]? = nil) {
+            self.durationMinutes = durationMinutes; self.unlockRule = unlockRule; self.rewardTable = rewardTable; self.pityRareAfter = pityRareAfter; self.tradeInXP = tradeInXP
+        }
+        enum CodingKeys: String, CodingKey { case durationMinutes = "duration_minutes", unlockRule = "unlock_rule", rewardTable = "reward_table", pityRareAfter = "pity_rare_after", tradeInXP = "trade_in_xp" }
     }
 
     /// Onboarding's starting grant (owner, 2026-10-02). Small next to the first goals.

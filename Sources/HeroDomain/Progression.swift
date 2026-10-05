@@ -74,8 +74,14 @@ public enum ProgressionEngine {
         } else if let quest = event.quest {
             // Quest return: the rolled table entry's XP, plus its content reward if never granted.
             guard let table = ruleset.dailyQuest?.rewardTable, table.indices.contains(quest.rewardIndex) else { return empty() }
-            xp = max(0, table[quest.rewardIndex].xp)
-            if let reward = quest.rewardID ?? table[quest.rewardIndex].rewardID, !context.grantedRewardIDs.contains(reward) { questRewards.append(reward) }
+            let row = table[quest.rewardIndex]
+            xp = max(0, row.xp)
+            if let reward = quest.rewardID ?? row.rewardID, !context.grantedRewardIDs.contains(reward) {
+                questRewards.append(reward)
+            } else {
+                // Nothing new to give: the would-be drop is traded in for XP by tier (doc 29). Still one fact, still idempotent.
+                xp += max(0, ruleset.dailyQuest?.tradeInXP?[row.tier] ?? 0)
+            }
         } else {
             guard let priced = activityXP(event: event, ruleset: ruleset, context: context) else { return empty() }
             xp = priced.xp; attributes = priced.attributes; credited = priced.credited

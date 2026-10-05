@@ -56,8 +56,11 @@ public struct QuestRun: Hashable, Codable, Sendable, Identifiable {
 public enum QuestResolver {
     /// Weighted roll over the table, deterministic from the run id so a replay rolls the same
     /// reward. Nil when the table is empty.
-    public static func roll(table: [ProgressionRuleset.DailyQuest.RewardEntry], runID: UUID) -> Int? {
+    /// `runsSinceRare` + `pityAfter` (doc 29): once the player has gone `pityAfter` resolved runs without a
+    /// rare, the roll is the rare row (the last `rare`-tier row). Deterministic like the plain roll.
+    public static func roll(table: [ProgressionRuleset.DailyQuest.RewardEntry], runID: UUID, runsSinceRare: Int = 0, pityAfter: Int? = nil) -> Int? {
         guard !table.isEmpty else { return nil }
+        if let pity = pityAfter, pity > 0, runsSinceRare >= pity, let rare = table.lastIndex(where: { $0.tier == "rare" }) { return rare }
         var rng = SeededGenerator(seed: runID.uuidString.hashValueStable)
         let total = table.reduce(0.0) { $0 + max(0, $1.weight) }
         guard total > 0 else { return 0 }

@@ -104,13 +104,15 @@ struct ClaimMoment: View {
     let onClaim: () -> Void
 
     var body: some View {
-        let item = state.questGrantedSomethingNew(run) ? state.questReward(for: run) : nil
+        let fresh = state.questGrantedSomethingNew(run)
+        let item = state.questReward(for: run)
         let tier = state.rewardTier(for: run)
+        let xp = run.activityEventID.flatMap { state.outbox.receipt(for: $0)?.xp }
         ZStack {
             NeoTokyo.Surface.scrim.opacity(0.75).ignoresSafeArea()
             VStack(spacing: NeoTokyo.Spacing.md) {
                 Eyebrow(text: tier.map { "\($0) cache" } ?? "Cache")
-                if let item {
+                if let item, fresh {
                     if let icon = item.iconAssetSetID {
                         AssetIcon(assetSetID: icon.rawValue, size: 180)
                             .shadow(color: NeoTokyo.Hierarchy.primary.opacity(item.rarity == "rare" ? 0.6 : 0.25), radius: 18)
@@ -120,6 +122,12 @@ struct ClaimMoment: View {
                     if let d = item.description {
                         Text(d).font(HeroFont.body).foregroundStyle(NeoTokyo.Text.secondary).multilineTextAlignment(.center)
                     }
+                } else if let item {
+                    // Trade-in (doc 29): the pool is owned, so the would-be drop becomes XP. The ruleset priced it; we only show it.
+                    if let icon = item.iconAssetSetID { AssetIcon(assetSetID: icon.rawValue, size: 150).opacity(0.7) }
+                    Text(item.displayName).font(HeroFont.title).foregroundStyle(NeoTokyo.Text.primary)
+                    Text("Already yours").font(HeroFont.label).textCase(.uppercase).foregroundStyle(NeoTokyo.Text.secondary)
+                    Text(xp.map { "Traded in for +\($0) XP." } ?? "Traded in for XP.").font(HeroFont.body).foregroundStyle(NeoTokyo.Hierarchy.primary).multilineTextAlignment(.center)
                 } else {
                     CacheIcon(tier: tier).frame(width: 140, height: 140)
                     Text("Nothing new in it").font(HeroFont.title).foregroundStyle(NeoTokyo.Text.primary)

@@ -120,3 +120,8 @@ Days to reach (20 seeded runs, 92 weeks):
 In months for the light user: L10 0.8 · L20 2.4 · L40 5.7 · L50 7.4 · L80 13.6 · L100 20. Heavy: L10 0.6 · L20 1.6 · L50 4.9 · L100 13.2.
 
 Trade-off made, stated plainly: the earlier "L50 at 3–6 months" cannot coexist with "L5 in week one, L10 monthly, and 10–40 no faster than 6–10". Level 6–10 averages 4.6 days a level; a rising curve means 10–40 starts there, so Level 40 is 5.7 months and Level 50 is 7.4 for the light user (4.9 for heavy). If Level 50 must be inside 6 months for the light user, the lever is the 10–40 band (lower its control point toward 4.6 days), at the cost of Level 10 arriving nearer day 20. One line in the tool's default schedule.
+
+## dev-5c: pity and trade-in (2026-10-05, doc 29)
+
+Two quest variables, no threshold change (the derived curve still checks). `pity_rare_after: 7`: after seven resolved runs without a rare roll, the next roll is the rare row; it resets on any rare roll, even one that fell back to a lower item because the rare pool was owned. `trade_in_xp` 10/15/25 by tier: added by the engine when a return cannot grant anything new, so an owned pool doubles the row's XP instead of returning empty. Expected daily XP rises only for players who have cleared a quest's pool (three returns on the first walk), by at most 25 on a rare. The simulator does not model pools yet; the light persona's Level 10 day moves by less than a day on the most generous assumption (every return a trade-in).
+

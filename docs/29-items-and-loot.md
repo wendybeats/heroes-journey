@@ -49,6 +49,14 @@ Owner handoff `quest-reward-items-v1`: nine item stills and four reward caches (
 
 The return reveal moved: resolving a quest grants silently (the fact and the ledger are unchanged), and Home shows "Back · open the cache". On the quest screen the walk has stopped, the path is complete, and the cache for the rolled tier glows. Tapping it opens the claim modal (scrim, glass card, the item's still, its name, rarity, sentence, "Claim"). Claim records `claimedAt` on the run, shows the receipt (XP, level-up) and queues the quest's end scene. Claiming is state, not a grant: an unclaimed run after a reinstall shows the same item from the fact. When everything in the pool was already owned, the modal says so and the XP still shows. The legendary cache has no ruleset tier yet.
 
+## Pity and trade-in (2026-10-05)
+
+Duplicates cannot occur (a reward grants once; the picker prefers unowned), so the boring case is an owned pool. Two ruleset variables on `daily_quest`:
+- `pity_rare_after`: resolved runs without a rare roll before the next roll is forced rare. Counted from run history in the app, applied in `QuestResolver.roll`, still deterministic per run. A pity rare whose rare pool is owned falls back to an unowned lower item and still resets the counter.
+- `trade_in_xp` by tier: added by the engine when the fact grants nothing new. The claim modal shows the would-be item dimmed, "Already yours", and the XP. One fact, idempotent, balance in the ruleset.
+
+The higher-leverage fix remains bigger pools per quest (content).
+
 ## Loot box
 
 Delivered as the four cache stills above (closed only). The in-code crate remains as the fallback while a tier's art is missing. An `open` state per tier would let the claim modal animate the lid; optional.

@@ -554,7 +554,7 @@ final class AppState {
     func resolveQuestIfDue() {
         let now = Date()
         guard let i = questRuns.firstIndex(where: { $0.isDue(at: now) }), let table = ruleset.dailyQuest?.rewardTable,
-              let index = QuestResolver.roll(table: table, runID: questRuns[i].id) else { return }
+              let index = QuestResolver.roll(table: table, runID: questRuns[i].id, runsSinceRare: runsSinceRare, pityAfter: ruleset.dailyQuest?.pityRareAfter) else { return }
         // The quest's own loot pool decides what the rolled tier hands out, preferring something not yet owned (doc 29).
         let pools = bundle.quest(questRuns[i].questID)?.lootPools ?? []
         let chosen = QuestResolver.pick(tier: table[index].tier, pools: pools, granted: ledger.grantedRewardIDs, runID: questRuns[i].id)
@@ -570,6 +570,14 @@ final class AppState {
         Task { await drain(showReward: false) }
     }
 
+    /// Resolved runs since the last rare roll, newest first (pity counter, doc 29). Rolls are tiers, so a
+    /// pity rare that fell back to a lower item still resets the counter.
+    var runsSinceRare: Int {
+        let resolved = questRuns.filter(\.isResolved).sorted { ($0.resolvedAt ?? .distantPast) > ($1.resolvedAt ?? .distantPast) }
+        var n = 0
+        for run in resolved { if rewardTier(for: run) == "rare" { break }; n += 1 }
+        return n
+    }
     /// A resolved run whose cache has not been opened. Home points at it; the story waits for it.
     var unclaimedQuest: QuestRun? { questRuns.first { $0.isResolved && !$0.isClaimed } }
     /// The item this run brought back (the fact's chosen reward, else the table row's), if any.

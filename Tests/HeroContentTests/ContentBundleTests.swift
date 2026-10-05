@@ -43,6 +43,7 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(ruleset.dailyQuest?.durationMinutes, 240, "owner decision 2026-10-02")
         XCTAssertEqual(ruleset.dailyQuest?.rewardTable.map(\.tier), ["common", "uncommon", "rare"])
         XCTAssertEqual(ruleset.dailyQuest?.rewardTable.map(\.xp), [10, 15, 25])
+        XCTAssertEqual(ruleset.dailyQuest?.pityRareAfter, 7); XCTAssertEqual(ruleset.dailyQuest?.tradeInXP?["rare"], 25, "doc 29")
         XCTAssertEqual(bundle.quests.count, 5, "the first walk, Protein Row and three gym quests (doc 28)")
         XCTAssertEqual(bundle.defaultQuest?.returnLines.keys.sorted(), ["common", "rare", "uncommon"])
         let archived = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-1.json"))
