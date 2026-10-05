@@ -49,7 +49,7 @@ struct SpritePortrait: View {
                 Circle().strokeBorder(NeoTokyo.Text.muted, style: StrokeStyle(lineWidth: 1, dash: [4]))
             }
         }
-        .frame(width: size, height: size)
+        .frame(width: size, height: size, alignment: .top)   // top-aligned: the head, not the torso (owner QA 2026-10-05)
         .clipped()
     }
 }

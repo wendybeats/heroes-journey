@@ -67,9 +67,11 @@ final class AppState {
     }
 
     let bundle: ContentBundle
-    let ruleset: ProgressionRuleset
+    private(set) var ruleset: ProgressionRuleset
+    /// The content ruleset as loaded; `ruleset` may be a debug variant of it (daily cap off).
+    private let baseRuleset: ProgressionRuleset
     let tokens: DesignTokens
-    private let service: LocalAuthorityProgressionService
+    private var service: LocalAuthorityProgressionService
     private(set) var userID: UserID
     var recipe: AvatarRecipe? { didSet { save(); if oldValue == nil { ensureTodayPlan() } } }
     private(set) var events: [ActivityEvent]
@@ -183,6 +185,7 @@ final class AppState {
         self.lastStageDay = archive?.lastStageDay
         self.storyProgress = archive?.storyProgress ?? StoryProgress()
         self.goalSeed = (archive?.goalSeed).flatMap { $0 == 0 ? nil : $0 } ?? UInt64.random(in: 1...UInt64.max)
+        self.baseRuleset = ruleset
         let authority = ProgressionAuthority(ruleset: ruleset, levelRewards: bundle.levelRewards, calendar: .current)
         self.service = LocalAuthorityProgressionService(authority: authority, owner: user, ledger: ledger, events: events)
     }
@@ -393,7 +396,48 @@ final class AppState {
 
     // MARK: daily goals (doc 24)
 
-    var today: DayKey { DayKey(Date(), calendar: .current) }
+    /// The app's day. `devDayOffset` (debug controls) shifts it so daily progression can be seen without waiting.
+    var today: DayKey { DayKey(Date().addingTimeInterval(TimeInterval(devDayOffset) * 86_400), calendar: .current) }
+
+    // MARK: debug controls (DEBUG builds only; owner QA 2026-10-05). None of these create facts the engine
+    // would not have created; they move time, swap the ruleset variant, or regenerate a plan.
+
+    var devDayOffset: Int {
+        get { UserDefaults.standard.integer(forKey: "dev.dayOffset") }
+        set { UserDefaults.standard.set(newValue, forKey: "dev.dayOffset"); devToken += 1 }
+    }
+    private(set) var devToken = 0
+    var devDailyCapOff: Bool { ruleset.dailyActivityXPCap == nil && baseRuleset.dailyActivityXPCap != nil }
+
+    /// Pull the active quest's return to now and resolve it.
+    func devFinishQuest() {
+        guard let i = questRuns.firstIndex(where: { !$0.isResolved }) else { return }
+        questRuns[i].returnsAt = Date()
+        resolveQuestIfDue()
+    }
+    /// Swap the ruleset for a copy without the daily activity cap (or back). The service is rebuilt on the same ledger.
+    func devSetDailyCap(off: Bool) {
+        var variant = baseRuleset
+        if off, var json = try? JSONSerialization.jsonObject(with: JSONEncoder().encode(baseRuleset)) as? [String: Any] {
+            json.removeValue(forKey: "daily_activity_xp_cap")
+            if let data = try? JSONSerialization.data(withJSONObject: json), let r = try? ProgressionRuleset.decode(data) { variant = r }
+        }
+        ruleset = variant
+        let authority = ProgressionAuthority(ruleset: ruleset, levelRewards: bundle.levelRewards, calendar: .current)
+        service = LocalAuthorityProgressionService(authority: authority, owner: userID, ledger: ledger, events: events)
+        devToken += 1
+    }
+    /// Throw away today's plan and completions and draw a new one with a fresh seed.
+    func devResetDailyGoals() {
+        goalPlans.removeAll { $0.day == today }
+        goalCompletions.removeAll { $0.day == today }
+        goalSeed = UInt64.random(in: 1...UInt64.max)
+        save()
+        ensureTodayPlan()
+    }
+    /// Tomorrow, now: new goals, the stage screen again, a new daily quest.
+    func devAdvanceDay() { devDayOffset += 1; ensureTodayPlan() }
+    func devResetDay() { devDayOffset = 0; ensureTodayPlan() }
     var todayPlan: GoalPlan? { goalPlans.first { $0.day == today } }
     var todayCompletions: [GoalCompletion] { goalCompletions.filter { $0.day == today } }
     func isCompleted(_ goal: DailyGoal) -> Bool { goalCompletions.contains { $0.goalID == goal.id } }

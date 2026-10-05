@@ -25,6 +25,9 @@ struct HomeView: View {
     /// The chapter being played from Home (doc 28): a due milestone's scene, or a quest's end scene.
     @State private var storyScene: StoryScene?
     @State private var showRoom = false
+    #if DEBUG
+    @State private var showDev = false
+    #endif
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
 
@@ -65,7 +68,7 @@ struct HomeView: View {
                 }
                 #if DEBUG
                 ToolbarItem(placement: .topBarLeading) {
-                    NavigationLink { SpriteLabView() } label: { Image(systemName: "square.grid.3x3") }
+                    Button { showDev = true } label: { Image(systemName: "wrench.and.screwdriver") }
                         .foregroundStyle(NeoTokyo.Text.muted)
                 }
                 #endif
@@ -91,9 +94,14 @@ struct HomeView: View {
                     storyScene = nil
                     // Recorded on finish, so an interrupted scene replays rather than being lost (idempotent).
                     if let milestone = scene.milestone { state.completeMilestone(milestone) } else { state.clearPendingReturnChapter() }
+                    // `then: room` (chapter.home): land in the room the chapter just gave you.
+                    if scene.chapter.then == "room" { Task { try? await Task.sleep(for: .milliseconds(500)); showRoom = true } }
                 }
             }
             .sheet(isPresented: $showRoom) { RoomView() }
+            #if DEBUG
+            .sheet(isPresented: $showDev) { DevControlsView() }
+            #endif
             .overlayPreferenceValue(SceneAnchorsKey.self) { anchors in
                 GeometryReader { geo in
                     if let start = levelUpStart, let c = anchors["character"], let b = anchors["badge"] {

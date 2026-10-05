@@ -98,6 +98,8 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(bundle.campaign.milestone("under_city.10.resolution")?.trigger, .manual)
         XCTAssertEqual(bundle.campaign.milestone("under_city.10.resolution")?.teaseArea, "central_hill")
         XCTAssertEqual(bundle.campaign.milestone("under_city.2.home")?.unlockFeature, "home_room")
+        XCTAssertEqual(bundle.chapter("chapter.home")?.then, "room", "the home chapter lands in the room (owner QA 2026-10-05)")
+        XCTAssertTrue(bundle.levelRewards.isEmpty, "nothing is granted on level-up yet (owner 2026-10-05)")
         XCTAssertEqual(bundle.quests.map(\.id), ["quest.lower_district", "quest.protein_row", "quest.colossus_gym_01", "quest.colossus_gym_02", "quest.colossus_gym_03"])
         XCTAssertEqual(bundle.quests[1].unlockedByMilestone, "under_city.3.protein_row"); XCTAssertNil(bundle.quests[1].durationMinutes, "the Row keeps the ruleset duration")
         XCTAssertEqual(bundle.quests[2].durationMinutes, 480); XCTAssertEqual(bundle.quests[2].unlockedByMilestone, "under_city.5.gym_unlock")

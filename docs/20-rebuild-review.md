@@ -204,6 +204,10 @@ Owner handoff of nine quest item stills and four reward caches, stored as a new 
 
 Owner: five white trainers is boring; duplicates should trade for XP. Duplicates already cannot happen, so the build targets the owned-pool case. Ruleset dev-5 gains `pity_rare_after: 7` (resolver forces the rare row after a drought, counted from run history) and `trade_in_xp` 10/15/25 (engine adds it when a return grants nothing new). The claim modal shows the traded item dimmed with the XP. Tests: pity threshold and off states, trade-in on owned table and chosen rewards, ruleset fields decode. Curve check unchanged.
 
+## Increment 29, 2026-10-05: owner QA on the chapter-one build
+
+1. Bond step shows the real starting numbers (counting up) with the badges, not zeros. 2. Level-up grants are off: the ten level-triggered rewards are kept as `unassigned` (their former level in the trigger) so nothing lands on level-up until the chapter decides; grants live in the ledger (`RewardGrant` rows, archive JSON), derived from the bundle's level triggers. 3. The home chapter's first beat reads as the owner wrote it; the hero's reply is gone; `then: room` opens the room when the chapter ends. 4. Room: the character stands left of the desk; appearance is hair cut and colour only. 5. `SpritePortrait` was centring an oversized image, showing the torso; it is top-aligned now, which fixes the quest prompt, the story hero portrait and the bond step. The "I can tell you when they're back" line is gone. 6. Debug-only dev controls (wrench in the Home toolbar): advance a day and back, finish the quest now, remove the daily cap (a ruleset variant on the same ledger), reset today's goals, story readout, sprite lab.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

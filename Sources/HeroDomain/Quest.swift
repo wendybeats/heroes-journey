@@ -33,7 +33,8 @@ public struct QuestRun: Hashable, Codable, Sendable, Identifiable {
     public let questID: QuestID
     public let day: DayKey
     public let startedAt: Date
-    public let returnsAt: Date
+    /// Set at departure; a debug control may pull it forward. Never pushed later.
+    public var returnsAt: Date
     public var resolvedAt: Date?
     public var reward: QuestReference?
     /// The progression fact created at return.

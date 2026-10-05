@@ -229,7 +229,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let id: String
         public let title: String
         public let backdropID: BackdropID
-        /// What follows the last line: `create_character`, `home`, or `return` (back to wherever it was shown).
+        /// What follows the last line: `create_character`, `home`, `return` (back to wherever it was shown), or `room` (open the player's room).
         public let then: String
         public let beats: [StoryBeat]
         enum CodingKeys: String, CodingKey { case id, title, backdropID = "backdrop_id", then, beats }
@@ -367,7 +367,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         let characterIDs = Set(characters.map(\.id))
         for ch in storyChapters {
             if !backdropIDs.contains(ch.backdropID) { problems.append("chapter \(ch.id) → unknown backdrop \(ch.backdropID)") }
-            if !["create_character", "home", "return"].contains(ch.then) { problems.append("chapter \(ch.id) has unknown 'then' \(ch.then)") }
+            if !["create_character", "home", "return", "room"].contains(ch.then) { problems.append("chapter \(ch.id) has unknown 'then' \(ch.then)") }
             if ch.beats.isEmpty { problems.append("chapter \(ch.id) has no beats") }
             for beat in ch.beats {
                 if !characterIDs.contains(beat.speaker) { problems.append("chapter \(ch.id) → unknown speaker \(beat.speaker)") }

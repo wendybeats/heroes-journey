@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.05-5",
+  "content_version": "2026.10.05-6",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -389,7 +389,7 @@
     {
       "id": "reward.l2.visor",
       "trigger": {
-        "type": "level",
+        "type": "unassigned",
         "level": 2
       },
       "grants": [
@@ -397,12 +397,13 @@
           "type": "item",
           "item_id": "item.visor.slate"
         }
-      ]
+      ],
+      "notes": "Owner 2026-10-05: nothing is granted on level-up yet; kept with its former level for when the chapter decides it."
     },
     {
       "id": "reward.l3.world",
       "trigger": {
-        "type": "level",
+        "type": "unassigned",
         "level": 3
       },
       "grants": [
@@ -410,12 +411,13 @@
           "type": "world_reaction",
           "reaction_id": "world.rain_stops"
         }
-      ]
+      ],
+      "notes": "Owner 2026-10-05: nothing is granted on level-up yet; kept with its former level for when the chapter decides it."
     },
     {
       "id": "reward.l4.gloves",
       "trigger": {
-        "type": "level",
+        "type": "unassigned",
         "level": 4
       },
       "grants": [
@@ -423,12 +425,13 @@
           "type": "item",
           "item_id": "item.gloves.wrap"
         }
-      ]
+      ],
+      "notes": "Owner 2026-10-05: nothing is granted on level-up yet; kept with its former level for when the chapter decides it."
     },
     {
       "id": "reward.l5.evolve",
       "trigger": {
-        "type": "level",
+        "type": "unassigned",
         "level": 5
       },
       "grants": [
@@ -436,12 +439,13 @@
           "type": "evolution",
           "evolution_id": "ev2_evolution1"
         }
-      ]
+      ],
+      "notes": "Owner 2026-10-05: nothing is granted on level-up yet; kept with its former level for when the chapter decides it."
     },
     {
       "id": "reward.l6.jacket",
       "trigger": {
-        "type": "level",
+        "type": "unassigned",
         "level": 6
       },
       "grants": [
@@ -449,12 +453,13 @@
           "type": "item",
           "item_id": "item.jacket.rain"
         }
-      ]
+      ],
+      "notes": "Owner 2026-10-05: nothing is granted on level-up yet; kept with its former level for when the chapter decides it."
     },
     {
       "id": "reward.l7.backdrop",
       "trigger": {
-        "type": "level",
+        "type": "unassigned",
         "level": 7
       },
       "grants": [
@@ -462,12 +467,13 @@
           "type": "backdrop",
           "backdrop_id": "backdrop.shrine_falls"
         }
-      ]
+      ],
+      "notes": "Owner 2026-10-05: nothing is granted on level-up yet; kept with its former level for when the chapter decides it."
     },
     {
       "id": "reward.l8.pack",
       "trigger": {
-        "type": "level",
+        "type": "unassigned",
         "level": 8
       },
       "grants": [
@@ -475,12 +481,13 @@
           "type": "item",
           "item_id": "item.backpack.courier"
         }
-      ]
+      ],
+      "notes": "Owner 2026-10-05: nothing is granted on level-up yet; kept with its former level for when the chapter decides it."
     },
     {
       "id": "reward.l9.teaser",
       "trigger": {
-        "type": "level",
+        "type": "unassigned",
         "level": 9
       },
       "grants": [
@@ -488,12 +495,13 @@
           "type": "world_reaction",
           "reaction_id": "world.ascension_teaser"
         }
-      ]
+      ],
+      "notes": "Owner 2026-10-05: nothing is granted on level-up yet; kept with its former level for when the chapter decides it."
     },
     {
       "id": "reward.l10.evolve",
       "trigger": {
-        "type": "level",
+        "type": "unassigned",
         "level": 10
       },
       "grants": [
@@ -505,12 +513,13 @@
           "type": "item",
           "item_id": "item.effect.pinkglow"
         }
-      ]
+      ],
+      "notes": "Owner 2026-10-05: nothing is granted on level-up yet; kept with its former level for when the chapter decides it."
     },
     {
       "id": "reward.l20.evolve",
       "trigger": {
-        "type": "level",
+        "type": "unassigned",
         "level": 20
       },
       "grants": [
@@ -518,7 +527,8 @@
           "type": "evolution",
           "evolution_id": "ev4_evolution3"
         }
-      ]
+      ],
+      "notes": "Owner 2026-10-05: nothing is granted on level-up yet; kept with its former level for when the chapter decides it."
     },
     {
       "id": "reward.quest.trainers",
@@ -2225,20 +2235,15 @@
       "id": "chapter.home",
       "title": "Your room",
       "backdrop_id": "backdrop.under_city.home_01",
-      "then": "return",
+      "then": "room",
       "area_id": "under_city",
       "beats": [
         {
           "speaker": "guide.elder",
           "lines": [
-            "Here. It is not much. Nobody in the Under City has much.",
+            "I can already see you're getting stronger out there.",
+            "You're welcome to stay here. It's not much.",
             "It was mine, once. Now it is yours. Come back here when you need to think, or change how you look to yourself."
-          ]
-        },
-        {
-          "speaker": "hero",
-          "lines": [
-            "A room. I will take it."
           ]
         },
         {

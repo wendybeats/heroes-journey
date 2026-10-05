@@ -175,7 +175,6 @@ struct QuestDepartPrompt: View {
                 SpritePortrait(recipe: recipe, outfit: state.evolution?.outfit, size: 120)
             }
             Bubble(text: state.quest?.notificationPrompt ?? "Time to see if I can find anything useful around here. I'll be back in a few hours.")
-            Text("I can tell you when they're back, if you let me.").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
             Button("Enable notifications") { dismiss(); Task { await state.beginQuest(requestNotifications: true) } }
                 .buttonStyle(PrimaryButtonStyle())
             Button("Not now") { dismiss(); Task { await state.beginQuest(requestNotifications: false) } }

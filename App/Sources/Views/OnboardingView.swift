@@ -180,7 +180,8 @@ struct OnboardingView: View {
             HStack {
                 ForEach(state.bundle.attributes, id: \.id) { attribute in
                     VStack(spacing: 2) {
-                        Text("0").font(HeroFont.statSM).foregroundStyle(NeoTokyo.Attribute.color(for: attribute.id.rawValue))
+                        // Owner QA 2026-10-05: the numbers themselves, not zeros with a badge; the badge still fires.
+                        CountingText(value: Double(deltas[attribute.id] ?? 0), font: HeroFont.statSM, color: NeoTokyo.Attribute.color(for: attribute.id.rawValue))
                         Text(attribute.displayName).font(HeroFont.label).foregroundStyle(NeoTokyo.Text.secondary)
                     }
                     .overlay(alignment: .top) {

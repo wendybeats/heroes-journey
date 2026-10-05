@@ -45,6 +45,7 @@ struct RoomView: View {
                 CharacterView(recipe: recipe, outfit: state.evolution?.outfit, scale: HomeView.characterScale)
                     .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)
                     .padding(.bottom, NeoTokyo.Spacing.xl)
+                    .offset(x: -56)   // stands left of the desk so the room reads (owner QA 2026-10-05)
             }
             VStack(alignment: .leading, spacing: 2) {
                 Eyebrow(text: "Your room")
@@ -63,20 +64,8 @@ struct RoomView: View {
         let options = state.bundle.avatarOptions
         let recipe = state.recipe
         return VStack(alignment: .leading, spacing: NeoTokyo.Spacing.md) {
-            Eyebrow(text: "Appearance")
-            Picker("Body", selection: Binding(get: { recipe?.baseBody ?? .male }, set: { body in
-                state.updateAppearance { r in
-                    r.baseBody = body
-                    let styles = options.hairStyles(for: body.rawValue)
-                    if !styles.contains(r.hairStyleID) { r.hairStyleID = styles.dropFirst().first ?? styles.first ?? r.hairStyleID }
-                }
-            })) {
-                ForEach(AvatarRecipe.BaseBody.allCases, id: \.self) { Text($0.rawValue.capitalized).tag($0) }
-            }
-            .pickerStyle(.segmented)
-            Text("Skin").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
-            ChoiceChips(options: options.skinPalettes.map { ($0, options.displayName($0)) }, selection: Binding(get: { recipe?.skinPaletteID ?? "" }, set: { id in state.updateAppearance { $0.skinPaletteID = id } }))
-            Text("Hair").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
+            // Owner QA 2026-10-05: at this point only the hair cut and colour change; body and skin are who you are.
+            Eyebrow(text: "Hair")
             ChoiceChips(options: options.hairStyles(for: recipe?.baseBody.rawValue ?? "male").map { ($0, options.displayName($0)) }, selection: Binding(get: { recipe?.hairStyleID ?? "" }, set: { id in state.updateAppearance { $0.hairStyleID = id } }))
             ChoiceChips(options: options.hairPalettes.map { ($0, options.displayName($0)) }, selection: Binding(get: { recipe?.hairPaletteID ?? "" }, set: { id in state.updateAppearance { $0.hairPaletteID = id } }))
         }

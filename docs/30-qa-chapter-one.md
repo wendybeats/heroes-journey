@@ -37,6 +37,12 @@ Build: branch `claude/tender-hamilton-d57cv9`, commit in the increment 28 entry 
 24. History, log sheet, Apple Health connect, weight unit: unchanged.
 25. Content version shows 2026.10.05-5; asset registry builds; `Tools/validate_sprites.py` passes on every revision (CI does this).
 
+## F. Dev controls (DEBUG builds, wrench icon top-left on Home)
+26. Advance one day → stage screen, new goals, quest ready again once goals are done; "Back to today" restores.
+27. Finish the quest now → the cache appears on Home within a second.
+28. Remove the daily cap → the Home "Activity XP today" line disappears and a logged session earns full XP; toggle back restores the cap.
+29. Reset today's goals → a different set of three.
+
 ## Known gaps (not bugs)
 - Items do not show on the departure walk (baked strip).
 - Only Clean Trainers has a wearable layer, and it is a placeholder.
