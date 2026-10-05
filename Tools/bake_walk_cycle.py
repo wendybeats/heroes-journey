@@ -21,19 +21,30 @@ ap.add_argument("--pivot-y", type=int, default=122); ap.add_argument("--colors",
 ap.add_argument("--ms", type=int, default=110); ap.add_argument("--anim", default="walk"); ap.add_argument("--asset-set-id", required=True)
 ap.add_argument("--direction", default="right", help="which way the source faces; frames are kept as drawn")
 ap.add_argument("--min-component", type=int, default=12, help="opaque islands smaller than this many pixels are removed")
+ap.add_argument("--lean", type=float, default=0.0, help="forward lean in degrees: a shear that moves the head toward the facing direction, feet fixed (owner 2026-10-05: the storyboard stands too upright)")
 a = ap.parse_args()
 cols, rows = (int(v) for v in a.grid.lower().split("x")); cw, ch = (int(v) for v in a.cell.lower().split("x"))
 sheet = Image.open(a.storyboard).convert("RGBA")
 gw, gh = sheet.width / cols, sheet.height / rows
 
-# Pass 1: crop every pose to its own bounding box.
+# Pass 1: crop every pose to its own bounding box, then shear for the forward lean (feet stay put,
+# the head moves toward the facing direction by tan(lean) x height).
+import math
 poses = []
 for r in range(rows):
     for c in range(cols):
         cell = sheet.crop((int(c * gw), int(r * gh), int((c + 1) * gw), int((r + 1) * gh)))
         bb = cell.getchannel("A").point(lambda v: 255 if v > 127 else 0).getbbox()
         if bb is None: continue
-        poses.append(cell.crop(bb))
+        pose = cell.crop(bb)
+        if a.lean:
+            k = math.tan(math.radians(a.lean)) * (1 if a.direction == "right" else -1)
+            w, h = pose.size; pad = int(abs(k) * h) + 2
+            canvas = Image.new("RGBA", (w + 2 * pad, h), (0, 0, 0, 0)); canvas.paste(pose, (pad, 0))
+            # output(x, y) samples input(x - k*(h - y), y): rows near the feet move little, the head the most
+            pose = canvas.transform(canvas.size, Image.Transform.AFFINE, (1, k, -k * h, 0, 1, 0), resample=Image.Resampling.BICUBIC)
+            pose = pose.crop(pose.getchannel("A").point(lambda v: 255 if v > 127 else 0).getbbox())
+        poses.append(pose)
 
 # Shared scale from the tallest pose so the hood volume stays stable across frames.
 tallest = max(p.height for p in poses); scale = a.figure_height / tallest

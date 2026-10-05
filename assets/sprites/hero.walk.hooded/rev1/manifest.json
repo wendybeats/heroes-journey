@@ -5,12 +5,12 @@
   "status": "draft",
   "kind": "body",
   "canvas": {
-    "width": 64,
-    "height": 128
+    "width": 80,
+    "height": 144
   },
   "pivot": {
-    "x": 32,
-    "y": 122
+    "x": 40,
+    "y": 138
   },
   "layer_order": 0,
   "max_palette_colors": 24,
@@ -33,6 +33,6 @@
     }
   },
   "palette_roles": {},
-  "notes": "Baked by Tools/bake_walk_cycle.py from the owner's storyboard: 8 poses, shared scale 0.210, 23 colours, feet on row 122. Gender-neutral hooded figure; used for every outfit until per-outfit walks exist. Frame order reversed after the owner saw it read as walking backwards (2026-10-02); figure 118 px. Owner 2026-10-04: not approved; the walk needs work (reads as backwards/short in the first pass; passing poses to redraw).",
+  "notes": "Baked by Tools/bake_walk_cycle.py from the owner's storyboard: 8 poses, shared scale 0.220, 24 colours, feet on row 138. Gender-neutral hooded figure; used for every outfit until per-outfit walks exist. 2026-10-05 pass: 80x144 cell, figure 124 px, 8 degree forward lean (shear, feet fixed), frame order reversed, specks under 30 px removed. Still draft pending the owner's look on device.",
   "world": "city"
 }
