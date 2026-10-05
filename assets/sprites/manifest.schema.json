@@ -13,7 +13,7 @@
     "scene": { "type": "string" },
     "mood": { "type": "array", "items": { "type": "string" } },
     "time": { "type": "string" },
-    "kind": { "enum": ["body", "hair", "item", "backdrop", "effect", "portrait"] },
+    "kind": { "enum": ["body", "hair", "item", "backdrop", "effect", "portrait", "icon"] },
     "slot": { "enum": ["head", "face", "body", "hand", "back", "effect"] },
     "canvas": { "type": "object", "required": ["width", "height"], "properties": { "width": { "type": "integer" }, "height": { "type": "integer" } } },
     "pivot": { "type": "object", "required": ["x", "y"], "properties": { "x": { "type": "integer" }, "y": { "type": "integer" } } },

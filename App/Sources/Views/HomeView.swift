@@ -118,9 +118,10 @@ struct HomeView: View {
         .onChange(of: state.pendingReturnChapter) { _, _ in scheduleStory() }
         .onChange(of: storyScene == nil) { _, _ in scheduleStory() }
         .onChange(of: departure == nil) { _, _ in scheduleStory() }
+        .onChange(of: state.unclaimedQuest?.id) { _, _ in scheduleStory() }
         .onChange(of: scenePhase) { _, phase in if phase == .active { state.ensureTodayPlan(); state.resolveQuestIfDue(); Task { await state.syncHealth() } } }
         .onChange(of: state.showDeparture) { _, show in
-            if show, let run = state.activeQuest { departure = run; state.showDeparture = false }
+            if show, let run = state.activeQuest ?? state.unclaimedQuest { departure = run; state.showDeparture = false }
         }
         .task(id: state.activeQuest?.id) {
             // Resolve on time while the app stays in the foreground; the notification covers the rest.
@@ -173,7 +174,7 @@ struct HomeView: View {
     // MARK: story director (doc 28)
 
     private var storyIdle: Bool {
-        state.lastReceipt == nil && ascension == nil && levelUpStart == nil && !state.needsStage
+        state.lastReceipt == nil && ascension == nil && levelUpStart == nil && !state.needsStage && state.unclaimedQuest == nil
             && departure == nil && storyScene == nil && !showWorkout && !showLog && !showHistory && !showRoom
     }
 
@@ -252,6 +253,21 @@ struct HomeView: View {
                     VStack(spacing: NeoTokyo.Spacing.xs) {
                         Eyebrow(text: "Away · tap to look")
                         Countdown(until: run.returnsAt, font: HeroFont.statSM)
+                    }
+                    .padding(NeoTokyo.Spacing.md)
+                    .glass(tint: NeoTokyo.Surface.overlay)
+                }
+                .buttonStyle(.plain)
+                .padding(.bottom, NeoTokyo.Spacing.xl)
+            } else if let run = state.unclaimedQuest {
+                // Back with a cache (doc 29): the reveal waits on the quest screen until the player opens it.
+                Button { departure = run } label: {
+                    HStack(spacing: NeoTokyo.Spacing.sm) {
+                        CacheIcon(tier: state.rewardTier(for: run), glowing: true).frame(width: 44, height: 44)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Eyebrow(text: "Back")
+                            Text("Open the cache").font(HeroFont.bodyMedium).foregroundStyle(NeoTokyo.Text.primary)
+                        }
                     }
                     .padding(NeoTokyo.Spacing.md)
                     .glass(tint: NeoTokyo.Surface.overlay)

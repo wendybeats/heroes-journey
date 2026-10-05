@@ -196,6 +196,10 @@ Owner handoff of the Under City locations (room-v1, locations-v1 and its v2 read
 
 Owner: quests must keep rewarding, and the character must be customisable early. Quests now carry tiered loot pools; the ruleset still rolls the tier and the XP, the app picks an unowned reward from the pool and records it on the return fact, and the engine grants it once (old facts without a choice still use the table row). Six new chapter-one items and rewards, all art pending; every quest previews one reward per tier and the reveal names the item. The hoodie kit manifest gains item layers with an item key palette and colour ramps; the composer draws equipped items in slot order (feet and legs are one layer per body since legs never move). Clean Trainers has a placeholder layer lifted from the body frames so the pipeline is proven end to end; goldens are untouched. Tests: pool choice and fallback, fact-recorded reward over the table row, loot pools resolve, item layers load and change only the feet rows. Doc 29 is the art handoff spec (fifty layers for nine items, loot box proposal).
 
+## Increment 27, 2026-10-05: inventory stills and the claim moment
+
+Owner handoff of nine quest item stills and four reward caches, stored as a new `kind: icon` (inventory art, not wearable layers) at half size, status `review`. Content items gained their still and a one-sentence description; the sixth gym item is now the Colossus Vest, matching the art. The reveal is no longer automatic: the return grants silently, Home and the goals card point at the cache, the quest screen stops the walk and glows the cache for the rolled tier, and tapping it opens the claim modal (still, name, rarity, sentence, Claim). Claim is state on the run (`claimedAt`, older runs decode as unclaimed), shows the receipt and queues the end scene; the story director waits for an unclaimed cache. Doc 29 updated. Tests: older runs decode, every quest item has a still and sentence, cache manifests decode as icons.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

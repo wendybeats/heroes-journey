@@ -296,6 +296,344 @@
       "source": "assets/sprites/hero.walk.hooded/rev1/source"
     },
     {
+      "id": "icon.cache.common",
+      "kind": "icon",
+      "world": "city",
+      "area": "under_city",
+      "scene": "inventory",
+      "mood": [],
+      "time": "none",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/icon.cache.common/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 627,
+            "height": 627
+          }
+        }
+      ],
+      "source": "assets/sprites/icon.cache.common/rev1/source"
+    },
+    {
+      "id": "icon.cache.legendary",
+      "kind": "icon",
+      "world": "city",
+      "area": "under_city",
+      "scene": "inventory",
+      "mood": [],
+      "time": "none",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/icon.cache.legendary/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 627,
+            "height": 627
+          }
+        }
+      ],
+      "source": "assets/sprites/icon.cache.legendary/rev1/source"
+    },
+    {
+      "id": "icon.cache.rare",
+      "kind": "icon",
+      "world": "city",
+      "area": "under_city",
+      "scene": "inventory",
+      "mood": [],
+      "time": "none",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/icon.cache.rare/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 627,
+            "height": 627
+          }
+        }
+      ],
+      "source": "assets/sprites/icon.cache.rare/rev1/source"
+    },
+    {
+      "id": "icon.cache.uncommon",
+      "kind": "icon",
+      "world": "city",
+      "area": "under_city",
+      "scene": "inventory",
+      "mood": [],
+      "time": "none",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/icon.cache.uncommon/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 627,
+            "height": 627
+          }
+        }
+      ],
+      "source": "assets/sprites/icon.cache.uncommon/rev1/source"
+    },
+    {
+      "id": "icon.item.belt_lifting",
+      "kind": "icon",
+      "world": "city",
+      "area": "under_city",
+      "scene": "inventory",
+      "mood": [],
+      "time": "none",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/icon.item.belt_lifting/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 627,
+            "height": 627
+          }
+        }
+      ],
+      "source": "assets/sprites/icon.item.belt_lifting/rev1/source"
+    },
+    {
+      "id": "icon.item.cap_testmax",
+      "kind": "icon",
+      "world": "city",
+      "area": "under_city",
+      "scene": "inventory",
+      "mood": [],
+      "time": "none",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/icon.item.cap_testmax/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 627,
+            "height": 627
+          }
+        }
+      ],
+      "source": "assets/sprites/icon.item.cap_testmax/rev1/source"
+    },
+    {
+      "id": "icon.item.hoodie_box",
+      "kind": "icon",
+      "world": "city",
+      "area": "under_city",
+      "scene": "inventory",
+      "mood": [],
+      "time": "none",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/icon.item.hoodie_box/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 627,
+            "height": 627
+          }
+        }
+      ],
+      "source": "assets/sprites/icon.item.hoodie_box/rev1/source"
+    },
+    {
+      "id": "icon.item.pants_junko",
+      "kind": "icon",
+      "world": "city",
+      "area": "under_city",
+      "scene": "inventory",
+      "mood": [],
+      "time": "none",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/icon.item.pants_junko/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 627,
+            "height": 627
+          }
+        }
+      ],
+      "source": "assets/sprites/icon.item.pants_junko/rev1/source"
+    },
+    {
+      "id": "icon.item.shades_row",
+      "kind": "icon",
+      "world": "city",
+      "area": "under_city",
+      "scene": "inventory",
+      "mood": [],
+      "time": "none",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/icon.item.shades_row/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 627,
+            "height": 627
+          }
+        }
+      ],
+      "source": "assets/sprites/icon.item.shades_row/rev1/source"
+    },
+    {
+      "id": "icon.item.shoes_clean",
+      "kind": "icon",
+      "world": "city",
+      "area": "under_city",
+      "scene": "inventory",
+      "mood": [],
+      "time": "none",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/icon.item.shoes_clean/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 627,
+            "height": 627
+          }
+        }
+      ],
+      "source": "assets/sprites/icon.item.shoes_clean/rev1/source"
+    },
+    {
+      "id": "icon.item.tee_oldgym",
+      "kind": "icon",
+      "world": "city",
+      "area": "under_city",
+      "scene": "inventory",
+      "mood": [],
+      "time": "none",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/icon.item.tee_oldgym/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 627,
+            "height": 627
+          }
+        }
+      ],
+      "source": "assets/sprites/icon.item.tee_oldgym/rev1/source"
+    },
+    {
+      "id": "icon.item.vest_colossus",
+      "kind": "icon",
+      "world": "city",
+      "area": "under_city",
+      "scene": "inventory",
+      "mood": [],
+      "time": "none",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/icon.item.vest_colossus/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 627,
+            "height": 627
+          }
+        }
+      ],
+      "source": "assets/sprites/icon.item.vest_colossus/rev1/source"
+    },
+    {
+      "id": "icon.item.wraps_chalk",
+      "kind": "icon",
+      "world": "city",
+      "area": "under_city",
+      "scene": "inventory",
+      "mood": [],
+      "time": "none",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/icon.item.wraps_chalk/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 627,
+            "height": 627
+          }
+        }
+      ],
+      "source": "assets/sprites/icon.item.wraps_chalk/rev1/source"
+    },
+    {
       "id": "portrait.guide_elder",
       "kind": "portrait",
       "world": "city",
@@ -356,6 +694,19 @@
       "backdrop.under_city.home_01",
       "backdrop.under_city.protein_row_01",
       "backdrop.under_city.protein_row_walk_01",
+      "icon.cache.common",
+      "icon.cache.legendary",
+      "icon.cache.rare",
+      "icon.cache.uncommon",
+      "icon.item.belt_lifting",
+      "icon.item.cap_testmax",
+      "icon.item.hoodie_box",
+      "icon.item.pants_junko",
+      "icon.item.shades_row",
+      "icon.item.shoes_clean",
+      "icon.item.tee_oldgym",
+      "icon.item.vest_colossus",
+      "icon.item.wraps_chalk",
       "portrait.guide_elder",
       "portrait.hero_hooded"
     ],

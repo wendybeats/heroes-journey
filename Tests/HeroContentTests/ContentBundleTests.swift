@@ -201,4 +201,22 @@ final class ContentBundleTests: XCTestCase {
         let allLoot: [RewardID] = bundle.quests.flatMap { q in q.lootPools.flatMap { $0.rewards } }
         XCTAssertEqual(Set(allLoot).count, 9, "nine quest items across chapter one")
     }
+
+    /// Doc 29: every quest item has its inventory still and a one-sentence description for the claim moment.
+    func testQuestItemsHaveStillsAndDescriptions() throws {
+        let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
+        let questItems = Set(bundle.quests.flatMap { q in q.lootPools.flatMap { $0.rewards } }.compactMap { bundle.reward($0)?.grants.first?.itemID })
+        XCTAssertEqual(questItems.count, 9)
+        for id in questItems {
+            let item = try XCTUnwrap(bundle.item(id))
+            XCTAssertEqual(item.iconAssetSetID?.rawValue.hasPrefix("icon.item."), true, id.rawValue)
+            let sentence = try XCTUnwrap(item.description, id.rawValue)
+            XCTAssertTrue(sentence.hasSuffix("."), id.rawValue); XCTAssertLessThan(sentence.count, 140, id.rawValue)
+            let manifest = try SpriteManifest.decode(RepoFiles.data("assets/sprites/\(item.iconAssetSetID!.rawValue)/rev1/manifest.json"))
+            XCTAssertEqual(manifest.kind, .icon)
+        }
+        for tier in ["common", "uncommon", "rare", "legendary"] {
+            XCTAssertEqual(try SpriteManifest.decode(RepoFiles.data("assets/sprites/icon.cache.\(tier)/rev1/manifest.json")).kind, .icon)
+        }
+    }
 }

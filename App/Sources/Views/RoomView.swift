@@ -93,7 +93,8 @@ struct RoomView: View {
             } else {
                 ForEach(owned, id: \.id) { item in
                     let equipped = state.recipe?.equipped[item.slot] == item.id
-                    HStack {
+                    HStack(spacing: NeoTokyo.Spacing.sm) {
+                        if let icon = item.iconAssetSetID { AssetIcon(assetSetID: icon.rawValue, size: 40) }
                         VStack(alignment: .leading, spacing: 2) {
                             Text(item.displayName).font(HeroFont.bodyMedium).foregroundStyle(NeoTokyo.Text.primary)
                             Text("\(item.slot.rawValue) · \(item.rarity)").font(HeroFont.label).foregroundStyle(item.rarity == "rare" ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.muted)

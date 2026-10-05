@@ -45,7 +45,11 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let slot: AvatarRecipe.Slot
         public let rarity: String
         public let assetSetID: AssetSetID
-        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", slot, rarity, assetSetID = "asset_set_id" }
+        /// Inventory still (`kind: icon`) for the claim modal, loot box and room list (doc 29).
+        public let iconAssetSetID: AssetSetID?
+        /// One sentence, shown when the item is claimed.
+        public let description: String?
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", slot, rarity, assetSetID = "asset_set_id", iconAssetSetID = "icon_asset_set_id", description }
     }
     public struct Reward: Codable, Sendable, Equatable {
         public struct Trigger: Codable, Sendable, Equatable {

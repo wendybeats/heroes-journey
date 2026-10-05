@@ -39,13 +39,19 @@ The departure walk is one baked strip; items do not show while away until the wa
 | Row Shades `item.shades.row` | face | rare | Protein Row, Gym 03 | 6 |
 | Chalk Wraps `item.wraps.chalk` | hand | common | Gym 01–03 | 6 |
 | Lifting Belt `item.belt.lifting` | body | uncommon | Gym 01–03 | 6 |
-| Colossus Chain `item.chain.colossus` | body | rare | Gym 01–03 | 6 |
+| Colossus Vest `item.vest.colossus` | body | rare | Gym 01–03 | 6 |
 
 Fifty layers in all; feet and legs first since they are cheapest and show on every pose.
 
+## Inventory stills and the claim moment (2026-10-05)
+
+Owner handoff `quest-reward-items-v1`: nine item stills and four reward caches (common, uncommon, rare, legendary), 1254×1254 generated PNGs. Stored as `kind: icon` sets (`icon.item.<name>`, `icon.cache.<tier>`) at exactly half size with soft alpha and free palette, status `review`. They are inventory art, not wearable layers; the wearable spec above still stands. The owner's belt still carries its own chain, and the sixth item is a weighted vest, so `item.chain.colossus` became `item.vest.colossus` (Colossus Vest). Each item carries `icon_asset_set_id` and a one-sentence `description`.
+
+The return reveal moved: resolving a quest grants silently (the fact and the ledger are unchanged), and Home shows "Back · open the cache". On the quest screen the walk has stopped, the path is complete, and the cache for the rolled tier glows. Tapping it opens the claim modal (scrim, glass card, the item's still, its name, rarity, sentence, "Claim"). Claim records `claimedAt` on the run, shows the receipt (XP, level-up) and queues the quest's end scene. Claiming is state, not a grant: an unclaimed run after a reinstall shows the same item from the fact. When everything in the pool was already owned, the modal says so and the XP still shows. The legendary cache has no ruleset tier yet.
+
 ## Loot box
 
-The departure screen draws a placeholder crate in code. Authored art: one 48×48 cell at 1× (384×384 at 8×), two states (`closed`, `open`), navy body with the lid highlight in the gold progression colour, binary alpha. Tier is shown by the app's label, not by box colour, so one box serves every tier. Proposal; sizes can change when the art arrives.
+Delivered as the four cache stills above (closed only). The in-code crate remains as the fallback while a tier's art is missing. An `open` state per tier would let the claim modal animate the lid; optional.
 
 ## What to send
 

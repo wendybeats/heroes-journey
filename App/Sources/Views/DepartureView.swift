@@ -13,17 +13,24 @@ struct DepartureView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let run: QuestRun
+    @State private var showClaim = false
+
+    /// The run's own quest (the story may have moved on since departure).
+    private var quest: ContentBundle.Quest? { state.questDefinition(run.questID) ?? state.quest }
+    /// Resolved and not yet opened: the character is home, the cache glows, the walk stops.
+    private var isBack: Bool { run.isResolved }
+    private var unclaimed: Bool { isBack && !run.isClaimed }
 
     /// The quest's panorama, else the home backdrop. Kept out of the view builder for the type checker.
     private var questBackdrop: BackdropID {
-        if let id = state.quest?.backdropID, let set = state.bundle.backdrop(id)?.assetSetID { return BackdropID(set.rawValue) }
+        if let id = quest?.backdropID, let set = state.bundle.backdrop(id)?.assetSetID { return BackdropID(set.rawValue) }
         return state.recipe?.backdropID ?? BackdropID("backdrop.rain_district")
     }
-    private var walkAssetSetID: AssetSetID? { state.quest?.walkAssetSetID }
+    private var walkAssetSetID: AssetSetID? { quest?.walkAssetSetID }
     /// (item name, tier) for the loot tooltip, from the quest's preview list and the ruleset table.
     private var lootPreview: [(String, String)] {
         let table = state.ruleset.dailyQuest?.rewardTable ?? []
-        return (state.quest?.previewRewards ?? []).compactMap { rewardID in
+        return (quest?.previewRewards ?? []).compactMap { rewardID in
             guard let reward = state.bundle.reward(rewardID), let itemID = reward.grants.first?.itemID, let item = state.bundle.item(itemID) else { return nil }
             let tier = table.first { $0.rewardID == rewardID }?.tier ?? item.rarity
             return (item.displayName, tier)
@@ -36,8 +43,8 @@ struct DepartureView: View {
                 // Owner handoff 2026-10-02: the first-walk panorama (one plane, 10 s per strip in the
                 // owner's preview) and the hooded walk cycle. Scroll speed is tuned to the strip, not the
                 // stride; the owner judges foot-slide on device (walk 110 ms x 8 frames).
-                ScrollingBackdrop(assetSetID: questBackdrop, pointsPerSecond: reduceMotion ? 0 : 114, parallax: false)
-                if let walk = walkAssetSetID {
+                ScrollingBackdrop(assetSetID: questBackdrop, pointsPerSecond: (reduceMotion || isBack) ? 0 : 114, parallax: false)
+                if let walk = walkAssetSetID, !isBack {
                     SpritePlayer(assetSetID: walk, animation: "walk", scale: HomeView.characterScale)
                         .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)
                         .padding(.bottom, NeoTokyo.Spacing.xl)
@@ -52,27 +59,82 @@ struct DepartureView: View {
             .clipped()
 
             VStack(spacing: NeoTokyo.Spacing.lg) {
-                Eyebrow(text: "Daily quest")
-                Text(state.quest?.displayName ?? "Quest")
+                Eyebrow(text: isBack ? "Back" : "Daily quest")
+                Text(quest?.displayName ?? "Quest")
                     .font(HeroFont.title).foregroundStyle(NeoTokyo.Text.primary)
-                Text(state.departLine(for: run))
+                Text(isBack ? state.returnLine(for: run) : state.departLine(for: run))
                     .font(HeroFont.body).foregroundStyle(NeoTokyo.Text.secondary)
                     .multilineTextAlignment(.center)
-                QuestPath(progress: 0, lootPreview: lootPreview)
+                QuestPath(progress: isBack ? 1 : 0, lootPreview: lootPreview, cacheTier: isBack ? state.rewardTier(for: run) : nil,
+                          glowing: unclaimed, onOpen: unclaimed ? { showClaim = true } : nil)
                     .padding(.horizontal, NeoTokyo.Spacing.md)
-                if let subtext = state.quest?.subtext {
+                if unclaimed {
+                    Text("Tap the cache.").font(HeroFont.callout).foregroundStyle(NeoTokyo.Hierarchy.primary)
+                } else if let subtext = quest?.subtext {
                     Text(subtext).font(HeroFont.callout).foregroundStyle(NeoTokyo.Text.secondary).multilineTextAlignment(.center)
                 }
-                Countdown(until: run.returnsAt)
+                if !isBack { Countdown(until: run.returnsAt) }
             }
             .padding(NeoTokyo.Spacing.xl)
             Spacer()
-            Button("Got it") { dismiss() }
-                .buttonStyle(PrimaryButtonStyle())
+            Button(unclaimed ? "Later" : "Got it") { dismiss() }
+                .buttonStyle(unclaimed ? AnyButtonStyle(SecondaryButtonStyle()) : AnyButtonStyle(PrimaryButtonStyle()))
                 .padding(.horizontal, NeoTokyo.Spacing.lg)
                 .padding(.bottom, NeoTokyo.Spacing.lg)
         }
         .background(NeoTokyo.Surface.base.ignoresSafeArea())
+        .overlay { if showClaim { ClaimMoment(run: run) { state.claimQuest(run); showClaim = false; dismiss() } } }
+        .animation(.easeInOut(duration: 0.25), value: showClaim)
+    }
+}
+
+/// Type-erased button style so one button can switch between the filled and the quiet style.
+struct AnyButtonStyle: ButtonStyle {
+    private let make: (Configuration) -> AnyView
+    init<S: ButtonStyle>(_ style: S) { make = { AnyView(style.makeBody(configuration: $0)) } }
+    func makeBody(configuration: Configuration) -> some View { make(configuration) }
+}
+
+/// Doc 29 claim moment: the opened cache, the item's still, one sentence, and "Claim". Shaped like
+/// the reward modal (dimmed scrim, centred glass card). The grant is already on the ledger; this
+/// is the moment it is shown, so nothing here can fail or double-grant.
+struct ClaimMoment: View {
+    @Environment(AppState.self) private var state
+    let run: QuestRun
+    let onClaim: () -> Void
+
+    var body: some View {
+        let item = state.questGrantedSomethingNew(run) ? state.questReward(for: run) : nil
+        let tier = state.rewardTier(for: run)
+        ZStack {
+            NeoTokyo.Surface.scrim.opacity(0.75).ignoresSafeArea()
+            VStack(spacing: NeoTokyo.Spacing.md) {
+                Eyebrow(text: tier.map { "\($0) cache" } ?? "Cache")
+                if let item {
+                    if let icon = item.iconAssetSetID {
+                        AssetIcon(assetSetID: icon.rawValue, size: 180)
+                            .shadow(color: NeoTokyo.Hierarchy.primary.opacity(item.rarity == "rare" ? 0.6 : 0.25), radius: 18)
+                    }
+                    Text(item.displayName).font(HeroFont.title).foregroundStyle(NeoTokyo.Text.primary)
+                    Text(item.rarity).font(HeroFont.label).textCase(.uppercase).foregroundStyle(item.rarity == "rare" ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.secondary)
+                    if let d = item.description {
+                        Text(d).font(HeroFont.body).foregroundStyle(NeoTokyo.Text.secondary).multilineTextAlignment(.center)
+                    }
+                } else {
+                    CacheIcon(tier: tier).frame(width: 140, height: 140)
+                    Text("Nothing new in it").font(HeroFont.title).foregroundStyle(NeoTokyo.Text.primary)
+                    Text("Everything down there you already own. The walk still counts.").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.secondary).multilineTextAlignment(.center)
+                }
+                Button("Claim") { onClaim() }
+                    .buttonStyle(PrimaryButtonStyle())
+                    .padding(.top, NeoTokyo.Spacing.sm)
+            }
+            .padding(NeoTokyo.Spacing.xl)
+            .frame(maxWidth: 340)
+            .glass(tint: NeoTokyo.Surface.overlay)
+            .padding(NeoTokyo.Spacing.xl)
+            .transition(.scale(scale: 0.92).combined(with: .opacity))
+        }
     }
 }
 
@@ -148,6 +210,11 @@ struct QuestPath: View {
     let progress: Double
     /// (item name, tier) shown when the loot box is tapped. Empty = plain "?".
     var lootPreview: [(String, String)] = []
+    /// The returned cache's tier (nil while away: the common cache stands for "unknown").
+    var cacheTier: String?
+    /// Something is inside: pulse, and tapping opens it instead of the preview.
+    var glowing = false
+    var onOpen: (() -> Void)?
     @State private var showLoot = false
     var body: some View {
         HStack(spacing: NeoTokyo.Spacing.sm) {
@@ -166,9 +233,9 @@ struct QuestPath: View {
                 .frame(height: geo.size.height)
             }
             .frame(height: 36)
-            Button { showLoot.toggle() } label: { LootBoxIcon().frame(width: 40, height: 40) }
+            Button { if let onOpen { onOpen() } else { showLoot.toggle() } } label: { CacheIcon(tier: cacheTier, glowing: glowing).frame(width: 44, height: 44) }
                 .buttonStyle(.plain)
-                .accessibilityLabel("What might be found")
+                .accessibilityLabel(glowing ? "Open the cache" : "What might be found")
                 .popover(isPresented: $showLoot, arrowEdge: .bottom) {
                     VStack(alignment: .leading, spacing: NeoTokyo.Spacing.sm) {
                         Eyebrow(text: "Might be found down there")

@@ -29,7 +29,7 @@ def main(folder, sheet=None):
     for key in ("world", "area", "scene", "time"):
         if key in m and not isinstance(m[key], str): fail(f"{key} must be a string")
     if "mood" in m and not (isinstance(m["mood"], list) and all(isinstance(x, str) for x in m["mood"])): fail("mood must be a list of strings")
-    if m["kind"] not in ("body", "hair", "item", "backdrop", "effect", "portrait"): fail(f"bad kind {m['kind']}")
+    if m["kind"] not in ("body", "hair", "item", "backdrop", "effect", "portrait", "icon"): fail(f"bad kind {m['kind']}")
     if m["kind"] == "item" and m.get("slot") not in ("head", "face", "body", "hand", "back", "effect"): fail("items need a slot")
     rev_dir = os.path.basename(os.path.normpath(folder))
     if rev_dir != f"rev{m['revision']}": fail(f"folder {rev_dir} does not match revision {m['revision']}")
@@ -55,14 +55,14 @@ def main(folder, sheet=None):
             if im.size != (W, H): fail(f"{rel}: size {im.size}, need {(W, H)}"); continue
             alpha = im.getchannel("A")
             avals = {a for _, a in alpha.getcolors(W * H) or []}
-            if m["kind"] not in ("backdrop", "portrait") and not avals <= {0, 255}: fail(f"{rel}: non-binary alpha values {sorted(avals - {0,255})[:5]}")
+            if m["kind"] not in ("backdrop", "portrait", "icon") and not avals <= {0, 255}: fail(f"{rel}: non-binary alpha values {sorted(avals - {0,255})[:5]}")
             pixels = im.get_flattened_data() if hasattr(im, "get_flattened_data") else im.getdata()
-            threshold = 0 if m["kind"] in ("backdrop", "portrait") else 254   # backdrops may carry soft alpha
+            threshold = 0 if m["kind"] in ("backdrop", "portrait", "icon") else 254   # backdrops may carry soft alpha
             opaque = [(r, g, b) for (r, g, b, a) in pixels if a > threshold]
             if not opaque: fail(f"{rel}: fully transparent"); continue
-            colors = {f"#{r:02X}{g:02X}{b:02X}" for r, g, b in opaque} if m["kind"] not in ("backdrop", "portrait") else set()
+            colors = {f"#{r:02X}{g:02X}{b:02X}" for r, g, b in opaque} if m["kind"] not in ("backdrop", "portrait", "icon") else set()
             seen_colors |= colors
-            if m["kind"] not in ("backdrop", "portrait"):
+            if m["kind"] not in ("backdrop", "portrait", "icon"):
                 # pivot row must touch something: feet stand on the ground line (allow ±2 rows)
                 rows = {y for y in range(H) for x in range(W) if alpha.getpixel((x, y)) == 255}
                 if not any(abs(y - py) <= 2 for y in rows): fail(f"{rel}: no opaque pixels within 2 rows of pivot y={py}")
@@ -70,7 +70,7 @@ def main(folder, sheet=None):
             frames_for_sheet.append(im)
         ok(f"{anim}: {len(spec['frames'])} frames, {spec['frame_duration_ms']} ms, loop={spec['loop']}")
 
-    if m["kind"] in ("backdrop", "portrait"): ok(f"{m['kind']}: palette cap and binary alpha not enforced (flattened art with soft dithered edges)")
+    if m["kind"] in ("backdrop", "portrait", "icon"): ok(f"{m['kind']}: palette cap and binary alpha not enforced (flattened art with soft dithered edges)")
     elif len(seen_colors) > max_colors: fail(f"{len(seen_colors)} opaque colors > max_palette_colors {max_colors}")
     else: ok(f"{len(seen_colors)} opaque colors (max {max_colors})")
     missing = role_colors - seen_colors

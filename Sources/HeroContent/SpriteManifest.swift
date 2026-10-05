@@ -24,7 +24,7 @@ public struct SpriteManifest: Codable, Sendable, Equatable {
         }
         public var isApproved: Bool { self == .approved || self == .accepted }
     }
-    public enum Kind: String, Codable, Sendable { case body, hair, item, backdrop, effect, portrait }
+    public enum Kind: String, Codable, Sendable { case body, hair, item, backdrop, effect, portrait, icon }
 
     public let schemaVersion: Int
     public let assetSetID: AssetSetID

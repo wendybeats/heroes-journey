@@ -1,0 +1,128 @@
+{
+  "created": "2026-10-05",
+  "tool": "image_gen.imagegen",
+  "method": "Built-in image generation; outputs copied unchanged.",
+  "referencePathBase": "Repository assets directory; external references are not bundled in the item ZIP.",
+  "entries": [
+    {
+      "sourceId": "area01_quest01_shoes_common",
+      "output": "area-01-quest-01-v1/common-white-running-shoes.png",
+      "transparent_background": true,
+      "prompt": "Use case: stylized-concept. One isolated inventory/reward item icon for the Neo Tokyo pixel-art mobile RPG. Reference image 1 supplies the existing character's clothing proportions, simple pixel style and restrained shading ONLY: draw the requested ITEM ALONE, no person or mannequin. Genuine transparent background. Square canvas, single centered item, comfortable equal transparent margins; object large and readable at small inventory size. Aim for a simple 64x64 logical-pixel icon, enlarged with hard square pixel edges. Economical 3–5 flat shade steps per material, dark pixel outline, upper-right light, no smooth gradients, blur, photographic fabric detail or tiny pixel noise. Keep dark shadows navy rather than neutral pure black. No lettering, numbers, logos, rarity badge, card frame, floor, scenery or extra items.\nDraw a PAIR of plain WHITE RUNNING SHOES as a common quest reward, based on the simple grey low-top trainers on the reference character. Three-quarter inventory view: one shoe slightly ahead, second partly behind, both clearly recognizable as a pair, toes angled gently to screen-right. Modest everyday runners, thick practical soles, a few simple lace marks, no brand or elaborate athletic technology. Off-white upper #E4E9F4 with cool blue-grey shadows #9FACC8 #6B7A9C; slightly darker light-grey sole, deep navy outlines #101118 #282B36. They should read WHITE, not dark grey. No legs, socks, feet, person, magical glow or pedestal.",
+      "references": [
+        "art/wardrobe/hoodie-v1/review/male-outfit-with-existing-hair.png"
+      ]
+    },
+    {
+      "sourceId": "area01_quest01_hoodie_uncommon",
+      "output": "area-01-quest-01-v1/uncommon-white-hoodie.png",
+      "transparent_background": true,
+      "prompt": "Use case: stylized-concept. One isolated inventory/reward item icon for the Neo Tokyo pixel-art mobile RPG. Reference image 1 supplies the existing character's clothing proportions, simple pixel style and restrained shading ONLY: draw the requested ITEM ALONE, no person or mannequin. Genuine transparent background. Square canvas, single centered item, comfortable equal transparent margins; object large and readable at small inventory size. Aim for a simple 64x64 logical-pixel icon, enlarged with hard square pixel edges. Economical 3–5 flat shade steps per material, dark pixel outline, upper-right light, no smooth gradients, blur, photographic fabric detail or tiny pixel noise. Keep dark shadows navy rather than neutral pure black. No lettering, numbers, logos, rarity badge, card frame, floor, scenery or extra items.\nDraw one plain baggy WHITE PULLOVER HOODIE as an uncommon quest reward, the same loose design worn in the character reference, in a clean mostly FRONT inventory view. Hood visible at top, two short drawstrings, roomy sleeves relaxed diagonally down and outward, ribbed cuffs/hem and one large kangaroo pouch. A hollow wearable garment with no body inside; no face, hands, head, torso or mannequin. Off-white fabric #E4E9F4, modest cool blue-grey fold shadows #9FACC8 #6B7A9C, dark outline #101118 #282B36. White is the dominant readable garment color. Only a few deliberate broad folds, no complicated crumpling, logos, zipper or glow.",
+      "references": [
+        "art/wardrobe/hoodie-v1/review/male-outfit-with-existing-hair.png"
+      ]
+    },
+    {
+      "sourceId": "area01_quest01_pants_rare",
+      "output": "area-01-quest-01-v1/rare-red-striped-sweatpants.png",
+      "transparent_background": true,
+      "prompt": "Use case: stylized-concept. One isolated inventory/reward item icon for the Neo Tokyo pixel-art mobile RPG. Reference image 1 supplies the existing character's clothing proportions, simple pixel style and restrained shading ONLY: draw the requested ITEM ALONE, no person or mannequin. Genuine transparent background. Square canvas, single centered item, comfortable equal transparent margins; object large and readable at small inventory size. Aim for a simple 64x64 logical-pixel icon, enlarged with hard square pixel edges. Economical 3–5 flat shade steps per material, dark pixel outline, upper-right light, no smooth gradients, blur, photographic fabric detail or tiny pixel noise. Keep dark shadows navy rather than neutral pure black. No lettering, numbers, logos, rarity badge, card frame, floor, scenery or extra items.\nDraw one pair of baggy RED SWEATPANTS as a rare quest reward, replacing the reference character's black pants with a restrained clearly RED version. Display the EMPTY garment in a mostly front, slight three-quarter inventory view with both legs and elastic cuffs visible. Loose athletic cut, simple waistband, a few broad natural folds. ONE clean continuous WHITE STRIPE down the outer side seam of each leg from the hip to cuff, especially clear on the nearer side. Muted crimson/red fabric, shades around #632634 #8A3342 #B24B58 #D4787B; do not turn the pants brown, purple or bright neon. White stripe #E4E9F4 with #9FACC8 shadow. Deep navy outlines. No shoes, feet, torso, person, logos, extra stripe patterns or magical glow.",
+      "references": [
+        "art/wardrobe/hoodie-v1/review/male-outfit-with-existing-hair.png"
+      ]
+    },
+    {
+      "sourceId": "test_max_cap",
+      "output": "area-01-additional-v1/test-max-cap.png",
+      "transparent_background": true,
+      "prompt": "Use case: stylized-concept. Create ONE isolated quest-reward inventory icon in the same pixel-art item family as image 1. Image 1 is a STYLE reference only, not an item to duplicate. Square canvas, genuine transparent background, comfortably centered with transparent margins. Bold readable silhouette, deliberate square pixel clusters, simple dark outlines, upper-right light, economical 3–5 flat shade steps. Aiming at readability as a roughly 64x64 logical icon; no tiny noisy detail, blurry gradients, photographic texture or smooth vector edges. Navy shadows and restrained highlights match the Neo Tokyo mobile RPG. Draw only the item, no person, body, skin, mannequin, hanger, display stand, floor or environment. No rarity badge, card frame or floating captions.\nItem: a worn simple dark NAVY BASEBALL CAP named Test MAX Cap. Three-quarter front inventory view, gently curved brim and soft fabric crown. Image 2 supplies the EXISTING Test MAX brand from the left storefront and its pill-bottle poster: reproduce that brand on the cap's front panel, reading exactly \"Test MAX\", preferably two compact stacked lines matching the reference's mixed-case Test and uppercase MAX. Plain block lettering in muted ice-blue so it reads clearly against the dark cap. No new brand typography, no extra slogan, no 4X branding and no bottle attached to the cap. Use a few broad navy fabric shades and a thin cool rim light; slightly worn, not shiny luxury headwear.",
+      "references": [
+        "art/items/area-01-quest-01-v1/uncommon-white-hoodie.png",
+        "art/scenes/scene-01-under-city/locations-v2/v1-supplement-street-scroller.png"
+      ]
+    },
+    {
+      "sourceId": "old_gym_tee",
+      "output": "area-01-additional-v1/old-gym-tee-colossus.png",
+      "transparent_background": true,
+      "prompt": "Use case: stylized-concept. Create ONE isolated quest-reward inventory icon in the same pixel-art item family as image 1. Image 1 is a STYLE reference only, not an item to duplicate. Square canvas, genuine transparent background, comfortably centered with transparent margins. Bold readable silhouette, deliberate square pixel clusters, simple dark outlines, upper-right light, economical 3–5 flat shade steps. Aiming at readability as a roughly 64x64 logical icon; no tiny noisy detail, blurry gradients, photographic texture or smooth vector edges. Navy shadows and restrained highlights match the Neo Tokyo mobile RPG. Draw only the item, no person, body, skin, mannequin, hanger, display stand, floor or environment. No rarity badge, card frame or floating captions.\nItem: OLD GYM TEE from Colossus Gym. One empty, plain short-sleeved CHARCOAL/NAVY cotton T-shirt, relaxed front inventory view, gently splayed short sleeves, a slightly stretched crew neck and worn hem. It is a TEE WITH SHORT SLEEVES, not a tank, hoodie or vest. Image 2 supplies the EXISTING COLOSSUS GYM logo on the gym fascia: reproduce the same big heavy block \"COLOSSUS\" over \"GYM\" and simple BARBELL motif as a faded pale blue-grey print across the tee's chest. Exact words \"COLOSSUS GYM\", no extra copy or alternate brand. The print should be readable in an icon; simplified worn edges, not noisy distress. Faded dark fabric, navy shadows, a few cool shoulder/fold highlights. No body inside.",
+      "references": [
+        "art/items/area-01-quest-01-v1/uncommon-white-hoodie.png",
+        "art/scenes/scene-01-under-city/locations-v2/v2-colossus-exterior-still.png"
+      ]
+    },
+    {
+      "sourceId": "row_shades",
+      "output": "area-01-additional-v1/row-shades.png",
+      "transparent_background": true,
+      "prompt": "Use case: stylized-concept. Create ONE isolated quest-reward inventory icon in the same pixel-art item family as image 1. Image 1 is a STYLE reference only, not an item to duplicate. Square canvas, genuine transparent background, comfortably centered with transparent margins. Bold readable silhouette, deliberate square pixel clusters, simple dark outlines, upper-right light, economical 3–5 flat shade steps. Aiming at readability as a roughly 64x64 logical icon; no tiny noisy detail, blurry gradients, photographic texture or smooth vector edges. Navy shadows and restrained highlights match the Neo Tokyo mobile RPG. Draw only the item, no person, body, skin, mannequin, hanger, display stand, floor or environment. No rarity badge, card frame or floating captions.\nItem: ROW SHADES. One pair of dark athletic WRAPAROUND SUNGLASSES in a three-quarter front view. Matte black/navy frame, broad angular smoke-blue lenses, a small bridge, curved side arms partly visible behind. Compact tough understated sports eyewear, suitable for rowing/training and the Under City. A restrained cool-blue reflection across the lenses makes them readable on the dark UI; no bright neon illumination. They must unmistakably be sunglasses, not ski goggles, a VR headset or a mask. No lettering or logo; no face, case or cleaning cloth.",
+      "references": [
+        "art/items/area-01-quest-01-v1/uncommon-white-hoodie.png"
+      ]
+    },
+    {
+      "sourceId": "chalk_wraps",
+      "output": "area-01-additional-v1/chalk-wraps-white.png",
+      "transparent_background": true,
+      "prompt": "Use case: stylized-concept. Create ONE isolated quest-reward inventory icon in the same pixel-art item family as image 1. Image 1 is a STYLE reference only, not an item to duplicate. Square canvas, genuine transparent background, comfortably centered with transparent margins. Bold readable silhouette, deliberate square pixel clusters, simple dark outlines, upper-right light, economical 3–5 flat shade steps. Aiming at readability as a roughly 64x64 logical icon; no tiny noisy detail, blurry gradients, photographic texture or smooth vector edges. Navy shadows and restrained highlights match the Neo Tokyo mobile RPG. Draw only the item, no person, body, skin, mannequin, hanger, display stand, floor or environment. No rarity badge, card frame or floating captions.\nItem: CHALK WRAPS, a pair of WHITE CLOTH HAND WRAPS for training. Show TWO soft fabric wrap rolls with a short length of flat bandage-width cloth unspooled from each, arranged as a compact readable pair. One small simple thumb loop and one dark fastening tab can clarify that these are reusable athletic hand wraps. Off-white woven cotton, cool blue-grey fold shadows, subtle chalk wear, no fine textile noise. These are long flexible cloth HAND WRAPS, not boxing gloves, casts, leather cuffs or wristwatches. No hands or forearms inside them, no medical cross, packaging, text or other props. Keep the silhouette simple and the whites clear.",
+      "references": [
+        "art/items/area-01-quest-01-v1/uncommon-white-hoodie.png"
+      ]
+    },
+    {
+      "sourceId": "lifting_belt",
+      "output": "area-01-additional-v1/lifting-belt-chain.png",
+      "transparent_background": true,
+      "prompt": "Use case: stylized-concept. Create ONE isolated quest-reward inventory icon in the same pixel-art item family as image 1. Image 1 is a STYLE reference only, not an item to duplicate. Square canvas, genuine transparent background, comfortably centered with transparent margins. Bold readable silhouette, deliberate square pixel clusters, simple dark outlines, upper-right light, economical 3–5 flat shade steps. Aiming at readability as a roughly 64x64 logical icon; no tiny noisy detail, blurry gradients, photographic texture or smooth vector edges. Navy shadows and restrained highlights match the Neo Tokyo mobile RPG. Draw only the item, no person, body, skin, mannequin, hanger, display stand, floor or environment. No rarity badge, card frame or floating captions.\nItem: a worn LEATHER DIP/LIFTING BELT WITH A METAL CHAIN for attaching weights. Three-quarter inventory view of one broad curved brown leather back/waist support with tapered ends and two metal D-rings, a sturdy silver-grey chain hanging in a readable U-shape below/between its front ends, ending in a simple clip/carabiner. This must look like gym equipment used to hang weight plates from a belt, not a fashion trouser belt. Brown leather with broad dark umber shadows and muted warm brown edges; a few simple stitch marks, robust scuffed metal rings and large clear chain links. No weight plate attached, no person, no pants, no spikes, no weapon or ornamental chains. Use enough space to show the whole hanging chain within the icon margins.",
+      "references": [
+        "art/items/area-01-quest-01-v1/uncommon-white-hoodie.png"
+      ]
+    },
+    {
+      "sourceId": "colossus_weighted_vest",
+      "output": "area-01-additional-v1/colossus-weighted-vest.png",
+      "transparent_background": true,
+      "prompt": "Use case: stylized-concept. Create ONE isolated quest-reward inventory icon in the same pixel-art item family as image 1. Image 1 is a STYLE reference only, not an item to duplicate. Square canvas, genuine transparent background, comfortably centered with transparent margins. Bold readable silhouette, deliberate square pixel clusters, simple dark outlines, upper-right light, economical 3–5 flat shade steps. Aiming at readability as a roughly 64x64 logical icon; no tiny noisy detail, blurry gradients, photographic texture or smooth vector edges. Navy shadows and restrained highlights match the Neo Tokyo mobile RPG. Draw only the item, no person, body, skin, mannequin, hanger, display stand, floor or environment. No rarity badge, card frame or floating captions.\nItem: COLOSSUS WEIGHTED VEST, displayed as one composite wearable inventory item OVER A BLACK MUSCLE TEE. The underneath garment is a plain black sleeveless muscle tee with broad shoulder openings; make its black neck opening, short exposed shoulder strips and lower hem visibly distinct beneath the vest. No arms or torso inside. On top is a heavy charcoal/steel-grey TRAINING WEIGHT VEST with broad straps, a simple chest closure and TWO orderly columns of obvious small rectangular removable weight pockets/blocks on the front, plus side fastening straps. The vest must clearly read as exercise equipment, not ballistic armor or a military tactical plate carrier: no MOLLE webbing, ammo pouches, weapons or badges. Compact mostly front inventory view, readable silhouette. Image 2 is Colossus Gym's world/brand reference; a very small simple barbell emblem on the chest is enough, do not add tiny illegible text. Differentiate dark tee, medium-grey vest and muted metal weight edges with clear flat pixel shades. Heavy practical gear, no glow or bright trim.",
+      "references": [
+        "art/items/area-01-quest-01-v1/uncommon-white-hoodie.png",
+        "art/scenes/scene-01-under-city/locations-v2/v2-colossus-exterior-still.png"
+      ]
+    },
+    {
+      "sourceId": "quest_reward_cache_common",
+      "output": "reward-caches-v1/reward-cache-common.png",
+      "transparent_background": true,
+      "prompt": "Use case: stylized-concept. One isolated inventory/reward item icon for the Neo Tokyo pixel-art mobile RPG. Reference image 1 supplies the existing character's clothing proportions, simple pixel style and restrained shading ONLY: draw the requested ITEM ALONE, no person or mannequin. Genuine transparent background. Square canvas, single centered item, comfortable equal transparent margins; object large and readable at small inventory size. Aim for a simple 64x64 logical-pixel icon, enlarged with hard square pixel edges. Economical 3–5 flat shade steps per material, dark pixel outline, upper-right light, no smooth gradients, blur, photographic fabric detail or tiny pixel noise. Keep dark shadows navy rather than neutral pure black. No lettering, numbers, logos, rarity badge, card frame, floor, scenery or extra items.\nInstead of clothing, draw the universal COMMON quest reward CACHE: a squat, sturdy rectangular industrial metal chest, not a gift box or treasure barrel. Same pixel-art visual language as the reference. Neo Tokyo salvage-tech: battered navy metal panels, reinforced corners, a heavy fitted lid, simple hinges and a large central latch. Three-quarter view showing the front, top and right side. Short and wide, roughly 1.5 times as wide as tall, occupying about 75% of canvas width; entire chest including glow inside the margins. Closed lid with a VERY THIN luminous seam hinting at rewards inside.\nMuted navy/steel body #101118 #1B1D27 #373B49 #4D5365, restrained cool metal edges #697287 #9FACC8. Common-tier light is faint SILVER/ICE-WHITE #E4E9F4: a thin lid seam, one small rectangular illuminated mark on the central latch, and a tiny localized halo made from a few stepped translucent pixel clusters immediately around the seam. It must stand out on a dark navy app surface without a big aura. Not a wooden fantasy pirate chest, not a military ammo crate, no weapons, gems, ribbons, floating loot, question marks or text. The simple core chest geometry will be reused for uncommon, rare and legendary tiers.",
+      "references": [
+        "art/wardrobe/hoodie-v1/review/male-outfit-with-existing-hair.png"
+      ]
+    },
+    {
+      "sourceId": "quest_reward_cache_uncommon",
+      "output": "reward-caches-v1/reward-cache-uncommon.png",
+      "transparent_background": true,
+      "prompt": "Edit the supplied COMMON quest reward cache into the requested rarity variant for the same Neo Tokyo pixel-art game. Preserve the exact core chest identity: same camera, front/top/right faces, perspective, closed lid, silhouette, dimensions, placement, dark navy steel panels, reinforced corners and latch. Keep the same square canvas and genuine transparent background. Do not redesign or rotate it. Hard square pixel clusters and economical shading, no blur, gradients, photographic detail or ornamental fantasy styling. The chest remains mostly dark navy metal. Change only small trim/inlay details, latch marks and the thin lid-seam glow to communicate the new tier. All glow is faint and localized, contained within the canvas; preserve the large transparent margins. No floor, background, labels, text, rarity words, ribbons, floating loot, gems or stars.\nUNCOMMON variant: restrained BLUE #6FA9DC light with #2E5C88 dim partner. Replace the common silver lid-seam light with this blue. Add two tiny stacked illuminated blue rectangular marks to the central latch. Thin blue inset edges on the existing front corner brackets, keeping the steel brackets predominantly grey. A slightly more visible but still faint stepped-pixel halo immediately around the seam; no large aura or particles. Same worn practical metal chest.",
+      "references": [
+        "art/items/reward-caches-v1/reward-cache-common.png"
+      ]
+    },
+    {
+      "sourceId": "quest_reward_cache_rare",
+      "output": "reward-caches-v1/reward-cache-rare.png",
+      "transparent_background": true,
+      "prompt": "Edit the supplied COMMON quest reward cache into the requested rarity variant for the same Neo Tokyo pixel-art game. Preserve the exact core chest identity: same camera, front/top/right faces, perspective, closed lid, silhouette, dimensions, placement, dark navy steel panels, reinforced corners and latch. Keep the same square canvas and genuine transparent background. Do not redesign or rotate it. Hard square pixel clusters and economical shading, no blur, gradients, photographic detail or ornamental fantasy styling. The chest remains mostly dark navy metal. Change only small trim/inlay details, latch marks and the thin lid-seam glow to communicate the new tier. All glow is faint and localized, contained within the canvas; preserve the large transparent margins. No floor, background, labels, text, rarity words, ribbons, floating loot, gems or stars.\nRARE variant: restrained dusty PINK #E08BAB light with #8A3D5C dim partner. Replace the common silver lid seam with this pink. Three small stacked pink illuminated rectangular marks on the central latch. A narrow extra pink-edged inlay on the existing lid bands and front bracket edges makes it read as a better cache, without changing the silhouette. Faint short stepped-pixel glow around the seam, only a little stronger than common. No saturated magenta flood, pink body panels or particle shower.",
+      "references": [
+        "art/items/reward-caches-v1/reward-cache-common.png"
+      ]
+    },
+    {
+      "sourceId": "quest_reward_cache_legendary",
+      "output": "reward-caches-v1/reward-cache-legendary.png",
+      "transparent_background": true,
+      "prompt": "Edit the supplied COMMON quest reward cache into the requested rarity variant for the same Neo Tokyo pixel-art game. Preserve the exact core chest identity: same camera, front/top/right faces, perspective, closed lid, silhouette, dimensions, placement, dark navy steel panels, reinforced corners and latch. Keep the same square canvas and genuine transparent background. Do not redesign or rotate it. Hard square pixel clusters and economical shading, no blur, gradients, photographic detail or ornamental fantasy styling. The chest remains mostly dark navy metal. Change only small trim/inlay details, latch marks and the thin lid-seam glow to communicate the new tier. All glow is faint and localized, contained within the canvas; preserve the large transparent margins. No floor, background, labels, text, rarity words, ribbons, floating loot, gems or stars.\nLEGENDARY variant: muted warm GOLD #E3B95E light with #7A6030 dim partner, and a few pale gold hot pixels at the latch. Replace common silver seam with a gold reward glow. Four small illuminated gold rectangular marks stacked on the latch. Precise thin gold trim outlines the existing lid bands and reinforced front corners; dark navy still dominates the body. Add a small simple stepped geometric gold inlay on the top panel to make this the most valuable tier, no text or fantasy crest. Give the closed lid a faint gold light leaking through the seam, the clearest glow of this set yet still restrained and close to the chest. No open lid, explosion, giant aura, all-gold chest, coins, gems or elaborate ornament.",
+      "references": [
+        "art/items/reward-caches-v1/reward-cache-common.png"
+      ]
+    }
+  ]
+}

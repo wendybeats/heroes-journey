@@ -38,12 +38,16 @@ public struct QuestRun: Hashable, Codable, Sendable, Identifiable {
     public var reward: QuestReference?
     /// The progression fact created at return.
     public var activityEventID: ActivityEventID?
+    /// When the player opened the cache (doc 29). The grant is already on the ledger at return;
+    /// claiming is the moment it is shown. nil on older runs decodes as unclaimed-but-shown.
+    public var claimedAt: Date?
 
     public init(id: UUID = UUID(), questID: QuestID, day: DayKey, startedAt: Date, returnsAt: Date) {
         self.id = id; self.questID = questID; self.day = day; self.startedAt = startedAt; self.returnsAt = returnsAt
     }
 
     public var isResolved: Bool { resolvedAt != nil }
+    public var isClaimed: Bool { claimedAt != nil }
     public func isDue(at now: Date) -> Bool { !isResolved && now >= returnsAt }
     public func remaining(at now: Date) -> TimeInterval { max(0, returnsAt.timeIntervalSince(now)) }
     public var duration: TimeInterval { returnsAt.timeIntervalSince(startedAt) }

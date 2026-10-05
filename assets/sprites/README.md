@@ -56,6 +56,7 @@ The validator checks manifest shape, frame count and dimensions, binary alpha, p
 
 ## Portraits and walk cycles (2026-10-02)
 
+- `kind: icon` (2026-10-05): an inventory still (quest item, reward cache), same rules as a portrait; ids `icon.item.<name>`, `icon.cache.<tier>`. Not a wearable layer.
 - `kind: portrait`: a flattened generated still (soft alpha, free palette, any canvas), like a backdrop. Rendered nearest-neighbour into a square frame. One `still` animation.
 - Walk storyboards: `Tools/bake_walk_cycle.py` registers a generated pose grid onto 64 × 128 cells (shared scale, one palette, binary alpha, feet on the pivot row, specks removed). It does not redraw poses; keep the storyboard under `rev<N>/source/`.
 

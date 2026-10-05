@@ -45,6 +45,10 @@ struct GoalsCard: View {
                     .buttonStyle(PrimaryButtonStyle())
                     .sheet(isPresented: $showDepartPrompt) { QuestDepartPrompt().presentationDetents([.medium]) }
             }
+            if state.unclaimedQuest != nil {
+                Button("Open the cache") { state.showDeparture = true }
+                    .buttonStyle(SecondaryButtonStyle())
+            }
         }
     }
 
@@ -65,7 +69,7 @@ struct GoalsCard: View {
             return left == 1 ? "One goal left to unlock it." : "\(left) goals left to unlock it."
         case .ready: return "All goals done. \(state.quest?.displayName ?? "The road") is open."
         case let .away(run): return state.awayLine(for: run)
-        case let .returned(run): return state.returnLine(for: run)
+        case let .returned(run): return run.isClaimed ? state.returnLine(for: run) : "Back. Something came back too."
         }
     }
 }

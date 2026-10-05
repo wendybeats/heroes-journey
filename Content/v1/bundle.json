@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.05-4",
+  "content_version": "2026.10.05-5",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -300,7 +300,9 @@
       "slot": "feet",
       "rarity": "common",
       "asset_set_id": "item.shoes.clean",
-      "notes": "White shoes. Art pending."
+      "notes": "Inventory still in the kit; wearable layers pending (doc 29). Placeholder wearable layer present.",
+      "icon_asset_set_id": "icon.item.shoes_clean",
+      "description": "White runners that have never seen the Under City's rain. They will."
     },
     {
       "id": "item.hoodie.box",
@@ -308,7 +310,9 @@
       "slot": "body",
       "rarity": "uncommon",
       "asset_set_id": "item.hoodie.box",
-      "notes": "White hoodie. Art pending."
+      "notes": "Inventory still in the kit; wearable layers pending (doc 29).",
+      "icon_asset_set_id": "icon.item.hoodie_box",
+      "description": "A baggy white pullover with a pocket big enough to hide your hands and your doubts."
     },
     {
       "id": "item.pants.junko",
@@ -316,7 +320,9 @@
       "slot": "legs",
       "rarity": "rare",
       "asset_set_id": "item.pants.junko",
-      "notes": "Red pants, white stripe down the side. Art pending."
+      "notes": "Inventory still in the kit; wearable layers pending (doc 29).",
+      "icon_asset_set_id": "icon.item.pants_junko",
+      "description": "Red sweats with a white stripe down each leg, named after someone nobody on the Row will talk about."
     },
     {
       "id": "item.cap.testmax",
@@ -324,7 +330,9 @@
       "slot": "head",
       "rarity": "common",
       "asset_set_id": "item.cap.testmax",
-      "notes": "A branded cap from the pill store on Protein Row. Art pending (doc 29)."
+      "notes": "Inventory still in the kit; wearable layers pending (doc 29).",
+      "icon_asset_set_id": "icon.item.cap_testmax",
+      "description": "A worn navy cap from the pill store; the brand promises growth, the cap only promises shade."
     },
     {
       "id": "item.tee.oldgym",
@@ -332,7 +340,9 @@
       "slot": "body",
       "rarity": "uncommon",
       "asset_set_id": "item.tee.oldgym",
-      "notes": "Faded tee from the old gym where Colossus once trained. Art pending (doc 29)."
+      "notes": "Inventory still in the kit; wearable layers pending (doc 29).",
+      "icon_asset_set_id": "icon.item.tee_oldgym",
+      "description": "A charcoal tee with the Colossus Gym wordmark, from the days when the sign still meant a gym."
     },
     {
       "id": "item.shades.row",
@@ -340,7 +350,9 @@
       "slot": "face",
       "rarity": "rare",
       "asset_set_id": "item.shades.row",
-      "notes": "The sunglasses man's spares. He never explained. Art pending (doc 29)."
+      "notes": "Inventory still in the kit; wearable layers pending (doc 29).",
+      "icon_asset_set_id": "icon.item.shades_row",
+      "description": "Dark wraparound shades like the man outside the old gym wears; he never explained why."
     },
     {
       "id": "item.wraps.chalk",
@@ -348,7 +360,9 @@
       "slot": "hand",
       "rarity": "common",
       "asset_set_id": "item.wraps.chalk",
-      "notes": "Wrist wraps, white with chalk. Someone's old pair. Art pending (doc 29)."
+      "notes": "Inventory still in the kit; wearable layers pending (doc 29).",
+      "icon_asset_set_id": "icon.item.wraps_chalk",
+      "description": "White cloth hand wraps, chalked to the bone, left by someone who stopped counting sets."
     },
     {
       "id": "item.belt.lifting",
@@ -356,15 +370,19 @@
       "slot": "body",
       "rarity": "uncommon",
       "asset_set_id": "item.belt.lifting",
-      "notes": "A worn leather belt from the Colossus floor. Art pending (doc 29)."
+      "notes": "Inventory still in the kit; wearable layers pending (doc 29).",
+      "icon_asset_set_id": "icon.item.belt_lifting",
+      "description": "A worn leather belt with a hanging chain and clip, built for loads the body was not."
     },
     {
-      "id": "item.chain.colossus",
-      "display_name": "Colossus Chain",
+      "id": "item.vest.colossus",
+      "display_name": "Colossus Vest",
       "slot": "body",
       "rarity": "rare",
-      "asset_set_id": "item.chain.colossus",
-      "notes": "A heavy chain from the deep floor. It is never taken off willingly. Art pending (doc 29)."
+      "asset_set_id": "item.vest.colossus",
+      "notes": "Inventory still in the kit; wearable layers pending (doc 29).",
+      "icon_asset_set_id": "icon.item.vest_colossus",
+      "description": "A weighted vest over a black muscle tee: the deep floor's uniform, heavier every week."
     }
   ],
   "rewards": [
@@ -599,14 +617,14 @@
       ]
     },
     {
-      "id": "reward.quest.colossus_chain",
+      "id": "reward.quest.colossus_vest",
       "trigger": {
         "type": "quest"
       },
       "grants": [
         {
           "type": "item",
-          "item_id": "item.chain.colossus"
+          "item_id": "item.vest.colossus"
         }
       ]
     }
@@ -1991,7 +2009,7 @@
           "reward.quest.lifting_belt"
         ],
         "rare": [
-          "reward.quest.colossus_chain"
+          "reward.quest.colossus_vest"
         ]
       }
     },
@@ -2035,7 +2053,7 @@
           "reward.quest.oldgym_tee"
         ],
         "rare": [
-          "reward.quest.colossus_chain",
+          "reward.quest.colossus_vest",
           "reward.quest.junko_pants"
         ]
       }
@@ -2080,7 +2098,7 @@
           "reward.quest.box_hoodie"
         ],
         "rare": [
-          "reward.quest.colossus_chain",
+          "reward.quest.colossus_vest",
           "reward.quest.row_shades",
           "reward.quest.junko_pants"
         ]

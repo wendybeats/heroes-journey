@@ -98,4 +98,16 @@ final class QuestTests: XCTestCase {
         let data = try! JSONEncoder().encode(QuestReference(questID: "quest.test", rewardIndex: 2))
         XCTAssertNil(try! JSONDecoder().decode(QuestReference.self, from: data).rewardID)
     }
+
+    /// Doc 29: runs saved before the claim moment decode as unclaimed; claiming is state, not a grant.
+    func testOlderRunsDecodeAsUnclaimed() throws {
+        var r = makeRun(); r.resolvedAt = now
+        let data = try JSONEncoder().encode(r)
+        var dict = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        dict.removeValue(forKey: "claimedAt")
+        let old = try JSONDecoder().decode(QuestRun.self, from: JSONSerialization.data(withJSONObject: dict))
+        XCTAssertTrue(old.isResolved); XCTAssertFalse(old.isClaimed)
+        var claimed = old; claimed.claimedAt = now
+        XCTAssertTrue(claimed.isClaimed)
+    }
 }

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "icon.item.hoodie_box",
+  "revision": 1,
+  "status": "review",
+  "kind": "icon",
+  "canvas": {
+    "width": 627,
+    "height": 627
+  },
+  "pivot": {
+    "x": 313,
+    "y": 626
+  },
+  "layer_order": 0,
+  "max_palette_colors": 100000,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner handoff 2026-10-05 (quest-reward-items-v1): Box Hoodie still. Inventory still, not a wearable layer. Generated 1254x1254, stored at exactly half (2x2 box) with soft alpha and free palette; not on a logical grid. Rendered nearest-neighbour into a square frame (claim modal, loot box, room list). Content item item.hoodie.box.",
+  "world": "city",
+  "area": "under_city",
+  "scene": "inventory",
+  "mood": [],
+  "time": "none"
+}

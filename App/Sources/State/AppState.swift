@@ -564,10 +564,33 @@ final class AppState {
         questRuns[i].activityEventID = event.id
         events.append(event)
         outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
-        pendingReturnChapter = bundle.quest(questRuns[i].questID)?.onReturnChapter   // the quest's end scene, after the reveal
         QuestNotifications.cancel()
         save()
-        Task { await drain(showReward: true) }
+        // The grant lands now; the reveal waits until the player opens the cache (doc 29).
+        Task { await drain(showReward: false) }
+    }
+
+    /// A resolved run whose cache has not been opened. Home points at it; the story waits for it.
+    var unclaimedQuest: QuestRun? { questRuns.first { $0.isResolved && !$0.isClaimed } }
+    /// The item this run brought back (the fact's chosen reward, else the table row's), if any.
+    func questReward(for run: QuestRun) -> ContentBundle.Item? {
+        guard let ref = run.reward else { return nil }
+        guard let id = ref.rewardID ?? ruleset.dailyQuest?.rewardTable[safe: ref.rewardIndex]?.rewardID,
+              let reward = bundle.reward(id), let itemID = reward.grants.first?.itemID else { return nil }
+        return bundle.item(itemID)
+    }
+    /// True when the return fact granted something new (false = XP only, everything in the pool was owned).
+    func questGrantedSomethingNew(_ run: QuestRun) -> Bool {
+        guard let eventID = run.activityEventID, let receipt = outbox.receipt(for: eventID) else { return questReward(for: run) != nil }
+        return !receipt.rewardsGranted.isEmpty
+    }
+    /// Open the cache: show the receipt (XP, level-up) and queue the quest's end scene. Idempotent.
+    func claimQuest(_ run: QuestRun) {
+        guard let i = questRuns.firstIndex(where: { $0.id == run.id }), questRuns[i].isResolved, !questRuns[i].isClaimed else { return }
+        questRuns[i].claimedAt = Date()
+        if let eventID = questRuns[i].activityEventID, let receipt = outbox.receipt(for: eventID) { lastReceipt = receipt }
+        pendingReturnChapter = bundle.quest(questRuns[i].questID)?.onReturnChapter
+        save()
     }
 
     /// What a reward is called when it lands: the item, backdrop or evolution it grants, else its id.
