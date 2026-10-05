@@ -22,6 +22,9 @@ struct HomeView: View {
     @State private var levelFlash = false
     @State private var ascension: (start: Date, from: String?, to: String?, name: String)?
     @State private var barFill: Double = 0
+    /// The chapter being played from Home (doc 28): a due milestone's scene, or a quest's end scene.
+    @State private var storyScene: StoryScene?
+    @State private var showRoom = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
 
@@ -36,6 +39,7 @@ struct HomeView: View {
                     VStack(spacing: NeoTokyo.Spacing.lg) {
                         attributesRow(snapshot)
                         GoalsCard()
+                        storyCard
                         todayCard
                         weekCard
                     }
@@ -51,6 +55,13 @@ struct HomeView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showHistory = true } label: { Image(systemName: "clock.arrow.circlepath") }
                         .foregroundStyle(NeoTokyo.Text.secondary)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    // The room arrives with the story (milestone `unlock_feature: home_room`), not at install.
+                    if state.hasFeature("home_room") {
+                        Button { showRoom = true } label: { Image(systemName: "house") }
+                            .foregroundStyle(NeoTokyo.Text.secondary)
+                    }
                 }
                 #if DEBUG
                 ToolbarItem(placement: .topBarLeading) {
@@ -75,6 +86,14 @@ struct HomeView: View {
             .sheet(isPresented: $showHistory) { HistoryView() }
             .fullScreenCover(item: $departure) { run in DepartureView(run: run) }
             .fullScreenCover(isPresented: Binding(get: { state.needsStage }, set: { if !$0 { state.dismissStage() } })) { StageView() }
+            .fullScreenCover(item: $storyScene) { scene in
+                StoryView(chapter: scene.chapter, heroRecipe: state.recipe) {
+                    storyScene = nil
+                    // Recorded on finish, so an interrupted scene replays rather than being lost (idempotent).
+                    if let milestone = scene.milestone { state.completeMilestone(milestone) } else { state.clearPendingReturnChapter() }
+                }
+            }
+            .sheet(isPresented: $showRoom) { RoomView() }
             .overlayPreferenceValue(SceneAnchorsKey.self) { anchors in
                 GeometryReader { geo in
                     if let start = levelUpStart, let c = anchors["character"], let b = anchors["badge"] {
@@ -89,7 +108,16 @@ struct HomeView: View {
             .overlay { if let receipt = state.lastReceipt { RewardMoment(receipt: receipt) } }
             .animation(.easeInOut(duration: 0.25), value: state.lastReceipt == nil)
         }
-        .onAppear { if shown == nil { shown = state.snapshot; barFill = levelProgress(state.snapshot) } }
+        .onAppear { if shown == nil { shown = state.snapshot; barFill = levelProgress(state.snapshot) }; scheduleStory() }
+        // The director waits for a quiet screen: no reward modal, no level-up or ascension, no stage,
+        // nothing presented. Each of these settling is a chance to play the next beat.
+        .onChange(of: state.lastReceipt == nil) { _, _ in scheduleStory() }
+        .onChange(of: levelUpStart == nil) { _, _ in scheduleStory() }
+        .onChange(of: ascension == nil) { _, _ in scheduleStory() }
+        .onChange(of: state.needsStage) { _, _ in scheduleStory() }
+        .onChange(of: state.pendingReturnChapter) { _, _ in scheduleStory() }
+        .onChange(of: storyScene == nil) { _, _ in scheduleStory() }
+        .onChange(of: departure == nil) { _, _ in scheduleStory() }
         .onChange(of: scenePhase) { _, phase in if phase == .active { state.ensureTodayPlan(); state.resolveQuestIfDue(); Task { await state.syncHealth() } } }
         .onChange(of: state.showDeparture) { _, show in
             if show, let run = state.activeQuest { departure = run; state.showDeparture = false }
@@ -139,6 +167,59 @@ struct HomeView: View {
             } else {
                 withAnimation(.easeOut(duration: 1.2)) { shown = new; barFill = levelProgress(new) }
             }
+        }
+    }
+
+    // MARK: story director (doc 28)
+
+    private var storyIdle: Bool {
+        state.lastReceipt == nil && ascension == nil && levelUpStart == nil && !state.needsStage
+            && departure == nil && storyScene == nil && !showWorkout && !showLog && !showHistory && !showRoom
+    }
+
+    /// Present the next scene once the screen has settled. The delay lets a dismissal finish before
+    /// the next cover is presented; presenting while one is animating away is dropped by UIKit.
+    private func scheduleStory() {
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(650))
+            presentStoryIfIdle()
+        }
+    }
+
+    private func presentStoryIfIdle() {
+        guard storyIdle else { return }
+        // A quest's end scene plays first (after its return reveal), then any beat the level has reached.
+        if let id = state.pendingReturnChapter {
+            if let chapter = state.bundle.chapter(id) { storyScene = StoryScene(chapter: chapter, milestone: nil) } else { state.clearPendingReturnChapter() }
+            return
+        }
+        guard let milestone = state.nextStoryBeat else { return }
+        if let id = milestone.storyChapter, let chapter = state.bundle.chapter(id) {
+            storyScene = StoryScene(chapter: chapter, milestone: milestone)
+        } else {
+            state.completeMilestone(milestone)   // a beat without a scene: apply its unlocks silently
+        }
+    }
+
+    /// Manual beats (boss encounters) wait on the card until the player starts them.
+    @ViewBuilder
+    private var storyCard: some View {
+        if let milestone = state.offeredMilestones.first {
+            VStack(alignment: .leading, spacing: NeoTokyo.Spacing.sm) {
+                Eyebrow(text: state.currentChapter?.displayName ?? "Story")
+                Text(milestone.triggerLabel ?? "Continue").font(HeroFont.headline).foregroundStyle(NeoTokyo.Text.primary)
+                Text("When you're ready. It waits for you.").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
+                Button(milestone.triggerLabel ?? "Continue") {
+                    if let id = milestone.storyChapter, let chapter = state.bundle.chapter(id) {
+                        storyScene = StoryScene(chapter: chapter, milestone: milestone)
+                    } else {
+                        state.completeMilestone(milestone)
+                    }
+                }
+                .buttonStyle(SecondaryButtonStyle())
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .card()
         }
     }
 
@@ -390,4 +471,11 @@ struct SceneBackdrop: View {
             y += cell
         }
     }
+}
+
+/// A chapter being played from Home, with the milestone it completes (nil for a quest's end scene).
+struct StoryScene: Identifiable {
+    let chapter: ContentBundle.StoryChapter
+    let milestone: Milestone?
+    var id: String { chapter.id }
 }

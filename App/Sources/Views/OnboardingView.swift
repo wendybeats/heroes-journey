@@ -62,8 +62,8 @@ struct OnboardingView: View {
             BackdropImage(assetSetID: "backdrop.alley_awakening")
             // Until the body is chosen the hero is still the hooded stranger (owner, 2026-10-02); a
             // hood-up idle sprite is an art item, the portrait stands in meanwhile.
-            if step.rawValue < Step.body.rawValue, let hero = state.bundle.character("hero") {
-                PortraitView(assetSetID: hero.portraitAssetSetID, size: 170)
+            if step.rawValue < Step.body.rawValue, let set = state.bundle.character("hero")?.portraitAssetSetID {
+                PortraitView(assetSetID: set, size: 170)
                     .padding(.bottom, NeoTokyo.Spacing.sm)
             } else {
                 CharacterView(recipe: draft, outfit: state.bundle.evolution(forLevel: 1)?.outfit, scale: HomeView.characterScale)
