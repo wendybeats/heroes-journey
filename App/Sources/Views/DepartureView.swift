@@ -45,11 +45,11 @@ struct DepartureView: View {
                 // stride; the owner judges foot-slide on device (walk 110 ms x 8 frames).
                 ScrollingBackdrop(assetSetID: questBackdrop, pointsPerSecond: (reduceMotion || isBack) ? 0 : 114, parallax: false)
                 if let walk = walkAssetSetID, !isBack {
-                    SpritePlayer(assetSetID: walk, animation: "walk", scale: HomeView.characterScale)
+                    SpritePlayer(assetSetID: walk, animation: "walk", scale: HomeView.walkScale)
                         .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)
                         .padding(.bottom, NeoTokyo.Spacing.xl)
                 } else if let recipe = state.recipe {
-                    CharacterView(recipe: recipe, scale: HomeView.characterScale, ascension: state.ascensionTier)
+                    CharacterView(recipe: recipe, scale: HomeView.walkScale, ascension: state.ascensionTier)
                         .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)
                         .padding(.bottom, NeoTokyo.Spacing.xl)
                 }

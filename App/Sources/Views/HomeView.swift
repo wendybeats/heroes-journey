@@ -8,11 +8,11 @@ import HeroContent
 /// Doc 19 "fitness first": the utility (today, this week, log) carries the screen. The
 /// character is present and reacts, but sits in a compact scene rather than dominating.
 struct HomeView: View {
-    /// Sprite scale in points. The kit rule is "integer device pixels per sprite pixel", not integer points.
-    /// 5 device px per pixel (owner 2026-10-06: 4 read as tiny against the gym; 6 was the original) is 107×213 pt
-    /// for the 64×128 cell and crisp on 3x displays. On a 2x display this is 2.5 pt (alternating 2 and 3 px rows);
-    /// acceptable for the iPad and SE until a 2x-specific value is chosen.
-    static var characterScale: CGFloat { 5 / displayScale }
+    /// Idle sprite scale in points: the original 2 pt per sprite pixel (6 device px on 3x), 128×256 pt for the
+    /// 64×128 cell. Owner 2026-10-06: the smaller size was meant for the walking quest only, not the idle.
+    static let characterScale: CGFloat = 2
+    /// Departure walk scale: 4 device px per sprite pixel (a third smaller), crisp on 3x displays.
+    static var walkScale: CGFloat { 4 / displayScale }
     static var displayScale: CGFloat {
         #if canImport(UIKit)
         return UIScreen.main.scale
@@ -54,7 +54,10 @@ struct HomeView: View {
                     // companion world comes first, then today's goals, then progression, then utility.
                     sceneCard(snapshot)
                     VStack(spacing: NeoTokyo.Spacing.lg) {
-                        attributesRow(snapshot)
+                        VStack(spacing: NeoTokyo.Spacing.sm) {
+                            progressRow(snapshot)
+                            attributesRow(snapshot)
+                        }
                         GoalsCard()
                         storyCard
                         todayCard
@@ -306,33 +309,38 @@ struct HomeView: View {
                 .buttonStyle(.plain)
                 .padding(.bottom, NeoTokyo.Spacing.xl)
             }
-            // Owner QA 2026-10-02: XP top-left, the bar running across to the level badge top-right,
-            // so the bar reads as XP travelling toward the next level.
-            HStack(alignment: .center, spacing: NeoTokyo.Spacing.md) {
-                VStack(alignment: .leading, spacing: 2) {
-                    StatNumber(value: snapshot.totalXP, unit: "xp", accent: NeoTokyo.Hierarchy.primary, font: HeroFont.statMD)
-                        .overlay(alignment: .topTrailing) { DeltaBadge(delta: xpDelta, token: deltaToken).offset(x: 28, y: -10) }
-                    Text(state.recipe?.name ?? "").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
-                }
-                VStack(spacing: 4) {
-                    LevelBar(fill: barFill)
-                    if let next = state.ruleset.xpToNextLevel(fromTotalXP: snapshot.totalXP) {
-                        Text("\(next) to go").font(HeroFont.label).foregroundStyle(NeoTokyo.Text.secondary)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                LevelBadge(level: snapshot.level, subtitle: state.bundle.evolution(forLevel: snapshot.level)?.displayName ?? "", flash: levelFlash)
-                    .anchorPreference(key: SceneAnchorsKey.self, value: .bounds) { ["badge": $0] }
-            }
-            .padding(.horizontal, NeoTokyo.Spacing.lg)
-            .padding(.top, 104)  // below the status bar and the toolbar buttons (owner screenshot 2026-10-05: they overlapped the badge)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .frame(maxWidth: .infinity, minHeight: 440)
         .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.86), .init(color: .clear, location: 1)], startPoint: .top, endPoint: .bottom))
     }
 
-    // MARK: attributes (under the character, above the quest)
+    // MARK: progression row (owner 2026-10-06: XP and level sit under the scene, above the attributes)
+
+    private func progressRow(_ snapshot: ProgressSnapshot) -> some View {
+        // XP left, the bar running across to the level badge right, so the bar reads as XP travelling toward the next level.
+        HStack(alignment: .center, spacing: NeoTokyo.Spacing.md) {
+            VStack(alignment: .leading, spacing: 2) {
+                StatNumber(value: snapshot.totalXP, unit: "xp", accent: NeoTokyo.Hierarchy.primary, font: HeroFont.statMD)
+                    .overlay(alignment: .topTrailing) { DeltaBadge(delta: xpDelta, token: deltaToken).offset(x: 28, y: -10) }
+                Text(state.recipe?.name ?? "").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
+            }
+            VStack(spacing: 4) {
+                LevelBar(fill: barFill)
+                if let next = state.ruleset.xpToNextLevel(fromTotalXP: snapshot.totalXP) {
+                    Text("\(next) to go").font(HeroFont.label).foregroundStyle(NeoTokyo.Text.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            LevelBadge(level: snapshot.level, subtitle: state.bundle.evolution(forLevel: snapshot.level)?.displayName ?? "", flash: levelFlash)
+                .anchorPreference(key: SceneAnchorsKey.self, value: .bounds) { ["badge": $0] }
+        }
+        .padding(.horizontal, NeoTokyo.Spacing.md)
+        .padding(.vertical, NeoTokyo.Spacing.sm)
+        .glass(tint: NeoTokyo.Surface.raised)
+        .padding(.top, -NeoTokyo.Spacing.xl)   // tucks up under the character's feet
+    }
+
+    // MARK: attributes (under the progression row, above the quest)
 
     private func attributesRow(_ snapshot: ProgressSnapshot) -> some View {
         HStack {
@@ -351,7 +359,6 @@ struct HomeView: View {
         .padding(.vertical, NeoTokyo.Spacing.md)
         .padding(.horizontal, NeoTokyo.Spacing.sm)
         .glass(tint: NeoTokyo.Surface.raised)
-        .padding(.top, -NeoTokyo.Spacing.xl)   // tucks up under the character's feet
     }
 
     // MARK: progression (gold) — kept for the level-up sequence's anchors; no longer in the layout

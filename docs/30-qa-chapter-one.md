@@ -10,6 +10,10 @@ Build: branch `claude/tender-hamilton-d57cv9`, commit in the increment 28 entry 
 5. Level 10 → no auto chapter; Home shows the story card "Face Colossus". Tapping plays the resolution with the Central Hill tease; the card disappears after; Colossus renders as a named stand-in portrait.
 6. The quest's end scene plays after a gym quest is claimed, not before.
 
+### Home layout (2026-10-06)
+- Scene shows only the character, the backdrop and the away/back card. Under it: a glass strip with XP, the bar and the level badge, then the attributes strip. Level-up: the counter and badge flash still play in the new position.
+- Idle character is the original size on Home, room, stage and onboarding; the departure walk is a third smaller.
+
 ## B. Scene-one backdrops (status review)
 7. Room hub: the room still, character in front, appearance / equipment / where-you-stand / progress / settings sections work. Changing hair or skin updates the character live.
 8. Protein Row still behind the Level 3–4 chapters; gym exterior behind the Level 5 chapter; gym interior behind gym chapters.

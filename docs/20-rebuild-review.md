@@ -228,6 +228,10 @@ Owner handoff of nine wearable layers per body, drawn on the kit v2 suit at rest
 
 Owner direction: the bodysuit is the canonical body; the hoodie is the first outfit, not a second base; ascension enhances identity instead of replacing it. Built: every screen renders kit v2 with items; the hoodie kit is legacy (sprite lab only). Starter outfit as three `starter` items that are `recolor` maps over the owner's layers (manifest-driven, no new art); worn from creation, filled in once for older saves. Evolutions carry `ascension_tier`; Ascension I paints the eyes gold and draws a broken-arc field behind the body, II adds drifting pixels, III a ground glyph; the Level 5 takeover flips the tier at its reveal instead of swapping a body. Doc 32 holds the production rules (2 files per item, rig motion is free, shirts = torso + sleeve family, head items on the neutral head, props on the still off hand) and the reserved schema. Content 2026.10.06-2.
 
+## Increment 35, 2026-10-06: Home layout and sprite scale
+
+Owner: the XP and level read strangely over the scene; the smaller sprite was meant for the walking quest only. The progression row (XP, bar, level badge) moved out of the scene to a glass strip under the character, above the attributes; the level-up overlay anchors still find the badge there. Idle sprites are back at 2 pt per pixel on every screen; the departure walk and its idle fallback use 4 device px per pixel.
+
 ## Parked (owner, 2026-10-06): style protection
 
 Not for MVP. When the item library grows: a sprite style profile (`Content/v1/sprite-style.json`: master palette of about 32 colours, per-slot row bounds, outline rule, island and gradient limits, per-slot colour caps), a normaliser (`Tools/normalize_art.py`: snap near-miss colours, remove islands, enforce 8×8 blocks, fail beyond a threshold, report changes) and a stricter per-slot gate in `validate_sprites.py`. Free-palette art (backdrops, portraits, stills) stays guarded by the reference pack and one approval per asset. Also parked from doc 32: sleeve families, hand anchors, `overlays` for print variants, Ascension IV–V and world reactions.
