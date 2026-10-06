@@ -72,9 +72,9 @@ struct GoalsCard: View {
         switch state.questState {
         case .locked:
             let left = state.todayGoalsTotal - state.todayGoalsDone
-            if state.todayGoalsTotal == 0 { return "Goals arrive with the day." }
+            if state.todayGoalsTotal == 0 { return "See what the day asks of you." }
             return left == 1 ? "One goal left to unlock it." : "\(left) goals left to unlock it."
-        case .ready: return "All goals done. \(state.quest?.displayName ?? "The road") is open."
+        case .ready: return "You did your part. \(state.quest?.displayName ?? "The road") is open."
         case let .away(run): return state.awayLine(for: run)
         case let .returned(run): return run.isClaimed ? state.returnLine(for: run) : "Back. Something came back too."
         }

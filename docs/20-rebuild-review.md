@@ -246,6 +246,14 @@ Owner QA: the character reached Level 5 and the aura "just appeared"; the Gym re
 
 Also: the quest-screen subtext was truncated under the fixed-height scene; it now takes its lines.
 
+## Increment 39, 2026-10-06: chapter-one copy rewrite and once-only quest end scenes
+
+Owner's in-app copy rewrite applied verbatim (content 2026.10.06-5): all 17 item descriptions (the five legacy items get theirs), two quest subtexts (Under City, Protein Row), four chrome strings (locked and ready quest lines, the loot eyebrow "Things people have left behind", the nothing-new line), and every daily goal's companion lines (56 templates; titles unchanged). Voice rules recorded for future copy: the world knows more than the player; not every object is lore; the companion is a person, not a wellness coach.
+
+Owner QA: a quest's end scene (`on_return_chapter`, the three Gym quests) replayed on every completion. Not intentional; the scene now plays on the quest's first claimed completion only, later runs keep their varied return lines with no scene. Open content question from the owner: write 2–3 repeat exchanges per quest, or leave repeats silent.
+
+Owner flags to revisit: the "Skip one sugary drink" and "Finish your shower cold" goals read as prescription and may be cut. Backlog (owner §5): a rare pool (5–10%) of story-aware alternate goal lines unlocked by chapter progress (before Colossus, after meeting him, after chapter one, after the Under City door, after Central Hill); companion responses, not new goals.
+
 ## Parked (owner, 2026-10-06): style protection
 
 Not for MVP. When the item library grows: a sprite style profile (`Content/v1/sprite-style.json`: master palette of about 32 colours, per-slot row bounds, outline rule, island and gradient limits, per-slot colour caps), a normaliser (`Tools/normalize_art.py`: snap near-miss colours, remove islands, enforce 8×8 blocks, fail beyond a threshold, report changes) and a stricter per-slot gate in `validate_sprites.py`. Free-palette art (backdrops, portraits, stills) stays guarded by the reference pack and one approval per asset. Also parked from doc 32: sleeve families, hand anchors, `overlays` for print variants, Ascension IV–V and world reactions.

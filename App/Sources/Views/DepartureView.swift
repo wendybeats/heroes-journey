@@ -134,7 +134,7 @@ struct ClaimMoment: View {
                 } else {
                     CacheIcon(tier: tier).frame(width: 140, height: 140)
                     Text("Nothing new in it").font(HeroFont.title).foregroundStyle(NeoTokyo.Text.primary)
-                    Text("Everything down there you already own. The walk still counts.").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.secondary).multilineTextAlignment(.center)
+                    Text("Nothing you haven't seen before. Still worth the walk.").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.secondary).multilineTextAlignment(.center)
                 }
                 Button("Claim") { onClaim() }
                     .buttonStyle(PrimaryButtonStyle())
@@ -249,7 +249,7 @@ struct QuestPath: View {
                 .accessibilityLabel(glowing ? "Open the cache" : "What might be found")
                 .popover(isPresented: $showLoot, arrowEdge: .bottom) {
                     VStack(alignment: .leading, spacing: NeoTokyo.Spacing.sm) {
-                        Eyebrow(text: "Might be found down there")
+                        Eyebrow(text: "Things people have left behind")
                         ForEach(lootPreview, id: \.0) { pair in
                             HStack {
                                 Text(pair.0).font(HeroFont.bodyMedium).foregroundStyle(NeoTokyo.Text.primary)

@@ -684,7 +684,10 @@ final class AppState {
         guard let i = questRuns.firstIndex(where: { $0.id == run.id }), questRuns[i].isResolved, !questRuns[i].isClaimed else { return }
         questRuns[i].claimedAt = Date()
         if let eventID = questRuns[i].activityEventID, let receipt = outbox.receipt(for: eventID) { lastReceipt = receipt }
-        pendingReturnChapter = bundle.quest(questRuns[i].questID)?.onReturnChapter
+        // Owner QA 2026-10-06: a quest's end scene plays on its first completion only; later runs keep their
+        // return lines but no scene. Repeat exchanges, if written, would be content on the quest, not code.
+        let firstCompletion = !questRuns.contains { $0.questID == questRuns[i].questID && $0.isClaimed && $0.id != run.id }
+        pendingReturnChapter = firstCompletion ? bundle.quest(questRuns[i].questID)?.onReturnChapter : nil
         save()
     }
 
