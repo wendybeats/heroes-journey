@@ -54,10 +54,7 @@ struct HomeView: View {
                     // companion world comes first, then today's goals, then progression, then utility.
                     sceneCard(snapshot)
                     VStack(spacing: NeoTokyo.Spacing.lg) {
-                        VStack(spacing: NeoTokyo.Spacing.sm) {
-                            progressRow(snapshot)
-                            attributesRow(snapshot)
-                        }
+                        attributesRow(snapshot)
                         GoalsCard()
                         storyCard
                         todayCard
@@ -273,12 +270,13 @@ struct HomeView: View {
     private func sceneCard(_ snapshot: ProgressSnapshot) -> some View {
         ZStack(alignment: .bottom) {
             BackdropImage(assetSetID: state.recipe?.backdropID ?? "backdrop.rain_district")
+                .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.86), .init(color: .clear, location: 1)], startPoint: .top, endPoint: .bottom))
             // Character stands on the road: bottom-centre, 20% smaller than the 2x sprite scale.
             if let recipe = state.recipe {
                 // Outfit follows the *displayed* level so the swap lands with the counter during the level-up sequence.
                 CharacterView(recipe: recipe, scale: HomeView.characterScale, ascension: state.bundle.evolution(forLevel: snapshot.level)?.ascensionTier ?? 0)
                     .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)  // the character's own glow
-                    .padding(.bottom, NeoTokyo.Spacing.xl)
+                    .padding(.bottom, HomeView.sceneFooterHeight)
                     .opacity(state.characterAway ? 0 : 1)   // out on the quest: the scene stays, the character is gone
                     .anchorPreference(key: SceneAnchorsKey.self, value: .bounds) { ["character": $0] }
             }
@@ -292,7 +290,7 @@ struct HomeView: View {
                     .glass(tint: NeoTokyo.Surface.overlay)
                 }
                 .buttonStyle(.plain)
-                .padding(.bottom, NeoTokyo.Spacing.xl)
+                .padding(.bottom, HomeView.sceneFooterHeight)
             } else if let run = state.unclaimedQuest {
                 // Back with a cache (doc 29): the reveal waits on the quest screen until the player opens it.
                 Button { departure = run } label: {
@@ -307,14 +305,21 @@ struct HomeView: View {
                     .glass(tint: NeoTokyo.Surface.overlay)
                 }
                 .buttonStyle(.plain)
-                .padding(.bottom, NeoTokyo.Spacing.xl)
+                .padding(.bottom, HomeView.sceneFooterHeight)
             }
+            // Owner 2026-10-06: XP and level are part of the scene, not a card. No background; they
+            // overlay the road under the character's feet so the goals are not pushed down.
+            progressRow(snapshot)
+                .padding(.horizontal, NeoTokyo.Spacing.lg)
+                .padding(.bottom, NeoTokyo.Spacing.md)
         }
         .frame(maxWidth: .infinity, minHeight: 440)
-        .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.86), .init(color: .clear, location: 1)], startPoint: .top, endPoint: .bottom))
     }
 
-    // MARK: progression row (owner 2026-10-06: XP and level sit under the scene, above the attributes)
+    /// Room the scene keeps clear at the bottom for the progression overlay.
+    static let sceneFooterHeight: CGFloat = 76
+
+    // MARK: progression row (owner 2026-10-06: XP and level overlay the foot of the scene, no background)
 
     private func progressRow(_ snapshot: ProgressSnapshot) -> some View {
         // XP left, the bar running across to the level badge right, so the bar reads as XP travelling toward the next level.
@@ -334,13 +339,10 @@ struct HomeView: View {
             LevelBadge(level: snapshot.level, subtitle: state.bundle.evolution(forLevel: snapshot.level)?.displayName ?? "", flash: levelFlash)
                 .anchorPreference(key: SceneAnchorsKey.self, value: .bounds) { ["badge": $0] }
         }
-        .padding(.horizontal, NeoTokyo.Spacing.md)
-        .padding(.vertical, NeoTokyo.Spacing.sm)
-        .glass(tint: NeoTokyo.Surface.raised)
-        .padding(.top, -NeoTokyo.Spacing.xl)   // tucks up under the character's feet
+        .shadow(color: NeoTokyo.Surface.base.opacity(0.9), radius: 6)   // legibility over the backdrop without a panel
     }
 
-    // MARK: attributes (under the progression row, above the quest)
+    // MARK: attributes (under the scene, above the quest)
 
     private func attributesRow(_ snapshot: ProgressSnapshot) -> some View {
         HStack {
