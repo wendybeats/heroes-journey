@@ -115,12 +115,12 @@ final class HoodieKitTests: XCTestCase {
         for _ in 0..<600 { XCTAssertEqual(a.tick(), b.tick()) }
     }
 
+    /// Doc 32: the hoodie kit is legacy. Every evolution renders the canonical body; the hoodie is a starter item.
     func testBundleEvolutionsMapOutfits() throws {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
-        XCTAssertEqual(bundle.evolution(forLevel: 1)?.outfit, "hoodie")
-        XCTAssertEqual(bundle.evolution(forLevel: 4)?.outfit, "hoodie")
-        XCTAssertEqual(bundle.evolution(forLevel: 5)?.outfit, "suit")
-        XCTAssertEqual(bundle.evolution(forLevel: 5)?.assetSetID, "hero.kit.v2")
+        for level in [1, 4, 5, 10, 20] { XCTAssertEqual(bundle.evolution(forLevel: level)?.outfit, "suit", "level \(level)") }
+        XCTAssertEqual(bundle.evolution(forLevel: 1)?.ascensionTier, 0); XCTAssertEqual(bundle.evolution(forLevel: 5)?.ascensionTier, 1)
+        XCTAssertEqual(bundle.starterEquipment[.body], "item.hoodie.starter")
     }
 
     #if canImport(CoreGraphics)
