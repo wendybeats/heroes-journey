@@ -8,11 +8,11 @@ import HeroContent
 /// Doc 19 "fitness first": the utility (today, this week, log) carries the screen. The
 /// character is present and reacts, but sits in a compact scene rather than dominating.
 struct HomeView: View {
-    /// Sprite scale in points. The kit rule is "integer device pixels per sprite pixel", not integer points:
-    /// 4 device px per pixel (owner QA 2026-10-05: a third smaller than the old 6) stays crisp on 3x displays
-    /// and is 85×171 pt for the 64×128 cell. On a 2x display this is 1.333 pt, which nearest-neighbour renders
-    /// with a one-pixel step every third row; acceptable for the iPad and SE until a 2x-specific value is chosen.
-    static var characterScale: CGFloat { 4 / displayScale }
+    /// Sprite scale in points. The kit rule is "integer device pixels per sprite pixel", not integer points.
+    /// 5 device px per pixel (owner 2026-10-06: 4 read as tiny against the gym; 6 was the original) is 107×213 pt
+    /// for the 64×128 cell and crisp on 3x displays. On a 2x display this is 2.5 pt (alternating 2 and 3 px rows);
+    /// acceptable for the iPad and SE until a 2x-specific value is chosen.
+    static var characterScale: CGFloat { 5 / displayScale }
     static var displayScale: CGFloat {
         #if canImport(UIKit)
         return UIScreen.main.scale
