@@ -40,6 +40,9 @@ struct DevControlsView: View {
                         row("Level", value: "\(state.snapshot.level)")
                         row("Next beat", value: state.nextStoryBeat?.id.rawValue ?? "none due")
                         row("Completed", value: "\(state.storyProgress.completedMilestones.count)")
+                        row("Ascension", value: state.pendingAscension.map { "waiting · tier \($0.fromTier) → \($0.toTier)" } ?? "none waiting")
+                        Button("Replay the Ascension") { state.devReplayAscension(); dismiss() }.buttonStyle(SecondaryButtonStyle())
+                            .disabled(state.ascensionTier == 0 && state.pendingAscension == nil)
                     }
                     section("Sprites") {
                         NavigationLink("Sprite lab") { SpriteLabView() }.font(HeroFont.bodyMedium).foregroundStyle(NeoTokyo.Hierarchy.fallback)

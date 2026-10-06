@@ -73,7 +73,7 @@ final class ContentBundleTests: XCTestCase {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
         XCTAssertEqual(bundle.characters.map(\.id), ["guide.elder", "hero", "chad_colossus"])
         XCTAssertEqual(Array(bundle.storyChapters.map(\.id).prefix(2)), ["chapter.awakening", "chapter.first_training"])
-        XCTAssertEqual(bundle.storyChapters.count, 15)
+        XCTAssertEqual(bundle.storyChapters.count, 16)
         let awakening = try XCTUnwrap(bundle.chapter("chapter.awakening"))
         XCTAssertEqual(awakening.then, "create_character"); XCTAssertEqual(awakening.beats.count, 10)
         XCTAssertEqual(awakening.beats.first?.speaker, "hero"); XCTAssertEqual(awakening.beats.last?.lines.last?.text, "First things first. Do you remember who you are?")
@@ -131,6 +131,10 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(bundle.evolution(forLevel: 1)?.id, "ev1_awakened")
         // Doc 32: evolutions are ascension tiers on one canonical body; the starter outfit is items.
         XCTAssertEqual(bundle.evolutions.map { $0.ascensionTier ?? -1 }, [0, 1, 2, 3])
+        // Owner 2026-10-06: the first Ascension is a cutscene; its scene is content on the evolution and must resolve.
+        XCTAssertEqual(bundle.evolution(forLevel: 5)?.ascensionChapter, "chapter.ascension_1")
+        XCTAssertEqual(bundle.chapter("chapter.ascension_1")?.then, "return"); XCTAssertEqual(bundle.chapter("chapter.ascension_1")?.beats.first?.speaker, "guide.elder")
+        XCTAssertNil(bundle.evolution(forLevel: 1)?.ascensionChapter)
         XCTAssertEqual(Set(bundle.evolutions.map { $0.outfit ?? "" }), ["suit"])
         let starter = bundle.starterEquipment
         XCTAssertEqual(Set(starter.keys), [.body, .legs, .feet]); XCTAssertEqual(starter[.body], "item.hoodie.starter")

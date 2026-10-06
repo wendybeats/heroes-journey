@@ -65,13 +65,16 @@ struct DepartureView: View {
                 Text(isBack ? state.returnLine(for: run) : state.departLine(for: run))
                     .font(HeroFont.body).foregroundStyle(NeoTokyo.Text.secondary)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
                 QuestPath(progress: isBack ? 1 : 0, lootPreview: lootPreview, cacheTier: isBack ? state.rewardTier(for: run) : nil,
                           glowing: unclaimed, onOpen: unclaimed ? { showClaim = true } : nil)
                     .padding(.horizontal, NeoTokyo.Spacing.md)
                 if unclaimed {
                     Text("Tap the cache.").font(HeroFont.callout).foregroundStyle(NeoTokyo.Hierarchy.primary)
                 } else if let subtext = quest?.subtext {
+                    // Owner QA 2026-10-06: the subtext was truncated under the fixed-height scene; let it take its lines.
                     Text(subtext).font(HeroFont.callout).foregroundStyle(NeoTokyo.Text.secondary).multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 if !isBack { Countdown(until: run.returnsAt) }
             }

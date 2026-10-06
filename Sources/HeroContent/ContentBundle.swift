@@ -39,7 +39,9 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let outfit: String?
         /// Doc 32: the ascension tier this evolution confers (0 = none). Effects around the body, never a new body.
         public let ascensionTier: Int?
-        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", minLevel = "min_level", assetSetID = "asset_set_id", outfit, ascensionTier = "ascension_tier" }
+        /// Owner 2026-10-06: the scene that plays right after this evolution's Ascension takeover (the guide explains what happened).
+        public let ascensionChapter: String?
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", minLevel = "min_level", assetSetID = "asset_set_id", outfit, ascensionTier = "ascension_tier", ascensionChapter = "ascension_chapter" }
     }
     public struct Item: Codable, Sendable, Equatable {
         public let id: ItemID
@@ -398,6 +400,9 @@ public struct ContentBundle: Codable, Sendable, Equatable {
             }
         }
         if defaultBackdrop?.isHomeScene != true { problems.append("default backdrop must be a home scene") }
+        for ev in evolutions {
+            if let c = ev.ascensionChapter, !chapterIDs.contains(c) { problems.append("evolution \(ev.id) → unknown ascension_chapter \(c)") }
+        }
         return problems
     }
 

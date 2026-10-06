@@ -98,6 +98,17 @@ final class AppState {
     private(set) var storyProgress: StoryProgress
     /// A quest's end scene waiting to play after its return reveal.
     private(set) var pendingReturnChapter: String?
+    /// Owner 2026-10-06: an Ascension is a cutscene, never a stat that just appears. Recorded when the ledger
+    /// crosses an evolution boundary (wherever that happens: a sheet, the quest screen, a relaunch) and played
+    /// by Home as the highest-priority beat once the screen is quiet. Persisted so a kill mid-cover keeps it.
+    struct PendingAscension: Codable, Equatable {
+        let fromTier: Int, toTier: Int, evolutionName: String, chapterID: String?
+    }
+    private(set) var pendingAscension: PendingAscension? {
+        didSet { UserDefaults.standard.set(pendingAscension.flatMap { try? JSONEncoder().encode($0) }, forKey: Self.pendingAscensionKey) }
+    }
+    private static let pendingAscensionKey = "ascension.pending"
+    func clearPendingAscension() { pendingAscension = nil }
     /// Set when a departure was just confirmed, for the departure screen.
     var showDeparture = false
     /// Today's step total from Health, when known (increment 2 fills this in).
@@ -116,7 +127,8 @@ final class AppState {
     var snapshot: ProgressSnapshot { ledger.snapshot(ruleset: ruleset) }
     var evolution: ContentBundle.Evolution? { bundle.evolution(forLevel: snapshot.level) }
     /// Doc 32: ascension is a tier of effects around the canonical body, from the level's evolution.
-    var ascensionTier: Int { evolution?.ascensionTier ?? 0 }
+    /// The tier the character shows. While an Ascension waits to be played, every screen keeps the old tier so the takeover is the reveal.
+    var ascensionTier: Int { pendingAscension?.fromTier ?? evolution?.ascensionTier ?? 0 }
     var pendingCount: Int { outbox.pending.count }
     /// Facts minus invalidated ones (doc 15 §1: the timeline is a projection over corrections).
     var visibleEvents: [ActivityEvent] {
@@ -172,6 +184,7 @@ final class AppState {
         self.recipe = archive?.recipe
         self.events = events
         self.ledger = ledger
+        pendingAscension = UserDefaults.standard.data(forKey: Self.pendingAscensionKey).flatMap { try? JSONDecoder().decode(PendingAscension.self, from: $0) }
         self.outbox = archive?.outbox ?? Outbox()
         self.workouts = archive?.workouts ?? []
         self.activeWorkout = archive?.activeWorkout
@@ -221,7 +234,9 @@ final class AppState {
             do {
                 let receipt = try await service.submit(entry.submission)
                 outbox.confirm(receipt)
+                let levelBefore = snapshot.level
                 ledger = await service.ledger
+                noteAscension(from: levelBefore, to: snapshot.level)
                 if showReward && !receipt.wasAlreadyProcessed {
                     if entry.submission.event.goal != nil, lastReceipt != nil { lastGoalReceipts.append(receipt) } else { lastReceipt = receipt }
                 }
@@ -234,6 +249,15 @@ final class AppState {
             }
             save()
         }
+    }
+
+    /// Queue the Ascension takeover when a level change crosses into a higher tier. Idempotent per boundary.
+    private func noteAscension(from levelBefore: Int, to levelAfter: Int) {
+        guard levelAfter > levelBefore else { return }
+        let old = bundle.evolution(forLevel: levelBefore), new = bundle.evolution(forLevel: levelAfter)
+        guard let new, old?.id != new.id, (new.ascensionTier ?? 0) > (old?.ascensionTier ?? 0) else { return }
+        pendingAscension = PendingAscension(fromTier: pendingAscension?.fromTier ?? old?.ascensionTier ?? 0, toTier: new.ascensionTier ?? 0,
+                                            evolutionName: new.displayName, chapterID: new.ascensionChapter)
     }
 
     func dismissReward() {
@@ -424,6 +448,11 @@ final class AppState {
         guard let i = questRuns.firstIndex(where: { !$0.isResolved }) else { return }
         questRuns[i].returnsAt = Date()
         resolveQuestIfDue()
+    }
+    /// Replay the Ascension takeover for the current tier (0 → current), with its scene.
+    func devReplayAscension() {
+        guard let ev = evolution, let tier = ev.ascensionTier, tier > 0 else { return }
+        pendingAscension = PendingAscension(fromTier: 0, toTier: tier, evolutionName: ev.displayName, chapterID: ev.ascensionChapter)
     }
     /// Swap the ruleset for a copy without the daily activity cap (or back). The service is rebuilt on the same ledger.
     func devSetDailyCap(off: Bool) {

@@ -31,6 +31,9 @@ for step, line in prompts:
     out.append(f"- **Cairon:** {line.replace(chr(92)+'(name.trimmingCharacters(in: .whitespaces))', '{name}')}")
 out.append("")
 chapter("chapter.first_training", "End of onboarding, after “Seal the bond”")
+out.append("## Ascension scenes\nAn Ascension outranks every other beat: when the ledger crosses into a higher tier, Home plays the takeover (scrim, gold, the tier flips at the reveal) as soon as the screen is quiet, then this scene, then the level's story beat. Logged anywhere (a sheet, the quest screen, relaunch), the takeover still waits for Home.\n")
+for ev in b["evolutions"]:
+    if ev.get("ascension_chapter"): chapter(ev["ascension_chapter"], f"Reaching Level {ev['min_level']} ({ev['display_name']}, tier {ev.get('ascension_tier')}), straight after the Ascension takeover")
 out.append("## Campaign beats\nEach plays once, when its level is reached and the screen is quiet (no reward modal, level-up, stage, or unclaimed cache). An interrupted scene replays.\n")
 for m in ms:
     if not m.get("story_chapter") or m["story_chapter"] == "chapter.awakening": continue

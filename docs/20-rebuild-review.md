@@ -240,6 +240,12 @@ Owner: suppress rather than draw for now. Sleeved tops and hand items switch off
 
 Owner handoff colossus-v5: the dialogue close-up (`portrait.colossus`, kind portrait) replaces the named stand-in in the reveal and resolution scenes; the full-body sprite (`npc.colossus`, kind body, 96×176, 156 px tall at the hero's pixel scale) is registered with the handoff's style guide and reserved for the encounter scene, which is still to be designed. Characters gain `sprite_asset_set_id`. Content 2026.10.06-3.
 
+## Increment 38, 2026-10-06: the Ascension is a cutscene, and it goes first
+
+Owner QA: the character reached Level 5 and the aura "just appeared"; the Gym reveal played instead. Cause: the takeover was wired to Home's reward token, so a level-up that landed under a cover (the quest screen, the log sheet, a relaunch) played invisibly and had finished by the time Home was seen. Now the state records a pending Ascension whenever the ledger crosses into a higher tier (`AppState.pendingAscension`, persisted), every screen keeps the old tier and the badge holds the old level until it plays, and the story director treats it as the highest-priority beat: takeover, then the evolution's `ascension_chapter` (Cairon on what happened and what it means, `chapter.ascension_1`), then the level's story beat (the Gym opens). Reduce Motion skips the overlay, not the scene. Dev controls gain "Replay the Ascension". Content 2026.10.06-4; doc 31 regenerated.
+
+Also: the quest-screen subtext was truncated under the fixed-height scene; it now takes its lines.
+
 ## Parked (owner, 2026-10-06): style protection
 
 Not for MVP. When the item library grows: a sprite style profile (`Content/v1/sprite-style.json`: master palette of about 32 colours, per-slot row bounds, outline rule, island and gradient limits, per-slot colour caps), a normaliser (`Tools/normalize_art.py`: snap near-miss colours, remove islands, enforce 8×8 blocks, fail beyond a threshold, report changes) and a stricter per-slot gate in `validate_sprites.py`. Free-palette art (backdrops, portraits, stills) stays guarded by the reference pack and one approval per asset. Also parked from doc 32: sleeve families, hand anchors, `overlays` for print variants, Ascension IV–V and world reactions.

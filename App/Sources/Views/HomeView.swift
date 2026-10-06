@@ -116,7 +116,8 @@ struct HomeView: View {
                         return
                     }
                     // Recorded on finish, so an interrupted scene replays rather than being lost (idempotent).
-                    if let milestone = scene.milestone { state.completeMilestone(milestone) } else { state.clearPendingReturnChapter() }
+                    if scene.completesAscension { state.clearPendingAscension() }
+                    else if let milestone = scene.milestone { state.completeMilestone(milestone) } else { state.clearPendingReturnChapter() }
                     // `then: room` (chapter.home): land in the room the chapter just gave you.
                     if scene.chapter.then == "room" { Task { try? await Task.sleep(for: .milliseconds(500)); showRoom = true } }
                 }
@@ -147,6 +148,7 @@ struct HomeView: View {
         .onChange(of: ascension == nil) { _, _ in scheduleStory() }
         .onChange(of: state.needsStage) { _, _ in scheduleStory() }
         .onChange(of: state.pendingReturnChapter) { _, _ in scheduleStory() }
+        .onChange(of: state.pendingAscension) { _, _ in scheduleStory() }
         .onChange(of: storyScene == nil) { _, _ in scheduleStory() }
         .onChange(of: departure == nil) { _, _ in scheduleStory() }
         .onChange(of: state.unclaimedQuest?.id) { _, _ in scheduleStory() }
@@ -162,7 +164,8 @@ struct HomeView: View {
         }
         .onChange(of: state.snapshot) { _, new in
             // Sync silently unless a reward is showing (then wait for dismissal).
-            if state.lastReceipt == nil { shown = new; barFill = levelProgress(new) }
+            // While an Ascension waits, the badge and bar hold the old level: the takeover is the reveal.
+            if state.lastReceipt == nil && state.pendingAscension == nil { shown = new; barFill = levelProgress(new) }
         }
         .onChange(of: state.rewardToken) { _, _ in
             let new = state.snapshot
@@ -170,19 +173,8 @@ struct HomeView: View {
             xpDelta = new.totalXP - old.totalXP
             deltas = Dictionary(uniqueKeysWithValues: new.attributes.map { ($0.key, $0.value - (old.attributes[$0.key] ?? 0)) })
             deltaToken += 1
-            let oldEv = state.bundle.evolution(forLevel: old.level), newEv = state.bundle.evolution(forLevel: new.level)
-            if new.level > old.level && oldEv?.id != newEv?.id && !reduceMotion {
-                // Ascension (doc 32): a tier, not an outfit. The eyes and the field change under the overlay at the reveal.
-                ascension = (Date(), oldEv?.ascensionTier ?? 0, newEv?.ascensionTier ?? 0, newEv?.displayName ?? "")
-                Task {
-                    try? await Task.sleep(for: .milliseconds(Int(AscensionOverlay.revealAt * 1000)))
-                    levelFlash = true
-                    shown = new
-                    await wrapBar(to: levelProgress(new))
-                    try? await Task.sleep(for: .milliseconds(Int((AscensionOverlay.duration - AscensionOverlay.revealAt) * 1000) - 1300))
-                    withAnimation(.easeOut(duration: 0.6)) { levelFlash = false }
-                    ascension = nil
-                }
+            if state.pendingAscension != nil {
+                // The Ascension takeover plays when the screen is quiet (director, below); hold the old level until its reveal.
             } else if new.level > old.level && !reduceMotion {
                 // Doc 02 reward moment, extended (owner, 2026-09-29): aura, star burst, then the counter.
                 levelUpStart = Date()
@@ -220,6 +212,8 @@ struct HomeView: View {
 
     private func presentStoryIfIdle() {
         guard storyIdle else { return }
+        // Owner 2026-10-06: an Ascension outranks every other beat. The takeover plays, then its scene, then the level's story.
+        if let pending = state.pendingAscension { playAscension(pending); return }
         // A quest's end scene plays first (after its return reveal), then any beat the level has reached.
         if let id = state.pendingReturnChapter {
             if let chapter = state.bundle.chapter(id) { storyScene = StoryScene(chapter: chapter, milestone: nil) } else { state.clearPendingReturnChapter() }
@@ -230,6 +224,34 @@ struct HomeView: View {
             storyScene = StoryScene(chapter: chapter, milestone: milestone)
         } else {
             state.completeMilestone(milestone)   // a beat without a scene: apply its unlocks silently
+        }
+    }
+
+    /// The Ascension takeover (doc 32): scrim, gold, the tier flips at the reveal, the counter and bar catch up,
+    /// then the evolution's scene. Reduce Motion skips the overlay and goes straight to the scene.
+    private func playAscension(_ pending: AppState.PendingAscension) {
+        let new = state.snapshot
+        guard state.recipe != nil, !reduceMotion else {
+            shown = new; barFill = levelProgress(new); afterAscension(pending); return
+        }
+        ascension = (Date(), pending.fromTier, pending.toTier, pending.evolutionName)
+        Task {
+            try? await Task.sleep(for: .milliseconds(Int(AscensionOverlay.revealAt * 1000)))
+            levelFlash = true
+            shown = new
+            await wrapBar(to: levelProgress(new))
+            try? await Task.sleep(for: .milliseconds(Int((AscensionOverlay.duration - AscensionOverlay.revealAt) * 1000) - 1300))
+            withAnimation(.easeOut(duration: 0.6)) { levelFlash = false }
+            afterAscension(pending)   // the scene is presented before the overlay clears, so the director cannot replay it
+            ascension = nil
+        }
+    }
+
+    private func afterAscension(_ pending: AppState.PendingAscension) {
+        if let id = pending.chapterID, let chapter = state.bundle.chapter(id) {
+            storyScene = StoryScene(chapter: chapter, milestone: nil, completesAscension: true)
+        } else {
+            state.clearPendingAscension()
         }
     }
 
@@ -533,5 +555,7 @@ struct SceneBackdrop: View {
 struct StoryScene: Identifiable {
     let chapter: ContentBundle.StoryChapter
     let milestone: Milestone?
+    /// The scene that follows an Ascension takeover; dismissing it clears the pending Ascension.
+    var completesAscension = false
     var id: String { chapter.id }
 }

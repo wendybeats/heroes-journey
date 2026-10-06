@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.06-3",
+  "content_version": "2026.10.06-4",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -243,7 +243,8 @@
       "asset_set_id": "hero.kit.v2",
       "outfit": "suit",
       "ascension_tier": 1,
-      "notes": "Doc 32 (owner 2026-10-06): evolutions no longer change the body or outfit; they are ascension tiers rendered as effects around the canonical body."
+      "notes": "Doc 32 (owner 2026-10-06): evolutions no longer change the body or outfit; they are ascension tiers rendered as effects around the canonical body.",
+      "ascension_chapter": "chapter.ascension_1"
     },
     {
       "id": "ev3_evolution2",
@@ -2358,6 +2359,68 @@
           "speaker": "guide.elder",
           "lines": [
             "Enough. And before you ask again: the door still won't take you."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter.ascension_1",
+      "title": "Ascension I",
+      "backdrop_id": "backdrop.alley_awakening",
+      "then": "return",
+      "area_id": "under_city",
+      "notes": "Owner 2026-10-06: the first ascension is a cutscene, not a stat change. Plays right after the Ascension takeover (highest-priority beat), before any level-5 story beat.",
+      "beats": [
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Stay still a moment. Let it settle."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "What was that?"
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "You, catching up with yourself.",
+            "Everything they did out there has been building in you. Tonight it showed."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Look at your eyes. The city lit them.",
+            "It only does that for people who earned it. Nobody buys it. Nobody fakes it for long."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Is this it, then? Ascension?"
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "No. This is the first rung.",
+            "Ascension is a long way up, and I have not met anyone who reached it honestly."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "But every one of them started exactly like this.",
+            "Keep the bond strong and the light keeps growing. Let it go slack and it fades. That is the whole rule."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Now. There is something I want you to see."
           ]
         }
       ]
