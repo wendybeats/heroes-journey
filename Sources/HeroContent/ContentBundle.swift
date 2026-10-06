@@ -202,7 +202,9 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let portraitAssetSetID: AssetSetID?
         /// `left` or `right`: which side of the stage the portrait sits on; bubbles sit opposite.
         public let side: String
-        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", portraitAssetSetID = "portrait_asset_set_id", side }
+        /// Full-body sprite set for staging (NPCs), at the shared pixel scale. Optional; nil = portrait only.
+        public let spriteAssetSetID: AssetSetID?
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", portraitAssetSetID = "portrait_asset_set_id", side, spriteAssetSetID = "sprite_asset_set_id" }
     }
 
     /// One line of dialogue. Markdown emphasis (`**bold**`, `*italic*`) is allowed. `{world}` is the

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "npc.colossus",
+  "revision": 1,
+  "status": "review",
+  "kind": "body",
+  "canvas": {
+    "width": 96,
+    "height": 176
+  },
+  "pivot": {
+    "x": 48,
+    "y": 167
+  },
+  "layer_order": 0,
+  "max_palette_colors": 24,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner handoff 2026-10-06 (colossus-v5): full-body Colossus, 96x176 logical cell, 156 px standing height (1.4x the hero's 111), feet on row 167, 17 colours, binary alpha. Rule from the handoff style guide: same integer pixel scale as the hero, never fitted to the hero's box. Reserved for the boss encounter scene (TBD); dialogue uses portrait.colossus. No animation.",
+  "world": "city",
+  "area": "colossus_gym",
+  "scene": "deep_floor",
+  "mood": [
+    "iron",
+    "weary",
+    "calm"
+  ],
+  "time": "night"
+}

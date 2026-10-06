@@ -7,7 +7,7 @@ Build: branch `claude/tender-hamilton-d57cv9`, commit in the increment 28 entry 
 2. Reach Level 2 (log activity; the dev cap is 40 XP/day plus goals) → the "home" chapter plays once the screen is quiet (no reward modal, no stage). The room button (house) appears in the toolbar after it finishes.
 3. Kill the app mid-chapter → relaunch replays the same chapter; it never skips and never plays twice after finishing.
 4. Levels 3–4 → Protein Row and rumours chapters, one per level, in order. Level 5 → gym gate chapter; the daily quest becomes Colossus Gym 01 (8 h).
-5. Level 10 → no auto chapter; Home shows the story card "Face Colossus". Tapping plays the resolution with the Central Hill tease; the card disappears after; Colossus renders as a named stand-in portrait.
+5. Level 10 → no auto chapter; Home shows the story card "Face Colossus". Tapping plays the resolution with the Central Hill tease; the card disappears after; Colossus speaks with his close-up portrait (gym vignette).
 6. The quest's end scene plays after a gym quest is claimed, not before.
 
 ### Home layout (2026-10-06)

@@ -1,0 +1,26 @@
+{
+  "name": "Colossus sprite contrast palette",
+  "colors": [
+    "#101118",
+    "#101522",
+    "#1B1D27",
+    "#282B36",
+    "#373B49",
+    "#4D5365",
+    "#697287",
+    "#9FACC8",
+    "#E4E9F4",
+    "#DDB087",
+    "#C18B66",
+    "#96664F",
+    "#67473E",
+    "#41333A",
+    "#51332A",
+    "#79503A",
+    "#A6744B",
+    "#6FA9DC"
+  ],
+  "allowedColors": 18,
+  "usedColors": 17,
+  "transparent": true
+}

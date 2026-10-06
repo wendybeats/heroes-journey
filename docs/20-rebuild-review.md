@@ -236,6 +236,10 @@ Owner: the XP and level read strangely over the scene; the smaller sprite was me
 
 Owner: suppress rather than draw for now. Sleeved tops and hand items switch off the male arm poses; head and face items ride the head band without hair sway or tip lag. Sleeve families stay parked.
 
+## Increment 37, 2026-10-06: Colossus art
+
+Owner handoff colossus-v5: the dialogue close-up (`portrait.colossus`, kind portrait) replaces the named stand-in in the reveal and resolution scenes; the full-body sprite (`npc.colossus`, kind body, 96×176, 156 px tall at the hero's pixel scale) is registered with the handoff's style guide and reserved for the encounter scene, which is still to be designed. Characters gain `sprite_asset_set_id`. Content 2026.10.06-3.
+
 ## Parked (owner, 2026-10-06): style protection
 
 Not for MVP. When the item library grows: a sprite style profile (`Content/v1/sprite-style.json`: master palette of about 32 colours, per-slot row bounds, outline rule, island and gradient limits, per-slot colour caps), a normaliser (`Tools/normalize_art.py`: snap near-miss colours, remove islands, enforce 8×8 blocks, fail beyond a threshold, report changes) and a stricter per-slot gate in `validate_sprites.py`. Free-palette art (backdrops, portraits, stills) stays guarded by the reference pack and one approval per asset. Also parked from doc 32: sleeve families, hand anchors, `overlays` for print variants, Ascension IV–V and world reactions.

@@ -107,7 +107,10 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(bundle.quests[1].unlockedByMilestone, "under_city.3.protein_row"); XCTAssertNil(bundle.quests[1].durationMinutes, "the Row keeps the ruleset duration")
         XCTAssertEqual(bundle.quests[2].durationMinutes, 480); XCTAssertEqual(bundle.quests[2].unlockedByMilestone, "under_city.5.gym_unlock")
         XCTAssertEqual(bundle.character("guide.elder")?.displayName, "Cairon"); XCTAssertEqual(bundle.character("chad_colossus")?.displayName, "Colossus", "working title (owner 2026-10-05)")
-        XCTAssertNil(bundle.character("chad_colossus")?.portraitAssetSetID, "portrait pending")
+        XCTAssertEqual(bundle.character("chad_colossus")?.portraitAssetSetID, "portrait.colossus", "owner handoff 2026-10-06")
+        XCTAssertEqual(bundle.character("chad_colossus")?.spriteAssetSetID, "npc.colossus")
+        let npc = try SpriteManifest.decode(RepoFiles.data("assets/sprites/npc.colossus/rev1/manifest.json"))
+        XCTAssertEqual(npc.canvas.width, 96); XCTAssertEqual(npc.canvas.height, 176); XCTAssertEqual(npc.kind, .body)
         XCTAssertEqual(bundle.integrityProblems(), [])
     }
 

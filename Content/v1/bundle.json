@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.06-2",
+  "content_version": "2026.10.06-3",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -2170,9 +2170,10 @@
     {
       "id": "chad_colossus",
       "display_name": "Colossus",
-      "portrait_asset_set_id": null,
+      "portrait_asset_set_id": "portrait.colossus",
       "side": "left",
-      "notes": "Antagonist of the Under City / Colossus Gym (doc 26 §9). Portrait pending; the stage shows a named placeholder until it lands. Working title (owner 2026-10-05); 'Chad' dropped from all text until the name is settled."
+      "notes": "Antagonist of the Under City / Colossus Gym (doc 26 §9). Working title (owner 2026-10-05). Portrait and full-body sprite from the owner's colossus-v5 handoff (2026-10-06); the sprite waits for the encounter scene.",
+      "sprite_asset_set_id": "npc.colossus"
     }
   ],
   "story_chapters": [

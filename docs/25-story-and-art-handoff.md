@@ -21,6 +21,8 @@ Storyboards: `assets/references/2026-10-02/story/01–06`. World name: undecided
 | `scene-01/locations-v2` Test MAX street | `backdrop.under_city.protein_row_walk_01/rev1` | 2172×724 panorama, end dissolve baked by `Tools/bake_panorama_dissolve.py`. Scrolled by `quest.protein_row`, the daily quest for Levels 3–4. In review. |
 | `scene-01/locations-v2` Colossus exterior | `backdrop.colossus_gym.exterior_01/rev1` | 1448×1086 still, unchanged. The Level 5 gate chapter. In review. |
 | `scene-01/locations-v2` Colossus interior | `backdrop.colossus_gym.interior_01/rev1` | 2172×724 panorama, end dissolve baked. Scrolled by the three gym quests and the still behind the gym chapters. In review. |
+| `colossus-v5` close-up | `portrait.colossus/rev1` | 1254×1254 generated still, gym vignette, soft alpha. Dialogue portrait for the Level 8 and Level 10 scenes. In review. |
+| `colossus-v5` sprite | `npc.colossus/rev1` | 96×176 logical cell, 156 px tall (1.4× the hero), 17 colours, binary alpha, feet on row 167. Same pixel scale as the hero, never fitted to his box. Reserved for the encounter scene. In review. |
 | `portraits/wise-guide-v1`, `portraits/hooded-onboarding-v1` | `portrait.guide_elder/rev1`, `portrait.hero_hooded/rev1` | 1254² stills kept unresampled; nearest-neighbour into a 150–170 pt frame. |
 | `animations/hooded-walk-right-v1` | `hero.walk.hooded/rev1` | 8 storyboard poses baked by `Tools/bake_walk_cycle.py`: shared scale so the figure is 111 px (matches the hoodie kit), one 24-colour palette, binary alpha, feet on row 122, stray specks removed. 110 ms × 8 = 0.88 s gait. Gender-neutral; used for every outfit on departure until per-outfit walks exist. |
 

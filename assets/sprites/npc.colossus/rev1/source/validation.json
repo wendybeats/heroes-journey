@@ -1,0 +1,28 @@
+{
+  "alphaValues" : [
+    0,
+    255
+  ],
+  "feetBaselineRow" : 167,
+  "logicalCanvas" : [
+    96,
+    176
+  ],
+  "opaqueLogicalPixels" : 7192,
+  "outputDimensions" : [
+    768,
+    1408
+  ],
+  "samePixelScaleAsPlayer" : true,
+  "scope" : "Structural export checks passed; no animation or runtime integration included. Portrait remains an original generated still.",
+  "solid8x8Blocks" : true,
+  "standingHeightPixels" : 156,
+  "transparentLogicalPixels" : 9704,
+  "usedColorCount" : 17,
+  "visualChecks" : [
+    "Plate behind leg with rim grip",
+    "Neck cable enters under shirt",
+    "Face and folds have deeper shadows",
+    "Compared at shared pixel scale"
+  ]
+}

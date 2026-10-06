@@ -1,0 +1,55 @@
+{
+  "alphaValues" : [
+    0,
+    255
+  ],
+  "figureTargetBounds" : [
+    12,
+    12,
+    84,
+    168
+  ],
+  "logicalCanvas" : [
+    96,
+    176
+  ],
+  "method" : "Image-tool redraw, then uniform nearest-neighbor registration, palette normalization, binary alpha and integer enlargement; no hand-drawn replacement artwork.",
+  "outputDimensions" : [
+    768,
+    1408
+  ],
+  "outputScale" : 8,
+  "palette" : [
+    "101118",
+    "101522",
+    "1B1D27",
+    "282B36",
+    "373B49",
+    "4D5365",
+    "697287",
+    "9FACC8",
+    "E4E9F4",
+    "DDB087",
+    "C18B66",
+    "96664F",
+    "67473E",
+    "41333A",
+    "51332A",
+    "79503A",
+    "A6744B",
+    "6FA9DC"
+  ],
+  "playerStandingHeightPixels" : 111,
+  "relativeStandingHeight" : 1.4054054054054055,
+  "sourceDimensions" : [
+    927,
+    1697
+  ],
+  "sourceVisibleBounds" : [
+    112,
+    108,
+    809,
+    1627
+  ],
+  "standingHeightPixels" : 156
+}

@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 2,
+  "revision": 5,
+  "created": "2026-10-06",
+  "character": "Colossus",
+  "status": "packaged_for_art_handoff",
+  "scene": 1,
+  "location": "Deepest floor of Colossus Gym",
+  "facing": "screen-left, opposite the player",
+  "previousRevision": "../colossus-v4",
+  "assets": [
+    {
+      "id": "colossus-sprite",
+      "file": "colossus-sprite.png",
+      "logicalFile": "logical/colossus-sprite.png",
+      "role": "Full-body sprite with grid normalized to match protagonist pixel scale",
+      "logicalCanvas": [
+        96,
+        176
+      ],
+      "exportDimensions": [
+        768,
+        1408
+      ],
+      "integerScale": 8,
+      "standingHeightPixels": 156,
+      "footPivot": [
+        48,
+        167
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "id": "colossus-portrait",
+      "file": "colossus-portrait.png",
+      "role": "Matching close-up still with deeper facial shadows and gym vignette",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "transparentOuterBackground": true,
+      "formatNote": "Original generated portrait with partial-alpha pixels; higher detail is intentional for dialogue close-ups."
+    }
+  ],
+  "comparison": {
+    "playerLogicalCanvas": [
+      64,
+      128
+    ],
+    "playerStandingHeightPixels": 111,
+    "colossusStandingHeightPixels": 156,
+    "relativeStandingHeight": 1.4054054054054055,
+    "pixelScaleRule": "Use the same integer display scale for both logical sprites. Do not fit each sprite into equally sized UI boxes."
+  },
+  "equipment": {
+    "heldItem": "100 KG cast-iron plate",
+    "hand": "anatomical right / screen-left",
+    "grip": "upper outer rim, relaxed arm",
+    "placement": "Behind right trouser leg, inner portion occluded",
+    "nominalDiameterIncreaseFromV4": 1.2,
+    "plateDiameterTargetLogicalPixels": 38,
+    "neck": "Short cable from neck implant disappears beneath the shirt collar"
+  },
+  "changes": [
+    "Simplified full-body artwork and normalized it to one shared world pixel scale",
+    "Deeper skin, eye socket, cheek and clothing shadows; stronger simple facial creases",
+    "Plate enlarged approximately 20% relative to v4; remains behind leg",
+    "Matching close-up contrast refinement",
+    "Simplified gym logo to its barbell mark at gameplay resolution"
+  ],
+  "paletteFile": "palette.json",
+  "validationFile": "validation.json",
+  "productionNotes": [
+    "Still artwork only; no animation frames or runtime integration.",
+    "Full-body export is grid normalized and structurally validated.",
+    "Portrait retains original generated pixels and alpha; it is not a gameplay sprite.",
+    "No finer details should be added between logical sprite pixels."
+  ]
+}

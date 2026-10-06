@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "portrait.colossus",
+  "revision": 1,
+  "status": "review",
+  "kind": "portrait",
+  "canvas": {
+    "width": 1254,
+    "height": 1254
+  },
+  "pivot": {
+    "x": 627,
+    "y": 1253
+  },
+  "layer_order": 0,
+  "max_palette_colors": 100000,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner handoff 2026-10-06 (colossus-v5): dialogue close-up of Colossus (working title), deepest floor of the gym, gym vignette, soft alpha. Generated still, not on the sprite grid, by design for dialogue art. Replaces the named stand-in in the Level 8 and Level 10 scenes.",
+  "world": "city",
+  "area": "colossus_gym",
+  "scene": "deep_floor",
+  "mood": [
+    "iron",
+    "weary",
+    "calm"
+  ],
+  "time": "night"
+}

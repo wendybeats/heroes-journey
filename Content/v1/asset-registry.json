@@ -634,6 +634,66 @@
       "source": "assets/sprites/icon.item.wraps_chalk/rev1/source"
     },
     {
+      "id": "npc.colossus",
+      "kind": "body",
+      "world": "city",
+      "area": "colossus_gym",
+      "scene": "deep_floor",
+      "mood": [
+        "iron",
+        "weary",
+        "calm"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/npc.colossus/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 96,
+            "height": 176
+          }
+        }
+      ],
+      "source": "assets/sprites/npc.colossus/rev1/source"
+    },
+    {
+      "id": "portrait.colossus",
+      "kind": "portrait",
+      "world": "city",
+      "area": "colossus_gym",
+      "scene": "deep_floor",
+      "mood": [
+        "iron",
+        "weary",
+        "calm"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/portrait.colossus/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 1254,
+            "height": 1254
+          }
+        }
+      ],
+      "source": "assets/sprites/portrait.colossus/rev1/source"
+    },
+    {
       "id": "portrait.guide_elder",
       "kind": "portrait",
       "world": "city",
@@ -712,7 +772,9 @@
     ],
     "colossus_gym": [
       "backdrop.colossus_gym.exterior_01",
-      "backdrop.colossus_gym.interior_01"
+      "backdrop.colossus_gym.interior_01",
+      "npc.colossus",
+      "portrait.colossus"
     ],
     "unassigned": [
       "hero.body.ev1",
