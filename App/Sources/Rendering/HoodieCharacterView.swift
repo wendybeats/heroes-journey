@@ -119,16 +119,21 @@ struct HoodieCharacterView: View {
     }
 }
 
-/// Picks the renderer by the evolution's outfit (content-driven). "hoodie" → kit v3; anything else → the suit (kit v2).
+/// Doc 32: one canonical body (kit v2) wearing items, with the ascension field behind it. `outfit` is a
+/// legacy parameter kept for call sites; the hoodie kit (v3) is no longer a renderer path.
 struct CharacterView: View {
     let recipe: AvatarRecipe
-    let outfit: String?
+    var outfit: String? = nil
     var scale: CGFloat = 2
+    var ascension = 0
     var body: some View {
-        if outfit == "hoodie" {
-            HoodieCharacterView(recipe: recipe, scale: scale)
-        } else {
-            LayeredCharacterView(recipe: recipe, scale: scale)
+        ZStack {
+            if ascension >= 1 {
+                AscensionField(tier: ascension)
+                    .frame(width: CGFloat(CharacterKit.width) * scale * 1.6, height: CGFloat(CharacterKit.height) * scale * 0.9)
+                    .offset(y: CGFloat(CharacterKit.height) * scale * 0.05)
+            }
+            LayeredCharacterView(recipe: recipe, scale: scale, ascension: ascension)
         }
     }
 }

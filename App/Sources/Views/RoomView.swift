@@ -42,7 +42,7 @@ struct RoomView: View {
         ZStack(alignment: .bottom) {
             BackdropImage(assetSetID: BackdropID(roomBackdrop?.assetSetID.rawValue ?? "backdrop.under_city.home_01"))
             if let recipe = state.recipe {
-                CharacterView(recipe: recipe, outfit: state.evolution?.outfit, scale: HomeView.characterScale)
+                CharacterView(recipe: recipe, scale: HomeView.characterScale, ascension: state.ascensionTier)
                     .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)
                     .padding(.bottom, NeoTokyo.Spacing.xl)
                     .offset(x: -56)   // stands left of the desk so the room reads (owner QA 2026-10-05)

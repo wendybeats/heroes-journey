@@ -1,5 +1,7 @@
 # 29 — Items on the character, and loot from quests
 
+> Superseded in part by doc 32 (2026-10-06): one canonical body, the hoodie is an outfit, ascension is a tier. The loot system and the inventory stills below are unchanged.
+
 Owner direction 2026-10-05: customisation is core ("users feel like their character can be *them*"), and quests must keep paying out. This doc is the contract between content, the kit and the renderer, and the handoff spec for item art.
 
 ## What is built

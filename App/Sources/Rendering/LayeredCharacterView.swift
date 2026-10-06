@@ -27,15 +27,37 @@ final class CharacterKitStore {
         layerLoader = root.map { CGHoodieLayerLoader(root: $0, cellWidth: CharacterKit.width, cellHeight: CharacterKit.height, scale: 8) }
     }
 
-    /// An item's 1x RGBA layer for a body (memory-order RGBA as UInt32), cached.
+    /// An item's 1x RGBA layer for a body (memory-order RGBA as UInt32), recoloured per the manifest, cached per item.
     private func itemLayer(_ id: String, body: String) -> [UInt32]? {
-        guard let rel = manifest?.items?[id]?.frames[body] else { return nil }
-        if let hit = itemLayers[rel] { return hit }
-        guard let px = layerLoader?.load(rel) else { return nil }
-        itemLayers[rel] = px; return px
+        guard let item = manifest?.items?[id], let rel = item.frames[body] else { return nil }
+        let key = "\(id)|\(body)"
+        if let hit = itemLayers[key] { return hit }
+        guard var px = layerLoader?.load(rel) else { return nil }
+        if let map = item.recolor, !map.isEmpty {
+            var swap: [UInt32: UInt32] = [:]
+            for (from, to) in map { swap[HoodieComposer.pack(from)] = HoodieComposer.pack(to) }
+            for i in 0..<px.count where px[i] != 0 { if let v = swap[px[i]] { px[i] = v } }
+        }
+        itemLayers[key] = px; return px
     }
 
-    func image(recipe: AvatarRecipe, pose: CharacterPose) -> CGImage? {
+    /// Doc 32 Ascension I: the eyes change. Pupil and eye-white pixels (from the kit's blink patches) take the
+    /// progression colour while the eyes are open. Palette indices: 5 = pupil, 9 = eye white.
+    private func paintAscendedEyes(_ bytes: inout [UInt8], grid: [UInt8], kit: CharacterKit, body: String, pose: CharacterPose) {
+        guard pose.blink == 0 else { return }
+        let W = CharacterKit.width
+        let eyes = body == "male" ? kit.male.eye : kit.female.eye
+        for p in eyes.closed {
+            let i = p.y * W + p.x
+            switch grid[i] {
+            case 5: bytes[i * 4] = 0xF3; bytes[i * 4 + 1] = 0xC0; bytes[i * 4 + 2] = 0x4A   // pupil: gold
+            case 9: bytes[i * 4] = 0xFF; bytes[i * 4 + 1] = 0xEC; bytes[i * 4 + 2] = 0xB0   // white: pale gold
+            default: continue
+            }
+        }
+    }
+
+    func image(recipe: AvatarRecipe, pose: CharacterPose, ascension: Int = 0) -> CGImage? {
         guard let kit, let manifest else { return nil }
         let body = recipe.baseBody.rawValue
         // Equipped items with layers, in draw order (doc 29). A head item is fitted to the bald head, so hair is hidden under it.
@@ -48,7 +70,7 @@ final class CharacterKitStore {
             grid = PoseComposer.indexGrid(kit: kit, manifest: manifest, body: body, styleKey: styleKey, pose: pose)
             poseCache[poseKey] = grid
         }
-        let imageKey = "\(poseKey)|\(recipe.hairPaletteID)|\(recipe.skinPaletteID)|\(items.joined(separator: ","))"
+        let imageKey = "\(poseKey)|\(recipe.hairPaletteID)|\(recipe.skinPaletteID)|\(items.joined(separator: ","))|a\(ascension)"
         if let cached = imageCache[imageKey] { return cached }
         let pal = PoseComposer.palette(kit: kit, manifest: manifest, hairID: recipe.hairPaletteID, skinID: recipe.skinPaletteID)
         let W = CharacterKit.width, H = CharacterKit.height
@@ -58,6 +80,7 @@ final class CharacterKitStore {
             let c = pal[v - 1]
             bytes[i * 4] = c.0; bytes[i * 4 + 1] = c.1; bytes[i * 4 + 2] = c.2; bytes[i * 4 + 3] = 255
         }
+        if ascension >= 1 { paintAscendedEyes(&bytes, grid: grid, kit: kit, body: body, pose: pose) }
         // Items were drawn on the rest pose; the same row remap moves them with the breath and keeps the feet planted.
         for id in items {
             guard let rest = itemLayer(id, body: body) else { continue }
@@ -148,6 +171,7 @@ final class CharacterActor {
 struct LayeredCharacterView: View {
     let recipe: AvatarRecipe
     var scale: CGFloat = 2
+    var ascension = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var actor: CharacterActor?
 
@@ -157,10 +181,10 @@ struct LayeredCharacterView: View {
         let tps = store.manifest?.ticksPerSecond ?? 12
         Group {
             if reduceMotion || actor == nil {
-                frame(store.image(recipe: recipe, pose: .rest))
+                frame(store.image(recipe: recipe, pose: .rest, ascension: ascension))
             } else {
                 TimelineView(.periodic(from: .now, by: 1.0 / Double(tps))) { _ in
-                    frame(store.image(recipe: recipe, pose: actor?.pose ?? .rest))
+                    frame(store.image(recipe: recipe, pose: actor?.pose ?? .rest, ascension: ascension))
                 }
             }
         }

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.06-1",
+  "content_version": "2026.10.06-2",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -231,15 +231,19 @@
       "id": "ev1_awakened",
       "display_name": "Awakened",
       "min_level": 1,
-      "asset_set_id": "hero.kit.v3",
-      "outfit": "hoodie"
+      "asset_set_id": "hero.kit.v2",
+      "outfit": "suit",
+      "ascension_tier": 0,
+      "notes": "Doc 32 (owner 2026-10-06): evolutions no longer change the body or outfit; they are ascension tiers rendered as effects around the canonical body."
     },
     {
       "id": "ev2_evolution1",
       "display_name": "Evolution I",
       "min_level": 5,
       "asset_set_id": "hero.kit.v2",
-      "outfit": "suit"
+      "outfit": "suit",
+      "ascension_tier": 1,
+      "notes": "Doc 32 (owner 2026-10-06): evolutions no longer change the body or outfit; they are ascension tiers rendered as effects around the canonical body."
     },
     {
       "id": "ev3_evolution2",
@@ -247,7 +251,8 @@
       "min_level": 10,
       "asset_set_id": "hero.body.ev3",
       "outfit": "suit",
-      "notes": "Evolution II art not produced yet; renders the suit until it exists."
+      "notes": "Evolution II art not produced yet; renders the suit until it exists. Doc 32 (owner 2026-10-06): evolutions no longer change the body or outfit; they are ascension tiers rendered as effects around the canonical body.",
+      "ascension_tier": 2
     },
     {
       "id": "ev4_evolution3",
@@ -255,7 +260,8 @@
       "min_level": 20,
       "asset_set_id": "hero.body.ev4",
       "outfit": "suit",
-      "notes": "Evolution III art not produced yet; renders the suit until it exists. Third ascension at the 2-3 month mark (owner, 2026-10-02)."
+      "notes": "Evolution III art not produced yet; renders the suit until it exists. Third ascension at the 2-3 month mark (owner, 2026-10-02). Doc 32 (owner 2026-10-06): evolutions no longer change the body or outfit; they are ascension tiers rendered as effects around the canonical body.",
+      "ascension_tier": 3
     }
   ],
   "items": [
@@ -383,6 +389,36 @@
       "notes": "Wearable layers in the suit kit (hero.kit.v2) from the owner's v3 handoff; shows once the suit arrives at Level 5.",
       "icon_asset_set_id": "icon.item.vest_colossus",
       "description": "A weighted vest over a black muscle tee: the deep floor's uniform, heavier every week."
+    },
+    {
+      "id": "item.hoodie.starter",
+      "display_name": "Grey Hoodie",
+      "slot": "body",
+      "rarity": "common",
+      "asset_set_id": "item.hoodie.starter",
+      "starter": true,
+      "description": "The hoodie you woke up in. Warm enough. Nobody asks where it came from.",
+      "notes": "Starter outfit (doc 32): the white hoodie layer recoloured by the kit manifest."
+    },
+    {
+      "id": "item.pants.starter",
+      "display_name": "Dark Sweats",
+      "slot": "legs",
+      "rarity": "common",
+      "asset_set_id": "item.pants.starter",
+      "starter": true,
+      "description": "Dark sweats, soft at the knees. They have walked further than you remember.",
+      "notes": "Starter outfit (doc 32): the striped sweatpants layer recoloured."
+    },
+    {
+      "id": "item.shoes.starter",
+      "display_name": "Worn Trainers",
+      "slot": "feet",
+      "rarity": "common",
+      "asset_set_id": "item.shoes.starter",
+      "starter": true,
+      "description": "Grey trainers with the soles gone smooth. They still work.",
+      "notes": "Starter outfit (doc 32): the running shoes layer recoloured."
     }
   ],
   "rewards": [

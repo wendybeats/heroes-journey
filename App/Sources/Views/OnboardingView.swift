@@ -18,6 +18,7 @@ struct OnboardingView: View {
     @State private var step: Step = .awaken
     @State private var name = ""
     @State private var draft = AvatarRecipe(name: "", baseBody: .male, skinPaletteID: "skin.light", hairStyleID: "hair.wolf", hairPaletteID: "hair.black", evolutionID: "ev1_awakened", backdropID: "backdrop.rain_district")
+    @State private var dressed = false
     @State private var prefs = GoalPreferences()
     @State private var healthAsked = false
 
@@ -52,6 +53,7 @@ struct OnboardingView: View {
             }
             footer
         }
+        .onAppear { if !dressed { draft.equipped = state.bundle.starterEquipment; dressed = true } }
         .background(NeoTokyo.Surface.base.ignoresSafeArea())
     }
 
@@ -66,7 +68,7 @@ struct OnboardingView: View {
                 PortraitView(assetSetID: set, size: 170)
                     .padding(.bottom, NeoTokyo.Spacing.sm)
             } else {
-                CharacterView(recipe: draft, outfit: state.bundle.evolution(forLevel: 1)?.outfit, scale: HomeView.characterScale)
+                CharacterView(recipe: draft, scale: HomeView.characterScale)
                     .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 18)
                     .padding(.bottom, NeoTokyo.Spacing.sm)
             }
@@ -232,6 +234,7 @@ struct OnboardingView: View {
         guard let ev = state.bundle.evolution(forLevel: 1), let backdrop = state.bundle.defaultBackdrop else { return }
         var r = draft
         r.name = name.trimmingCharacters(in: .whitespaces); r.evolutionID = ev.id; r.backdropID = backdrop.id
+        r.equipped = state.bundle.starterEquipment   // doc 32: the first outfit is items on the canonical body
         state.completeOnboarding(recipe: r, preferences: prefs)
     }
 }

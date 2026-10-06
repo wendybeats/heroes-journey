@@ -71,7 +71,7 @@ struct StageView: View {
         ZStack(alignment: .bottom) {
             BackdropImage(assetSetID: state.recipe?.backdropID ?? "backdrop.rain_district")
             if let recipe = state.recipe {
-                CharacterView(recipe: recipe, outfit: state.evolution?.outfit, scale: HomeView.characterScale)
+                CharacterView(recipe: recipe, scale: HomeView.characterScale, ascension: state.ascensionTier)
                     .padding(.bottom, NeoTokyo.Spacing.lg)
             }
         }

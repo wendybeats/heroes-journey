@@ -78,7 +78,12 @@ public struct CharacterKitManifest: Codable, Sendable, Equatable {
     public let skinRamps: [String: [String]]
     public let flex: Flex
     /// Wearable layers (doc 29, owner handoff v3): item id → slot and one 8x PNG per body, drawn on the relaxed suit.
-    public struct ItemLayer: Codable, Sendable, Equatable { public let slot: String; public let frames: [String: String] }
+    public struct ItemLayer: Codable, Sendable, Equatable {
+        public let slot: String
+        public let frames: [String: String]
+        /// Doc 32: authored colour → replacement, applied when the layer loads, so one layer serves many items.
+        public let recolor: [String: String]?
+    }
     public let items: [String: ItemLayer]?
 
     /// Draw order for equipped items: behind the body first, then up the body, then over the head.

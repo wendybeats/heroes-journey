@@ -224,6 +224,10 @@ Every chapter-one line replaced, kept or cut per the owner's audit (principle: m
 
 Owner handoff of nine wearable layers per body, drawn on the kit v2 suit at rest. Registered in the suit kit (all nine) and the hoodie kit (the four that share feet, legs and head). The suit renderer gains item compositing through the shared row remap (`PoseComposer.remapRows`), both renderers hide hair under a head item, a `waist` slot separates the belt from the tops, and the placeholder trainers are retired. Validators check the layer files; tests cover decode, draw order, remap identity and breath, and hair under the cap. Content 2026.10.06-1.
 
+## Increment 34, 2026-10-06: one body, items, ascension as a state (doc 32)
+
+Owner direction: the bodysuit is the canonical body; the hoodie is the first outfit, not a second base; ascension enhances identity instead of replacing it. Built: every screen renders kit v2 with items; the hoodie kit is legacy (sprite lab only). Starter outfit as three `starter` items that are `recolor` maps over the owner's layers (manifest-driven, no new art); worn from creation, filled in once for older saves. Evolutions carry `ascension_tier`; Ascension I paints the eyes gold and draws a broken-arc field behind the body, II adds drifting pixels, III a ground glyph; the Level 5 takeover flips the tier at its reveal instead of swapping a body. Doc 32 holds the production rules (2 files per item, rig motion is free, shirts = torso + sleeve family, head items on the neutral head, props on the still off hand) and the reserved schema. Content 2026.10.06-2.
+
 ## Still open (unchanged from README)
 
 - Final XP curve and Level 1–10 thresholds after simulation.

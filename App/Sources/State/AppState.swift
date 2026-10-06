@@ -115,6 +115,8 @@ final class AppState {
 
     var snapshot: ProgressSnapshot { ledger.snapshot(ruleset: ruleset) }
     var evolution: ContentBundle.Evolution? { bundle.evolution(forLevel: snapshot.level) }
+    /// Doc 32: ascension is a tier of effects around the canonical body, from the level's evolution.
+    var ascensionTier: Int { evolution?.ascensionTier ?? 0 }
     var pendingCount: Int { outbox.pending.count }
     /// Facts minus invalidated ones (doc 15 §1: the timeline is a projection over corrections).
     var visibleEvents: [ActivityEvent] {
@@ -188,6 +190,8 @@ final class AppState {
         self.baseRuleset = ruleset
         let authority = ProgressionAuthority(ruleset: ruleset, levelRewards: bundle.levelRewards, calendar: .current)
         self.service = LocalAuthorityProgressionService(authority: authority, owner: user, ledger: ledger, events: events)
+        // Saves from before doc 32 wore nothing on the canonical body: dress them in the starter outfit once.
+        if var r = recipe, r.equipped.isEmpty { r.equipped = bundle.starterEquipment; recipe = r }
         // Saves from before increment 30: the story opened a world backdrop but the Home scene never switched. Catch up once.
         if var r = recipe, r.backdropID == bundle.defaultBackdrop?.id {
             let unlocked = storyProgress.unlockedBackdrops
@@ -682,7 +686,7 @@ final class AppState {
     /// Items the ledger has granted, resolved through the bundle's rewards (never from UI state).
     var ownedItems: [ContentBundle.Item] {
         let granted = ledger.grantedRewardIDs
-        var ids: [ItemID] = []
+        var ids: [ItemID] = bundle.items.filter(\.isStarter).map(\.id)   // the starter outfit is everyone's (doc 32)
         for reward in bundle.rewards where granted.contains(reward.id) {
             for g in reward.grants { if let i = g.itemID, !ids.contains(i) { ids.append(i) } }
         }

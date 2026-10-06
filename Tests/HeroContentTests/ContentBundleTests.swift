@@ -126,6 +126,12 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertTrue(rewards.isEmpty, "owner 2026-10-05: level-up grants are off; the former level rewards stay defined as unassigned")
         XCTAssertEqual(bundle.rewards.filter { $0.trigger.type == "unassigned" }.count, 10, "the ten former level rewards are kept for the chapter to assign")
         XCTAssertEqual(bundle.evolution(forLevel: 1)?.id, "ev1_awakened")
+        // Doc 32: evolutions are ascension tiers on one canonical body; the starter outfit is items.
+        XCTAssertEqual(bundle.evolutions.map { $0.ascensionTier ?? -1 }, [0, 1, 2, 3])
+        XCTAssertEqual(Set(bundle.evolutions.map { $0.outfit ?? "" }), ["suit"])
+        let starter = bundle.starterEquipment
+        XCTAssertEqual(Set(starter.keys), [.body, .legs, .feet]); XCTAssertEqual(starter[.body], "item.hoodie.starter")
+        XCTAssertEqual(bundle.items.filter(\.isStarter).count, 3)
         XCTAssertEqual(bundle.evolution(forLevel: 4)?.id, "ev1_awakened")
         XCTAssertEqual(bundle.evolution(forLevel: 5)?.id, "ev2_evolution1")
         XCTAssertEqual(bundle.evolution(forLevel: 12)?.id, "ev3_evolution2")

@@ -33,7 +33,7 @@ struct HomeView: View {
     @State private var deltaToken = 0
     @State private var levelUpStart: Date?
     @State private var levelFlash = false
-    @State private var ascension: (start: Date, from: String?, to: String?, name: String)?
+    @State private var ascension: (start: Date, from: Int, to: Int, name: String)?
     @State private var barFill: Double = 0
     /// The chapter being played from Home (doc 28): a due milestone's scene, or a quest's end scene.
     @State private var storyScene: StoryScene?
@@ -132,7 +132,7 @@ struct HomeView: View {
                         LevelUpOverlay(start: start, characterCenter: CGPoint(x: cr.midX, y: cr.midY), badgeCenter: CGPoint(x: br.midX, y: br.midY))
                     }
                     if let a = ascension, let recipe = state.recipe, let c = anchors["character"] {
-                        AscensionOverlay(start: a.start, recipe: recipe, fromOutfit: a.from, toOutfit: a.to, evolutionName: a.name, sceneFrame: geo[c])
+                        AscensionOverlay(start: a.start, recipe: recipe, fromTier: a.from, toTier: a.to, evolutionName: a.name, sceneFrame: geo[c])
                     }
                 }
             }
@@ -172,8 +172,8 @@ struct HomeView: View {
             deltaToken += 1
             let oldEv = state.bundle.evolution(forLevel: old.level), newEv = state.bundle.evolution(forLevel: new.level)
             if new.level > old.level && oldEv?.id != newEv?.id && !reduceMotion {
-                // Evolution: full-screen ascension. The scene swaps outfit under the overlay at the reveal.
-                ascension = (Date(), oldEv?.outfit, newEv?.outfit, newEv?.displayName ?? "")
+                // Ascension (doc 32): a tier, not an outfit. The eyes and the field change under the overlay at the reveal.
+                ascension = (Date(), oldEv?.ascensionTier ?? 0, newEv?.ascensionTier ?? 0, newEv?.displayName ?? "")
                 Task {
                     try? await Task.sleep(for: .milliseconds(Int(AscensionOverlay.revealAt * 1000)))
                     levelFlash = true
@@ -273,7 +273,7 @@ struct HomeView: View {
             // Character stands on the road: bottom-centre, 20% smaller than the 2x sprite scale.
             if let recipe = state.recipe {
                 // Outfit follows the *displayed* level so the swap lands with the counter during the level-up sequence.
-                CharacterView(recipe: recipe, outfit: state.bundle.evolution(forLevel: snapshot.level)?.outfit, scale: HomeView.characterScale)
+                CharacterView(recipe: recipe, scale: HomeView.characterScale, ascension: state.bundle.evolution(forLevel: snapshot.level)?.ascensionTier ?? 0)
                     .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)  // the character's own glow
                     .padding(.bottom, NeoTokyo.Spacing.xl)
                     .opacity(state.characterAway ? 0 : 1)   // out on the quest: the scene stays, the character is gone

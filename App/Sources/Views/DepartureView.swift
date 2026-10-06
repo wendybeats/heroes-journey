@@ -49,7 +49,7 @@ struct DepartureView: View {
                         .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)
                         .padding(.bottom, NeoTokyo.Spacing.xl)
                 } else if let recipe = state.recipe {
-                    CharacterView(recipe: recipe, outfit: state.evolution?.outfit, scale: HomeView.characterScale)
+                    CharacterView(recipe: recipe, scale: HomeView.characterScale, ascension: state.ascensionTier)
                         .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)
                         .padding(.bottom, NeoTokyo.Spacing.xl)
                 }

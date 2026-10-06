@@ -35,9 +35,11 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let displayName: String
         public let minLevel: Int
         public let assetSetID: AssetSetID
-        /// Which renderer/outfit draws this evolution: "hoodie" (kit v3) or "suit" (kit v2). Nil = suit.
+        /// Legacy renderer hint. Since doc 32 every evolution renders the canonical body; kept for old content.
         public let outfit: String?
-        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", minLevel = "min_level", assetSetID = "asset_set_id", outfit }
+        /// Doc 32: the ascension tier this evolution confers (0 = none). Effects around the body, never a new body.
+        public let ascensionTier: Int?
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", minLevel = "min_level", assetSetID = "asset_set_id", outfit, ascensionTier = "ascension_tier" }
     }
     public struct Item: Codable, Sendable, Equatable {
         public let id: ItemID
@@ -49,7 +51,10 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let iconAssetSetID: AssetSetID?
         /// One sentence, shown when the item is claimed.
         public let description: String?
-        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", slot, rarity, assetSetID = "asset_set_id", iconAssetSetID = "icon_asset_set_id", description }
+        /// Doc 32: part of the starter outfit, owned by everyone and worn until the player changes it.
+        public let starter: Bool?
+        public var isStarter: Bool { starter == true }
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", slot, rarity, assetSetID = "asset_set_id", iconAssetSetID = "icon_asset_set_id", description, starter }
     }
     public struct Reward: Codable, Sendable, Equatable {
         public struct Trigger: Codable, Sendable, Equatable {
@@ -268,6 +273,12 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     /// Deterministic per day number so everyone on day N reads the same line.
     public func quote(forDay day: Int) -> Quote? { dailyQuotes.isEmpty ? nil : dailyQuotes[max(0, day - 1) % dailyQuotes.count] }
     public func backdrop(_ id: BackdropID) -> Backdrop? { backdrops.first { $0.id == id } }
+    /// Doc 32: the starter outfit, one item per slot, worn from character creation.
+    public var starterEquipment: [AvatarRecipe.Slot: ItemID] {
+        var out: [AvatarRecipe.Slot: ItemID] = [:]
+        for item in items where item.isStarter && out[item.slot] == nil { out[item.slot] = item.id }
+        return out
+    }
     public var defaultBackdrop: Backdrop? { backdrops.first { $0.isDefault == true } ?? backdrops.first { $0.isHomeScene } }
 
     /// Level → reward IDs, the shape `EvaluationContext` wants.

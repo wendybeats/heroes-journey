@@ -96,7 +96,11 @@ final class CharacterKitTests: XCTestCase {
     func testItemLayersAndRowRemap() throws {
         let (_, m) = try load()
         let items = try XCTUnwrap(m.items)
-        XCTAssertEqual(items.count, 9)
+        XCTAssertEqual(items.count, 12, "nine owner wearables plus the three starter recolours (doc 32)")
+        let starter = try XCTUnwrap(items["item.hoodie.starter"])
+        XCTAssertEqual(starter.frames, items["item.hoodie.box"]?.frames, "a recolour shares its layers")
+        XCTAssertEqual(starter.recolor?.count, 5)
+        for (from, to) in starter.recolor ?? [:] { XCTAssertEqual(from.count, 7); XCTAssertEqual(to.count, 7) }
         for (id, item) in items {
             XCTAssertTrue(CharacterKitManifest.itemSlotOrder.contains(item.slot), "\(id) slot \(item.slot)")
             for (body, rel) in item.frames {

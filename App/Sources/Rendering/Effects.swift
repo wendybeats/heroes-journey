@@ -141,3 +141,49 @@ struct LevelUpOverlay: View {
         .allowsHitTesting(false)
     }
 }
+
+/// Doc 32 Ascension Field: the digital world struggling to render space around this character.
+/// Tier 1: two broken arcs turning slowly behind the body, gold at low opacity. Tier 2 adds sparse
+/// pixels drifting upward. Tier 3+ adds a fragmented ground glyph under the feet. Never a solid aura,
+/// never proportions. Static under Reduce Motion.
+struct AscensionField: View {
+    let tier: Int
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 1.0 / 20, paused: reduceMotion)) { timeline in
+            Canvas { context, size in
+                let t = reduceMotion ? 0 : timeline.date.timeIntervalSinceReferenceDate
+                let center = CGPoint(x: size.width / 2, y: size.height * 0.55)
+                let r = min(size.width, size.height) * 0.46
+                let gold = NeoTokyo.Hierarchy.primary
+                // Two incomplete arcs, counter-rotating, drawn as 2 px dashes so they read as pixels.
+                for (k, speed) in [(0, 0.11), (1, -0.07)] {
+                    let radius = r * (k == 0 ? 1.0 : 0.82)
+                    let base = t * speed * .pi * 2 + Double(k) * 1.9
+                    for seg in 0..<3 {
+                        let a0 = base + Double(seg) * (2 * .pi / 3), a1 = a0 + 0.9 - Double(k) * 0.25
+                        var p = Path(); p.addArc(center: center, radius: radius, startAngle: .radians(a0), endAngle: .radians(a1), clockwise: false)
+                        context.stroke(p, with: .color(gold.opacity(0.22)), style: StrokeStyle(lineWidth: 2, dash: [2, 3]))
+                    }
+                }
+                if tier >= 2 {
+                    // Sparse drift: eight pixels on fixed lanes, rising and fading over 3 s each.
+                    for i in 0..<8 {
+                        let phase = (t / 3.0 + Double(i) * 0.37).truncatingRemainder(dividingBy: 1)
+                        let x = center.x + cos(Double(i) * 2.3) * r * 0.9
+                        let y = center.y + r * 0.9 - phase * r * 1.8
+                        let alpha = phase < 0.15 ? phase / 0.15 : 1 - (phase - 0.15) / 0.85
+                        context.fill(Path(CGRect(x: x, y: y, width: 2, height: 2)), with: .color(gold.opacity(0.6 * alpha)))
+                    }
+                }
+                if tier >= 3 {
+                    // Fragmented ground glyph: a flattened ring of dashes under the feet.
+                    var g = Path(); g.addEllipse(in: CGRect(x: center.x - r * 0.7, y: size.height * 0.92, width: r * 1.4, height: r * 0.18))
+                    context.stroke(g, with: .color(gold.opacity(0.28)), style: StrokeStyle(lineWidth: 2, dash: [3, 4], dashPhase: CGFloat(t * 6)))
+                }
+            }
+        }
+        .allowsHitTesting(false)
+    }
+}

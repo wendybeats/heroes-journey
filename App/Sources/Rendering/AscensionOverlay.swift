@@ -6,12 +6,9 @@ import HeroDomain
 /// where two copies must match exactly (a gold mask over the sprite).
 @MainActor
 enum StillCharacter {
-    static func image(recipe: AvatarRecipe, outfit: String?) -> CGImage? {
-        if outfit == "hoodie" {
-            return HoodieKitStore.shared.image(pose: .pocketed, gender: recipe.baseBody.rawValue, style: HoodieVariant.style(recipe.hairStyleID),
-                                               hairColor: HoodieVariant.ramp(recipe.hairPaletteID), skin: HoodieVariant.ramp(recipe.skinPaletteID), items: HoodieVariant.items(recipe))
-        }
-        return CharacterKitStore.shared.image(recipe: recipe, pose: .rest)
+    static func image(recipe: AvatarRecipe, outfit: String?, ascension: Int = 0) -> CGImage? {
+        // Doc 32: one canonical body; `outfit` is ignored (legacy call sites).
+        CharacterKitStore.shared.image(recipe: recipe, pose: .rest, ascension: ascension)
     }
 }
 
@@ -22,8 +19,9 @@ enum StillCharacter {
 struct AscensionOverlay: View {
     let start: Date
     let recipe: AvatarRecipe
-    let fromOutfit: String?
-    let toOutfit: String?
+    /// Doc 32: tiers, not outfits. The body stays; at the reveal the eyes change and the field appears.
+    let fromTier: Int
+    let toTier: Int
     let evolutionName: String
     /// Where the scene draws the character, so the settle lands exactly there.
     let sceneFrame: CGRect
@@ -43,7 +41,7 @@ struct AscensionOverlay: View {
                 let t = timeline.date.timeIntervalSince(start)
                 let scrim = t < 0.4 ? Self.clamp(t / 0.4) * 0.88 : (t >= Self.settleAt ? 0.88 * (1 - Self.clamp((t - Self.settleAt) / 0.7)) : 0.88)
                 let gold = t < 0.9 ? Self.clamp((t - 0.2) / 0.7) : (t < Self.revealAt ? 1 : 1 - Self.clamp((t - Self.revealAt) / 0.7))
-                let outfit = t < Self.revealAt ? fromOutfit : toOutfit
+                let tier = t < Self.revealAt ? fromTier : toTier
                 let textOpacity = t < 1.8 ? 0 : (t < Self.settleAt ? Self.clamp((t - 1.8) / 0.4) : 1 - Self.clamp((t - Self.settleAt) / 0.4))
                 ZStack {
                     NeoTokyo.Surface.scrim.opacity(scrim).ignoresSafeArea()
@@ -71,7 +69,7 @@ struct AscensionOverlay: View {
                     }
                     .opacity(textOpacity)
                     .position(x: geo.size.width / 2, y: center.y + 64 * big / 2 + 56)
-                    if let cg = StillCharacter.image(recipe: recipe, outfit: outfit) {
+                    if let cg = StillCharacter.image(recipe: recipe, outfit: nil, ascension: tier) {
                         let sprite = Image(decorative: cg, scale: 1).interpolation(.none).resizable()
                         ZStack {
                             sprite

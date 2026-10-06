@@ -211,7 +211,48 @@
         "male": "items/wraps_chalk/male.png",
         "female": "items/wraps_chalk/female.png"
       }
+    },
+    "item.hoodie.starter": {
+      "slot": "body",
+      "frames": {
+        "male": "items/hoodie_box/male.png",
+        "female": "items/hoodie_box/female.png"
+      },
+      "recolor": {
+        "#495469": "#2C2F3C",
+        "#71809B": "#3F4456",
+        "#A8B4CA": "#5D6680",
+        "#CDD4E2": "#7B8399",
+        "#E4E9F4": "#9AA2B5"
+      }
+    },
+    "item.pants.starter": {
+      "slot": "legs",
+      "frames": {
+        "male": "items/pants_junko/male.png",
+        "female": "items/pants_junko/female.png"
+      },
+      "recolor": {
+        "#572337": "#16171F",
+        "#8D2D44": "#1F212B",
+        "#B43C53": "#282B36",
+        "#D05A65": "#373B49",
+        "#A8B4CA": "#373B49",
+        "#CDD4E2": "#4D5365"
+      }
+    },
+    "item.shoes.starter": {
+      "slot": "feet",
+      "frames": {
+        "male": "items/shoes_clean/male.png",
+        "female": "items/shoes_clean/female.png"
+      },
+      "recolor": {
+        "#697287": "#4B4E55",
+        "#9FACC8": "#6B6E75",
+        "#E4E9F4": "#8C8F96"
+      }
     }
   },
-  "item_notes": "Owner handoff 2026-10-06 (area-01-wearable-layers-v3): nine wearables, item pixels only, drawn on the relaxed suit at 0,0 (512x1024 at 8x, binary alpha, authored palettes). Draw order body \u2192 legs \u2192 feet \u2192 top (hoodie/tee/vest are alternative tops in the body slot) \u2192 waist \u2192 hand \u2192 head \u2192 face. A head item hides the hair (cap fitted to the bald head). Layers follow the rig row remap; the male arm raise/flex moves the arm under a fixed wrap for the second it lasts."
+  "item_notes": "Owner handoff 2026-10-06 (area-01-wearable-layers-v3): nine wearables, item pixels only, drawn on the relaxed suit at 0,0 (512x1024 at 8x, binary alpha, authored palettes). Draw order body \u2192 legs \u2192 feet \u2192 top (hoodie/tee/vest are alternative tops in the body slot) \u2192 waist \u2192 hand \u2192 head \u2192 face. A head item hides the hair (cap fitted to the bald head). Layers follow the rig row remap; the male arm raise/flex moves the arm under a fixed wrap for the second it lasts. Doc 32: `recolor` maps authored colours to new ones at load, so a layer serves many items (the starter outfit is three recolours of the owner's layers). The canonical body is the bodysuit; the hoodie kit is legacy."
 }
