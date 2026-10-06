@@ -22,6 +22,11 @@ Per-item cost is (bodies) × (poses that redraw pixels under the item). Everythi
 - **Colour is a recolour, not art.** `recolor` maps (authored → replacement) or key-palette ramps. One layer, many items.
 - **Draw order**: back, legs, feet, body, waist, hand, head, face, effect.
 
+## Suppression until the families exist (owner, 2026-10-06)
+
+- A sleeved top (`body`) or a hand item suppresses the male arm poses (raise, flex, pump). The idle keeps breath, bounce, blink, grin and hair motion. No arm art is needed for any top until sleeve families land.
+- Head and face items move with the head band but ignore hair sway and tip lag, so a cap's crown never shears against its brim and shades never drift off the eyes. The suit kit has no head turn, so there is nothing else to suppress.
+
 ## Ascension signature (what is built, what is next)
 
 Tiers come from the evolution reached at the level. Rendered by `CharacterView` (field behind) and `CharacterKitStore` (eyes inside).

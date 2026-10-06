@@ -33,6 +33,7 @@ Build: branch `claude/tender-hamilton-d57cv9`, commit in the increment 28 entry 
 ## D. Items on the character
 19. Fresh install: the character wears the starter outfit (grey hoodie, dark sweats, worn trainers) on the canonical body from the first onboarding frame. Room → Equipment lists the three starters plus claimed items with their stills.
 20. Equip anything at any level: it shows at once; belt and a top together; a cap hides the hair; shoes stay planted while the torso breathes. Unequip the top → the bodysuit shows. Older saves open already dressed.
+20a. Wearing any top or the wraps: the male character never raises or flexes an arm; take them off and the flex returns within ~10 s. With a cap or shades on, nothing on the head shears or drifts during the idle.
 20b. Level 5 ascension: the body does not change. At the reveal the eyes turn gold and broken arcs turn slowly behind the character; both persist on Home, in the room and on the quest screen. Level 10 adds drifting pixels. Reduce Motion: field static.
 21. Reduce Motion on: the cache does not pulse; the character holds the pocketed pose with trainers still visible.
 

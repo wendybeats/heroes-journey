@@ -57,6 +57,13 @@ final class CharacterKitStore {
         }
     }
 
+    /// Owner 2026-10-06: until sleeve families exist, a sleeved top or a hand item suppresses the male arm
+    /// poses so the arm never climbs out of its sleeve.
+    func wearsSleeves(_ recipe: AvatarRecipe) -> Bool {
+        guard let manifest else { return false }
+        return manifest.drawableItems(recipe.equipped.values.map(\.rawValue)).contains { ["body", "hand"].contains(manifest.items?[$0]?.slot ?? "") }
+    }
+
     func image(recipe: AvatarRecipe, pose: CharacterPose, ascension: Int = 0) -> CGImage? {
         guard let kit, let manifest else { return nil }
         let body = recipe.baseBody.rawValue
@@ -82,9 +89,13 @@ final class CharacterKitStore {
         }
         if ascension >= 1 { paintAscendedEyes(&bytes, grid: grid, kit: kit, body: body, pose: pose) }
         // Items were drawn on the rest pose; the same row remap moves them with the breath and keeps the feet planted.
+        // Head and face items ride the head band rigidly: no hair sway or tip lag, so a cap's crown never shears
+        // against its brim (owner 2026-10-06).
+        var rigidHead = pose; rigidHead.hairSway = 0; rigidHead.hairLag = 0
         for id in items {
             guard let rest = itemLayer(id, body: body) else { continue }
-            let moved = PoseComposer.remapRows(rest, manifest: manifest, pose: pose, empty: 0)
+            let onHead = ["head", "face"].contains(manifest.items?[id]?.slot ?? "")
+            let moved = PoseComposer.remapRows(rest, manifest: manifest, pose: onHead ? rigidHead : pose, empty: 0)
             for i in 0..<(W * H) where moved[i] != 0 {
                 let v = moved[i]   // memory-order RGBA read little-endian: R in the low byte
                 bytes[i * 4] = UInt8(v & 0xFF); bytes[i * 4 + 1] = UInt8((v >> 8) & 0xFF); bytes[i * 4 + 2] = UInt8((v >> 16) & 0xFF); bytes[i * 4 + 3] = 255
@@ -196,7 +207,7 @@ struct LayeredCharacterView: View {
         .task(id: recipe) {
             // drive the actor at the kit's tick rate; TimelineView only redraws
             guard let m = store.manifest else { return }
-            let canFlex = m.canFlex(body: recipe.baseBody.rawValue)
+            let canFlex = m.canFlex(body: recipe.baseBody.rawValue) && !store.wearsSleeves(recipe)
             while !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(1000 / m.ticksPerSecond))
                 if !reduceMotion { actor?.tick(canFlex: canFlex) }

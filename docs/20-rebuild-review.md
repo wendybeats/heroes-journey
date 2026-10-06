@@ -232,6 +232,10 @@ Owner direction: the bodysuit is the canonical body; the hoodie is the first out
 
 Owner: the XP and level read strangely over the scene; the smaller sprite was meant for the walking quest only. The progression row (XP, bar, level badge) moved out of the scene to a glass strip under the character, above the attributes; the level-up overlay anchors still find the badge there. Idle sprites are back at 2 pt per pixel on every screen; the departure walk and its idle fallback use 4 device px per pixel.
 
+## Increment 36, 2026-10-06: suppression instead of sleeve art
+
+Owner: suppress rather than draw for now. Sleeved tops and hand items switch off the male arm poses; head and face items ride the head band without hair sway or tip lag. Sleeve families stay parked.
+
 ## Parked (owner, 2026-10-06): style protection
 
 Not for MVP. When the item library grows: a sprite style profile (`Content/v1/sprite-style.json`: master palette of about 32 colours, per-slot row bounds, outline rule, island and gradient limits, per-slot colour caps), a normaliser (`Tools/normalize_art.py`: snap near-miss colours, remove islands, enforce 8×8 blocks, fail beyond a threshold, report changes) and a stricter per-slot gate in `validate_sprites.py`. Free-palette art (backdrops, portraits, stills) stays guarded by the reference pack and one approval per asset. Also parked from doc 32: sleeve families, hand anchors, `overlays` for print variants, Ascension IV–V and world reactions.
