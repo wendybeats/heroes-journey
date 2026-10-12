@@ -264,6 +264,10 @@ Doc 33 §B built end to end. Domain: `ChallengeReference` on the fact (stat, tra
 
 Open from doc 33: the courier and the shake-stand old man wait for art; repeat exchanges, pages, story-aware lines and rumours (increments 43–44); the memento; the simulator's challenge loop.
 
+## Increment 43, 2026-10-12: physical goals stop prescribing the sport
+
+Owner: "Train combat for 30 min" was the game deciding what today's training is. Daily goals reward consistency; the activity log determines attributes; quests and challenges provide variety. New rule `any_family` (any activity in the listed families for at least N minutes). Five physical prescriptions on training days whatever the primary family (Train for 30 min; Complete a training session, 10 min floor, no set count; Train or move for 30 min; Train for 45 min; Recover or move for 20 min) and three rest goals (Move easy for 20 min; Recover for 10 min; Walk {target} steps). The combat goal is cut. The attribute a general goal credits is the one the completing activity's family pays (boxing → endurance), via the completing fact; ids kept so old completions still resolve. Learning, mindfulness and creativity primaries are unchanged. Content 2026.10.12-2.
+
 ## Planned (owner, 2026-10-12): challenges and between-beat content
 
 Doc 33 holds the design, the five-increment plan (40–44) and the content inventory (lines and art the owner writes separately). Order: beats wait for their quest (`requires_quest`), Challenges with Cairon then the lifter, repeat quest exchanges and found pages, story-aware goal lines and Row rumours. Each lands behind its content: a field with no lines renders nothing.

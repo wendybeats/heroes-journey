@@ -178,7 +178,7 @@ final class AppState {
         if let goal = event.goal { return bundle.goalTemplate(goal.templateID)?.title.replacingOccurrences(of: "{target}", with: "") ?? goal.templateID.rawValue }
         if let quest = event.quest { return bundle.quest(quest.questID)?.displayName ?? quest.questID.rawValue }
         if event.bond != nil { return "The bond" }
-        if let c = event.challenge { return "\(bundle.character(c.characterID)?.displayName ?? "Someone")'s challenge" }
+        if let c = event.challenge { return "\(bundle.character(CharacterID(c.characterID))?.displayName ?? "Someone")'s challenge" }
         return bundle.activityType(event.activityTypeID)?.displayName ?? event.activityTypeID.rawValue
     }
     /// How an imported event was treated, for badges in the timeline.
@@ -660,7 +660,9 @@ final class AppState {
 
     private func record(_ goal: DailyGoal, source: GoalCompletion.Source, now: Date) {
         guard let template = template(for: goal) else { return }
-        let event = GoalEvaluator.makeEvent(for: goal, template: template, userID: userID, familyFallback: goalPreferences.primaryFamily, at: now)
+        var completedBy: ActivityEvent? = nil
+        if case let .activity(id) = source { completedBy = events.first { $0.id == id } }
+        let event = GoalEvaluator.makeEvent(for: goal, template: template, userID: userID, familyFallback: goalPreferences.primaryFamily, at: now, completedBy: completedBy, ruleset: ruleset)
         goalCompletions.append(GoalCompletion(goalID: goal.id, templateID: goal.templateID, day: goal.day, source: source, activityEventID: event.id, completedAt: now))
         events.append(event)
         outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))

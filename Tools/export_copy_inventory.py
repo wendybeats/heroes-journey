@@ -175,6 +175,7 @@ def rule(r):
     t = r["type"]
     if t == "activity_family": return f"{r['family_id']} · {r['min_minutes']} min logged"
     if t == "workout_sets": return f"{r['count']} sets logged"
+    if t == "any_family": return f"any of {', '.join(r['families'])} · {r['min_minutes']} min logged"
     if t == "steps": return f"{r['base']} steps + {r['per_level']}/level"
     return "manual tick"
 out.append(f"""<section id="goals">

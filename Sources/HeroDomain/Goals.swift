@@ -24,8 +24,11 @@ public enum GoalCompletionRule: Hashable, Codable, Sendable {
     case steps(base: Int, perLevel: Int)
     /// A structured workout with at least `count` valid sets on the day.
     case workoutSets(count: Int)
+    /// Owner 2026-10-12: any activity in one of `families` lasting at least `minMinutes` on the day. The game does
+    /// not decide whether today is boxing day or lifting day; the goal rewards consistency, the log decides attributes.
+    case anyFamily(families: [FamilyID], minMinutes: Int)
 
-    enum CodingKeys: String, CodingKey { case type, familyID = "family_id", minMinutes = "min_minutes", base, perLevel = "per_level", count }
+    enum CodingKeys: String, CodingKey { case type, familyID = "family_id", families, minMinutes = "min_minutes", base, perLevel = "per_level", count }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -34,6 +37,7 @@ public enum GoalCompletionRule: Hashable, Codable, Sendable {
         case "activity_family": self = .activityFamily(family: try c.decode(FamilyID.self, forKey: .familyID), minMinutes: try c.decodeIfPresent(Int.self, forKey: .minMinutes) ?? 1)
         case "steps": self = .steps(base: try c.decode(Int.self, forKey: .base), perLevel: try c.decodeIfPresent(Int.self, forKey: .perLevel) ?? 0)
         case "workout_sets": self = .workoutSets(count: try c.decodeIfPresent(Int.self, forKey: .count) ?? 1)
+        case "any_family": self = .anyFamily(families: try c.decode([FamilyID].self, forKey: .families), minMinutes: try c.decodeIfPresent(Int.self, forKey: .minMinutes) ?? 1)
         case let other: throw DecodingError.dataCorruptedError(forKey: .type, in: c, debugDescription: "unknown goal rule \(other)")
         }
     }
@@ -48,6 +52,8 @@ public enum GoalCompletionRule: Hashable, Codable, Sendable {
             try c.encode("steps", forKey: .type); try c.encode(base, forKey: .base); try c.encode(perLevel, forKey: .perLevel)
         case let .workoutSets(count):
             try c.encode("workout_sets", forKey: .type); try c.encode(count, forKey: .count)
+        case let .anyFamily(families, minMinutes):
+            try c.encode("any_family", forKey: .type); try c.encode(families, forKey: .families); try c.encode(minMinutes, forKey: .minMinutes)
         }
     }
 
@@ -332,17 +338,31 @@ public enum GoalEvaluator {
                 if let e = events.first(where: { $0.goal == nil && ($0.structuredSetCount ?? 0) >= count }) {
                     out.append((goal, .activity(e.id)))
                 }
+            case let .anyFamily(families, minMinutes):
+                if let e = events.first(where: { families.contains($0.familyID) && $0.goal == nil && $0.durationSeconds >= minMinutes * 60 }) {
+                    out.append((goal, .activity(e.id)))
+                }
             }
         }
         return out
     }
 
     /// The progression fact for a completion. Duration is zero: goal XP is flat, not minute-based.
-    public static func makeEvent(for goal: DailyGoal, template: GoalTemplate, userID: UserID, familyFallback: FamilyID, at now: Date, id: ActivityEventID = ActivityEventID()) -> ActivityEvent {
+    /// `completedBy` is the activity that satisfied an any-family goal; its family decides which attribute the goal
+    /// credits (the best-weighted one in `ruleset`), so "Train for 30 min" done as boxing pays where boxing pays.
+    public static func makeEvent(for goal: DailyGoal, template: GoalTemplate, userID: UserID, familyFallback: FamilyID, at now: Date, id: ActivityEventID = ActivityEventID(),
+                                 completedBy: ActivityEvent? = nil, ruleset: ProgressionRuleset? = nil) -> ActivityEvent {
         let family: FamilyID
-        if case let .activityFamily(f, _) = template.rule { family = f } else { family = familyFallback }
+        var attribute = template.attributeID
+        switch template.rule {
+        case let .activityFamily(f, _): family = f
+        case let .anyFamily(families, _):
+            family = completedBy.map(\.familyID).flatMap { families.contains($0) ? $0 : nil } ?? families.first ?? familyFallback
+            if let ruleset { attribute = BondReference.attribute(forFamily: family.rawValue, ruleset: ruleset, fallback: template.attributeID) }
+        default: family = familyFallback
+        }
         return ActivityEvent(id: id, userID: userID, activityTypeID: ActivityTypeID(template.id.rawValue), familyID: family, startedAt: now, durationSeconds: 0,
-                             source: .goal, verification: .selfReported, goal: GoalReference(templateID: template.id, slot: goal.slot, attributeID: template.attributeID), createdAt: now)
+                             source: .goal, verification: .selfReported, goal: GoalReference(templateID: template.id, slot: goal.slot, attributeID: attribute), createdAt: now)
     }
 }
 

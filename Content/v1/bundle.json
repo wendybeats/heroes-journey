@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.12-1",
+  "content_version": "2026.10.12-2",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -977,115 +977,147 @@
     {
       "id": "goal.train.strength",
       "slot": "primary",
-      "title": "Train strength for 30 min",
+      "title": "Train for 30 min",
       "lines": [
-        "Thirty minutes under load. I'll feel it from here.",
-        "Put something heavy down. Pick it back up. You know the arrangement."
+        "Thirty minutes. Your training, your call.",
+        "Go train. I'll see what you bring back."
       ],
       "attribute_id": "strength",
       "rule": {
-        "type": "activity_family",
-        "family_id": "strength",
+        "type": "any_family",
+        "families": [
+          "strength",
+          "cardio",
+          "combat",
+          "mobility"
+        ],
         "min_minutes": 30
       },
       "tags": [
         "training",
-        "strength"
-      ]
+        "physical",
+        "strength",
+        "cardio",
+        "combat",
+        "mobility"
+      ],
+      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays."
     },
     {
       "id": "goal.train.strength.sets",
       "slot": "primary",
-      "title": "Log a workout with 12 sets",
+      "title": "Complete a training session",
       "lines": [
-        "Twelve sets. I'll keep count.",
-        "Don't give me twelve easy ones."
+        "Get your session in. Whatever's on the plan today.",
+        "Your plan. I'm just keeping track."
       ],
       "attribute_id": "strength",
       "rule": {
-        "type": "workout_sets",
-        "count": 12
+        "type": "any_family",
+        "families": [
+          "strength",
+          "cardio",
+          "combat",
+          "mobility"
+        ],
+        "min_minutes": 10
       },
       "tags": [
         "training",
-        "strength"
-      ]
+        "physical",
+        "strength",
+        "cardio",
+        "combat",
+        "mobility"
+      ],
+      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays."
     },
     {
       "id": "goal.train.cardio",
       "slot": "primary",
-      "title": "Move for 30 min",
+      "title": "Train or move for 30 min",
       "lines": [
-        "Run, ride, swim. Just make me work to keep up.",
-        "Thirty minutes. Go somewhere, even if you end up where you started."
+        "Thirty minutes. Train hard or take it easy. Both count today.",
+        "Just give me thirty minutes of movement."
       ],
       "attribute_id": "endurance",
       "rule": {
-        "type": "activity_family",
-        "family_id": "cardio",
+        "type": "any_family",
+        "families": [
+          "strength",
+          "cardio",
+          "combat",
+          "mobility"
+        ],
         "min_minutes": 30
       },
       "tags": [
         "training",
-        "cardio"
-      ]
+        "physical",
+        "strength",
+        "cardio",
+        "combat",
+        "mobility"
+      ],
+      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays."
     },
     {
       "id": "goal.train.cardio.long",
       "slot": "primary",
-      "title": "Go 45 min on your feet or wheels",
+      "title": "Train for 45 min",
       "lines": [
-        "Longer one today. Don't spend everything in the first ten.",
-        "Forty-five minutes. Somewhere in the city, there's a road longer than that."
+        "Longer one today. What you do with it is up to you.",
+        "Forty-five minutes. I'll keep the clock."
       ],
       "attribute_id": "endurance",
       "rule": {
-        "type": "activity_family",
-        "family_id": "cardio",
+        "type": "any_family",
+        "families": [
+          "strength",
+          "cardio",
+          "combat",
+          "mobility"
+        ],
         "min_minutes": 45
       },
       "tags": [
         "training",
-        "cardio"
-      ]
-    },
-    {
-      "id": "goal.train.combat",
-      "slot": "primary",
-      "title": "Train combat for 30 min",
-      "lines": [
-        "Half an hour. Hands up.",
-        "Thirty minutes of hitting something that occasionally hits back. Sensible hobby."
+        "physical",
+        "strength",
+        "cardio",
+        "combat",
+        "mobility"
       ],
-      "attribute_id": "endurance",
-      "rule": {
-        "type": "activity_family",
-        "family_id": "combat",
-        "min_minutes": 30
-      },
-      "tags": [
-        "training",
-        "combat"
-      ]
+      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays."
     },
     {
       "id": "goal.train.mobility",
       "slot": "primary",
-      "title": "Yoga or stretching, 20 min",
+      "title": "Recover or move for 20 min",
       "lines": [
-        "Twenty minutes. Find out what doesn't want to move.",
-        "Strength isn't much use if half of you won't bend."
+        "Easy today. Give your body twenty minutes.",
+        "Walk, stretch, loosen up. Nothing to prove today."
       ],
       "attribute_id": "mindfulness",
       "rule": {
-        "type": "activity_family",
-        "family_id": "mobility",
+        "type": "any_family",
+        "families": [
+          "strength",
+          "cardio",
+          "combat",
+          "mobility"
+        ],
         "min_minutes": 20
       },
       "tags": [
         "training",
+        "physical",
+        "strength",
+        "cardio",
+        "combat",
         "mobility"
-      ]
+      ],
+      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays."
     },
     {
       "id": "goal.train.learning",
@@ -1128,38 +1160,50 @@
     {
       "id": "goal.rest.walk",
       "slot": "primary",
-      "title": "Walk for 20 min",
+      "title": "Move easy for 20 min",
       "lines": [
         "Rest day. We can still go somewhere.",
-        "Twenty easy minutes. Leave the watch alone and look around."
+        "Twenty easy minutes. Leave something for tomorrow."
       ],
       "attribute_id": "endurance",
       "rule": {
-        "type": "activity_family",
-        "family_id": "cardio",
+        "type": "any_family",
+        "families": [
+          "strength",
+          "cardio",
+          "combat",
+          "mobility"
+        ],
         "min_minutes": 20
       },
       "tags": [
         "rest"
-      ]
+      ],
+      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays."
     },
     {
       "id": "goal.rest.mobility",
       "slot": "primary",
-      "title": "Stretch for 10 min",
+      "title": "Recover for 10 min",
       "lines": [
-        "Ten minutes. Yesterday probably left something behind.",
-        "Easy today. Tomorrow can be difficult again."
+        "Ten minutes. Take care of whatever yesterday left behind.",
+        "Stretch, move, breathe. Easy today."
       ],
       "attribute_id": "mindfulness",
       "rule": {
-        "type": "activity_family",
-        "family_id": "mobility",
+        "type": "any_family",
+        "families": [
+          "strength",
+          "cardio",
+          "combat",
+          "mobility"
+        ],
         "min_minutes": 10
       },
       "tags": [
         "rest"
-      ]
+      ],
+      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays."
     },
     {
       "id": "goal.rest.steps",

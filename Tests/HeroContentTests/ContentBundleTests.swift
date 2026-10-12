@@ -62,7 +62,15 @@ final class ContentBundleTests: XCTestCase {
         }
         XCTAssertGreaterThanOrEqual(bundle.goalTemplates.filter { $0.slot == .smallWin }.count, 20)
         XCTAssertEqual(bundle.goalTemplate("goal.rest.steps")?.rule, .steps(base: 5000, perLevel: 400))
-        XCTAssertEqual(bundle.goalTemplate("goal.train.strength")?.rule, .activityFamily(family: "strength", minMinutes: 30))
+        // Owner 2026-10-12: five general physical prescriptions; the activity decides the attribute. No combat-specific goal.
+        let physical: [FamilyID] = ["strength", "cardio", "combat", "mobility"]
+        XCTAssertEqual(bundle.goalTemplate("goal.train.strength")?.rule, .anyFamily(families: physical, minMinutes: 30))
+        XCTAssertEqual(bundle.goalTemplate("goal.train.strength")?.title, "Train for 30 min")
+        XCTAssertEqual(bundle.goalTemplate("goal.train.strength.sets")?.rule, .anyFamily(families: physical, minMinutes: 10))
+        XCTAssertEqual(bundle.goalTemplate("goal.train.cardio.long")?.rule, .anyFamily(families: physical, minMinutes: 45))
+        XCTAssertEqual(bundle.goalTemplate("goal.rest.mobility")?.title, "Recover for 10 min")
+        XCTAssertNil(bundle.goalTemplate("goal.train.combat"))
+        for f in physical { XCTAssertEqual(bundle.goalTemplates.filter { $0.slot == .primary && $0.tags.contains("training") && $0.tags.contains(f.rawValue) }.count, 5, "\(f): the five physical prescriptions") }
         XCTAssertTrue(bundle.goalTemplates.allSatisfy { $0.lines.count >= 2 }, "every goal needs at least two lines so repeats read differently")
         // Round-trip: the rule enum's hand-written Codable must survive encode → decode.
         let data = try JSONEncoder().encode(bundle.goalTemplates)

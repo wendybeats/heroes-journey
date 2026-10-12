@@ -104,6 +104,34 @@ final class GoalTests: XCTestCase {
         XCTAssertTrue(GoalEvaluator.satisfied(plan: plan, templates: templates, completed: [plan.goals[0].id], events: [strength], steps: nil).isEmpty, "already completed")
     }
 
+    /// Owner 2026-10-12: a physical goal is "train for 30 min", not "box for 30 min". Any physical family satisfies it,
+    /// and the attribute credited is the one the activity's family pays, so the log decides who the character becomes.
+    func testAnyFamilyGoalTakesAnyPhysicalActivityAndCreditsItsAttribute() throws {
+        let rule = GoalCompletionRule.anyFamily(families: ["strength", "cardio", "combat", "mobility"], minMinutes: 30)
+        let train = t("p.train", .primary, rule: rule, attr: "strength", tags: ["training", "physical", "strength", "cardio", "combat", "mobility"])
+        let plan = GoalPlan(day: monday, goals: [DailyGoal(templateID: "p.train", slot: .primary, day: monday, lineIndex: 0, target: nil)], generatedAt: now)
+        let boxing = ActivityEvent(userID: user, activityTypeID: "boxing", familyID: "combat", startedAt: now, durationSeconds: 47 * 60, source: .manual, verification: .selfReported)
+        let reading = ActivityEvent(userID: user, activityTypeID: "reading", familyID: "learning", startedAt: now, durationSeconds: 60 * 60, source: .manual, verification: .selfReported)
+        XCTAssertTrue(GoalEvaluator.satisfied(plan: plan, templates: [train], completed: [], events: [reading], steps: nil).isEmpty, "learning is not physical")
+        let hits = GoalEvaluator.satisfied(plan: plan, templates: [train], completed: [], events: [boxing], steps: nil)
+        XCTAssertEqual(hits.first?.source, .activity(boxing.id))
+        let ruleset = ProgressionRuleset(id: "r", version: 1, status: .dev, xpPerMinuteByFamily: [:], attributeWeightsByFamily: ["combat": ["strength": 0.3, "endurance": 0.7]], attributePointsPerXP: 0.1,
+                                         verificationMultiplier: [:], dailyTaper: .init(fullCreditMinutes: 30, taperRate: 0.2, hardCapMinutes: 90), minimumDurationSeconds: 60, levelThresholdsTotalXP: [0])
+        let fact = GoalEvaluator.makeEvent(for: plan.goals[0], template: train, userID: user, familyFallback: "strength", at: now, completedBy: boxing, ruleset: ruleset)
+        XCTAssertEqual(fact.familyID, "combat"); XCTAssertEqual(fact.goal?.attributeID, "endurance", "boxing pays endurance, so the goal does too")
+        let untraced = GoalEvaluator.makeEvent(for: plan.goals[0], template: train, userID: user, familyFallback: "strength", at: now)
+        XCTAssertEqual(untraced.goal?.attributeID, "strength", "without the activity, the template's attribute stands")
+        // The rule survives the hand-written Codable.
+        let data = try JSONEncoder().encode(train)
+        XCTAssertEqual(try JSONDecoder().decode(GoalTemplate.self, from: data), train)
+        // A physical user on a training day draws from the physical pool whatever their primary family.
+        let pool = templates + [train]
+        for family: FamilyID in ["strength", "cardio", "combat", "mobility"] {
+            let plan = GoalGenerator.plan(.init(day: monday, templates: pool, preferences: GoalPreferences(primaryFamily: family, trainingDaysPerWeek: 4), level: 1, history: [], completions: [], seed: 1, calendar: calendar), now: now)
+            XCTAssertTrue(["p.train", "p.strength", "p.cardio"].contains(plan.goals[0].templateID.rawValue), family.rawValue)
+        }
+    }
+
     func testStepsCompleteRestGoalAtTarget() {
         let plan = GoalGenerator.plan(inputs(day: sunday, prefs: GoalPreferences(trainingDaysPerWeek: 4)), now: now)
         XCTAssertTrue(GoalEvaluator.satisfied(plan: plan, templates: templates, completed: [], events: [], steps: 4999).isEmpty)
