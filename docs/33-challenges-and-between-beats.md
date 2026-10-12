@@ -44,7 +44,7 @@ Optional later (not in the first build): the day's logged minutes in the tested 
 
 ### Resolution is a fact
 - A new event kind on `ActivityEvent`: `challenge: ChallengeReference { challengeID, attributeID, difficulty, stat, roll }` alongside `goal`, `quest`, `bond`. The roll is recorded in the event (seeded by challenge id + day, like the quest reward roll), so the fact is immutable and replays identically.
-- Ruleset block `challenge_grant: { win_points: 5, lose_xp: 8, win_xp: 0 }`. For scale: a primary goal is 30 XP / 3 points; a win is worth under two primary goals of the stat and nothing else; a loss is a small win's XP. Engine: `win → attributes[attributeID] += win_points`; `lose → xp += lose_xp`. Daily activity cap does not apply (it is not activity).
+- Ruleset block `challenge_grant`, by difficulty (table under "Rewards scale with difficulty" below). Engine: `win → attributes[attributeID] += points, xp += xp`; `lose → xp += lose_xp`. Daily activity cap does not apply (it is not activity).
 - Idempotent per `(challengeID, day)`: accepting twice does nothing twice.
 
 ### Cadence
