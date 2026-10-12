@@ -1,192 +1,1103 @@
 {
-  "_draft": "Doc 33 content drafts (2026-10-12). Not loaded by the app. Each block moves into bundle.json under the same key when its increment lands; ids are canonical now. Lines are first drafts for the owner's edit pass.",
+  "_draft": "Doc 33 content drafts. Owner edit pass of 2026-10-12 applied (REPLACE/KEEP/CUT). Not reviewed yet: Cairon's Hold the bar and Keep up, the held-beat lines, Ascension II. Not loaded by the app; each block moves into bundle.json when its increment lands.",
   "characters": [
-    { "id": "npc.gym.lifter", "display_name": "The lifter", "side": "right", "notes": "Colossus Gym floor. Excessive: every answer is more gym or more food. Never named." },
-    { "id": "npc.row.courier", "display_name": "The courier", "side": "right", "notes": "Protein Row. Brisk, already leaving. Never named." },
-    { "id": "npc.row.shake_stand", "display_name": "The old man at the shake stand", "side": "right", "notes": "Protein Row. Slow, cryptic; the L4 beat already points at him. Never named." }
+    {
+      "id": "npc.gym.lifter",
+      "display_name": "The lifter",
+      "side": "right",
+      "notes": "Colossus Gym floor. Excessive: every answer is more gym or more food. Never named."
+    },
+    {
+      "id": "npc.row.courier",
+      "display_name": "The courier",
+      "side": "right",
+      "notes": "Protein Row. Brisk, already leaving. Never named."
+    },
+    {
+      "id": "npc.row.shake_stand",
+      "display_name": "The old man at the shake stand",
+      "side": "right",
+      "notes": "Protein Row. Slow, cryptic; the L4 beat already points at him. Never named."
+    }
   ],
   "held_lines": [
-    { "milestone": "under_city.6.enter", "requires_quest": "quest.colossus_gym_01", "speaker": "guide.elder", "line": "The floor is still waiting. Go walk it before I say anything else." },
-    { "milestone": "under_city.8.reveal", "requires_quest": "quest.colossus_gym_02", "speaker": "guide.elder", "line": "You haven't been down the stairs yet. I'll wait." },
-    { "milestone": "under_city.10.resolution", "requires_quest": "quest.colossus_gym_03", "speaker": "guide.elder", "line": "He's down there. Don't make him wait longer than you need to." }
+    {
+      "milestone": "under_city.6.enter",
+      "requires_quest": "quest.colossus_gym_01",
+      "speaker": "guide.elder",
+      "line": "The floor is still waiting. Go walk it before I say anything else."
+    },
+    {
+      "milestone": "under_city.8.reveal",
+      "requires_quest": "quest.colossus_gym_02",
+      "speaker": "guide.elder",
+      "line": "You haven't been down the stairs yet. I'll wait."
+    },
+    {
+      "milestone": "under_city.10.resolution",
+      "requires_quest": "quest.colossus_gym_03",
+      "speaker": "guide.elder",
+      "line": "He's down there. Don't make him wait longer than you need to."
+    }
   ],
   "story_chapters": [
     {
-      "id": "chapter.ascension_2", "title": "Ascension II", "backdrop_id": "backdrop.colossus_gym.exterior_01", "then": "return", "area_id": "under_city",
+      "id": "chapter.ascension_2",
+      "title": "Ascension II",
+      "backdrop_id": "backdrop.colossus_gym.exterior_01",
+      "then": "return",
+      "area_id": "under_city",
       "evolution": "ev3_evolution2",
       "beats": [
-        { "speaker": "guide.elder", "lines": ["Again. Hold still."] },
-        { "speaker": "hero", "lines": ["It's brighter this time."] },
-        { "speaker": "guide.elder", "lines": ["It is. And it's not just your eyes now. Look down."] },
-        { "speaker": "guide.elder", "lines": ["The first one was the city noticing you. This one is you noticing back."] },
-        { "speaker": "hero", "lines": ["Does it keep going?"] },
-        { "speaker": "guide.elder", "lines": ["As far as you take it. That's the part nobody warns you about."] },
-        { "speaker": "guide.elder", "lines": ["Some of them in there have chased this for eleven years. You've been here ten days.", "Don't tell them."] }
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Again. Hold still."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "It's brighter this time."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "It is. And it's not just your eyes now. Look down."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "The first one was the city noticing you. This one is you noticing back."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Does it keep going?"
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "As far as you take it. That's the part nobody warns you about."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Some of them in there have chased this for eleven years. You've been here ten days.",
+            "Don't tell them."
+          ]
+        }
       ]
     }
   ],
   "challenges": [
     {
-      "id": "challenge.cairon.strength", "name": "Hold the bar", "character_id": "guide.elder", "attribute_id": "strength", "difficulty": "standard", "available_from_level": 2, "area_id": "under_city",
-      "sets": [{
-        "offer": "Humour an old man. There's a bar in the alley nobody can shift. Shift it.",
-        "win": "Huh. Further than I ever got it.",
-        "lose": "It beat me too, once. Come back heavier.",
-        "aftermath_win": [ { "speaker": "guide.elder", "lines": ["Don't tell anyone on the Row. They'll want to see it done again."] }, { "speaker": "hero", "lines": ["Would that be bad?"] }, { "speaker": "guide.elder", "lines": ["Only for the bar."] } ],
-        "aftermath_lose": [ { "speaker": "guide.elder", "lines": ["The bar's been there longer than the alley. No shame in it."] }, { "speaker": "hero", "lines": ["Next time."] }, { "speaker": "guide.elder", "lines": ["That's the right answer."] } ]
-      }]
+      "id": "challenge.cairon.strength",
+      "name": "Hold the bar",
+      "character_id": "guide.elder",
+      "attribute_id": "strength",
+      "difficulty": "standard",
+      "available_from_level": 2,
+      "area_id": "under_city",
+      "sets": [
+        {
+          "offer": "Humour an old man. There's a bar in the alley nobody can shift. Shift it.",
+          "win": "Huh. Further than I ever got it.",
+          "lose": "It beat me too, once. Come back heavier.",
+          "aftermath_win": [
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "Don't tell anyone on the Row. They'll want to see it done again."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Would that be bad?"
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "Only for the bar."
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "The bar's been there longer than the alley. No shame in it."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Next time."
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "That's the right answer."
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
-      "id": "challenge.cairon.endurance", "name": "Keep up", "character_id": "guide.elder", "attribute_id": "endurance", "difficulty": "standard", "available_from_level": 2, "area_id": "under_city",
-      "sets": [{
-        "offer": "Walk with me. I'll set the pace, you keep it. No talking.",
-        "win": "You kept it. I didn't think you would.",
-        "lose": "You dropped off at the overpass. The overpass gets everyone.",
-        "aftermath_win": [ { "speaker": "hero", "lines": ["Where were we going?"] }, { "speaker": "guide.elder", "lines": ["Nowhere. That was the test."] } ],
-        "aftermath_lose": [ { "speaker": "guide.elder", "lines": ["I walk that stretch every night. It took me a year to stop noticing it."] }, { "speaker": "hero", "lines": ["How long will it take me?"] }, { "speaker": "guide.elder", "lines": ["Less. You've got someone counting."] } ]
-      }]
+      "id": "challenge.cairon.endurance",
+      "name": "Keep up",
+      "character_id": "guide.elder",
+      "attribute_id": "endurance",
+      "difficulty": "standard",
+      "available_from_level": 2,
+      "area_id": "under_city",
+      "sets": [
+        {
+          "offer": "Walk with me. I'll set the pace, you keep it. No talking.",
+          "win": "You kept it. I didn't think you would.",
+          "lose": "You dropped off at the overpass. The overpass gets everyone.",
+          "aftermath_win": [
+            {
+              "speaker": "hero",
+              "lines": [
+                "Where were we going?"
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "Nowhere. That was the test."
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "I walk that stretch every night. It took me a year to stop noticing it."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "How long will it take me?"
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "Less. You've got someone counting."
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
-      "id": "challenge.cairon.knowledge", "name": "Read the signs", "character_id": "guide.elder", "attribute_id": "knowledge", "difficulty": "standard", "available_from_level": 2, "area_id": "under_city",
-      "sets": [{
-        "offer": "Half the signs on the Row are wrong. Tell me which half.",
-        "win": "Every one. Who taught you to read a street?",
-        "lose": "You trusted the big ones. The big ones are the lies.",
-        "aftermath_win": [ { "speaker": "guide.elder", "lines": ["The small signs are older. Somebody still fixes them at night."] }, { "speaker": "hero", "lines": ["Who?"] }, { "speaker": "guide.elder", "lines": ["I was hoping you'd find out."] } ],
-        "aftermath_lose": [ { "speaker": "hero", "lines": ["The Gym sign is the biggest one on the street."] }, { "speaker": "guide.elder", "lines": ["Yes. Keep that thought."] } ]
-      }]
+      "id": "challenge.cairon.knowledge",
+      "name": "Read the signs",
+      "character_id": "guide.elder",
+      "attribute_id": "knowledge",
+      "difficulty": "standard",
+      "available_from_level": 2,
+      "area_id": "under_city",
+      "sets": [
+        {
+          "offer": "Half the signs on the Row are wrong. Tell me which half.",
+          "win": "All of them. Good. You're learning to look past the letters.",
+          "lose": "You read the signs. I asked you to read the street.",
+          "aftermath_win": [
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "The small signs are older. Somebody still fixes them at night."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Who?"
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "I was hoping you'd find out."
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "hero",
+              "lines": [
+                "The Gym sign is the biggest one on the street."
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "It wasn't always."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "They replaced it?"
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "I didn't say that."
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
-      "id": "challenge.cairon.mindfulness", "name": "Sit through it", "character_id": "guide.elder", "attribute_id": "mindfulness", "difficulty": "standard", "available_from_level": 2, "area_id": "under_city",
-      "sets": [{
-        "offer": "Sit with me until the rain changes. Don't ask how long.",
-        "win": "You didn't move. Most people ask twice in the first minute.",
-        "lose": "You asked. Everyone asks. Try again when you don't need to know.",
-        "aftermath_win": [ { "speaker": "hero", "lines": ["Did it change?"] }, { "speaker": "guide.elder", "lines": ["It did. You'll notice next time without me."] } ],
-        "aftermath_lose": [ { "speaker": "guide.elder", "lines": ["The rain down here changes about once an hour. Nobody's ever sat the full hour on the first try."] }, { "speaker": "hero", "lines": ["Nobody?"] }, { "speaker": "guide.elder", "lines": ["One. He's in the Gym now. Make of that what you like."] } ]
-      }]
+      "id": "challenge.cairon.mindfulness",
+      "name": "Sit through it",
+      "character_id": "guide.elder",
+      "attribute_id": "mindfulness",
+      "difficulty": "standard",
+      "available_from_level": 2,
+      "area_id": "under_city",
+      "sets": [
+        {
+          "offer": "Sit with me until the rain changes. Don't ask how long.",
+          "win": "There. You felt it before you saw it, didn't you?",
+          "lose": "You looked at the clock.",
+          "aftermath_win": [
+            {
+              "speaker": "hero",
+              "lines": [
+                "The sound changed first."
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "Good."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "That's it?"
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "That's quite a lot."
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "hero",
+              "lines": [
+                "How long did we sit?"
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "Long enough."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "That's not an answer."
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "That's why we're doing this."
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
-      "id": "challenge.gym.lifter.spot", "name": "Spot me", "character_id": "npc.gym.lifter", "attribute_id": "strength", "difficulty": "standard", "available_after_quest": "quest.colossus_gym_01", "area_id": "colossus_gym",
-      "sets": [{
-        "offer": "Spot me. If you can't hold it, nobody will know. I'll know.",
-        "win": "You held it. Okay. Okay. I need to go lift immediately.",
-        "lose": "Knew it. You need to eat. Like, now. Chicken. All of it.",
-        "aftermath_win": [ { "speaker": "npc.gym.lifter", "lines": ["Nobody's held that for me since the big guy."] }, { "speaker": "hero", "lines": ["The big guy?"] }, { "speaker": "npc.gym.lifter", "lines": ["Eat something. We don't talk about him on the floor."] } ],
-        "aftermath_lose": [ { "speaker": "npc.gym.lifter", "lines": ["Not your fault. Your arms are just... small. We fix that. Eight hours a day, you'll see."] }, { "speaker": "hero", "lines": ["Eight hours?"] }, { "speaker": "npc.gym.lifter", "lines": ["Minimum."] } ]
-      }, {
-        "offer": "Back again? Good. Spot me. Heavier than last time, obviously.",
-        "win": "Held it again. I'm going to add a plate and cry about it later.",
-        "lose": "Slipped. It's fine. It's the chicken. You're not eating the chicken.",
-        "aftermath_win": [ { "speaker": "npc.gym.lifter", "lines": ["You know what you need? More of this. Every day. Twice."] }, { "speaker": "hero", "lines": ["I've got somewhere to be."] }, { "speaker": "npc.gym.lifter", "lines": ["Where? There's nowhere. There's here."] } ],
-        "aftermath_lose": [ { "speaker": "npc.gym.lifter", "lines": ["I'm going to write you a meal plan. It's just the word chicken, forty times."] }, { "speaker": "hero", "lines": ["Thanks."] } ]
-      }]
+      "id": "challenge.gym.lifter.spot",
+      "name": "Spot me",
+      "character_id": "npc.gym.lifter",
+      "attribute_id": "strength",
+      "difficulty": "standard",
+      "available_after_quest": "quest.colossus_gym_01",
+      "area_id": "colossus_gym",
+      "sets": [
+        {
+          "offer": "Spot me. If you can't hold it, nobody will know. I'll know.",
+          "win": "You held it. Good. Again.",
+          "lose": "Yeah. That's food. We'll fix that.",
+          "aftermath_win": [
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "Haven't had a spot that steady in a while."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Who spotted you before?"
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "..."
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "Again?"
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "You're new. It'll come."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "How long did yours take?"
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "Which part?"
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Your arms."
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "Don't remember."
+              ]
+            }
+          ]
+        },
+        {
+          "offer": "Back again? Good. Spot me. Heavier than last time, obviously.",
+          "win": "Good. We can add one.",
+          "lose": "Slipped. It's fine. It's the chicken. You're not eating the chicken.",
+          "aftermath_win": [
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "You should come every day."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "I've got somewhere to be."
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "Where?"
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Home."
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "...Right."
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "I'm going to write you a meal plan. It's just the word chicken, forty times."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Thanks."
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
-      "id": "challenge.gym.lifter.last_plate", "name": "The last plate", "character_id": "npc.gym.lifter", "attribute_id": "strength", "difficulty": "hard", "available_after_quest": "quest.colossus_gym_02", "area_id": "colossus_gym",
-      "sets": [{
-        "offer": "One more plate than you can do. That's the only set that counts.",
-        "win": "...You did it. I have to tell someone. There's no one to tell.",
-        "lose": "That's the plate everyone misses. I missed it for a year. Then I stopped doing anything else.",
-        "aftermath_win": [ { "speaker": "npc.gym.lifter", "lines": ["He'd have liked that. He'd have asked for one more."] }, { "speaker": "hero", "lines": ["Who?"] }, { "speaker": "npc.gym.lifter", "lines": ["Downstairs. Go eat."] } ],
-        "aftermath_lose": [ { "speaker": "npc.gym.lifter", "lines": ["You'll get it. Then there's another one. That's the good news."] }, { "speaker": "hero", "lines": ["That's the good news?"] }, { "speaker": "npc.gym.lifter", "lines": ["It's the only news."] } ]
-      }]
+      "id": "challenge.gym.lifter.last_plate",
+      "name": "The last plate",
+      "character_id": "npc.gym.lifter",
+      "attribute_id": "strength",
+      "difficulty": "hard",
+      "available_after_quest": "quest.colossus_gym_02",
+      "area_id": "colossus_gym",
+      "sets": [
+        {
+          "offer": "One more plate than you can do. That's the only set that counts.",
+          "win": "...You got it. Wait here.",
+          "lose": "That's the one. Took me almost a year.",
+          "aftermath_win": [
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "He would've added another."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Colossus?"
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "Who else?"
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "You'll get it. Then there's another one. That's the good news."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "That's the good news?"
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "It's the only news."
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
-      "id": "challenge.gym.lifter.floors", "name": "Floor to floor", "character_id": "npc.gym.lifter", "attribute_id": "endurance", "difficulty": "easy", "available_after_quest": "quest.colossus_gym_01", "area_id": "colossus_gym",
-      "sets": [{
-        "offer": "Race you up the floors. Lifters don't run. Don't tell anyone I asked.",
-        "win": "You beat me. I'm going to be sick. Cardio's a scam. I'm doing cardio from now on.",
-        "lose": "Told you. Legs are for standing under the bar.",
-        "aftermath_win": [ { "speaker": "npc.gym.lifter", "lines": ["Is that what outside feels like? Air?"] }, { "speaker": "hero", "lines": ["Pretty much."] }, { "speaker": "npc.gym.lifter", "lines": ["Hate it. Going back down."] } ],
-        "aftermath_lose": [ { "speaker": "npc.gym.lifter", "lines": ["Don't feel bad. I've been up these stairs four thousand times. Never past the door though."] }, { "speaker": "hero", "lines": ["Why not?"] }, { "speaker": "npc.gym.lifter", "lines": ["Set wasn't done."] } ]
-      }]
+      "id": "challenge.gym.lifter.floors",
+      "name": "Floor to floor",
+      "character_id": "npc.gym.lifter",
+      "attribute_id": "endurance",
+      "difficulty": "easy",
+      "available_after_quest": "quest.colossus_gym_01",
+      "area_id": "colossus_gym",
+      "sets": [
+        {
+          "offer": "Race you up the floors. Lifters don't run. Don't tell anyone I asked.",
+          "win": "You beat me. Again.",
+          "lose": "Told you. Legs are for standing under the bar.",
+          "aftermath_win": [
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "It's colder up here."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "It's outside."
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "Right."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "You don't come out much?"
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "I came out today."
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "Don't feel bad. I've been up these stairs four thousand times. Never past the door though."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Why not?"
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter",
+              "lines": [
+                "Set wasn't done."
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
-      "id": "challenge.row.courier.rain", "name": "Beat the rain", "character_id": "npc.row.courier", "attribute_id": "endurance", "difficulty": "standard", "available_after_milestone": "under_city.3.protein_row", "area_id": "under_city",
-      "sets": [{
-        "offer": "Package for the overpass. It beats the rain or it doesn't count. You carry it.",
-        "win": "Dry. Huh. Most of my packages aren't.",
-        "lose": "Wet. It's fine. Half the district's addresses are wet.",
-        "aftermath_win": [ { "speaker": "npc.row.courier", "lines": ["You run like someone who's been somewhere."] }, { "speaker": "hero", "lines": ["I don't remember where."] }, { "speaker": "npc.row.courier", "lines": ["Nobody down here does. Doesn't slow the deliveries."] } ],
-        "aftermath_lose": [ { "speaker": "npc.row.courier", "lines": ["Overpass gets everyone the first time. Second time you know where the puddle is."] }, { "speaker": "hero", "lines": ["Where is it?"] }, { "speaker": "npc.row.courier", "lines": ["Everywhere. Gotta go."] } ]
-      }]
+      "id": "challenge.row.courier.rain",
+      "name": "Beat the rain",
+      "character_id": "npc.row.courier",
+      "attribute_id": "endurance",
+      "difficulty": "standard",
+      "available_after_milestone": "under_city.3.protein_row",
+      "area_id": "under_city",
+      "sets": [
+        {
+          "offer": "Package for the overpass. It beats the rain or it doesn't count. You carry it.",
+          "win": "Dry. Huh. Most of my packages aren't.",
+          "lose": "Wet. Fine. Recipient probably is too.",
+          "aftermath_win": [
+            {
+              "speaker": "npc.row.courier",
+              "lines": [
+                "You run like someone who's been somewhere."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "I don't remember where."
+              ]
+            },
+            {
+              "speaker": "npc.row.courier",
+              "lines": [
+                "Nobody down here does. Doesn't slow the deliveries."
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "npc.row.courier",
+              "lines": [
+                "Overpass gets everyone the first time. Second time you know where the puddle is."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Where is it?"
+              ]
+            },
+            {
+              "speaker": "npc.row.courier",
+              "lines": [
+                "Everywhere. Gotta go."
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
-      "id": "challenge.row.courier.long_block", "name": "The long block", "character_id": "npc.row.courier", "attribute_id": "endurance", "difficulty": "hard", "available_after_milestone": "under_city.5.gym_unlock", "area_id": "under_city",
-      "sets": [{
-        "offer": "There's a block on the map that doesn't end. I need someone to find out if that's true.",
-        "win": "It ends. You're the first to tell me that. I'm not sure I believe you.",
-        "lose": "You came back. That's the usual result.",
-        "aftermath_win": [ { "speaker": "npc.row.courier", "lines": ["What's at the end?"] }, { "speaker": "hero", "lines": ["A door. Someone's name on it."] }, { "speaker": "npc.row.courier", "lines": ["...Yeah. I'm not delivering there."] } ],
-        "aftermath_lose": [ { "speaker": "npc.row.courier", "lines": ["I've crossed it off the map twice. It keeps coming back."] }, { "speaker": "hero", "lines": ["Maps don't do that."] }, { "speaker": "npc.row.courier", "lines": ["This one's old."] } ]
-      }]
+      "id": "challenge.row.courier.long_block",
+      "name": "The long block",
+      "character_id": "npc.row.courier",
+      "attribute_id": "endurance",
+      "difficulty": "hard",
+      "available_after_milestone": "under_city.5.gym_unlock",
+      "area_id": "under_city",
+      "sets": [
+        {
+          "offer": "There's a block on the map that doesn't end. I need someone to find out if that's true.",
+          "win": "It ends. You're the first to tell me that. I'm not sure I believe you.",
+          "lose": "You came back. That's the usual result.",
+          "aftermath_win": [
+            {
+              "speaker": "npc.row.courier",
+              "lines": [
+                "What's at the end?"
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "A door. Someone's name on it."
+              ]
+            },
+            {
+              "speaker": "npc.row.courier",
+              "lines": [
+                "...Yeah. I'm not delivering there."
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "npc.row.courier",
+              "lines": [
+                "I've crossed it off the map twice. It keeps coming back."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Maps don't do that."
+              ]
+            },
+            {
+              "speaker": "npc.row.courier",
+              "lines": [
+                "This one's old."
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
-      "id": "challenge.row.shake_stand.who_built", "name": "Who built the Gym", "character_id": "npc.row.shake_stand", "attribute_id": "knowledge", "difficulty": "standard", "available_after_milestone": "under_city.4.rumors", "area_id": "under_city",
-      "sets": [{
-        "offer": "You asked me who built the Gym. I'll ask you back. Think before you answer.",
-        "win": "Correct. And wrong. Both. Sit down a moment.",
-        "lose": "That's what everyone says. That's why he's still in there.",
-        "aftermath_win": [ { "speaker": "npc.row.shake_stand", "lines": ["He didn't build it. He outgrew it. The building just kept up."] }, { "speaker": "hero", "lines": ["Buildings don't grow."] }, { "speaker": "npc.row.shake_stand", "lines": ["Drink your shake."] } ],
-        "aftermath_lose": [ { "speaker": "npc.row.shake_stand", "lines": ["Come back when you've been inside. Answers taste different after."] }, { "speaker": "hero", "lines": ["Different how?"] }, { "speaker": "npc.row.shake_stand", "lines": ["Heavier."] } ]
-      }]
+      "id": "challenge.row.shake_stand.who_built",
+      "name": "Who built the Gym",
+      "character_id": "npc.row.shake_stand",
+      "attribute_id": "knowledge",
+      "difficulty": "standard",
+      "available_after_milestone": "under_city.4.rumors",
+      "area_id": "under_city",
+      "sets": [
+        {
+          "offer": "Still asking who built the Gym? Fine. Tell me who you think did.",
+          "win": "Close enough. Sit.",
+          "lose": "That's the answer everyone gives.",
+          "aftermath_win": [
+            {
+              "speaker": "npc.row.shake_stand",
+              "lines": [
+                "He didn't build it. He outgrew it. The building just kept up."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Buildings don't grow."
+              ]
+            },
+            {
+              "speaker": "npc.row.shake_stand",
+              "lines": [
+                "Drink your shake."
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "npc.row.shake_stand",
+              "lines": [
+                "Ask me again after you've been inside."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Will the answer change?"
+              ]
+            },
+            {
+              "speaker": "npc.row.shake_stand",
+              "lines": [
+                "You will."
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
-      "id": "challenge.row.shake_stand.slow", "name": "The slow shake", "character_id": "npc.row.shake_stand", "attribute_id": "mindfulness", "difficulty": "easy", "available_after_milestone": "under_city.4.rumors", "area_id": "under_city",
-      "sets": [{
-        "offer": "Drink this slowly. The whole thing. If you check the time, you've lost.",
-        "win": "You didn't look. Good. Most people on this street can't finish a glass without checking what they missed.",
-        "lose": "You looked. Twice. The shake's still fine.",
-        "aftermath_win": [ { "speaker": "hero", "lines": ["What was in it?"] }, { "speaker": "npc.row.shake_stand", "lines": ["Nothing. That was the test."] } ],
-        "aftermath_lose": [ { "speaker": "npc.row.shake_stand", "lines": ["He used to drink one every morning. Standing. Watching the door."] }, { "speaker": "hero", "lines": ["Watching for what?"] }, { "speaker": "npc.row.shake_stand", "lines": ["Someone bigger. Nobody came."] } ]
-      }]
+      "id": "challenge.row.shake_stand.slow",
+      "name": "The slow shake",
+      "character_id": "npc.row.shake_stand",
+      "attribute_id": "mindfulness",
+      "difficulty": "easy",
+      "available_after_milestone": "under_city.4.rumors",
+      "area_id": "under_city",
+      "sets": [
+        {
+          "offer": "Drink this slowly. The whole thing. If you check the time, you've lost.",
+          "win": "Didn't look once. Good.",
+          "lose": "You looked. Twice. The shake's still fine.",
+          "aftermath_win": [
+            {
+              "speaker": "hero",
+              "lines": [
+                "What did you put in this?"
+              ]
+            },
+            {
+              "speaker": "npc.row.shake_stand",
+              "lines": [
+                "Banana."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "That's it?"
+              ]
+            },
+            {
+              "speaker": "npc.row.shake_stand",
+              "lines": [
+                "What were you expecting?"
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "npc.row.shake_stand",
+              "lines": [
+                "He used to drink one every morning. Standing. Watching the door."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Watching for what?"
+              ]
+            },
+            {
+              "speaker": "npc.row.shake_stand",
+              "lines": [
+                "Someone bigger. Nobody came."
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "repeat_exchanges": {
     "quest.colossus_gym_01": [
-      [ { "speaker": "hero", "lines": ["Same floor. Same people."] }, { "speaker": "guide.elder", "lines": ["Same you?"] }, { "speaker": "hero", "lines": ["...Mostly."] } ],
-      [ { "speaker": "hero", "lines": ["One of them asked how long I've been coming."] }, { "speaker": "guide.elder", "lines": ["What did you say?"] }, { "speaker": "hero", "lines": ["I said not long. He said that's what he said."] } ],
-      [ { "speaker": "hero", "lines": ["I didn't look at the stairs today."] }, { "speaker": "guide.elder", "lines": ["You noticed you didn't look."] }, { "speaker": "hero", "lines": ["Yeah."] }, { "speaker": "guide.elder", "lines": ["That's the whole trick."] } ]
+      [
+        {
+          "speaker": "hero",
+          "lines": [
+            "Same floor. Same people."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Same you?"
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "...Mostly."
+          ]
+        }
+      ],
+      [
+        {
+          "speaker": "hero",
+          "lines": [
+            "One of them asked how long I've been coming."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "What did you say?"
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "I said not long. He said that's what he said."
+          ]
+        }
+      ],
+      [
+        {
+          "speaker": "hero",
+          "lines": [
+            "I didn't look at the stairs today."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "You noticed you didn't look."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Yeah."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Good."
+          ]
+        }
+      ]
     ],
     "quest.colossus_gym_02": [
-      [ { "speaker": "hero", "lines": ["The logbook had a new page."] }, { "speaker": "guide.elder", "lines": ["Same name?"] }, { "speaker": "hero", "lines": ["Same name. Today's date."] } ],
-      [ { "speaker": "hero", "lines": ["Someone down there asked me to spot them. They didn't say thanks. They said \"again\"."] }, { "speaker": "guide.elder", "lines": ["Did you?"] }, { "speaker": "hero", "lines": ["I came home."] } ]
+      [
+        {
+          "speaker": "hero",
+          "lines": [
+            "The logbook had a new page."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Same name?"
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Same name. Today's date."
+          ]
+        }
+      ],
+      [
+        {
+          "speaker": "hero",
+          "lines": [
+            "Someone down there asked me to spot them. They didn't say thanks. They said \"again\"."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Did you?"
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "I came home."
+          ]
+        }
+      ]
     ],
     "quest.colossus_gym_03": [
-      [ { "speaker": "hero", "lines": ["He nodded at me today."] }, { "speaker": "guide.elder", "lines": ["That's more than most get."] }, { "speaker": "hero", "lines": ["It didn't feel like much."] }, { "speaker": "guide.elder", "lines": ["It isn't. Yet."] } ],
-      [ { "speaker": "hero", "lines": ["I trained next to him. Neither of us said anything."] }, { "speaker": "guide.elder", "lines": ["Then you both said the same thing."] } ]
+      [
+        {
+          "speaker": "hero",
+          "lines": [
+            "He nodded at me today."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Colossus?"
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Yeah."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Hm."
+          ]
+        }
+      ],
+      [
+        {
+          "speaker": "hero",
+          "lines": [
+            "I trained next to him. Neither of us said anything."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Then you both said the same thing."
+          ]
+        }
+      ]
     ]
   },
   "pages": [
-    { "id": "item.page.colossus_log.01", "display_name": "Log, day one", "description": "First day. Bench felt light. Ate until it hurt. Good." },
-    { "id": "item.page.colossus_log.02", "display_name": "Log, year one", "description": "Added the vest. Can't feel the stairs any more. Good." },
-    { "id": "item.page.colossus_log.03", "display_name": "Log, year two", "description": "The old man on the Row says I should go home sometimes. Added a plate instead." },
-    { "id": "item.page.colossus_log.04", "display_name": "Log, year four", "description": "They put my name on the sign. Asked for it bigger." },
-    { "id": "item.page.colossus_log.05", "display_name": "Log, year six", "description": "Lost the week. Don't know where. Hit the floor harder to make up for it." },
-    { "id": "item.page.colossus_log.06", "display_name": "Log, year eight", "description": "A kid asked me what the point was. Told him: more. He wrote it down. Good." },
-    { "id": "item.page.colossus_log.07", "display_name": "Log, year ten", "description": "Can't remember why I started. Doesn't matter. Added a plate." },
-    { "id": "item.page.colossus_log.08", "display_name": "Log, year eleven", "description": "Someone new on the floor today. Looked at the stairs. They all do." }
+    {
+      "id": "item.page.colossus_log.01",
+      "display_name": "Log, day one",
+      "description": "First day. Bench felt good. Coming back tomorrow."
+    },
+    {
+      "id": "item.page.colossus_log.02",
+      "display_name": "Log, year one",
+      "description": "One year today. Added the vest. Stairs feel easier."
+    },
+    {
+      "id": "item.page.colossus_log.03",
+      "display_name": "Log, year two",
+      "description": "Old man on the Row says I spend too much time here. He looked smaller than I remembered."
+    },
+    {
+      "id": "item.page.colossus_log.04",
+      "display_name": "Log, year four",
+      "description": "They put my name on the sign. Asked for it bigger."
+    },
+    {
+      "id": "item.page.colossus_log.05",
+      "display_name": "Log, year six",
+      "description": "Missed six days. First time in years. Made them back."
+    },
+    {
+      "id": "item.page.colossus_log.06",
+      "display_name": "Log, year eight",
+      "description": "Kid asked what I'm training for. Told him I'll know when I get there."
+    },
+    {
+      "id": "item.page.colossus_log.07",
+      "display_name": "Log, year ten",
+      "description": "Couldn't remember my first program today. Added a plate."
+    },
+    {
+      "id": "item.page.colossus_log.08",
+      "display_name": "Log, year eleven",
+      "description": "Someone new on the floor today. Looked at the stairs. They all do."
+    }
   ],
   "story_lines": [
-    { "goal": "goal.train.strength", "after": "under_city.5.gym_unlock", "lines": ["Thirty minutes under load. There's a whole building of people doing this. Don't become the building.", "Lift. Then come back. Both halves count."] },
-    { "goal": "goal.train.strength", "after": "under_city.8.reveal", "lines": ["Thirty minutes. Stronger isn't the problem. Remember that.", "Train. He'd do eleven hours. Do thirty and go home."] },
-    { "goal": "goal.train.strength", "after": "under_city.10.resolution", "lines": ["Go train. Just come home when you're done.", "Thirty minutes. I know how it ends now. So do you."] },
-    { "goal": "goal.rest.walk", "after": "quest.lower_district.rare", "lines": ["Take the long way. Tell me if you see that door again.", "Twenty minutes. If the door's there, don't open it. Just tell me."] },
-    { "goal": "goal.train.cardio.long", "after": "central_hill.reached", "lines": ["Forty-five minutes. And yes, I know what the Runner would say. Ignore him.", "Longer one. The Hill has runners who never stop. You can stop."] }
+    {
+      "goal": "goal.train.strength",
+      "after": "under_city.5.gym_unlock",
+      "lines": [
+        "Thirty minutes under load. The Gym will still be there when you're done.",
+        "Lift. Then come back. Both halves count."
+      ]
+    },
+    {
+      "goal": "goal.train.strength",
+      "after": "under_city.8.reveal",
+      "lines": [
+        "Thirty minutes. Stronger isn't the problem. Remember that.",
+        "Thirty minutes. Colossus would call that a warm-up."
+      ]
+    },
+    {
+      "goal": "goal.train.strength",
+      "after": "under_city.10.resolution",
+      "lines": [
+        "Go train. Just come home when you're done.",
+        "Thirty minutes. Then something else."
+      ]
+    },
+    {
+      "goal": "goal.rest.walk",
+      "after": "quest.lower_district.rare",
+      "lines": [
+        "Take the long way. Tell me if you see that door again.",
+        "Twenty minutes. If the door's there, don't open it. Just tell me."
+      ]
+    },
+    {
+      "goal": "goal.train.cardio.long",
+      "after": "central_hill.reached",
+      "lines": [
+        "Forty-five minutes. And yes, I know what the Runner would say. Ignore him.",
+        "Longer one. The Hill has runners who never stop. You can stop."
+      ]
+    }
   ],
   "rumours": [
-    { "after": "under_city.3.protein_row", "text": "Someone on the Row swears the Gym's sign got bigger overnight. Nobody measured it." },
-    { "after": "under_city.3.protein_row", "text": "The Test MAX place changed its slogan again. Nobody can remember the old one." },
-    { "after": "under_city.3.protein_row", "text": "A courier says there's a block past the overpass that doesn't end. Couriers say a lot." },
-    { "after": "under_city.3.protein_row", "text": "The shake stand's been there longer than the street, apparently. The old man won't say which came first." },
-    { "after": "under_city.3.protein_row", "text": "Somebody saw the sunglasses man blink. Nobody believes them." },
-    { "after": "under_city.3.protein_row", "text": "The rain on the Row stops for nobody. Except, people say, once." },
-    { "after": "under_city.5.gym_unlock", "text": "Three people went into the Gym last week. Two came out. The third is \"still training\"." },
-    { "after": "under_city.5.gym_unlock", "text": "They say the lower floor plays music. Nobody who's been down there remembers hearing it." },
-    { "after": "under_city.5.gym_unlock", "text": "A lifter on the floor has been doing the same set since Tuesday. Nobody's sure which Tuesday." },
-    { "after": "under_city.5.gym_unlock", "text": "Someone left a logbook page on the crates outside. Blank except the date. Tomorrow's." },
-    { "after": "under_city.5.gym_unlock", "text": "The Gym's front desk never asks for a name. Someone asked why. The desk said you'll give it anyway." },
-    { "after": "under_city.5.gym_unlock", "text": "People say Colossus hasn't left the building in a year. People also say the building's been getting bigger." }
+    {
+      "after": "under_city.3.protein_row",
+      "text": "Someone on the Row swears the Gym's sign got bigger overnight. Nobody measured it."
+    },
+    {
+      "after": "under_city.3.protein_row",
+      "text": "Test MAX is offering a \"final formula\" again. Apparently this is the fourth one."
+    },
+    {
+      "after": "under_city.3.protein_row",
+      "text": "A courier says there's a block past the overpass that doesn't end. Couriers say a lot."
+    },
+    {
+      "after": "under_city.3.protein_row",
+      "text": "The shake stand's been there longer than the street, apparently. The old man won't say which came first."
+    },
+    {
+      "after": "under_city.3.protein_row",
+      "text": "Somebody saw the sunglasses man blink. Nobody believes them."
+    },
+    {
+      "after": "under_city.3.protein_row",
+      "text": "The rain on the Row stops for nobody. Except, people say, once."
+    },
+    {
+      "after": "under_city.5.gym_unlock",
+      "text": "Someone on the Row says the Gym never closes. The front desk says it closes every night."
+    },
+    {
+      "after": "under_city.5.gym_unlock",
+      "text": "They say the lower floor plays music. Nobody who's been down there remembers hearing it."
+    },
+    {
+      "after": "under_city.5.gym_unlock",
+      "text": "Someone ordered food to the Gym three nights in a row. Same order. Same name. Different courier each time."
+    },
+    {
+      "after": "under_city.5.gym_unlock",
+      "text": "Someone left a logbook page on the crates outside. Blank except the date. Tomorrow's."
+    },
+    {
+      "after": "under_city.5.gym_unlock",
+      "text": "The front desk doesn't keep a member list. Nobody seems bothered by this."
+    },
+    {
+      "after": "under_city.7.deeper",
+      "text": "People say Colossus hasn't left the building in a year. People also say the building's been getting bigger."
+    }
   ]
 }

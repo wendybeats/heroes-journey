@@ -10,7 +10,9 @@ Rules that hold throughout: every grant goes through the engine as a fact (`Acti
 |---|---|
 | 10-07 | Beats are held until their quest has been completed once (`requires_quest`), not re-ordered by hand. |
 | 10-12 | Challenges are stat checks with banded odds (Likely / Even / Long shot), never a number. |
-| 10-12 | Rewards scale with difficulty. Win grants stat points and small XP. |
+| 10-12 | Rewards scale with difficulty. Win grants stat points and small XP. (Superseded below.) |
+| 10-12 | Challenges test your build, they do not build it: a win is XP plus proof of victory, at most one attribute point. Your Strength comes from training Strength. |
+| 10-12 | Same-day training bonus is a core mechanic, not a later one: an open offer's band improves with activity logged today in the tested family. The offer stays until declined or the day ends. |
 | 10-12 | A loss never costs XP. It grants very minor XP and no stat. |
 | 10-12 | Cadence target: 2–4 offers a week on average. |
 | 10-12 | Offer card is a glass card at the top of Home. Accept is filled, dismiss is smaller. |
@@ -48,30 +50,34 @@ A lightweight encounter. An unnamed person offers a one-shot test of one attribu
 - `p(win) = 1 / (1 + e^(−(stat − D) / (D / 3)))`. The roll compares a seeded random number to `p`.
 - Shown as **Likely** (p ≥ 0.75), **Even** (0.45–0.75), **Long shot** (< 0.45). The number is never shown.
 - Worked example, dev-5, Level 8 (threshold 1386, share ≈ 35, standard D = 28, spread ≈ 9): strength 60 → 0.97 Likely; strength 30 → 0.55 Even; strength 12 → 0.15 Long shot. A specialist tested on a neglected stat always sees Long shot. The odds state the balance thesis so nobody has to.
-- Later, not in the first build: the day's logged minutes in the tested family add a small bonus to `stat`, so a casual player can train for it the same day.
+- **Train for it (core mechanic, owner 10-12).** The stat used in the roll is `stat + bonus`, where the bonus comes from activity logged today in families that feed the tested attribute: `bonus = Σ_f credited_minutes_today(f) × weight_f(attribute) × target_share_per_minute × D`, capped at `max_target_share × D`. Ruleset `challenge_training_bonus: { target_share_per_minute: 0.02, max_target_share: 0.8 }`. Credited minutes are the tapered ones the engine already computes, so the bonus follows the same diminishing returns as XP. With the Level 8 example: strength 12 (Long shot, 0.15) plus a 30-minute strength session (+16.8) → 0.52 Even; strength 30 (Even) plus the same session → 0.89 Likely. The loop the owner wants: the lifter offers → Long shot → go lift → come back → Even → accept → clash. Nothing requires it; the Long shot is always acceptable now. The card recomputes the band whenever the ledger changes, and the bonus and minutes used are written into the fact.
 
-### Rewards
-| Difficulty | `D` multiple | Win: points in the tested attribute | Win: XP | Lose: XP |
+### Rewards (owner 10-12: test the build, don't build it)
+A hard challenge paying 8 permanent attribute points next to a primary real-world goal's 3, at about three offers a week, would have made fictional encounters a major source of attributes. That breaks the rule that your real life determines who your character becomes. Rewards are now XP plus proof of victory, with at most one attribute point.
+
+| Difficulty | `D` multiple | Win: XP | Win: attribute point | Lose: XP |
 |---|---|---|---|---|
-| easy | 0.6 | 3 | 6 | 2 |
-| standard | 0.8 | 5 | 10 | 3 |
-| hard | 1.1 | 8 | 16 | 4 |
+| easy | 0.6 | 8 | 0 | 2 |
+| standard | 0.8 | 12 | 1 | 3 |
+| hard | 1.1 | 18 | 1 | 4 |
 
-For scale, a primary goal is 30 XP and 3 points: a hard win is under a goal of XP and under three goals of stat; a loss is a fraction of a small win. A loss never costs XP (owner, 10-12; the earlier idea conflicted with rule 4 and with every level-gated system). The risk is social: the loss is on the ledger, the challenger's next set references it, the aftermath carries the sting. The daily activity XP cap does not apply; a challenge is not activity.
+- Three wins a week is about one day of goals in XP. The single point on standard and hard is a nod, not a source: a hard trainer earns 4 strength a day from one session.
+- **Proof of victory** ships with the first build as a ledger mark: wins and losses per challenge are derived from the facts and shown on the offer card for a repeat ("Won 1 · Lost 2") and in History. A first win or a hard win later earns a unique memento (collectible, cosmetic or Home object), which is content once the Room has a shelf for it; reserved as `memento_item_id` on the challenge.
+- A loss never costs XP (rule 4). The risk is social: the loss is on the ledger, the next set references it, the aftermath carries the sting. The daily activity XP cap does not apply; a challenge is not activity.
 
 ### Resolution is a fact
-- New event kind on `ActivityEvent`: `challenge: ChallengeReference { challengeID, attributeID, difficulty, stat, roll }`, beside `goal`, `quest` and `bond`. The roll is written into the event (seeded by challenge id and day, like the quest reward roll), so the fact is immutable and replays identically.
-- Engine branch: win → `attributes[attributeID] += points`, `xp += xp`; lose → `xp += lose_xp`.
+- New event kind on `ActivityEvent`: `challenge: ChallengeReference { challengeID, attributeID, difficulty, stat, trainingBonus, roll }`, beside `goal`, `quest` and `bond`. The roll is written into the event (seeded by challenge id and day, like the quest reward roll), so the fact is immutable and replays identically.
+- Engine branch: win → `xp += xp`, `attributes[attributeID] += points` (0 or 1); lose → `xp += lose_xp`.
 - Idempotent per `(challengeID, day)`: accepting twice grants once.
 
 ### Cadence: 2–4 a week on average
 - One roll per day at the stage screen, seeded by day. Ruleset `challenge_cadence: { from_level: 2, chance_per_day: 0.45, min_gap_days: 1, max_gap_days: 3 }`: never two days running, guaranteed by the third quiet day. Expected about 3 a week, range roughly 2.3–3.5. The simulator reports the realised rate per persona.
 - Not offered on a day with an unclaimed cache or a held beat (the story owns that day).
 - The challenger is chosen from those available at the player's progress, cycling so the same one is not offered twice running. The set within a challenger advances with each meeting, so the third meeting reads differently.
-- A dismissed offer is gone for the day and does not nag.
+- An offer stays on the card until the player declines it or the day ends, so there is time to train for it. A declined offer is gone for the day and does not nag.
 
 ### Surface
-- **Offer card.** A glass card at the top of Home, under the toolbar row and clear of the status bar, over the scene. Contents: the challenge name, the attribute tested in that attribute's colour, the difficulty word, and a small dialogue-portrait card of the challenger. "Accept" is the filled control; "Not today" is smaller and quiet.
+- **Offer card.** A glass card at the top of Home, under the toolbar row and clear of the status bar, over the scene. Contents: the challenge name, the attribute tested in that attribute's colour, the difficulty word, and a small dialogue-portrait card of the challenger. "Accept" is the filled control; "Not today" is smaller and quiet. The band word updates live as activity is logged ("Long shot → Even" after a session), with a one-line hint under it naming the family that moves it ("Strength training today counts"). On a repeat, the card carries the record ("Won 1 · Lost 2").
 - **The clash.** A full-screen cover, the precursor to the Gym fight. The area's wide scroller backdrop, still. Hero on the left, challenger on the right, both idle. A large "3 · 2 · 1". Both sprites lean in, glow gold then white, dash to the centre; an anime flash blooms where they meet and whites out the screen. The characters reset to idle.
 - **Result card.** Same shape as the reward moment: "Challenge won" or "Challenge lost", the grant, Continue.
 - **Aftermath.** A 2–3 beat story scene with the challenger and the hero or Cairon. Cairon mentors; the lifter needs the gym or chicken immediately; the courier is already leaving; the old man answers sideways.
@@ -121,16 +127,16 @@ Each increment ships behind its content: a field with no lines renders nothing, 
 - `Sources/HeroDomain/ActivityEvent.swift` (or `Progression.swift`): `ChallengeReference`; `ActivityEvent.challenge`.
 - `Sources/HeroDomain/Ruleset.swift`: `challenge_grant` by difficulty, `challenge_cadence`.
 - `Sources/HeroDomain/Progression.swift`: the challenge branch (win/lose grants, cap exempt).
-- `Sources/HeroDomain/Challenge.swift` (new, pure): `share(level:ruleset:)`, `target(difficulty:share:)`, `winProbability(stat:target:)`, `band(p:)`, `roll(seed:)`, `cadence(day:lastOffer:seed:rules:)`.
+- `Sources/HeroDomain/Challenge.swift` (new, pure): `share(level:ruleset:)`, `target(difficulty:share:)`, `trainingBonus(minutesByFamily:weights:target:rules:)`, `winProbability(stat:target:)`, `band(p:)`, `roll(seed:)`, `cadence(day:lastOffer:seed:rules:)`, `record(challengeID:events:)`.
 - `Sources/HeroContent/ContentBundle.swift`: `challenges`, `Character.spriteAssetSetID` already exists; integrity checks (character, attribute, gate ids).
 - `App/Sources/State/AppState.swift`: `todayOffer` (persisted with the day), `dismissOffer`, `acceptChallenge` → fact → outbox → receipt; ledger titles.
 - `App/Sources/Views/ChallengeCard.swift` (new): the glass offer card at the top of Home.
 - `App/Sources/Views/ChallengeClashView.swift` (new): backdrop, two sprites, countdown, lean, glow, dash, flash, reset, result card, then the aftermath via `StoryView`.
 - `App/Sources/Views/HomeView.swift`: card placement under the toolbar; cover presentation; director idle rule includes "no clash showing".
-- `Content/v1/bundle.json`: Cairon's four challenges; `Content/v1/ruleset.dev-6.json` (or dev-5 bump) with the two blocks; `Tools/derive_level_curve.py --check` unaffected (thresholds unchanged).
+- `Content/v1/bundle.json`: Cairon's four challenges; `Content/v1/ruleset.dev-6.json` (or dev-5 bump) with the three blocks (`challenge_grant`, `challenge_cadence`, `challenge_training_bonus`); `Tools/derive_level_curve.py --check` unaffected (thresholds unchanged).
 - `Tools/simulate_progression.py`: challenges in the day loop; report offers per week and the Level 10 day before/after (must move by at most one day).
 - Dev controls: "Offer a challenge now", "Force win / Force loss".
-- Tests: band boundaries, specialist-vs-balanced examples, seeded roll determinism, idempotent accept, cap exemption, cadence rate over 365 simulated days within 2–4 a week.
+- Tests: band boundaries, specialist-vs-balanced examples, the training bonus moving Long shot to Even with one 30-minute session, seeded roll determinism, idempotent accept, cap exemption, cadence rate over 365 simulated days within 2–4 a week, the record derived from facts.
 - Assets: `npc.guide_elder` body still (owner), registered; `validate_sprites.py`.
 
 ### Increment 42 — the lifter (and the Row pair when art lands)
@@ -159,17 +165,20 @@ Ids are canonical. First drafts of every line (except the art) are in `Content/v
 
 | Ref | What | Count | Drafted |
 |---|---|---|---|
-| E.1 | Held-beat lines (Cairon) for L6, L8, L10 | 3 | yes |
-| E.2 | `chapter.ascension_2` (Cairon + hero, after the tier-2 takeover) | 1 scene, 7 beats | yes |
-| E.3 | Challenge sets: offer / win / lose + aftermath win / lose. Cairon ×4 (one per attribute), lifter ×3 challenges (4 sets), courier ×2, old man ×2 | 11 challenges, 12 sets | yes |
-| E.4 | Repeat quest exchanges: floor ×3, deeper ×2, last floor ×2 | 7 | yes |
-| E.5 | Found pages: name + one log line each | 8 | yes |
-| E.6 | Story-aware goal lines (owner's examples kept) | 5 triggers, 10 lines | yes |
-| E.7 | Row rumours: 6 from Protein Row, 6 from the Gym opening | 12 | yes |
+| E.1 | Held-beat lines (Cairon) for L6, L8, L10 | 3 | yes; not yet reviewed |
+| E.2 | `chapter.ascension_2` (Cairon + hero, after the tier-2 takeover) | 1 scene, 7 beats | yes; not yet reviewed |
+| E.3 | Challenge sets: offer / win / lose + aftermath win / lose. Cairon ×4 (one per attribute), lifter ×3 challenges (4 sets), courier ×2, old man ×2 | 11 challenges, 12 sets | yes; owner pass applied 10-12 except Hold the bar and Keep up (not yet reviewed) |
+| E.4 | Repeat quest exchanges: floor ×3, deeper ×2, last floor ×2 | 7 | yes; owner pass applied |
+| E.5 | Found pages: name + one log line each | 8 | yes; owner pass applied |
+| E.6 | Story-aware goal lines (owner's examples kept) | 5 triggers, 10 lines | yes; owner pass applied |
+| E.7 | Row rumours: 6 from Protein Row, 6 from the Gym opening | 12 | yes; owner pass applied; the Colossus rumour now unlocks at the deeper beat |
 | E.8 | Dry Protein Row backdrop variant for `world.rain_stops` | 1 or none | art |
 | E.9 | Portraits `portrait.gym.lifter`, `portrait.row.courier`, `portrait.row.shake_stand`; body stills `npc.guide_elder`, `npc.gym.lifter`, `npc.row.courier`, `npc.row.shake_stand`; icon `icon.item.page` | 3 portraits, 4 stills, 1 icon | owner |
 
 Fixed chrome (decided unless the owner objects): "Accept", "Not today", "Likely / Even / Long shot", "Challenge won / Challenge lost", "{challenger}'s challenge".
+
+## Content principle (owner, 10-12)
+Something strange happens and everyone who lives here treats it as ordinary. NPCs do not understand what is wrong with themselves; Cairon notices more than he explains; the hero notices increasingly strange things without interpreting them; humour comes from character, not punchlines; Colossus is unusual because he is the first to go all the way; the chapter-one thesis is not repeated before the confrontation. The player gets to notice.
 
 ## Open questions
 1. First code build: Cairon and the lifter only (assumed), or all four challengers?
