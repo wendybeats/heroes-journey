@@ -447,7 +447,6 @@ public struct ContentBundle: Codable, Sendable, Equatable {
             if let c = ev.ascensionChapter, !chapterIDs.contains(c) { problems.append("evolution \(ev.id) → unknown ascension_chapter \(c)") }
         }
         // Doc 33: beats that wait for a quest name a real quest; challenges resolve every id they name.
-        let questIDs = Set(quests.map(\.id)), milestoneIDs = Set(campaign.milestones.map(\.id)), attributeIDs = Set(attributes.map(\.id))
         for m in campaign.milestones {
             if let q = m.requiresQuest, !questIDs.contains(q) { problems.append("milestone \(m.id) → unknown requires_quest \(q)") }
         }
