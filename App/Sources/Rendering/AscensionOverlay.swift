@@ -68,7 +68,7 @@ struct AscensionOverlay: View {
                         Text(evolutionName).font(HeroFont.statLG).foregroundStyle(NeoTokyo.Hierarchy.primary)
                     }
                     .opacity(textOpacity)
-                    .position(x: geo.size.width / 2, y: center.y + 64 * big / 2 + 56)
+                    .position(x: geo.size.width / 2, y: center.y + 128 * big / 2 + 44)   // under the feet, not across the body (owner QA 2026-10-12)
                     if let cg = StillCharacter.image(recipe: recipe, outfit: nil, ascension: tier) {
                         let sprite = Image(decorative: cg, scale: 1).interpolation(.none).resizable()
                         ZStack {

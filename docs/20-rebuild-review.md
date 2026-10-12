@@ -268,6 +268,10 @@ Open from doc 33: the courier and the shake-stand old man wait for art; repeat e
 
 Owner: "Train combat for 30 min" was the game deciding what today's training is. Daily goals reward consistency; the activity log determines attributes; quests and challenges provide variety. New rule `any_family` (any activity in the listed families for at least N minutes). Five physical prescriptions on training days whatever the primary family (Train for 30 min; Complete a training session, 10 min floor, no set count; Train or move for 30 min; Train for 45 min; Recover or move for 20 min) and three rest goals (Move easy for 20 min; Recover for 10 min; Walk {target} steps). The combat goal is cut. The attribute a general goal credits is the one the completing activity's family pays (boxing → endurance), via the completing fact; ids kept so old completions still resolve. Learning, mindfulness and creativity primaries are unchanged. Content 2026.10.12-2.
 
+## Increment 44, 2026-10-12: build notes on the challenge build
+
+Owner QA of `1491110`: the XP row at the foot of the scene pushed the character up, so it now overlays the top of the scene under the toolbar and the character has the road back. The offer card is inline under the scene instead of fixed over it; it reads "Challenge · Cairon", shows the attribute with its glyph and "Outcome: Likely", and never the difficulty word (the outcome carries it). The clash no longer auto-plays: the characters stand on the backdrop's floor in the bottom third, with a bottom panel carrying the offer line and a big "Challenge" button that starts the countdown. The Ascension takeover's "Ascension is here" text sits under the character's feet instead of across the body.
+
 ## Planned (owner, 2026-10-12): challenges and between-beat content
 
 Doc 33 holds the design, the five-increment plan (40–44) and the content inventory (lines and art the owner writes separately). Order: beats wait for their quest (`requires_quest`), Challenges with Cairon then the lifter, repeat quest exchanges and found pages, story-aware goal lines and Row rumours. Each lands behind its content: a field with no lines renders nothing.

@@ -55,6 +55,8 @@ struct HomeView: View {
                     // companion world comes first, then today's goals, then progression, then utility.
                     sceneCard(snapshot)
                     VStack(spacing: NeoTokyo.Spacing.lg) {
+                        // Doc 33 (owner build notes 2026-10-12): today's challenge offer sits inline under the character.
+                        ChallengeCard { if let outcome = state.acceptChallenge() { clash = outcome } }
                         attributesRow(snapshot)
                         GoalsCard()
                         storyCard
@@ -66,16 +68,6 @@ struct HomeView: View {
                 .padding(.bottom, 96)
             }
             .ignoresSafeArea(edges: .top)
-            // Doc 33: today's challenge offer, a glass card over the scene under the toolbar row.
-            .overlay(alignment: .top) {
-                GeometryReader { geo in
-                    ChallengeCard { if let outcome = state.acceptChallenge() { clash = outcome } }
-                        .padding(.horizontal, NeoTokyo.Spacing.lg)
-                        .padding(.top, geo.safeAreaInsets.top + 44)
-                        .frame(maxWidth: .infinity, alignment: .top)
-                }
-                .animation(.easeOut(duration: 0.3), value: state.todayOffer == nil)
-            }
             .background(NeoTokyo.Surface.base)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
@@ -311,7 +303,7 @@ struct HomeView: View {
                 // Outfit follows the *displayed* level so the swap lands with the counter during the level-up sequence.
                 CharacterView(recipe: recipe, scale: HomeView.characterScale, ascension: state.bundle.evolution(forLevel: snapshot.level)?.ascensionTier ?? 0)
                     .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)  // the character's own glow
-                    .padding(.bottom, HomeView.sceneFooterHeight)
+                    .padding(.bottom, NeoTokyo.Spacing.xl)
                     .opacity(state.characterAway ? 0 : 1)   // out on the quest: the scene stays, the character is gone
                     .anchorPreference(key: SceneAnchorsKey.self, value: .bounds) { ["character": $0] }
             }
@@ -325,7 +317,7 @@ struct HomeView: View {
                     .glass(tint: NeoTokyo.Surface.overlay)
                 }
                 .buttonStyle(.plain)
-                .padding(.bottom, HomeView.sceneFooterHeight)
+                .padding(.bottom, NeoTokyo.Spacing.xl)
             } else if let run = state.unclaimedQuest {
                 // Back with a cache (doc 29): the reveal waits on the quest screen until the player opens it.
                 Button { departure = run } label: {
@@ -340,21 +332,23 @@ struct HomeView: View {
                     .glass(tint: NeoTokyo.Surface.overlay)
                 }
                 .buttonStyle(.plain)
-                .padding(.bottom, HomeView.sceneFooterHeight)
+                .padding(.bottom, NeoTokyo.Spacing.xl)
             }
-            // Owner 2026-10-06: XP and level are part of the scene, not a card. No background; they
-            // overlay the road under the character's feet so the goals are not pushed down.
-            progressRow(snapshot)
-                .padding(.horizontal, NeoTokyo.Spacing.lg)
-                .padding(.bottom, NeoTokyo.Spacing.md)
         }
         .frame(maxWidth: .infinity, minHeight: 440)
+        // Owner 2026-10-06 / 2026-10-12: XP and level are part of the scene, not a card, and they sit at the top of it
+        // (under the toolbar row) so the character keeps the road. No background.
+        .overlay(alignment: .top) {
+            GeometryReader { geo in
+                progressRow(snapshot)
+                    .padding(.horizontal, NeoTokyo.Spacing.lg)
+                    .padding(.top, geo.safeAreaInsets.top + 48)
+                    .frame(maxWidth: .infinity, alignment: .top)
+            }
+        }
     }
 
-    /// Room the scene keeps clear at the bottom for the progression overlay.
-    static let sceneFooterHeight: CGFloat = 76
-
-    // MARK: progression row (owner 2026-10-06: XP and level overlay the foot of the scene, no background)
+    // MARK: progression row (owner 2026-10-12: XP and level overlay the top of the scene, no background)
 
     private func progressRow(_ snapshot: ProgressSnapshot) -> some View {
         // XP left, the bar running across to the level badge right, so the bar reads as XP travelling toward the next level.

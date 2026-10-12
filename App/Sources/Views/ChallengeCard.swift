@@ -2,10 +2,11 @@ import SwiftUI
 import HeroDomain
 import HeroContent
 
-/// Doc 33: today's challenge offer, a glass card at the top of Home over the scene. The name, the attribute
-/// tested in its colour, the odds as one word, a hint naming what moves them, the challenger's card portrait,
-/// and the record on a repeat. Accept is the filled control; "Not today" is smaller and quiet. The band
-/// recomputes whenever the ledger changes, so training today shows up here before the clash.
+/// Doc 33: today's challenge offer, a glass card inline under the character (owner build notes 2026-10-12).
+/// "Challenge · Cairon", the name, the attribute with its glyph, and the outcome as one word; the difficulty
+/// is never shown, the outcome word carries it. A hint names what moves the odds today; a repeat shows the
+/// record. Accept is the filled control; "Not today" is smaller and quiet. The band recomputes whenever the
+/// ledger changes, so training today shows up here before the clash.
 struct ChallengeCard: View {
     @Environment(AppState.self) private var state
     let onAccept: () -> Void
@@ -18,16 +19,22 @@ struct ChallengeCard: View {
             let attributeColor = NeoTokyo.Attribute.color(for: challenge.attributeID.rawValue)
             HStack(alignment: .top, spacing: NeoTokyo.Spacing.md) {
                 VStack(alignment: .leading, spacing: NeoTokyo.Spacing.xs) {
-                    Eyebrow(text: "\(who.displayName) · \(challenge.difficulty)")
+                    Eyebrow(text: "Challenge · \(who.displayName)")
                     Text(challenge.name).font(HeroFont.headline).foregroundStyle(NeoTokyo.Text.primary)
                     HStack(spacing: 6) {
-                        Text(attribute?.displayName ?? challenge.attributeID.rawValue).font(HeroFont.captionMedium).foregroundStyle(attributeColor)
-                        Text("·").foregroundStyle(NeoTokyo.Text.muted)
-                        Text(odds.band.rawValue).font(HeroFont.captionMedium).foregroundStyle(bandColor(odds.band, attributeColor))
+                        Image(systemName: Self.glyph(for: challenge.attributeID)).font(HeroFont.captionMedium)
+                        Text(attribute?.displayName ?? challenge.attributeID.rawValue).font(HeroFont.captionMedium)
+                    }
+                    .foregroundStyle(attributeColor)
+                    HStack(spacing: 6) {
+                        Text("Outcome:").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
+                        Text(odds.band.rawValue).font(HeroFont.captionMedium).foregroundStyle(bandColor(odds.band))
                             .contentTransition(.opacity)
                     }
-                    Text(hint(odds: odds, record: record)).font(HeroFont.label).foregroundStyle(NeoTokyo.Text.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                    if let hint = hint(odds: odds, record: record) {
+                        Text(hint).font(HeroFont.label).foregroundStyle(NeoTokyo.Text.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                     HStack(spacing: NeoTokyo.Spacing.sm) {
                         Button("Accept") { onAccept() }.buttonStyle(PrimaryButtonStyle())
                         Button("Not today") { state.declineChallenge() }
@@ -49,7 +56,18 @@ struct ChallengeCard: View {
         }
     }
 
-    private func bandColor(_ band: ChallengeBand, _ attribute: Color) -> Color {
+    /// The same glyphs onboarding uses for the attributes a question feeds.
+    static func glyph(for attribute: AttributeID) -> String {
+        switch attribute.rawValue {
+        case "strength": return "hand.raised.fingers.spread.fill"
+        case "endurance": return "shoeprints.fill"
+        case "knowledge": return "brain.head.profile"
+        case "mindfulness": return "leaf.fill"
+        default: return "circle.fill"
+        }
+    }
+
+    private func bandColor(_ band: ChallengeBand) -> Color {
         switch band {
         case .likely: return NeoTokyo.Hierarchy.primary
         case .even: return NeoTokyo.Text.primary
@@ -57,13 +75,13 @@ struct ChallengeCard: View {
         }
     }
 
-    /// Under the band: how to move it today, or, when it already moved, that it did; the record on a repeat.
-    private func hint(odds: AppState.ChallengeOdds, record: (won: Int, lost: Int)) -> String {
+    /// Under the outcome: how to move it today, or that it already moved; the record on a repeat.
+    private func hint(odds: AppState.ChallengeOdds, record: (won: Int, lost: Int)) -> String? {
         var parts: [String] = []
         let families = odds.helpingFamilies.compactMap { state.bundle.family($0)?.displayName }
         if odds.bonus > 0 { parts.append("Today's training is counting.") }
         else if odds.band != .likely, let first = families.first { parts.append("\(first) today moves the odds.") }
         if record.won + record.lost > 0 { parts.append("Won \(record.won) · Lost \(record.lost)") }
-        return parts.joined(separator: " ")
+        return parts.isEmpty ? nil : parts.joined(separator: " ")
     }
 }

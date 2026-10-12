@@ -13,7 +13,7 @@ struct ChallengeClashView: View {
     let outcome: AppState.ChallengeOutcome
     let onFinish: () -> Void
 
-    enum Phase: Equatable { case ready, count(Int), lean, dash, flash, reset, result, aftermath }
+    enum Phase: Equatable { case ready, armed, count(Int), lean, dash, flash, reset, result, aftermath }
     @State private var phase: Phase = .ready
 
     private var challenger: ContentBundle.Character? { state.bundle.character(outcome.challenge.characterID) }
@@ -35,7 +35,6 @@ struct ChallengeClashView: View {
                 stage
             }
         }
-        .task { await run() }
     }
 
     // MARK: stage
@@ -49,7 +48,10 @@ struct ChallengeClashView: View {
             BackdropImage(assetSetID: backdrop).ignoresSafeArea()
             GeometryReader { geo in
                 let travel = geo.size.width * 0.26
-                ZStack(alignment: .bottom) {
+                // Owner build notes 2026-10-12: the characters stand on the backdrop's floor, in the bottom third of the
+                // scene, and the Challenge button sits beneath them in a bottom panel; the sequence starts on the tap.
+                VStack(spacing: 0) {
+                    Spacer(minLength: 0)
                     HStack(alignment: .bottom) {
                         if let recipe = state.recipe {
                             CharacterView(recipe: recipe, scale: HomeView.characterScale, ascension: state.ascensionTier)
@@ -66,10 +68,12 @@ struct ChallengeClashView: View {
                         }
                     }
                     .padding(.horizontal, NeoTokyo.Spacing.xl)
-                    .padding(.bottom, geo.size.height * 0.28)
                     .animation(phase == .reset ? nil : .easeIn(duration: phase == .dash ? 0.28 : 0.45), value: phase)
+                    .padding(.bottom, geo.size.height * 0.08)
+                    bottomPanel
+                        .frame(height: geo.size.height * 0.22)
                 }
-                .frame(width: geo.size.width, height: geo.size.height, alignment: .bottom)
+                .frame(width: geo.size.width, height: geo.size.height)
             }
             if case let .count(n) = phase {
                 Text("\(n)")
@@ -87,16 +91,37 @@ struct ChallengeClashView: View {
             if phase == .result || phase == .reset {
                 resultCard.transition(.scale(scale: 0.92).combined(with: .opacity))
             }
-            if phase == .ready || phase == .reset {
-                VStack {
-                    Eyebrow(text: "\(challenger?.displayName ?? "") · \(outcome.challenge.name)")
-                        .padding(.top, NeoTokyo.Spacing.xl)
-                    Spacer()
-                }
+            VStack {
+                Eyebrow(text: "\(challenger?.displayName ?? "") · \(outcome.challenge.name)")
+                    .padding(.top, NeoTokyo.Spacing.xl)
+                Spacer()
             }
+            .opacity(phase == .ready || phase == .reset ? 1 : 0)
         }
         .background(NeoTokyo.Surface.base.ignoresSafeArea())
         .animation(.easeInOut(duration: 0.3), value: phase)
+    }
+
+    /// The pause before the clash: one big button. Reduce Motion goes straight to the result.
+    private var bottomPanel: some View {
+        VStack(spacing: NeoTokyo.Spacing.sm) {
+            if phase == .ready {
+                Text(outcome.set.offer).font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
+                    .multilineTextAlignment(.center).lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                Button("Challenge") {
+                    phase = .armed
+                    Task { await run() }
+                }
+                .buttonStyle(PrimaryButtonStyle())
+            }
+        }
+        .padding(.horizontal, NeoTokyo.Spacing.lg)
+        .padding(.bottom, NeoTokyo.Spacing.md)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+        .background(
+            LinearGradient(colors: [NeoTokyo.Surface.base.opacity(0), NeoTokyo.Surface.base.opacity(0.92)], startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+        )
     }
 
     private var resultCard: some View {
@@ -129,7 +154,7 @@ struct ChallengeClashView: View {
 
     private func run() async {
         if reduceMotion { phase = .result; return }
-        try? await Task.sleep(for: .milliseconds(700))
+        try? await Task.sleep(for: .milliseconds(300))
         for n in [3, 2, 1] {
             phase = .count(n)
             try? await Task.sleep(for: .milliseconds(650))
