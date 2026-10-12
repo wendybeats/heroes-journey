@@ -233,7 +233,7 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(bundle.character("npc.gym.lifter_01")?.spriteAssetSetID, "npc.gym.lifter_01")
         XCTAssertEqual(bundle.character("guide.elder")?.cardPortrait, "portrait.guide_elder.left"); XCTAssertEqual(bundle.character("guide.elder")?.spriteAssetSetID, "npc.guide_elder")
         XCTAssertEqual(ruleset.challenges?.grant["hard"]?.points, 1); XCTAssertEqual(ruleset.challenges?.grant["easy"]?.loseXP, 2)
-        XCTAssertEqual(ruleset.challenges?.cadence.chancePerDay, 0.45)
+        XCTAssertEqual(ruleset.challenges?.cadence.chancePerDay, 0.45); XCTAssertEqual(ruleset.challenges?.cadence.maxGapDays, 2)
         XCTAssertEqual(bundle.integrityProblems(against: ruleset), [])
         // Every difficulty word in content has a grant and a multiple in the ruleset.
         for ch in bundle.challenges { XCTAssertNotNil(ruleset.challenges?.grant[ch.difficulty], ch.id.rawValue); XCTAssertNotNil(ruleset.challenges?.difficulty[ch.difficulty], ch.id.rawValue) }

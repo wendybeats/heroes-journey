@@ -504,12 +504,17 @@ final class AppState {
         offerChallenge(seed: "\(userID.rawValue.uuidString)|\(today.rawValue)|who")
     }
     private func offerChallenge(seed: String) {
-        var pool = availableChallenges
+        let pool = availableChallenges
         guard !pool.isEmpty else { return }
+        // Pick the person first, evenly, then one of their challenges, so Cairon's four do not outweigh a lifter's one.
         // Not the same person twice running when there is a choice.
-        if let last = challengeOffers.sorted(by: { $0.day < $1.day }).last, let lastCharacter = bundle.challenge(last.challengeID)?.characterID,
-           pool.contains(where: { $0.characterID != lastCharacter }) { pool = pool.filter { $0.characterID != lastCharacter } }
-        let pick = pool[Int(ChallengeMath.roll(seed: seed) * Double(pool.count)) % pool.count]
+        var people = Array(Set(pool.map(\.characterID))).sorted { $0.rawValue < $1.rawValue }
+        if let last = challengeOffers.sorted(by: { $0.day < $1.day }).last, let lastCharacter = bundle.challenge(last.challengeID)?.characterID, people.count > 1 {
+            people.removeAll { $0 == lastCharacter }
+        }
+        let who = people[Int(ChallengeMath.roll(seed: seed + "|who") * Double(people.count)) % people.count]
+        let theirs = pool.filter { $0.characterID == who }
+        let pick = theirs[Int(ChallengeMath.roll(seed: seed) * Double(theirs.count)) % theirs.count]
         let meetings = challengeOffers.filter { $0.challengeID == pick.id && $0.eventID != nil }.count
         challengeOffers.append(ChallengeOffer(day: today, challengeID: pick.id, setIndex: meetings))
         challengeOffers = challengeOffers.filter { today.daysSince($0.day, calendar: .current) <= 60 }
@@ -611,8 +616,8 @@ final class AppState {
         ensureTodayPlan()
     }
     /// Tomorrow, now: new goals, the stage screen again, a new daily quest.
-    func devAdvanceDay() { devDayOffset += 1; ensureTodayPlan() }
-    func devResetDay() { devDayOffset = 0; ensureTodayPlan() }
+    func devAdvanceDay() { devDayOffset += 1; resolveQuestIfDue(); ensureTodayPlan() }
+    func devResetDay() { devDayOffset = 0; resolveQuestIfDue(); ensureTodayPlan() }
     var todayPlan: GoalPlan? { goalPlans.first { $0.day == today } }
     var todayCompletions: [GoalCompletion] { goalCompletions.filter { $0.day == today } }
     func isCompleted(_ goal: DailyGoal) -> Bool { goalCompletions.contains { $0.goalID == goal.id } }

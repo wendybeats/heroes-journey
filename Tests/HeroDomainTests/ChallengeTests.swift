@@ -12,7 +12,7 @@ final class ChallengeTests: XCTestCase {
                            levelThresholdsTotalXP: [0, 97, 206, 327, 467, 648, 869, 1113, 1386, 1700, 2014], dailyActivityXPCap: 40,
                            challenges: .init(difficulty: ["easy": 0.6, "standard": 0.8, "hard": 1.1],
                                              grant: ["easy": .init(xp: 8, points: 0, loseXP: 2), "standard": .init(xp: 12, points: 1, loseXP: 3), "hard": .init(xp: 18, points: 1, loseXP: 4)],
-                                             cadence: .init(fromLevel: 2, chancePerDay: 0.45, minGapDays: 1, maxGapDays: 3),
+                                             cadence: .init(fromLevel: 2, chancePerDay: 0.45, minGapDays: 1, maxGapDays: 2),
                                              trainingBonus: .init(targetSharePerMinute: 0.02, maxTargetShare: 0.8)))
     }
 
@@ -86,7 +86,7 @@ final class ChallengeTests: XCTestCase {
         for day in 0..<365 {
             let gap = last.map { day - $0 }
             if ChallengeMath.offersToday(level: 5, daysSinceLastOffer: gap, seed: "u|\(day)", ruleset: r) {
-                if let l = last { XCTAssertGreaterThan(day - l, 1, "never two days running"); XCTAssertLessThanOrEqual(day - l, 4, "guaranteed by the third quiet day") }
+                if let l = last { XCTAssertGreaterThan(day - l, 1, "never two days running"); XCTAssertLessThanOrEqual(day - l, 3, "never more than two quiet days") }
                 offers += 1; last = day
             }
         }
