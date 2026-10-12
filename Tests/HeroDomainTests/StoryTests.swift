@@ -28,6 +28,24 @@ final class StoryTests: XCTestCase {
         XCTAssertNil(StoryDirector.nextAuto(level: 6, campaign: campaign, progress: p), "nothing due until Level 8")
     }
 
+    /// Doc 33 §A: a beat that requires a quest waits for its first completion, and everything after it waits too.
+    func testBeatsWaitForTheirQuest() {
+        let held = Milestone(id: "one.6", level: 6, storyChapter: "chapter.six", requiresQuest: "quest.gym_1", heldLine: "The floor is still waiting.")
+        let gated = Campaign(chapters: [CampaignChapter(id: "chapter.one", areaID: "under_city", displayName: "One", levels: [1, 10], milestones: [m("one.5", 5, quest: "quest.gym_1"), held, m("one.7", 7)])])
+        var p = StoryProgress()
+        p = StoryDirector.complete(gated.milestone("one.5")!, campaign: gated, progress: p)
+        XCTAssertNil(StoryDirector.nextAuto(level: 9, campaign: gated, progress: p, completedQuests: []), "held: the floor quest has not been completed")
+        XCTAssertEqual(StoryDirector.held(level: 9, campaign: gated, progress: p, completedQuests: [])?.heldLine, "The floor is still waiting.")
+        XCTAssertNil(StoryDirector.nextAuto(level: 9, campaign: gated, progress: p, completedQuests: ["quest.other"]))
+        XCTAssertEqual(StoryDirector.nextAuto(level: 9, campaign: gated, progress: p, completedQuests: ["quest.gym_1"])?.id, "one.6")
+        XCTAssertNil(StoryDirector.held(level: 9, campaign: gated, progress: p, completedQuests: ["quest.gym_1"]))
+        XCTAssertNil(StoryDirector.nextAuto(level: 5, campaign: gated, progress: p, completedQuests: []), "not due at all below its level")
+        // A held beat also keeps the later ones back, so Level 7 cannot retire the floor quest early.
+        XCTAssertEqual(StoryDirector.due(level: 9, campaign: gated, progress: p).map(\.id), ["one.6", "one.7"])
+        let data = try! JSONEncoder().encode(held)
+        XCTAssertEqual(try! JSONDecoder().decode(Milestone.self, from: data), held)
+    }
+
     func testManualMilestoneGatesTheStoryUntilThePlayerStartsIt() {
         var p = StoryProgress()
         for id in ["one.1", "one.2", "one.5", "one.8"] { p = StoryDirector.complete(campaign.milestone(MilestoneID(id))!, campaign: campaign, progress: p) }

@@ -39,6 +39,7 @@ struct HomeView: View {
     @State private var storyScene: StoryScene?
     @State private var chaining = false
     @State private var showRoom = false
+    @State private var clash: AppState.ChallengeOutcome?
     #if DEBUG
     @State private var showDev = false
     #endif
@@ -65,6 +66,16 @@ struct HomeView: View {
                 .padding(.bottom, 96)
             }
             .ignoresSafeArea(edges: .top)
+            // Doc 33: today's challenge offer, a glass card over the scene under the toolbar row.
+            .overlay(alignment: .top) {
+                GeometryReader { geo in
+                    ChallengeCard { if let outcome = state.acceptChallenge() { clash = outcome } }
+                        .padding(.horizontal, NeoTokyo.Spacing.lg)
+                        .padding(.top, geo.safeAreaInsets.top + 44)
+                        .frame(maxWidth: .infinity, alignment: .top)
+                }
+                .animation(.easeOut(duration: 0.3), value: state.todayOffer == nil)
+            }
             .background(NeoTokyo.Surface.base)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
@@ -123,6 +134,7 @@ struct HomeView: View {
                 }
             }
             .sheet(isPresented: $showRoom) { RoomView() }
+            .fullScreenCover(item: $clash) { outcome in ChallengeClashView(outcome: outcome) { clash = nil } }
             #if DEBUG
             .sheet(isPresented: $showDev) { DevControlsView() }
             #endif
@@ -151,6 +163,7 @@ struct HomeView: View {
         .onChange(of: state.pendingAscension) { _, _ in scheduleStory() }
         .onChange(of: storyScene == nil) { _, _ in scheduleStory() }
         .onChange(of: departure == nil) { _, _ in scheduleStory() }
+        .onChange(of: clash == nil) { _, _ in scheduleStory() }
         .onChange(of: state.unclaimedQuest?.id) { _, _ in scheduleStory() }
         .onChange(of: scenePhase) { _, phase in if phase == .active { state.ensureTodayPlan(); state.resolveQuestIfDue(); Task { await state.syncHealth() } } }
         .onChange(of: state.showDeparture) { _, show in
@@ -198,7 +211,7 @@ struct HomeView: View {
 
     private var storyIdle: Bool {
         state.lastReceipt == nil && ascension == nil && levelUpStart == nil && !state.needsStage && state.unclaimedQuest == nil
-            && departure == nil && storyScene == nil && !chaining && !showWorkout && !showLog && !showHistory && !showRoom
+            && departure == nil && storyScene == nil && clash == nil && !chaining && !showWorkout && !showLog && !showHistory && !showRoom
     }
 
     /// Present the next scene once the screen has settled. The delay lets a dismissal finish before

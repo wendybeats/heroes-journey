@@ -226,5 +226,42 @@
     "primary_points": 6,
     "secondary_points": 4,
     "notes": "Owner 2026-10-02: sealing the bond is a real grant so Home never opens at zero. Smaller than the first primary goal (30 xp / 15 points)."
+  },
+  "challenges": {
+    "notes": "Doc 33 (owner 2026-10-12). Difficulty words are multiples of the level's balanced stat share; a win is XP plus at most one point (challenges test the build, they do not build it); a loss grants minor XP and never costs any. Training bonus: each credited minute today in a family that feeds the tested attribute adds 2% of the target, capped at 80%. Cadence: one roll a day from Level 2, never two days running, guaranteed by the third quiet day (about 3 a week).",
+    "difficulty": {
+      "easy": 0.6,
+      "standard": 0.8,
+      "hard": 1.1
+    },
+    "grant": {
+      "easy": {
+        "xp": 8,
+        "points": 0,
+        "lose_xp": 2
+      },
+      "standard": {
+        "xp": 12,
+        "points": 1,
+        "lose_xp": 3
+      },
+      "hard": {
+        "xp": 18,
+        "points": 1,
+        "lose_xp": 4
+      }
+    },
+    "cadence": {
+      "from_level": 2,
+      "chance_per_day": 0.45,
+      "min_gap_days": 1,
+      "max_gap_days": 3
+    },
+    "training_bonus": {
+      "target_share_per_minute": 0.02,
+      "max_target_share": 0.8
+    },
+    "band_likely": 0.75,
+    "band_even": 0.45
   }
 }

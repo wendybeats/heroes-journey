@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.06-5",
+  "content_version": "2026.10.12-1",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -253,7 +253,8 @@
       "asset_set_id": "hero.body.ev3",
       "outfit": "suit",
       "notes": "Evolution II art not produced yet; renders the suit until it exists. Doc 32 (owner 2026-10-06): evolutions no longer change the body or outfit; they are ascension tiers rendered as effects around the canonical body.",
-      "ascension_tier": 2
+      "ascension_tier": 2,
+      "ascension_chapter": "chapter.ascension_2"
     },
     {
       "id": "ev4_evolution3",
@@ -2163,7 +2164,9 @@
       "display_name": "Cairon",
       "portrait_asset_set_id": "portrait.guide_elder",
       "side": "left",
-      "notes": "Mentor. Named Cairon by the owner 2026-10-05 (provisional)."
+      "notes": "Mentor. Named Cairon by the owner 2026-10-05 (provisional). Full-body still npc.guide_elder and the left-facing card portrait from the under-city-npcs-v3 handoff (2026-10-12) for challenges.",
+      "sprite_asset_set_id": "npc.guide_elder",
+      "card_portrait_asset_set_id": "portrait.guide_elder.left"
     },
     {
       "id": "hero",
@@ -2179,6 +2182,30 @@
       "side": "left",
       "notes": "Antagonist of the Under City / Colossus Gym (doc 26 §9). Working title (owner 2026-10-05). Portrait and full-body sprite from the owner's colossus-v5 handoff (2026-10-06); the sprite waits for the encounter scene.",
       "sprite_asset_set_id": "npc.colossus"
+    },
+    {
+      "id": "npc.gym.lifter_01",
+      "display_name": "The lifter with the bionic hand",
+      "portrait_asset_set_id": "portrait.gym.lifter_01",
+      "side": "right",
+      "sprite_asset_set_id": "npc.gym.lifter_01",
+      "notes": "Doc 33 challenger, Colossus Gym floor. Light skin, ash-brown crop, arms folded, asymmetric smirk. Unnamed by rule; faces screen-left. Owner handoff under-city-npcs-v3 (2026-10-12). Excessive and sincere: every answer is more gym or more food."
+    },
+    {
+      "id": "npc.gym.lifter_02",
+      "display_name": "The lifter with the curls",
+      "portrait_asset_set_id": "portrait.gym.lifter_02",
+      "side": "right",
+      "sprite_asset_set_id": "npc.gym.lifter_02",
+      "notes": "Doc 33 challenger, Colossus Gym floor. Medium-brown skin, dark curls, neck implant, amused smirk. Unnamed by rule; faces screen-left. Owner handoff under-city-npcs-v3 (2026-10-12). Excessive and sincere: every answer is more gym or more food."
+    },
+    {
+      "id": "npc.gym.lifter_03",
+      "display_name": "The lifter with the mechanical arm",
+      "portrait_asset_set_id": "portrait.gym.lifter_03",
+      "side": "right",
+      "sprite_asset_set_id": "npc.gym.lifter_03",
+      "notes": "Doc 33 challenger, Colossus Gym floor. Deep-brown skin, shaved head, quiet cocky smirk. Unnamed by rule; faces screen-left. Owner handoff under-city-npcs-v3 (2026-10-12). Excessive and sincere: every answer is more gym or more food."
     }
   ],
   "story_chapters": [
@@ -2736,6 +2763,59 @@
       ]
     },
     {
+      "id": "chapter.ascension_2",
+      "title": "Ascension II",
+      "backdrop_id": "backdrop.colossus_gym.exterior_01",
+      "then": "return",
+      "area_id": "under_city",
+      "beats": [
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Again. Hold still."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "It's brighter this time."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "It is. And it's not just your eyes now. Look down."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "The first one was the city noticing you. This one is you noticing back."
+          ]
+        },
+        {
+          "speaker": "hero",
+          "lines": [
+            "Does it keep going?"
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "As far as you take it. That's the part nobody warns you about."
+          ]
+        },
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "Some of them in there have chased this for eleven years. You've been here ten days.",
+            "Don't tell them."
+          ]
+        }
+      ],
+      "notes": "Owner 2026-10-12 draft (doc 33 E.2), not yet reviewed. Plays after the tier-2 takeover at Level 10, before the boss card."
+    },
+    {
       "id": "chapter.colossus_resolution",
       "title": "Tomorrow",
       "backdrop_id": "backdrop.colossus_gym.interior_01",
@@ -3159,7 +3239,9 @@
           {
             "id": "under_city.6.enter",
             "level": 6,
-            "story_chapter": "chapter.gym_floor_one"
+            "story_chapter": "chapter.gym_floor_one",
+            "requires_quest": "quest.colossus_gym_01",
+            "held_line": "The floor is still waiting. Go walk it before I say anything else."
           },
           {
             "id": "under_city.7.deeper",
@@ -3170,7 +3252,9 @@
           {
             "id": "under_city.8.reveal",
             "level": 8,
-            "story_chapter": "chapter.colossus_reveal"
+            "story_chapter": "chapter.colossus_reveal",
+            "requires_quest": "quest.colossus_gym_02",
+            "held_line": "You haven't been down the stairs yet. I'll wait."
           },
           {
             "id": "under_city.9.final",
@@ -3187,10 +3271,499 @@
             "completes_chapter": true,
             "tease_area": "central_hill",
             "reward": null,
-            "notes": "Owner 2026-10-05: manual trigger; encounter scene and conventions TBD; completion reward TBD (room upgrade or feature unlock)."
+            "notes": "Owner 2026-10-05: manual trigger; encounter scene and conventions TBD; completion reward TBD (room upgrade or feature unlock).",
+            "requires_quest": "quest.colossus_gym_03",
+            "held_line": "He's down there. Don't make him wait longer than you need to."
           }
         ]
       }
     ]
-  }
+  },
+  "challenges": [
+    {
+      "id": "challenge.cairon.strength",
+      "name": "Hold the bar",
+      "character_id": "guide.elder",
+      "attribute_id": "strength",
+      "difficulty": "standard",
+      "available_from_level": 2,
+      "area_id": "under_city",
+      "sets": [
+        {
+          "offer": "Humour an old man. There's a bar in the alley nobody can shift. Shift it.",
+          "win": "Huh. Further than I ever got it.",
+          "lose": "It beat me too, once. Come back heavier.",
+          "aftermath_win": [
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "Don't tell anyone on the Row. They'll want to see it done again."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Would that be bad?"
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "Only for the bar."
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "The bar's been there longer than the alley. No shame in it."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Next time."
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "That's the right answer."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "challenge.cairon.endurance",
+      "name": "Keep up",
+      "character_id": "guide.elder",
+      "attribute_id": "endurance",
+      "difficulty": "standard",
+      "available_from_level": 2,
+      "area_id": "under_city",
+      "sets": [
+        {
+          "offer": "Walk with me. I'll set the pace, you keep it. No talking.",
+          "win": "You kept it. I didn't think you would.",
+          "lose": "You dropped off at the overpass. The overpass gets everyone.",
+          "aftermath_win": [
+            {
+              "speaker": "hero",
+              "lines": [
+                "Where were we going?"
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "Nowhere. That was the test."
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "I walk that stretch every night. It took me a year to stop noticing it."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "How long will it take me?"
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "Less. You've got someone counting."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "challenge.cairon.knowledge",
+      "name": "Read the signs",
+      "character_id": "guide.elder",
+      "attribute_id": "knowledge",
+      "difficulty": "standard",
+      "available_from_level": 2,
+      "area_id": "under_city",
+      "sets": [
+        {
+          "offer": "Half the signs on the Row are wrong. Tell me which half.",
+          "win": "All of them. Good. You're learning to look past the letters.",
+          "lose": "You read the signs. I asked you to read the street.",
+          "aftermath_win": [
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "The small signs are older. Somebody still fixes them at night."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Who?"
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "I was hoping you'd find out."
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "hero",
+              "lines": [
+                "The Gym sign is the biggest one on the street."
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "It wasn't always."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "They replaced it?"
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "I didn't say that."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "challenge.cairon.mindfulness",
+      "name": "Sit through it",
+      "character_id": "guide.elder",
+      "attribute_id": "mindfulness",
+      "difficulty": "standard",
+      "available_from_level": 2,
+      "area_id": "under_city",
+      "sets": [
+        {
+          "offer": "Sit with me until the rain changes. Don't ask how long.",
+          "win": "There. You felt it before you saw it, didn't you?",
+          "lose": "You looked at the clock.",
+          "aftermath_win": [
+            {
+              "speaker": "hero",
+              "lines": [
+                "The sound changed first."
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "Good."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "That's it?"
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "That's quite a lot."
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "hero",
+              "lines": [
+                "How long did we sit?"
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "Long enough."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "That's not an answer."
+              ]
+            },
+            {
+              "speaker": "guide.elder",
+              "lines": [
+                "That's why we're doing this."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "challenge.gym.lifter_01.spot",
+      "name": "Spot me",
+      "character_id": "npc.gym.lifter_01",
+      "attribute_id": "strength",
+      "difficulty": "standard",
+      "available_after_quest": "quest.colossus_gym_01",
+      "area_id": "colossus_gym",
+      "sets": [
+        {
+          "offer": "Spot me. If you can't hold it, nobody will know. I'll know.",
+          "win": "You held it. Good. Again.",
+          "lose": "Yeah. That's food. We'll fix that.",
+          "aftermath_win": [
+            {
+              "speaker": "npc.gym.lifter_01",
+              "lines": [
+                "Haven't had a spot that steady in a while."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Who spotted you before?"
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter_01",
+              "lines": [
+                "..."
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter_01",
+              "lines": [
+                "Again?"
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "npc.gym.lifter_01",
+              "lines": [
+                "You're new. It'll come."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "How long did yours take?"
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter_01",
+              "lines": [
+                "Which part?"
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Your arms."
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter_01",
+              "lines": [
+                "Don't remember."
+              ]
+            }
+          ]
+        },
+        {
+          "offer": "Back again? Good. Spot me. Heavier than last time, obviously.",
+          "win": "Good. We can add one.",
+          "lose": "Slipped. It's fine. It's the chicken. You're not eating the chicken.",
+          "aftermath_win": [
+            {
+              "speaker": "npc.gym.lifter_01",
+              "lines": [
+                "You should come every day."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "I've got somewhere to be."
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter_01",
+              "lines": [
+                "Where?"
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Home."
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter_01",
+              "lines": [
+                "...Right."
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "npc.gym.lifter_01",
+              "lines": [
+                "I'm going to write you a meal plan. It's just the word chicken, forty times."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Thanks."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "challenge.gym.lifter_03.last_plate",
+      "name": "The last plate",
+      "character_id": "npc.gym.lifter_03",
+      "attribute_id": "strength",
+      "difficulty": "hard",
+      "available_after_quest": "quest.colossus_gym_02",
+      "area_id": "colossus_gym",
+      "sets": [
+        {
+          "offer": "One more plate than you can do. That's the only set that counts.",
+          "win": "...You got it. Wait here.",
+          "lose": "That's the one. Took me almost a year.",
+          "aftermath_win": [
+            {
+              "speaker": "npc.gym.lifter_03",
+              "lines": [
+                "He would've added another."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Colossus?"
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter_03",
+              "lines": [
+                "Who else?"
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "npc.gym.lifter_03",
+              "lines": [
+                "You'll get it. Then there's another one. That's the good news."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "That's the good news?"
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter_03",
+              "lines": [
+                "It's the only news."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "challenge.gym.lifter_02.floors",
+      "name": "Floor to floor",
+      "character_id": "npc.gym.lifter_02",
+      "attribute_id": "endurance",
+      "difficulty": "easy",
+      "available_after_quest": "quest.colossus_gym_01",
+      "area_id": "colossus_gym",
+      "sets": [
+        {
+          "offer": "Race you up the floors. Lifters don't run. Don't tell anyone I asked.",
+          "win": "You beat me. Again.",
+          "lose": "Told you. Legs are for standing under the bar.",
+          "aftermath_win": [
+            {
+              "speaker": "npc.gym.lifter_02",
+              "lines": [
+                "It's colder up here."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "It's outside."
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter_02",
+              "lines": [
+                "Right."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "You don't come out much?"
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter_02",
+              "lines": [
+                "I came out today."
+              ]
+            }
+          ],
+          "aftermath_lose": [
+            {
+              "speaker": "npc.gym.lifter_02",
+              "lines": [
+                "Don't feel bad. I've been up these stairs four thousand times. Never past the door though."
+              ]
+            },
+            {
+              "speaker": "hero",
+              "lines": [
+                "Why not?"
+              ]
+            },
+            {
+              "speaker": "npc.gym.lifter_02",
+              "lines": [
+                "Set wasn't done."
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

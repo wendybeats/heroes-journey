@@ -44,6 +44,7 @@ for m in ms:
     if m.get("unlock_feature"): extras.append(f"unlocks `{m['unlock_feature']}`")
     if m.get("completes_chapter"): extras.append("completes the chapter")
     if m.get("tease_area"): extras.append(f"teases `{m['tease_area']}`")
+    if m.get("requires_quest"): extras.append(f"waits until `{m['requires_quest']}` has been completed once; meanwhile the goals card says “{m.get('held_line', '')}”")
     chapter(m["story_chapter"], trig + (" · " + "; ".join(extras) if extras else ""))
 out.append("## Quest end scenes\nPlay after the cache from that quest is claimed.\n")
 for q in quests.values():

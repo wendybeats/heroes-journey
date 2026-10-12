@@ -67,6 +67,52 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
         enum CodingKeys: String, CodingKey { case xp, primaryPoints = "primary_points", secondaryPoints = "secondary_points" }
     }
 
+    /// Doc 33: challenges. Difficulty words map to a multiple of the level's balanced stat share; grants are
+    /// XP plus at most one attribute point (owner: challenges test the build, they do not build it); the
+    /// training bonus lets today's activity in the tested family move the odds; cadence is 2–4 a week.
+    public struct Challenges: Codable, Sendable, Equatable {
+        public struct Grant: Codable, Sendable, Equatable {
+            public let xp: Int
+            public let points: Int
+            public let loseXP: Int
+            public init(xp: Int, points: Int, loseXP: Int) { self.xp = xp; self.points = points; self.loseXP = loseXP }
+            enum CodingKeys: String, CodingKey { case xp, points, loseXP = "lose_xp" }
+        }
+        public struct Cadence: Codable, Sendable, Equatable {
+            public let fromLevel: Int
+            public let chancePerDay: Double
+            public let minGapDays: Int
+            public let maxGapDays: Int
+            public init(fromLevel: Int, chancePerDay: Double, minGapDays: Int, maxGapDays: Int) { self.fromLevel = fromLevel; self.chancePerDay = chancePerDay; self.minGapDays = minGapDays; self.maxGapDays = maxGapDays }
+            enum CodingKeys: String, CodingKey { case fromLevel = "from_level", chancePerDay = "chance_per_day", minGapDays = "min_gap_days", maxGapDays = "max_gap_days" }
+        }
+        public struct TrainingBonus: Codable, Sendable, Equatable {
+            public let targetSharePerMinute: Double
+            public let maxTargetShare: Double
+            public init(targetSharePerMinute: Double, maxTargetShare: Double) { self.targetSharePerMinute = targetSharePerMinute; self.maxTargetShare = maxTargetShare }
+            enum CodingKeys: String, CodingKey { case targetSharePerMinute = "target_share_per_minute", maxTargetShare = "max_target_share" }
+        }
+        /// difficulty word → multiple of the balanced share (easy 0.6, standard 0.8, hard 1.1).
+        public let difficulty: [String: Double]
+        /// difficulty word → grant.
+        public let grant: [String: Grant]
+        public let cadence: Cadence
+        public let trainingBonus: TrainingBonus
+        /// p ≥ likely → "Likely"; p ≥ even → "Even"; else "Long shot".
+        public let bandLikely: Double
+        public let bandEven: Double
+        public init(difficulty: [String: Double], grant: [String: Grant], cadence: Cadence, trainingBonus: TrainingBonus, bandLikely: Double = 0.75, bandEven: Double = 0.45) {
+            self.difficulty = difficulty; self.grant = grant; self.cadence = cadence; self.trainingBonus = trainingBonus; self.bandLikely = bandLikely; self.bandEven = bandEven
+        }
+        enum CodingKeys: String, CodingKey { case difficulty, grant, cadence, trainingBonus = "training_bonus", bandLikely = "band_likely", bandEven = "band_even" }
+        public init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            difficulty = try c.decode([String: Double].self, forKey: .difficulty); grant = try c.decode([String: Grant].self, forKey: .grant)
+            cadence = try c.decode(Cadence.self, forKey: .cadence); trainingBonus = try c.decode(TrainingBonus.self, forKey: .trainingBonus)
+            bandLikely = try c.decodeIfPresent(Double.self, forKey: .bandLikely) ?? 0.75; bandEven = try c.decodeIfPresent(Double.self, forKey: .bandEven) ?? 0.45
+        }
+    }
+
     public let id: RulesetID
     public let version: Int
     public let status: Status
@@ -92,6 +138,8 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
     /// Cross-family cap on activity XP per local day (dev-5). Goals and quests are outside it. Nil = no cap.
     public let dailyActivityXPCap: Int?
     public let bondGrant: BondGrant?
+    /// Doc 33 challenges; absent = no challenges are offered.
+    public let challenges: Challenges?
 
     enum CodingKeys: String, CodingKey {
         case id, version, status
@@ -103,16 +151,16 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
         case minimumDurationSeconds = "minimum_duration_seconds"
         case levelThresholdsTotalXP = "level_thresholds_total_xp"
         case structuredWorkout = "structured_workout"
-        case sessionBaseXP = "session_base_xp", healthHistoryWindowDays = "health_history_window_days", goalXP = "goal_xp", dailyQuest = "daily_quest", dailyActivityXPCap = "daily_activity_xp_cap", bondGrant = "bond_grant"
+        case sessionBaseXP = "session_base_xp", healthHistoryWindowDays = "health_history_window_days", goalXP = "goal_xp", dailyQuest = "daily_quest", dailyActivityXPCap = "daily_activity_xp_cap", bondGrant = "bond_grant", challenges
     }
 
-    public init(id: RulesetID, version: Int, status: Status, xpPerMinuteByFamily: [String: Double], attributeWeightsByFamily: [String: [String: Double]], attributePointsPerXP: Double, verificationMultiplier: [String: Double], dailyTaper: DailyTaper, minimumDurationSeconds: Int, levelThresholdsTotalXP: [Int], structuredWorkout: StructuredWorkout? = nil, sessionBaseXP: Int? = nil, healthHistoryWindowDays: Int? = nil, goalXP: [String: Int]? = nil, dailyQuest: DailyQuest? = nil, dailyActivityXPCap: Int? = nil, bondGrant: BondGrant? = nil) {
+    public init(id: RulesetID, version: Int, status: Status, xpPerMinuteByFamily: [String: Double], attributeWeightsByFamily: [String: [String: Double]], attributePointsPerXP: Double, verificationMultiplier: [String: Double], dailyTaper: DailyTaper, minimumDurationSeconds: Int, levelThresholdsTotalXP: [Int], structuredWorkout: StructuredWorkout? = nil, sessionBaseXP: Int? = nil, healthHistoryWindowDays: Int? = nil, goalXP: [String: Int]? = nil, dailyQuest: DailyQuest? = nil, dailyActivityXPCap: Int? = nil, bondGrant: BondGrant? = nil, challenges: Challenges? = nil) {
         self.id = id; self.version = version; self.status = status
         self.xpPerMinuteByFamily = xpPerMinuteByFamily; self.attributeWeightsByFamily = attributeWeightsByFamily
         self.attributePointsPerXP = attributePointsPerXP; self.verificationMultiplier = verificationMultiplier
         self.dailyTaper = dailyTaper; self.minimumDurationSeconds = minimumDurationSeconds
         self.levelThresholdsTotalXP = levelThresholdsTotalXP; self.structuredWorkout = structuredWorkout
-        self.sessionBaseXP = sessionBaseXP; self.healthHistoryWindowDays = healthHistoryWindowDays; self.goalXP = goalXP; self.dailyQuest = dailyQuest; self.dailyActivityXPCap = dailyActivityXPCap; self.bondGrant = bondGrant
+        self.sessionBaseXP = sessionBaseXP; self.healthHistoryWindowDays = healthHistoryWindowDays; self.goalXP = goalXP; self.dailyQuest = dailyQuest; self.dailyActivityXPCap = dailyActivityXPCap; self.bondGrant = bondGrant; self.challenges = challenges
     }
 
     /// Minutes an event is credited for before the daily taper. Any session that records sets

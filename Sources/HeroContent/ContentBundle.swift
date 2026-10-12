@@ -140,6 +140,10 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public let areas: [Area]
     /// Chapters of milestones bound to levels (doc 28). The director plays them; nothing else reads levels for story.
     public let campaign: Campaign
+    /// Doc 33 challenges. Optional in the file: an older bundle has none.
+    public let challengeList: [Challenge]?
+    public var challenges: [Challenge] { challengeList ?? [] }
+    public func challenge(_ id: ChallengeID) -> Challenge? { challenges.first { $0.id == id } }
 
     public struct Area: Codable, Sendable, Equatable {
         public let id: AreaID
@@ -206,7 +210,41 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let side: String
         /// Full-body sprite set for staging (NPCs), at the shared pixel scale. Optional; nil = portrait only.
         public let spriteAssetSetID: AssetSetID?
-        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", portraitAssetSetID = "portrait_asset_set_id", side, spriteAssetSetID = "sprite_asset_set_id" }
+        /// Doc 33: the portrait for the challenge card and clash, where NPCs face screen-left. Falls back to `portraitAssetSetID`.
+        public let cardPortraitAssetSetID: AssetSetID?
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", portraitAssetSetID = "portrait_asset_set_id", side, spriteAssetSetID = "sprite_asset_set_id", cardPortraitAssetSetID = "card_portrait_asset_set_id" }
+        public var cardPortrait: AssetSetID? { cardPortraitAssetSetID ?? portraitAssetSetID }
+    }
+
+    /// Doc 33: a one-shot test of one attribute offered by an unnamed person (or Cairon).
+    public struct Challenge: Codable, Sendable, Equatable {
+        public struct LineSet: Codable, Sendable, Equatable {
+            public let offer: String
+            public let win: String
+            public let lose: String
+            public let aftermathWin: [StoryBeat]
+            public let aftermathLose: [StoryBeat]
+            enum CodingKeys: String, CodingKey { case offer, win, lose, aftermathWin = "aftermath_win", aftermathLose = "aftermath_lose" }
+        }
+        public let id: ChallengeID
+        public let name: String
+        public let characterID: CharacterID
+        public let attributeID: AttributeID
+        /// `easy`, `standard`, `hard`: the ruleset maps the word to a target multiple and a grant.
+        public let difficulty: String
+        public let areaID: AreaID?
+        public let availableFromLevel: Int?
+        public let availableAfterQuest: QuestID?
+        public let availableAfterMilestone: MilestoneID?
+        /// Reserved (doc 33): a unique memento for a first or hard win once the Room has a shelf for it.
+        public let mementoItemID: ItemID?
+        public let sets: [LineSet]
+        enum CodingKeys: String, CodingKey {
+            case id, name, characterID = "character_id", attributeID = "attribute_id", difficulty, areaID = "area_id", availableFromLevel = "available_from_level"
+            case availableAfterQuest = "available_after_quest", availableAfterMilestone = "available_after_milestone", mementoItemID = "memento_item_id", sets
+        }
+        /// The set for the n-th meeting (0-based), cycling.
+        public func set(forMeeting n: Int) -> LineSet? { sets.isEmpty ? nil : sets[max(0, n) % sets.count] }
     }
 
     /// One line of dialogue. Markdown emphasis (`**bold**`, `*italic*`) is allowed. `{world}` is the
@@ -214,6 +252,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public struct StoryLine: Codable, Sendable, Equatable {
         public let text: String
         public let withoutWorld: String?
+        public init(text: String, withoutWorld: String? = nil) { self.text = text; self.withoutWorld = withoutWorld }
         public init(from decoder: Decoder) throws {
             if let single = try? decoder.singleValueContainer().decode(String.self) { text = single; withoutWorld = nil; return }
             let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -233,6 +272,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public struct StoryBeat: Codable, Sendable, Equatable {
         public let speaker: CharacterID
         public let lines: [StoryLine]
+        public init(speaker: CharacterID, lines: [StoryLine]) { self.speaker = speaker; self.lines = lines }
     }
     public struct StoryChapter: Codable, Sendable, Equatable {
         public let id: String
@@ -245,13 +285,16 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         /// scene ends inside, the Central Hill tease is said outside). The milestone completes after the chain.
         public let nextChapter: String?
         enum CodingKeys: String, CodingKey { case id, title, backdropID = "backdrop_id", then, beats, nextChapter = "next_chapter" }
+        public init(id: String, title: String, backdropID: BackdropID, then: String, beats: [StoryBeat], nextChapter: String? = nil) {
+            self.id = id; self.title = title; self.backdropID = backdropID; self.then = then; self.beats = beats; self.nextChapter = nextChapter
+        }
     }
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "schema_version", contentVersion = "content_version"
         case families, activityTypes = "activity_types", attributes, evolutions, items, rewards, backdrops
         case avatarOptions = "avatar_options", exerciseDefinitions = "exercise_definitions", healthWorkoutMapping = "health_workout_mapping"
-        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters", dailyQuotes = "daily_quotes", areas, campaign
+        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters", dailyQuotes = "daily_quotes", areas, campaign, challengeList = "challenges"
     }
 
     public static func decode(_ data: Data) throws -> ContentBundle {
@@ -402,6 +445,22 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         if defaultBackdrop?.isHomeScene != true { problems.append("default backdrop must be a home scene") }
         for ev in evolutions {
             if let c = ev.ascensionChapter, !chapterIDs.contains(c) { problems.append("evolution \(ev.id) → unknown ascension_chapter \(c)") }
+        }
+        // Doc 33: beats that wait for a quest name a real quest; challenges resolve every id they name.
+        let questIDs = Set(quests.map(\.id)), milestoneIDs = Set(campaign.milestones.map(\.id)), attributeIDs = Set(attributes.map(\.id))
+        for m in campaign.milestones {
+            if let q = m.requiresQuest, !questIDs.contains(q) { problems.append("milestone \(m.id) → unknown requires_quest \(q)") }
+        }
+        unique(challenges.map(\.id), "challenge")
+        for ch in challenges {
+            if !characterIDs.contains(ch.characterID) { problems.append("challenge \(ch.id) → unknown character \(ch.characterID)") }
+            if !attributeIDs.contains(ch.attributeID) { problems.append("challenge \(ch.id) → unknown attribute \(ch.attributeID)") }
+            if !["easy", "standard", "hard"].contains(ch.difficulty) { problems.append("challenge \(ch.id) has unknown difficulty \(ch.difficulty)") }
+            if let q = ch.availableAfterQuest, !questIDs.contains(q) { problems.append("challenge \(ch.id) → unknown quest \(q)") }
+            if let m = ch.availableAfterMilestone, !milestoneIDs.contains(m) { problems.append("challenge \(ch.id) → unknown milestone \(m)") }
+            if ch.sets.isEmpty { problems.append("challenge \(ch.id) has no line sets") }
+            for set in ch.sets { for beat in set.aftermathWin + set.aftermathLose where !characterIDs.contains(beat.speaker) { problems.append("challenge \(ch.id) → unknown speaker \(beat.speaker)") } }
+            if let c = character(ch.characterID), c.cardPortrait == nil { problems.append("challenge \(ch.id): character \(ch.characterID) has no portrait for the card") }
         }
         return problems
     }

@@ -71,9 +71,9 @@ final class ContentBundleTests: XCTestCase {
 
     func testStoryContentDecodesAndResolvesTheWorldName() throws {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
-        XCTAssertEqual(bundle.characters.map(\.id), ["guide.elder", "hero", "chad_colossus"])
+        XCTAssertEqual(bundle.characters.map(\.id), ["guide.elder", "hero", "chad_colossus", "npc.gym.lifter_01", "npc.gym.lifter_02", "npc.gym.lifter_03"])
         XCTAssertEqual(Array(bundle.storyChapters.map(\.id).prefix(2)), ["chapter.awakening", "chapter.first_training"])
-        XCTAssertEqual(bundle.storyChapters.count, 16)
+        XCTAssertEqual(bundle.storyChapters.count, 17)
         let awakening = try XCTUnwrap(bundle.chapter("chapter.awakening"))
         XCTAssertEqual(awakening.then, "create_character"); XCTAssertEqual(awakening.beats.count, 10)
         XCTAssertEqual(awakening.beats.first?.speaker, "hero"); XCTAssertEqual(awakening.beats.last?.lines.last?.text, "First things first. Do you remember who you are?")
@@ -135,6 +135,7 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(bundle.evolution(forLevel: 5)?.ascensionChapter, "chapter.ascension_1")
         XCTAssertEqual(bundle.chapter("chapter.ascension_1")?.then, "return"); XCTAssertEqual(bundle.chapter("chapter.ascension_1")?.beats.first?.speaker, "guide.elder")
         XCTAssertNil(bundle.evolution(forLevel: 1)?.ascensionChapter)
+        XCTAssertEqual(bundle.evolution(forLevel: 10)?.ascensionChapter, "chapter.ascension_2")
         XCTAssertEqual(Set(bundle.evolutions.map { $0.outfit ?? "" }), ["suit"])
         let starter = bundle.starterEquipment
         XCTAssertEqual(Set(starter.keys), [.body, .legs, .feet]); XCTAssertEqual(starter[.body], "item.hoodie.starter")
@@ -206,6 +207,28 @@ final class ContentBundleTests: XCTestCase {
             XCTAssertTrue(FileManager.default.fileExists(atPath: path), "missing font for \(role): \(ps).ttf")
         }
         XCTAssertTrue(FileManager.default.fileExists(atPath: RepoFiles.root.appendingPathComponent("App/Resources/Fonts/OFL.txt").path), "font license must ship")
+    }
+
+    /// Doc 33: beats wait for their quest; challenges resolve; the ruleset prices them.
+    func testChallengesAndHeldBeatsResolve() throws {
+        let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
+        let ruleset = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-5.json"))
+        XCTAssertEqual(bundle.campaign.milestone("under_city.6.enter")?.requiresQuest, "quest.colossus_gym_01")
+        XCTAssertEqual(bundle.campaign.milestone("under_city.8.reveal")?.requiresQuest, "quest.colossus_gym_02")
+        XCTAssertEqual(bundle.campaign.milestone("under_city.10.resolution")?.requiresQuest, "quest.colossus_gym_03")
+        XCTAssertNotNil(bundle.campaign.milestone("under_city.6.enter")?.heldLine)
+        XCTAssertNil(bundle.campaign.milestone("under_city.5.gym_unlock")?.requiresQuest)
+        XCTAssertEqual(bundle.challenges.count, 7, "Cairon's four and the three lifters'")
+        XCTAssertEqual(Set(bundle.challenges.filter { $0.characterID == "guide.elder" }.map(\.attributeID)), ["strength", "endurance", "knowledge", "mindfulness"])
+        let spot = try XCTUnwrap(bundle.challenge("challenge.gym.lifter_01.spot"))
+        XCTAssertEqual(spot.availableAfterQuest, "quest.colossus_gym_01"); XCTAssertEqual(spot.sets.count, 2); XCTAssertEqual(spot.set(forMeeting: 2)?.offer, spot.sets[0].offer, "sets cycle")
+        XCTAssertEqual(bundle.character("npc.gym.lifter_01")?.spriteAssetSetID, "npc.gym.lifter_01")
+        XCTAssertEqual(bundle.character("guide.elder")?.cardPortrait, "portrait.guide_elder.left"); XCTAssertEqual(bundle.character("guide.elder")?.spriteAssetSetID, "npc.guide_elder")
+        XCTAssertEqual(ruleset.challenges?.grant["hard"]?.points, 1); XCTAssertEqual(ruleset.challenges?.grant["easy"]?.loseXP, 2)
+        XCTAssertEqual(ruleset.challenges?.cadence.chancePerDay, 0.45)
+        XCTAssertEqual(bundle.integrityProblems(against: ruleset), [])
+        // Every difficulty word in content has a grant and a multiple in the ruleset.
+        for ch in bundle.challenges { XCTAssertNotNil(ruleset.challenges?.grant[ch.difficulty], ch.id.rawValue); XCTAssertNotNil(ruleset.challenges?.difficulty[ch.difficulty], ch.id.rawValue) }
     }
 
     /// Doc 29: every quest has tiered loot pools that resolve, and the tooltip preview is one reward per tier.

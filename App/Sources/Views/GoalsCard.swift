@@ -40,6 +40,11 @@ struct GoalsCard: View {
                     Countdown(until: run.returnsAt, font: HeroFont.bodyNumber)
                 }
             }
+            // Doc 33 §A: the story is waiting on a quest; Cairon says so, so the stall reads as intent.
+            if let held = state.heldBeat?.heldLine {
+                Text(held).font(HeroFont.caption).foregroundStyle(NeoTokyo.Hierarchy.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             if case .ready = state.questState {
                 // The notification explainer appears only until the system prompt has been answered; after that
                 // "Begin quest" departs straight away (owner QA 2026-10-05).

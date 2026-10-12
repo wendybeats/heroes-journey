@@ -44,6 +44,17 @@ struct DevControlsView: View {
                         Button("Replay the Ascension") { state.devReplayAscension(); dismiss() }.buttonStyle(SecondaryButtonStyle())
                             .disabled(state.ascensionTier == 0 && state.pendingAscension == nil)
                     }
+                    section("Challenges") {
+                        row("Today", value: state.todayOffer.map { "open · \($0.challengeID.rawValue)" } ?? "none open")
+                        row("Available", value: "\(state.availableChallenges.count) of \(state.bundle.challenges.count)")
+                        row("Held beat", value: state.heldBeat?.id.rawValue ?? "none")
+                        Button("Offer a challenge now") { state.devOfferChallenge() }.buttonStyle(SecondaryButtonStyle())
+                            .disabled(state.availableChallenges.isEmpty)
+                        Picker("Outcome", selection: Binding(get: { state.devForcedOutcome.map { $0 ? 1 : 2 } ?? 0 }, set: { state.devForcedOutcome = $0 == 0 ? nil : $0 == 1 })) {
+                            Text("Roll").tag(0); Text("Force win").tag(1); Text("Force loss").tag(2)
+                        }
+                        .pickerStyle(.segmented)
+                    }
                     section("Sprites") {
                         NavigationLink("Sprite lab") { SpriteLabView() }.font(HeroFont.bodyMedium).foregroundStyle(NeoTokyo.Hierarchy.fallback)
                     }

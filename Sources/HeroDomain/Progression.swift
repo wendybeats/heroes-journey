@@ -67,6 +67,16 @@ public enum ProgressionEngine {
             xp = max(0, grant.xp)
             if grant.primaryPoints > 0 { attributes[bond.primaryAttributeID, default: 0] += grant.primaryPoints }
             if grant.secondaryPoints > 0 { attributes[bond.secondaryAttributeID, default: 0] += grant.secondaryPoints }
+        } else if let challenge = event.challenge {
+            // Doc 33: the outcome is on the fact; the ruleset prices it. Win: XP and at most one point in the
+            // tested attribute (challenges test the build, they do not build it). Lose: very minor XP, never a cost.
+            guard let grant = ruleset.challenges?.grant[challenge.difficulty] else { return empty() }
+            if challenge.won {
+                xp = max(0, grant.xp)
+                if grant.points > 0 { attributes[challenge.attributeID] = grant.points }
+            } else {
+                xp = max(0, grant.loseXP)
+            }
         } else if let story = event.story {
             // Story milestone: no XP (the ruleset may price it later); its reward is granted once.
             xp = 0

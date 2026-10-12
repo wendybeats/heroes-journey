@@ -254,6 +254,16 @@ Owner QA: a quest's end scene (`on_return_chapter`, the three Gym quests) replay
 
 Owner flags to revisit: the "Skip one sugary drink" and "Finish your shower cold" goals read as prescription and may be cut. Backlog (owner §5): a rare pool (5–10%) of story-aware alternate goal lines unlocked by chapter progress (before Colossus, after meeting him, after chapter one, after the Under City door, after Central Hill); companion responses, not new goals.
 
+## Increment 40, 2026-10-12: beats wait for their quest
+
+Doc 33 §A. `Milestone.requires_quest` and `held_line`; `StoryDirector` skips a held beat (and everything after it) until the quest has a claimed completion; the goals card shows Cairon's held line meanwhile. Gates: L6 → the floor, L8 → deeper, L10 → the last floor. Level 10's Ascension now has its scene (`chapter.ascension_2`, owner draft, not yet reviewed). Content 2026.10.12-1.
+
+## Increment 41–42, 2026-10-12: challenges, with Cairon and the three lifters
+
+Doc 33 §B built end to end. Domain: `ChallengeReference` on the fact (stat, training bonus, target, probability, seeded roll, outcome, set index), `ActivitySource.challenge`, `ChallengeMath` (level-scaled share, difficulty multiples, logistic odds, bands, training bonus from today's credited minutes, seeded roll, cadence, record), ruleset block `challenges` (dev-5: grants 8/12/18 XP and 0/1/1 points on a win, 2/3/4 XP on a loss, cadence 0.45 a day from Level 2 with gaps 1–3, bonus 2 % of target per credited minute capped at 80 %), engine branch exempt from the daily cap. Content: `challenges` on the bundle (Cairon ×4, lifters ×3), characters `npc.gym.lifter_01..03` (unnamed; "the lifter with the bionic hand / the curls / the mechanical arm"), Cairon's sprite and left-facing card portrait, integrity checks. Art from the owner's under-city-npcs-v3 handoff: four 64×128 stills and four portraits, all `review`. App: one offer a day rolled at the stage, kept until declined or the day ends; the glass offer card at the top of Home (name, attribute in its colour, band word that updates as training lands, hint, portrait, record on a repeat); the clash cover (3 · 2 · 1, lean, gold-then-white glow, dash, flash, reset, result card, aftermath scene via `StoryView`); ledger and History rows; dev controls (offer now, force win/loss). Tests: odds, bands, the Long shot → Even session, seeded roll, engine grants and idempotence, cadence over a simulated year, content resolution.
+
+Open from doc 33: the courier and the shake-stand old man wait for art; repeat exchanges, pages, story-aware lines and rumours (increments 43–44); the memento; the simulator's challenge loop.
+
 ## Planned (owner, 2026-10-12): challenges and between-beat content
 
 Doc 33 holds the design, the five-increment plan (40–44) and the content inventory (lines and art the owner writes separately). Order: beats wait for their quest (`requires_quest`), Challenges with Cairon then the lifter, repeat quest exchanges and found pages, story-aware goal lines and Row rumours. Each lands behind its content: a field with no lines renders nothing.

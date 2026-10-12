@@ -111,6 +111,9 @@ Cairon has one challenge per attribute (`available_from_level: 2`); the cadence 
 4. **World reaction on a quest.** `world.rain_stops` exists as a reward with trigger `unassigned`; attach it to the first claimed completion of `quest.protein_row` (new reward trigger `quest_completed`). Visible only if a dry backdrop variant is authored.
 5. **Row rumours.** `rumours: [{ after, text }]` on the bundle; one a day on the goals card's rest-day line from the unlocked pool.
 
+## Status (2026-10-12)
+Increments 40, 41 and 42 are built (doc 20 increments 40–42): beats wait for their quest; challenges with Cairon and the three lifters from the owner's npcs-v3 handoff. The courier and the old man wait for art. Increments 43–44 are next.
+
 ## D. Build plan and the changes each increment makes
 
 Each increment ships behind its content: a field with no lines renders nothing, so code can land before the writing is final. Every increment: `swift test` on CI, `python3 Tools/build_asset_registry.py --check` after any manifest change, doc 20 increment entry, doc 31 regenerated if a chapter changed.

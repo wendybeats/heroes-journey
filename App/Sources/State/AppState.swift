@@ -33,12 +33,14 @@ final class AppState {
         var startedOn: DayKey? = nil
         var lastStageDay: DayKey? = nil
         var storyProgress: StoryProgress = StoryProgress()
+        /// Doc 33: one offer per day at most; declined or accepted offers stay so the cadence and sets can read them.
+        var challengeOffers: [ChallengeOffer] = []
 
-        init(userID: UserID, recipe: AvatarRecipe?, events: [ActivityEvent], ledger: ProgressionLedger, outbox: Outbox, workouts: [Workout], activeWorkout: Workout?, preferredUnit: WeightUnit, healthSync: HealthSyncState, corrections: [ActivityCorrection], importLog: [String: ImportDisposition], goalPreferences: GoalPreferences, goalPlans: [GoalPlan], goalCompletions: [GoalCompletion], goalSeed: UInt64, questRuns: [QuestRun], startedOn: DayKey?, lastStageDay: DayKey?, storyProgress: StoryProgress) {
+        init(userID: UserID, recipe: AvatarRecipe?, events: [ActivityEvent], ledger: ProgressionLedger, outbox: Outbox, workouts: [Workout], activeWorkout: Workout?, preferredUnit: WeightUnit, healthSync: HealthSyncState, corrections: [ActivityCorrection], importLog: [String: ImportDisposition], goalPreferences: GoalPreferences, goalPlans: [GoalPlan], goalCompletions: [GoalCompletion], goalSeed: UInt64, questRuns: [QuestRun], startedOn: DayKey?, lastStageDay: DayKey?, storyProgress: StoryProgress, challengeOffers: [ChallengeOffer] = []) {
             self.userID = userID; self.recipe = recipe; self.events = events; self.ledger = ledger; self.outbox = outbox
             self.workouts = workouts; self.activeWorkout = activeWorkout; self.preferredUnit = preferredUnit
             self.healthSync = healthSync; self.corrections = corrections; self.importLog = importLog
-            self.goalPreferences = goalPreferences; self.goalPlans = goalPlans; self.goalCompletions = goalCompletions; self.goalSeed = goalSeed; self.questRuns = questRuns; self.startedOn = startedOn; self.lastStageDay = lastStageDay; self.storyProgress = storyProgress
+            self.goalPreferences = goalPreferences; self.goalPlans = goalPlans; self.goalCompletions = goalCompletions; self.goalSeed = goalSeed; self.questRuns = questRuns; self.startedOn = startedOn; self.lastStageDay = lastStageDay; self.storyProgress = storyProgress; self.challengeOffers = challengeOffers
         }
         // v2 archives lack the workout fields; read them as empty rather than discarding the user's data.
         init(from decoder: Decoder) throws {
@@ -63,7 +65,34 @@ final class AppState {
             startedOn = try c.decodeIfPresent(DayKey.self, forKey: .startedOn)
             lastStageDay = try c.decodeIfPresent(DayKey.self, forKey: .lastStageDay)
             storyProgress = try c.decodeIfPresent(StoryProgress.self, forKey: .storyProgress) ?? StoryProgress()
+            challengeOffers = try c.decodeIfPresent([ChallengeOffer].self, forKey: .challengeOffers) ?? []
         }
+    }
+
+    /// Doc 33: a challenge offered on a day. Open until declined or accepted (then its fact's id is here) or the day ends.
+    struct ChallengeOffer: Codable, Equatable {
+        let day: DayKey
+        let challengeID: ChallengeID
+        /// Which line set this meeting uses (meeting count, cycling).
+        let setIndex: Int
+        var declined = false
+        var eventID: ActivityEventID? = nil
+        var isOpen: Bool { !declined && eventID == nil }
+    }
+    /// The odds as the card shows them: stat, today's training bonus, the target, and the band word.
+    struct ChallengeOdds: Equatable {
+        let stat: Int, bonus: Double, target: Double, probability: Double, band: ChallengeBand
+        /// Families whose minutes today moved (or would move) the odds, for the hint under the band.
+        let helpingFamilies: [FamilyID]
+    }
+    /// What the clash plays: the challenge, the line set, the outcome and the fact that records it.
+    struct ChallengeOutcome: Identifiable, Equatable {
+        let challenge: ContentBundle.Challenge
+        let set: ContentBundle.Challenge.LineSet
+        let reference: ChallengeReference
+        let eventID: ActivityEventID
+        var id: ActivityEventID { eventID }
+        var won: Bool { reference.won }
     }
 
     let bundle: ContentBundle
@@ -96,6 +125,7 @@ final class AppState {
     private(set) var lastStageDay: DayKey?
     /// Doc 28: what the player has experienced and unlocked. Levels make beats eligible; this records them.
     private(set) var storyProgress: StoryProgress
+    private(set) var challengeOffers: [ChallengeOffer]
     /// A quest's end scene waiting to play after its return reveal.
     private(set) var pendingReturnChapter: String?
     /// Owner 2026-10-06: an Ascension is a cutscene, never a stat that just appears. Recorded when the ledger
@@ -136,7 +166,7 @@ final class AppState {
         return events.filter { !hidden.contains($0.id) }
     }
     /// Real activity only: goal completions and quest returns are facts too, but not sessions.
-    var activityEvents: [ActivityEvent] { visibleEvents.filter { $0.source != .goal && $0.source != .quest && $0.source != .bond } }
+    var activityEvents: [ActivityEvent] { visibleEvents.filter { $0.source != .goal && $0.source != .quest && $0.source != .bond && $0.source != .story && $0.source != .challenge } }
     var todayEvents: [ActivityEvent] { activityEvents.filter { Calendar.current.isDateInToday($0.startedAt) }.sorted { $0.startedAt > $1.startedAt } }
     /// XP granted today to real activity (what the dev-5 daily cap counts).
     var todayActivityXP: Int {
@@ -148,6 +178,7 @@ final class AppState {
         if let goal = event.goal { return bundle.goalTemplate(goal.templateID)?.title.replacingOccurrences(of: "{target}", with: "") ?? goal.templateID.rawValue }
         if let quest = event.quest { return bundle.quest(quest.questID)?.displayName ?? quest.questID.rawValue }
         if event.bond != nil { return "The bond" }
+        if let c = event.challenge { return "\(bundle.character(c.characterID)?.displayName ?? "Someone")'s challenge" }
         return bundle.activityType(event.activityTypeID)?.displayName ?? event.activityTypeID.rawValue
     }
     /// How an imported event was treated, for badges in the timeline.
@@ -199,6 +230,7 @@ final class AppState {
         self.startedOn = archive?.startedOn
         self.lastStageDay = archive?.lastStageDay
         self.storyProgress = archive?.storyProgress ?? StoryProgress()
+        challengeOffers = archive?.challengeOffers ?? []
         self.goalSeed = (archive?.goalSeed).flatMap { $0 == 0 ? nil : $0 } ?? UInt64.random(in: 1...UInt64.max)
         self.baseRuleset = ruleset
         let authority = ProgressionAuthority(ruleset: ruleset, levelRewards: bundle.levelRewards, calendar: .current)
@@ -433,6 +465,98 @@ final class AppState {
     /// The app's day. `devDayOffset` (debug controls) shifts it so daily progression can be seen without waiting.
     var today: DayKey { DayKey(Date().addingTimeInterval(TimeInterval(devDayOffset) * 86_400), calendar: .current) }
 
+    // MARK: challenges (doc 33)
+
+    var todayOffer: ChallengeOffer? { challengeOffers.first { $0.day == today && $0.isOpen } }
+    /// Challenges the player's progress has reached, in content order.
+    var availableChallenges: [ContentBundle.Challenge] {
+        bundle.challenges.filter { ch in
+            if let l = ch.availableFromLevel, snapshot.level < l { return false }
+            if let q = ch.availableAfterQuest, !completedQuestIDs.contains(q) { return false }
+            if let m = ch.availableAfterMilestone, !storyProgress.isComplete(m) { return false }
+            return true
+        }
+    }
+    /// One roll a day (doc 33 cadence), skipped while the story owns the day (unclaimed cache, held beat).
+    private func rollChallengeOffer() {
+        guard !challengeOffers.contains(where: { $0.day == today }), unclaimedQuest == nil, heldBeat == nil else { return }
+        let lastDay = challengeOffers.map(\.day).max()
+        let gap = lastDay.map { today.daysSince($0, calendar: .current) }
+        guard ChallengeMath.offersToday(level: snapshot.level, daysSinceLastOffer: gap, seed: "\(userID.rawValue.uuidString)|\(today.rawValue)|offer", ruleset: ruleset) else { return }
+        offerChallenge(seed: "\(userID.rawValue.uuidString)|\(today.rawValue)|who")
+    }
+    private func offerChallenge(seed: String) {
+        var pool = availableChallenges
+        guard !pool.isEmpty else { return }
+        // Not the same person twice running when there is a choice.
+        if let last = challengeOffers.sorted(by: { $0.day < $1.day }).last, let lastCharacter = bundle.challenge(last.challengeID)?.characterID,
+           pool.contains(where: { $0.characterID != lastCharacter }) { pool = pool.filter { $0.characterID != lastCharacter } }
+        let pick = pool[Int(ChallengeMath.roll(seed: seed) * Double(pool.count)) % pool.count]
+        let meetings = challengeOffers.filter { $0.challengeID == pick.id && $0.eventID != nil }.count
+        challengeOffers.append(ChallengeOffer(day: today, challengeID: pick.id, setIndex: meetings))
+        challengeOffers = challengeOffers.filter { today.daysSince($0.day, calendar: .current) <= 60 }
+        save()
+    }
+    /// Today's credited minutes per family, from the ledger's processing records (the engine's own taper).
+    var todayCreditedMinutesByFamily: [String: Double] {
+        var out: [String: Double] = [:]
+        let byEvent = Dictionary(ledger.processing.map { ($0.activityEventID, $0.eligibleMinutes) }, uniquingKeysWith: { a, _ in a })
+        for e in todayEvents { out[e.familyID.rawValue, default: 0] += byEvent[e.id] ?? 0 }
+        return out
+    }
+    func odds(for challenge: ContentBundle.Challenge) -> ChallengeOdds {
+        let share = ChallengeMath.share(level: snapshot.level, ruleset: ruleset, attributeCount: max(1, bundle.attributes.count))
+        let target = ChallengeMath.target(difficulty: challenge.difficulty, share: share, ruleset: ruleset)
+        let stat = snapshot.attributes[challenge.attributeID] ?? 0
+        let bonus = ChallengeMath.trainingBonus(minutesByFamily: todayCreditedMinutesByFamily, attributeID: challenge.attributeID, target: target, ruleset: ruleset)
+        let p = ChallengeMath.winProbability(stat: Double(stat) + bonus, target: target)
+        let helping = bundle.families.filter { (ruleset.attributeWeightsByFamily[$0.id.rawValue]?[challenge.attributeID.rawValue] ?? 0) >= 0.5 }.map(\.id)
+        return ChallengeOdds(stat: stat, bonus: bonus, target: target, probability: p, band: ChallengeMath.band(probability: p, ruleset: ruleset), helpingFamilies: helping)
+    }
+    func challengeRecord(_ id: ChallengeID) -> (won: Int, lost: Int) { ChallengeMath.record(challengeID: id, events: visibleEvents) }
+    func declineChallenge() {
+        guard let i = challengeOffers.firstIndex(where: { $0.day == today && $0.isOpen }) else { return }
+        challengeOffers[i].declined = true; save()
+    }
+    #if DEBUG
+    /// nil = roll; true/false forces the outcome (dev controls).
+    var devForcedOutcome: Bool?
+    #endif
+    /// Accept today's offer: roll once (seeded), write the fact, queue it, return what the clash should play. Idempotent per offer.
+    func acceptChallenge() -> ChallengeOutcome? {
+        guard let i = challengeOffers.firstIndex(where: { $0.day == today && $0.isOpen }), let challenge = bundle.challenge(challengeOffers[i].challengeID),
+              let set = challenge.set(forMeeting: challengeOffers[i].setIndex) else { return nil }
+        let o = odds(for: challenge)
+        var roll = ChallengeMath.roll(seed: "\(userID.rawValue.uuidString)|\(challenge.id.rawValue)|\(today.rawValue)|roll")
+        #if DEBUG
+        if let forced = devForcedOutcome { roll = forced ? 0 : 0.999_999 }
+        #endif
+        let ref = ChallengeReference(challengeID: challenge.id, characterID: challenge.characterID.rawValue, attributeID: challenge.attributeID, difficulty: challenge.difficulty,
+                                     stat: o.stat, trainingBonus: o.bonus, target: o.target, probability: o.probability, roll: roll, won: roll < o.probability, setIndex: challengeOffers[i].setIndex)
+        let family = o.helpingFamilies.first ?? goalPreferences.primaryFamily
+        let now = Date()
+        let event = ChallengeReference.makeEvent(ref, userID: userID, familyFallback: family, at: now)
+        events.append(event)
+        outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
+        challengeOffers[i].eventID = event.id
+        save()
+        Task { await drain(showReward: false) }   // the clash shows the result itself
+        return ChallengeOutcome(challenge: challenge, set: set, reference: ref, eventID: event.id)
+    }
+    /// The grant the ruleset will give for an outcome, for the result card before the receipt lands.
+    func challengeGrant(for outcome: ChallengeOutcome) -> (xp: Int, points: Int) {
+        guard let g = ruleset.challenges?.grant[outcome.challenge.difficulty] else { return (0, 0) }
+        return outcome.won ? (g.xp, g.points) : (g.loseXP, 0)
+    }
+    #if DEBUG
+    /// Offer one now (dev controls), whatever the cadence says; replaces an open offer.
+    func devOfferChallenge() {
+        challengeOffers.removeAll { $0.day == today && $0.isOpen }
+        offerChallenge(seed: "\(userID.rawValue.uuidString)|\(today.rawValue)|dev\(challengeOffers.count)")
+        devToken += 1
+    }
+    #endif
+
     // MARK: debug controls (DEBUG builds only; owner QA 2026-10-05). None of these create facts the engine
     // would not have created; they move time, swap the ruleset variant, or regenerate a plan.
 
@@ -497,7 +621,9 @@ final class AppState {
 
     /// Make sure today has a plan. Call on launch and whenever the app comes to the foreground.
     func ensureTodayPlan() {
-        guard recipe != nil, todayPlan == nil else { return }
+        guard recipe != nil else { return }
+        rollChallengeOffer()
+        guard todayPlan == nil else { return }
         let plan = GoalGenerator.plan(generatorInputs(for: today), now: Date())
         if startedOn == nil { startedOn = today }
         goalPlans.append(plan)
@@ -569,9 +695,13 @@ final class AppState {
 
     var campaign: Campaign { bundle.campaign }
     /// The next beat to play automatically, if the player's level has reached it.
-    var nextStoryBeat: Milestone? { StoryDirector.nextAuto(level: snapshot.level, campaign: campaign, progress: storyProgress) }
+    var nextStoryBeat: Milestone? { StoryDirector.nextAuto(level: snapshot.level, campaign: campaign, progress: storyProgress, completedQuests: completedQuestIDs) }
     /// Manual beats the player can start now (boss encounters).
-    var offeredMilestones: [Milestone] { StoryDirector.offered(level: snapshot.level, campaign: campaign, progress: storyProgress) }
+    var offeredMilestones: [Milestone] { StoryDirector.offered(level: snapshot.level, campaign: campaign, progress: storyProgress, completedQuests: completedQuestIDs) }
+    /// Doc 33 §A: quests completed (claimed) at least once; beats that require one wait for it.
+    var completedQuestIDs: Set<QuestID> { Set(questRuns.filter(\.isClaimed).map(\.questID)) }
+    /// The beat the story is waiting on, if any (its `heldLine` shows on the goals card).
+    var heldBeat: Milestone? { StoryDirector.held(level: snapshot.level, campaign: campaign, progress: storyProgress, completedQuests: completedQuestIDs) }
     func hasFeature(_ feature: String) -> Bool { storyProgress.hasFeature(feature) }
     var currentChapter: CampaignChapter? { campaign.chapters.first { !storyProgress.completedChapters.contains($0.id) && $0.levelRange.contains(snapshot.level) } ?? campaign.chapters.last }
 
@@ -754,7 +884,7 @@ final class AppState {
     }
 
     private func save() {
-        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit, healthSync: healthSync, corrections: corrections, importLog: importLog, goalPreferences: goalPreferences, goalPlans: goalPlans, goalCompletions: goalCompletions, goalSeed: goalSeed, questRuns: questRuns, startedOn: startedOn, lastStageDay: lastStageDay, storyProgress: storyProgress)
+        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit, healthSync: healthSync, corrections: corrections, importLog: importLog, goalPreferences: goalPreferences, goalPlans: goalPlans, goalCompletions: goalCompletions, goalSeed: goalSeed, questRuns: questRuns, startedOn: startedOn, lastStageDay: lastStageDay, storyProgress: storyProgress, challengeOffers: challengeOffers)
         do {
             let data = try JSONEncoder().encode(archive)
             try data.write(to: Self.archiveURL, options: .atomic)

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "portrait.guide_elder.left",
+  "revision": 1,
+  "status": "review",
+  "kind": "portrait",
+  "canvas": {
+    "width": 1254,
+    "height": 1254
+  },
+  "pivot": {
+    "x": 627,
+    "y": 1253
+  },
+  "layer_order": 0,
+  "max_palette_colors": 100000,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner handoff 2026-10-12 (under-city-npcs-v3): left-facing direction edit of the approved Cairon portrait (portrait.guide_elder stays the right-facing one for story scenes where he stands on the left). For the challenge card and the clash, where NPCs face screen-left. Generated still, soft alpha, not on a logical grid.",
+  "world": "city",
+  "area": "under_city"
+}

@@ -14,6 +14,8 @@ public enum ActivitySource: String, Codable, Sendable, CaseIterable {
     case bond
     /// A campaign milestone that grants something (doc 28): the grant goes through the engine once.
     case story
+    /// A challenge accepted and resolved (doc 33): the roll is on the fact, the grant is the ruleset's.
+    case challenge
 }
 
 /// Doc 05. All levels earn progression in MVP; kept distinct so later systems can weight them.
@@ -53,6 +55,8 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
     public let bond: BondReference?
     /// Set when this fact is a story milestone grant.
     public let story: StoryReference?
+    /// Set when this fact is a resolved challenge (doc 33). Absent on every archive written before it.
+    public let challenge: ChallengeReference?
     public let schemaVersion: Int
     public let createdAt: Date
 
@@ -73,6 +77,7 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
         quest: QuestReference? = nil,
         bond: BondReference? = nil,
         story: StoryReference? = nil,
+        challenge: ChallengeReference? = nil,
         createdAt: Date = Date()
     ) {
         self.id = id
@@ -91,6 +96,7 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
         self.quest = quest
         self.bond = bond
         self.story = story
+        self.challenge = challenge
         self.schemaVersion = Self.schemaVersion
         self.createdAt = createdAt
     }

@@ -1,5 +1,5 @@
 {
-  "_draft": "Doc 33 content drafts. Owner edit pass of 2026-10-12 applied (REPLACE/KEEP/CUT). Not reviewed yet: Cairon's Hold the bar and Keep up, the held-beat lines, Ascension II. Not loaded by the app; each block moves into bundle.json when its increment lands.",
+  "_draft": "Doc 33 content drafts. Moved into bundle.json 2026-10-12: held_lines, chapter.ascension_2, Cairon's four challenges and the three lifter challenges (ids remapped to npc.gym.lifter_01/02/03). Still here: courier and shake-stand challenges (no art yet), repeat_exchanges, pages, story_lines, rumours.",
   "characters": [
     {
       "id": "npc.gym.lifter",

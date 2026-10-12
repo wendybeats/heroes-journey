@@ -664,6 +664,122 @@
       "source": "assets/sprites/npc.colossus/rev1/source"
     },
     {
+      "id": "npc.guide_elder",
+      "kind": "body",
+      "world": "city",
+      "area": "under_city",
+      "scene": "street",
+      "mood": [
+        "calm",
+        "watchful"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/npc.guide_elder/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 64,
+            "height": 128
+          }
+        }
+      ],
+      "source": "assets/sprites/npc.guide_elder/rev1/source"
+    },
+    {
+      "id": "npc.gym.lifter_01",
+      "kind": "body",
+      "world": "city",
+      "area": "colossus_gym",
+      "scene": "gym_floor",
+      "mood": [
+        "iron",
+        "grit"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/npc.gym.lifter_01/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 64,
+            "height": 128
+          }
+        }
+      ],
+      "source": "assets/sprites/npc.gym.lifter_01/rev1/source"
+    },
+    {
+      "id": "npc.gym.lifter_02",
+      "kind": "body",
+      "world": "city",
+      "area": "colossus_gym",
+      "scene": "gym_floor",
+      "mood": [
+        "iron",
+        "grit"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/npc.gym.lifter_02/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 64,
+            "height": 128
+          }
+        }
+      ],
+      "source": "assets/sprites/npc.gym.lifter_02/rev1/source"
+    },
+    {
+      "id": "npc.gym.lifter_03",
+      "kind": "body",
+      "world": "city",
+      "area": "colossus_gym",
+      "scene": "gym_floor",
+      "mood": [
+        "iron",
+        "grit"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/npc.gym.lifter_03/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 64,
+            "height": 128
+          }
+        }
+      ],
+      "source": "assets/sprites/npc.gym.lifter_03/rev1/source"
+    },
+    {
       "id": "portrait.colossus",
       "kind": "portrait",
       "world": "city",
@@ -720,6 +836,110 @@
       "source": "assets/sprites/portrait.guide_elder/rev1/source"
     },
     {
+      "id": "portrait.guide_elder.left",
+      "kind": "portrait",
+      "world": "city",
+      "area": "under_city",
+      "scene": null,
+      "mood": [],
+      "time": null,
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/portrait.guide_elder.left/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 1254,
+            "height": 1254
+          }
+        }
+      ],
+      "source": "assets/sprites/portrait.guide_elder.left/rev1/source"
+    },
+    {
+      "id": "portrait.gym.lifter_01",
+      "kind": "portrait",
+      "world": "city",
+      "area": "colossus_gym",
+      "scene": null,
+      "mood": [],
+      "time": null,
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/portrait.gym.lifter_01/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 160,
+            "height": 160
+          }
+        }
+      ],
+      "source": "assets/sprites/portrait.gym.lifter_01/rev1/source"
+    },
+    {
+      "id": "portrait.gym.lifter_02",
+      "kind": "portrait",
+      "world": "city",
+      "area": "colossus_gym",
+      "scene": null,
+      "mood": [],
+      "time": null,
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/portrait.gym.lifter_02/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 160,
+            "height": 160
+          }
+        }
+      ],
+      "source": "assets/sprites/portrait.gym.lifter_02/rev1/source"
+    },
+    {
+      "id": "portrait.gym.lifter_03",
+      "kind": "portrait",
+      "world": "city",
+      "area": "colossus_gym",
+      "scene": null,
+      "mood": [],
+      "time": null,
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/portrait.gym.lifter_03/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 160,
+            "height": 160
+          }
+        }
+      ],
+      "source": "assets/sprites/portrait.gym.lifter_03/rev1/source"
+    },
+    {
       "id": "portrait.hero_hooded",
       "kind": "portrait",
       "world": "city",
@@ -767,14 +987,22 @@
       "icon.item.tee_oldgym",
       "icon.item.vest_colossus",
       "icon.item.wraps_chalk",
+      "npc.guide_elder",
       "portrait.guide_elder",
+      "portrait.guide_elder.left",
       "portrait.hero_hooded"
     ],
     "colossus_gym": [
       "backdrop.colossus_gym.exterior_01",
       "backdrop.colossus_gym.interior_01",
       "npc.colossus",
-      "portrait.colossus"
+      "npc.gym.lifter_01",
+      "npc.gym.lifter_02",
+      "npc.gym.lifter_03",
+      "portrait.colossus",
+      "portrait.gym.lifter_01",
+      "portrait.gym.lifter_02",
+      "portrait.gym.lifter_03"
     ],
     "unassigned": [
       "hero.body.ev1",

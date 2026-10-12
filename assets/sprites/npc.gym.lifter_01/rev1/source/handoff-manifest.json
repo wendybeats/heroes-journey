@@ -1,0 +1,673 @@
+{
+  "schemaVersion": 1,
+  "artSet": "under_city_npcs_v3",
+  "created": "2026-10-12",
+  "status": "approved_lifter_sprites_with_revised_portraits_for_review",
+  "scope": "Three approved lifter sprites retained byte-for-byte; Cairon turned screen-left in sprite and portrait; three lifter portraits revised toward the approved chunky pixel style.",
+  "runtimeIntegration": "Not registered in the app. These are source-art IDs; preserve canonical runtime IDs when integrating.",
+  "spriteContract": {
+    "logicalCell": [
+      64,
+      128
+    ],
+    "exportCell": [
+      512,
+      1024
+    ],
+    "integerScale": 8,
+    "headTopRow": 12,
+    "soleRow": 122,
+    "anchor": [
+      32,
+      123
+    ],
+    "standingHeight": 111,
+    "alpha": "binary",
+    "render": "nearest-neighbor; same screen size per logical pixel as protagonist and Colossus"
+  },
+  "characters": [
+    {
+      "id": "bodybuilder-01",
+      "label": "Ash crop",
+      "summary": "Light skin · ash-brown crop · bionic hand",
+      "facing": "left",
+      "pose": "Arms folded; slight asymmetric smirk",
+      "portrait": "bodybuilder-01-portrait.png",
+      "sprite": "bodybuilder-01-sprite.png",
+      "logical": "logical/bodybuilder-01-sprite.png",
+      "portraitStatus": "pixel_style_revision",
+      "spriteStatus": "owner_approved_2026_10_12_byte_identical_to_v2"
+    },
+    {
+      "id": "bodybuilder-02",
+      "label": "Dark curls",
+      "summary": "Medium-brown skin · dark curls · neck implant",
+      "facing": "left",
+      "pose": "Arms folded; amused smirk",
+      "portrait": "bodybuilder-02-portrait.png",
+      "sprite": "bodybuilder-02-sprite.png",
+      "logical": "logical/bodybuilder-02-sprite.png",
+      "portraitStatus": "pixel_style_revision",
+      "spriteStatus": "owner_approved_2026_10_12_byte_identical_to_v2"
+    },
+    {
+      "id": "bodybuilder-03",
+      "label": "Shaved head",
+      "summary": "Deep-brown skin · shaved head · mechanical arm",
+      "facing": "left",
+      "pose": "Arms folded; quiet cocky smirk",
+      "portrait": "bodybuilder-03-portrait.png",
+      "sprite": "bodybuilder-03-sprite.png",
+      "logical": "logical/bodybuilder-03-sprite.png",
+      "portraitStatus": "pixel_style_revision",
+      "spriteStatus": "owner_approved_2026_10_12_byte_identical_to_v2"
+    },
+    {
+      "id": "cairon",
+      "label": "Cairon",
+      "summary": "Left-facing · thoughtful stance",
+      "facing": "left",
+      "pose": "One forearm crosses his body and supports the other elbow; hand at chin",
+      "portrait": "cairon-portrait.png",
+      "sprite": "cairon-sprite.png",
+      "logical": "logical/cairon-sprite.png",
+      "portraitStatus": "approved_identity_direction_edit",
+      "spriteStatus": "direction_edit"
+    }
+  ],
+  "assets": [
+    {
+      "anchor": [
+        32,
+        123
+      ],
+      "binaryAlpha": true,
+      "byteIdenticalToV2": true,
+      "dimensions": [
+        512,
+        1024
+      ],
+      "exact8xBlocks": true,
+      "file": "bodybuilder-01-sprite.png",
+      "id": "bodybuilder-01-sprite",
+      "kind": "gameplay_sprite",
+      "logical": "logical/bodybuilder-01-sprite.png",
+      "logicalBounds": [
+        10,
+        12,
+        53,
+        123
+      ],
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "palette": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#373B49",
+        "#4D5365",
+        "#697287",
+        "#9FACC8",
+        "#E4E9F4",
+        "#6FA9DC",
+        "#DDB087",
+        "#C18B66",
+        "#96664F",
+        "#67473E",
+        "#41333A",
+        "#302A2A",
+        "#58473D",
+        "#897567"
+      ],
+      "scale": 8,
+      "soleRow": 122,
+      "source": "source/bodybuilder-01-sprite.png",
+      "sourceBounds": [
+        166,
+        106,
+        799,
+        1755
+      ],
+      "sourceDimensions": [
+        887,
+        1774
+      ],
+      "standingHeight": 111,
+      "status": "owner_approved_2026_10_12",
+      "transparent": true,
+      "usedColorCount": 17,
+      "usedColors": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#302A2A",
+        "#373B49",
+        "#41333A",
+        "#4D5365",
+        "#58473D",
+        "#67473E",
+        "#697287",
+        "#897567",
+        "#96664F",
+        "#9FACC8",
+        "#C18B66",
+        "#DDB087",
+        "#E4E9F4"
+      ]
+    },
+    {
+      "anchor": [
+        32,
+        123
+      ],
+      "binaryAlpha": true,
+      "byteIdenticalToV2": true,
+      "dimensions": [
+        512,
+        1024
+      ],
+      "exact8xBlocks": true,
+      "file": "bodybuilder-02-sprite.png",
+      "id": "bodybuilder-02-sprite",
+      "kind": "gameplay_sprite",
+      "logical": "logical/bodybuilder-02-sprite.png",
+      "logicalBounds": [
+        10,
+        12,
+        53,
+        123
+      ],
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "palette": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#373B49",
+        "#4D5365",
+        "#697287",
+        "#9FACC8",
+        "#E4E9F4",
+        "#6FA9DC",
+        "#C8946E",
+        "#A37152",
+        "#7E503D",
+        "#56352E",
+        "#38262A",
+        "#15141C",
+        "#302A32",
+        "#51414A"
+      ],
+      "scale": 8,
+      "soleRow": 122,
+      "source": "source/bodybuilder-02-sprite.png",
+      "sourceBounds": [
+        161,
+        108,
+        793,
+        1734
+      ],
+      "sourceDimensions": [
+        887,
+        1774
+      ],
+      "standingHeight": 111,
+      "status": "owner_approved_2026_10_12",
+      "transparent": true,
+      "usedColorCount": 16,
+      "usedColors": [
+        "#101118",
+        "#101522",
+        "#15141C",
+        "#1B1D27",
+        "#282B36",
+        "#302A32",
+        "#373B49",
+        "#38262A",
+        "#4D5365",
+        "#51414A",
+        "#56352E",
+        "#697287",
+        "#7E503D",
+        "#9FACC8",
+        "#A37152",
+        "#C8946E"
+      ]
+    },
+    {
+      "anchor": [
+        32,
+        123
+      ],
+      "binaryAlpha": true,
+      "byteIdenticalToV2": true,
+      "dimensions": [
+        512,
+        1024
+      ],
+      "exact8xBlocks": true,
+      "file": "bodybuilder-03-sprite.png",
+      "id": "bodybuilder-03-sprite",
+      "kind": "gameplay_sprite",
+      "logical": "logical/bodybuilder-03-sprite.png",
+      "logicalBounds": [
+        10,
+        12,
+        54,
+        123
+      ],
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "palette": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#373B49",
+        "#4D5365",
+        "#697287",
+        "#9FACC8",
+        "#E4E9F4",
+        "#6FA9DC",
+        "#A77757",
+        "#84573F",
+        "#623D2E",
+        "#43291F",
+        "#2D1E22"
+      ],
+      "scale": 8,
+      "soleRow": 122,
+      "source": "source/bodybuilder-03-sprite.png",
+      "sourceBounds": [
+        237,
+        43,
+        823,
+        1508
+      ],
+      "sourceDimensions": [
+        1024,
+        1536
+      ],
+      "standingHeight": 111,
+      "status": "owner_approved_2026_10_12",
+      "transparent": true,
+      "usedColorCount": 15,
+      "usedColors": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#2D1E22",
+        "#373B49",
+        "#43291F",
+        "#4D5365",
+        "#623D2E",
+        "#697287",
+        "#6FA9DC",
+        "#84573F",
+        "#9FACC8",
+        "#A77757",
+        "#E4E9F4"
+      ]
+    },
+    {
+      "binaryAlpha": true,
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "exact8xBlocks": true,
+      "facing": "left",
+      "file": "bodybuilder-01-portrait.png",
+      "id": "bodybuilder-01-portrait",
+      "kind": "dialogue_portrait",
+      "logical": "logical/portraits/bodybuilder-01-portrait.png",
+      "logicalBounds": [
+        9,
+        5,
+        156,
+        160
+      ],
+      "logicalDimensions": [
+        160,
+        160
+      ],
+      "palette": [
+        "#0D101F",
+        "#BF7753",
+        "#995B45",
+        "#EFA76B",
+        "#171A2D",
+        "#29324E",
+        "#C47D56",
+        "#EBA266",
+        "#EDA669",
+        "#EFA769",
+        "#F0A96D",
+        "#292C40",
+        "#704D41",
+        "#232333",
+        "#4E3835",
+        "#715E5C",
+        "#757984",
+        "#4E454D",
+        "#9A644C",
+        "#F7B77B",
+        "#F9C088",
+        "#2B3451",
+        "#524852",
+        "#6FA9DC"
+      ],
+      "scale": 8,
+      "source": "source/bodybuilder-01-portrait.png",
+      "strictLogicalGrid": true,
+      "transparent": true,
+      "usedColorCount": 24,
+      "usedColors": [
+        "#0D101F",
+        "#171A2D",
+        "#232333",
+        "#292C40",
+        "#29324E",
+        "#2B3451",
+        "#4E3835",
+        "#4E454D",
+        "#524852",
+        "#6FA9DC",
+        "#704D41",
+        "#715E5C",
+        "#757984",
+        "#995B45",
+        "#9A644C",
+        "#BF7753",
+        "#C47D56",
+        "#EBA266",
+        "#EDA669",
+        "#EFA769",
+        "#EFA76B",
+        "#F0A96D",
+        "#F7B77B",
+        "#F9C088"
+      ]
+    },
+    {
+      "binaryAlpha": true,
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "exact8xBlocks": true,
+      "facing": "left",
+      "file": "bodybuilder-02-portrait.png",
+      "id": "bodybuilder-02-portrait",
+      "kind": "dialogue_portrait",
+      "logical": "logical/portraits/bodybuilder-02-portrait.png",
+      "logicalBounds": [
+        9,
+        5,
+        158,
+        160
+      ],
+      "logicalDimensions": [
+        160,
+        160
+      ],
+      "palette": [
+        "#2F3A5C",
+        "#0D0D19",
+        "#8E513C",
+        "#373E59",
+        "#E29760",
+        "#664F4A",
+        "#656971",
+        "#B96E48",
+        "#D08452",
+        "#5D3C35",
+        "#854B39",
+        "#EEA569",
+        "#F0AF76",
+        "#D78C59",
+        "#DB905A",
+        "#31272D",
+        "#232B48",
+        "#A86142",
+        "#B06846",
+        "#151625",
+        "#1D2542",
+        "#D48956",
+        "#D78B57",
+        "#6FA9DC"
+      ],
+      "scale": 8,
+      "source": "source/bodybuilder-02-portrait.png",
+      "strictLogicalGrid": true,
+      "transparent": true,
+      "usedColorCount": 24,
+      "usedColors": [
+        "#0D0D19",
+        "#151625",
+        "#1D2542",
+        "#232B48",
+        "#2F3A5C",
+        "#31272D",
+        "#373E59",
+        "#5D3C35",
+        "#656971",
+        "#664F4A",
+        "#6FA9DC",
+        "#854B39",
+        "#8E513C",
+        "#A86142",
+        "#B06846",
+        "#B96E48",
+        "#D08452",
+        "#D48956",
+        "#D78B57",
+        "#D78C59",
+        "#DB905A",
+        "#E29760",
+        "#EEA569",
+        "#F0AF76"
+      ]
+    },
+    {
+      "binaryAlpha": true,
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "exact8xBlocks": true,
+      "facing": "left",
+      "file": "bodybuilder-03-portrait.png",
+      "id": "bodybuilder-03-portrait",
+      "kind": "dialogue_portrait",
+      "logical": "logical/portraits/bodybuilder-03-portrait.png",
+      "logicalBounds": [
+        11,
+        5,
+        157,
+        160
+      ],
+      "logicalDimensions": [
+        160,
+        160
+      ],
+      "palette": [
+        "#D2834F",
+        "#101124",
+        "#21294F",
+        "#41486E",
+        "#5B617E",
+        "#7A7787",
+        "#A88C81",
+        "#A49B9E",
+        "#E1D6CF",
+        "#8A4A34",
+        "#9E563A",
+        "#212034",
+        "#643729",
+        "#B1633F",
+        "#BF6E44",
+        "#303D6B",
+        "#575569",
+        "#37384F",
+        "#524C5C",
+        "#BA6D46",
+        "#C07146",
+        "#070714",
+        "#090B1A",
+        "#6FA9DC"
+      ],
+      "scale": 8,
+      "source": "source/bodybuilder-03-portrait.png",
+      "strictLogicalGrid": true,
+      "transparent": true,
+      "usedColorCount": 24,
+      "usedColors": [
+        "#070714",
+        "#090B1A",
+        "#101124",
+        "#212034",
+        "#21294F",
+        "#303D6B",
+        "#37384F",
+        "#41486E",
+        "#524C5C",
+        "#575569",
+        "#5B617E",
+        "#643729",
+        "#6FA9DC",
+        "#7A7787",
+        "#8A4A34",
+        "#9E563A",
+        "#A49B9E",
+        "#A88C81",
+        "#B1633F",
+        "#BA6D46",
+        "#BF6E44",
+        "#C07146",
+        "#D2834F",
+        "#E1D6CF"
+      ]
+    },
+    {
+      "anchor": [
+        32,
+        123
+      ],
+      "binaryAlpha": true,
+      "dimensions": [
+        512,
+        1024
+      ],
+      "exact8xBlocks": true,
+      "facing": "left",
+      "file": "cairon-sprite.png",
+      "id": "cairon-sprite",
+      "kind": "gameplay_sprite",
+      "logical": "logical/cairon-sprite.png",
+      "logicalBounds": [
+        15,
+        12,
+        49,
+        123
+      ],
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "palette": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#373B49",
+        "#4D5365",
+        "#697287",
+        "#9FACC8",
+        "#E4E9F4",
+        "#6FA9DC",
+        "#E0B188",
+        "#C48C64",
+        "#A86F50",
+        "#7A5144",
+        "#4F3635",
+        "#676875",
+        "#A7A6AA",
+        "#D2D4DC"
+      ],
+      "scale": 8,
+      "soleRow": 122,
+      "source": "source/cairon-sprite.png",
+      "standingHeight": 111,
+      "transparent": true,
+      "usedColorCount": 15,
+      "usedColors": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#373B49",
+        "#4D5365",
+        "#676875",
+        "#697287",
+        "#7A5144",
+        "#9FACC8",
+        "#A7A6AA",
+        "#A86F50",
+        "#C48C64",
+        "#D2D4DC",
+        "#E0B188"
+      ]
+    },
+    {
+      "binaryAlpha": false,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "facing": "left",
+      "file": "cairon-portrait.png",
+      "id": "cairon-portrait",
+      "kind": "dialogue_portrait",
+      "note": "Direction edit of approved identity portrait; original retained in reference.",
+      "source": "source/cairon-portrait.png",
+      "strictLogicalGrid": false,
+      "transparent": true
+    }
+  ],
+  "referenceRoles": {
+    "reference/player-body.png": "Protagonist scale and pixel style only",
+    "reference/colossus-sprite.png": "Existing Colossus v5; size comparison only",
+    "reference/cairon-approved-portrait.png": "Immutable approved wise-guide identity; copied unchanged"
+  },
+  "preview": "preview.html",
+  "prompts": "prompts.json",
+  "validation": "validation.json",
+  "revision": 3,
+  "supersedes": "under_city_npcs_v2",
+  "portraitContract": {
+    "lifterLogicalCell": [
+      160,
+      160
+    ],
+    "lifterExportCell": [
+      1280,
+      1280
+    ],
+    "integerScale": 8,
+    "maxOpaqueColors": 24,
+    "alpha": "binary",
+    "cairon": "Direction edit of approved portrait; original detailed pixel treatment retained, no strict export grid."
+  },
+  "directionRule": "NPCs face screen-left; protagonist faces screen-right. Player reference is retained unchanged for scale only."
+}

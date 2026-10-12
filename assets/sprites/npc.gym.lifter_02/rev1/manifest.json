@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "npc.gym.lifter_02",
+  "revision": 1,
+  "status": "review",
+  "kind": "body",
+  "canvas": {
+    "width": 64,
+    "height": 128
+  },
+  "pivot": {
+    "x": 32,
+    "y": 123
+  },
+  "layer_order": 0,
+  "max_palette_colors": 24,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner handoff 2026-10-12 (under-city-npcs-v3). The lifter with the neck implant: medium-brown skin, dark curls, arms folded, amused smirk. 64x128 logical cell, 111 px standing height, feet on row 122, anchor (32,123), binary alpha. Faces screen-left; only the hero faces right. Same pixel scale as the hero, never fitted. Doc 33 challenger; one still, lean/glow/dash are code.",
+  "world": "city",
+  "area": "colossus_gym",
+  "scene": "gym_floor",
+  "mood": [
+    "iron",
+    "grit"
+  ],
+  "time": "night"
+}

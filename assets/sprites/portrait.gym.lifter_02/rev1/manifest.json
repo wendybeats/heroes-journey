@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "portrait.gym.lifter_02",
+  "revision": 1,
+  "status": "review",
+  "kind": "portrait",
+  "canvas": {
+    "width": 160,
+    "height": 160
+  },
+  "pivot": {
+    "x": 80,
+    "y": 159
+  },
+  "layer_order": 0,
+  "max_palette_colors": 24,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner handoff 2026-10-12 (under-city-npcs-v3): dialogue portrait on a 160x160 logical grid, at most 24 opaque colours, binary alpha, faces screen-left; rendered nearest-neighbour. Doc 33 challenger card.",
+  "world": "city",
+  "area": "colossus_gym"
+}
