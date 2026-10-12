@@ -40,7 +40,7 @@ The player never sees "strength 20 wins". They see the attribute and one of thre
 - Bands shown: **Likely** (p ≥ 0.75), **Even** (0.45–0.75), **Long shot** (< 0.45). The exact p is never shown.
 - Worked example, dev-5, Level 8 (threshold 1386 → share ≈ 35, standard D = 28, spread ≈ 9): strength 60 → p ≈ 0.97 Likely; strength 30 → 0.55 Even; strength 12 → 0.15 Long shot.
 
-Optional later: the day's logged minutes in the tested family shift `stat` by a small bonus so a casual player can "train for it" the same day. Not in the first build.
+Optional later (not in the first build): the day's logged minutes in the tested family shift `stat` by a small bonus so a casual player can "train for it" the same day. Not in the first build.
 
 ### Resolution is a fact
 - A new event kind on `ActivityEvent`: `challenge: ChallengeReference { challengeID, attributeID, difficulty, stat, roll }` alongside `goal`, `quest`, `bond`. The roll is recorded in the event (seeded by challenge id + day, like the quest reward roll), so the fact is immutable and replays identically.
@@ -52,10 +52,30 @@ Optional later: the day's logged minutes in the tested family shift `stat` by a 
 - A declined offer is gone for the day; it does not nag.
 - Repeats are expected: each challenger has 2–3 offer/win/lose sets so the third meeting reads differently.
 
-### Surface
-- **Card on Home**, under the goals card: challenger portrait (the existing `SpeakerPortrait`), eyebrow with the attribute tested, the offer line, the band word in the attribute's colour (`NeoTokyo.Attribute.color(for:)`), "Accept" (filled) and "Not today" (quiet).
-- **Outcome**: the same card flips to the result line and a `RewardMoment`-style grant (+5 Strength or +8 XP) through the existing reward overlay. Eyebrow "Challenge won" / "Challenge lost".
-- Ledger row title: "{challenger}'s challenge". History shows it like a goal.
+### Surface (owner 2026-10-12)
+- **Offer card**: a glass card at the top of Home, under the toolbar row and clear of the status bar, over the scene. Contents: the challenge name, the attribute tested (in that attribute's colour), the difficulty word, and a small dialogue-portrait card of the challenger. "Accept" filled; "Not today" small and quiet. It can be dismissed for the day.
+- **The clash** (full-screen cover, the precursor to the Gym fight): the area's wide scroller backdrop, still. Hero on the left, challenger on the right, both idle. A large "3 · 2 · 1" counts down; both sprites lean in, glow gold then white, and dash to the centre; an anime flash blooms where they meet and whites out the screen. Characters reset to idle, then the **result card** (same shape as the reward moment: "Challenge won / lost", the grant, Continue) and then the **aftermath exchange** as a story scene (2–3 beats, challenger and hero or Cairon), which sells the character: Cairon mentors, the lifter needs the gym or chicken immediately, the courier is already leaving, the old man answers sideways. Reduce Motion: no dash or flash, straight to the result.
+- **Art needed per challenger**: one dialogue portrait (same spec as `portrait.colossus`) and one full-body idle still on the hero canvas (64×128, `kind: body`, one frame; lean, glow and dash are done in code by skew, tint and offset). Cairon needs the body still too; his portrait exists. The owner is adding Cairon plus three challenger sprite variants.
+
+### Rewards scale with difficulty (owner 2026-10-12)
+| Difficulty | `D` multiple | Win: points in the tested attribute | Win: XP | Lose |
+|---|---|---|---|---|
+| easy | 0.6 | 3 | 6 | see below |
+| standard | 0.8 | 5 | 10 | see below |
+| hard | 1.1 | 8 | 16 | see below |
+
+Ruleset block `challenge_grant: { "easy": {"points": 3, "xp": 6}, "standard": {"points": 5, "xp": 10}, "hard": {"points": 8, "xp": 16}, "lose_xp": <decision> }`. For scale a primary goal is 30 XP / 3 points, so a hard win is under a goal of XP and under three goals of stat.
+
+**Losing and XP: the rule conflict.** The owner asked for a loss to cost a little XP, for risk. Architecture rule 4 says earned rewards are permanent, and the level ledger assumes XP never falls (story beats, evolutions and unlocks all key off level reached). Options, in order of preference:
+1. **A loss grants nothing and is remembered.** The challenger's next offer references it (the sets already do), the ledger shows the loss, and the aftermath carries the sting. Risk is social, not numeric; rule 4 intact.
+2. **A loss costs XP within the current level.** `lose_xp` negative (−4 / −6 / −10 by difficulty), floored so total XP never drops below the current level's threshold: a loss can slow the next level but never undo one. Rule 4 gets a recorded exception ("a challenge is a wager; the stake is XP above the current level"). The engine already supports negative proposals through the normal fact path; nothing is rewritten.
+3. **Stake up front.** Accepting costs the stake, a win returns it plus the grant. Same ledger math as 2, reads as a bet. Not recommended: it makes "Not today" the safe default.
+Recommendation: 1 for the first build; if the owner reaffirms the XP cost, 2 with the level floor.
+
+### Cadence: average 2–4 a week (owner 2026-10-12)
+- An offer is rolled once per day at the stage screen, seeded by day: `challenge_cadence: { "from_level": 2, "chance_per_day": 0.45, "min_gap_days": 1, "max_gap_days": 3 }`. No offers on consecutive days; a guaranteed offer on the third quiet day. Expected rate about 3 a week, range 2.3–3.5 depending on gaps; the simulator reports the realised rate per persona.
+- Not offered on a day with an unclaimed cache or a held beat waiting on a quest (the story owns that day).
+- The challenger is chosen from those available at the player's progress, cycling so the same one does not repeat twice running; the set within a challenger advances with each meeting.
 
 ### Content shape
 ```json
@@ -90,6 +110,10 @@ Cairon's entry has `"attribute_id": "random"` and one set per attribute (E.3). C
 | 44 | Story-aware goal lines; Row rumours | generator weighting; eyebrow line | E.6, E.7 | 40 |
 
 Each increment ships behind its content: a field with no lines renders nothing, so code can land before the writing. Balance: increments 41 and 43 run through `Tools/simulate_progression.py` before the ruleset edit is accepted (a win every two days must not move Level 10 by more than a day).
+
+## F. Drafts
+
+First drafts of every line in §E (except E.8/E.9 art) are in `Content/v1/drafts/between-beats.json`, not loaded by the app; `Tools/export_between_beats_inventory.py` renders them for the owner's REPLACE / KEEP / CUT pass. Each block moves into `bundle.json` under its final key when the increment that reads it lands, so the ids are canonical from now.
 
 ## E. Content inventory (to be written separately and placed back here)
 
