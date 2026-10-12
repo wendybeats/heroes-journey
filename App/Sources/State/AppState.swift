@@ -518,19 +518,15 @@ final class AppState {
         guard let i = challengeOffers.firstIndex(where: { $0.day == today && $0.isOpen }) else { return }
         challengeOffers[i].declined = true; save()
     }
-    #if DEBUG
-    /// nil = roll; true/false forces the outcome (dev controls).
+    /// nil = roll; true/false forces the outcome (dev controls only set it).
     var devForcedOutcome: Bool?
-    #endif
     /// Accept today's offer: roll once (seeded), write the fact, queue it, return what the clash should play. Idempotent per offer.
     func acceptChallenge() -> ChallengeOutcome? {
         guard let i = challengeOffers.firstIndex(where: { $0.day == today && $0.isOpen }), let challenge = bundle.challenge(challengeOffers[i].challengeID),
               let set = challenge.set(forMeeting: challengeOffers[i].setIndex) else { return nil }
         let o = odds(for: challenge)
         var roll = ChallengeMath.roll(seed: "\(userID.rawValue.uuidString)|\(challenge.id.rawValue)|\(today.rawValue)|roll")
-        #if DEBUG
         if let forced = devForcedOutcome { roll = forced ? 0 : 0.999_999 }
-        #endif
         let ref = ChallengeReference(challengeID: challenge.id, characterID: challenge.characterID.rawValue, attributeID: challenge.attributeID, difficulty: challenge.difficulty,
                                      stat: o.stat, trainingBonus: o.bonus, target: o.target, probability: o.probability, roll: roll, won: roll < o.probability, setIndex: challengeOffers[i].setIndex)
         let family = o.helpingFamilies.first ?? goalPreferences.primaryFamily
@@ -548,14 +544,12 @@ final class AppState {
         guard let g = ruleset.challenges?.grant[outcome.challenge.difficulty] else { return (0, 0) }
         return outcome.won ? (g.xp, g.points) : (g.loseXP, 0)
     }
-    #if DEBUG
     /// Offer one now (dev controls), whatever the cadence says; replaces an open offer.
     func devOfferChallenge() {
         challengeOffers.removeAll { $0.day == today && $0.isOpen }
         offerChallenge(seed: "\(userID.rawValue.uuidString)|\(today.rawValue)|dev\(challengeOffers.count)")
         devToken += 1
     }
-    #endif
 
     // MARK: debug controls (DEBUG builds only; owner QA 2026-10-05). None of these create facts the engine
     // would not have created; they move time, swap the ruleset variant, or regenerate a plan.
