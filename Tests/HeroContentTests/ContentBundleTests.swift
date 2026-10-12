@@ -32,7 +32,7 @@ final class ContentBundleTests: XCTestCase {
         let ruleset = try ProgressionRuleset.decode(RepoFiles.data("Content/v1/ruleset.dev-5.json"))
         XCTAssertEqual(ruleset.status, .dev, "dev balance must stay marked dev until simulated")
         XCTAssertEqual(ruleset.levelThresholdsTotalXP.count, 100, "100 levels (owner, 2026-10-02)")
-        XCTAssertEqual(ruleset.dailyActivityXPCap, 40)
+        XCTAssertEqual(ruleset.dailyActivityXPCap, 120, "dev-5e: a session and a non-workout action both fit in a day")
         XCTAssertEqual(ruleset.bondGrant, .init(xp: 12, primaryPoints: 6, secondaryPoints: 4))
         XCTAssertEqual(ruleset.levelThresholdsTotalXP.first, 0)
         XCTAssertEqual(ruleset.levelThresholdsTotalXP, ruleset.levelThresholdsTotalXP.sorted(), "monotonic")

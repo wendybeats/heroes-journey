@@ -72,7 +72,7 @@ A hard challenge paying 8 permanent attribute points next to a primary real-worl
 
 ### Cadence: 2–4 a week on average
 - One roll per day at the stage screen, seeded by day. Ruleset `challenge_cadence: { from_level: 2, chance_per_day: 0.45, min_gap_days: 1, max_gap_days: 3 }`: never two days running, guaranteed by the third quiet day. Expected about 3 a week, range roughly 2.3–3.5. The simulator reports the realised rate per persona.
-- Not offered on a day with an unclaimed cache or a held beat (the story owns that day).
+- Not offered on a day with an unclaimed cache. (A held beat no longer blocks offers: a hold can last days, and the owner saw four quiet days at Level 6.) The first eligible day always offers.
 - The challenger is chosen from those available at the player's progress, cycling so the same one is not offered twice running. The set within a challenger advances with each meeting, so the third meeting reads differently.
 - An offer stays on the card until the player declines it or the day ends, so there is time to train for it. A declined offer is gone for the day and does not nag.
 

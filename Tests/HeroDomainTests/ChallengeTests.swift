@@ -93,6 +93,7 @@ final class ChallengeTests: XCTestCase {
         let perWeek = Double(offers) / 52
         XCTAssertGreaterThan(perWeek, 2.0, "\(perWeek)"); XCTAssertLessThan(perWeek, 4.0, "\(perWeek)")
         XCTAssertFalse(ChallengeMath.offersToday(level: 1, daysSinceLastOffer: nil, seed: "x", ruleset: r), "not before from_level")
+        XCTAssertTrue(ChallengeMath.offersToday(level: 2, daysSinceLastOffer: nil, seed: "x", ruleset: r), "the first eligible day always offers")
     }
 
     func testChallengeReferenceRoundTrips() throws {

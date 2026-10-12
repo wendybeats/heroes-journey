@@ -55,8 +55,9 @@ struct HomeView: View {
                     // companion world comes first, then today's goals, then progression, then utility.
                     sceneCard(snapshot)
                     VStack(spacing: NeoTokyo.Spacing.lg) {
-                        // Doc 33 (owner build notes 2026-10-12): today's challenge offer sits inline under the character.
+                        // Doc 33 (owner build notes 2026-10-12): today's challenge offer overlaps the foot of the scene and slides in.
                         ChallengeCard { if let outcome = state.acceptChallenge() { clash = outcome } }
+                            .padding(.top, -96)
                         attributesRow(snapshot)
                         GoalsCard()
                         storyCard
@@ -64,6 +65,7 @@ struct HomeView: View {
                         weekCard
                     }
                     .padding(.horizontal, NeoTokyo.Spacing.lg)
+                    .animation(.spring(duration: 0.55, bounce: 0.2), value: state.todayOffer?.challengeID)
                 }
                 .padding(.bottom, 96)
             }
@@ -71,37 +73,15 @@ struct HomeView: View {
             .background(NeoTokyo.Surface.base)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button { showHistory = true } label: { Image(systemName: "clock.arrow.circlepath") }
-                        .foregroundStyle(NeoTokyo.Text.secondary)
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    // The room arrives with the story (milestone `unlock_feature: home_room`), not at install.
-                    if state.hasFeature("home_room") {
-                        Button { showRoom = true } label: { Image(systemName: "house") }
-                            .foregroundStyle(NeoTokyo.Text.secondary)
-                    }
-                }
-                #if DEBUG
-                ToolbarItem(placement: .topBarLeading) {
-                    Button { showDev = true } label: { Image(systemName: "wrench.and.screwdriver") }
-                        .foregroundStyle(NeoTokyo.Text.muted)
-                }
-                #endif
+            .toolbar(.hidden, for: .navigationBar)
+            // Owner 2026-10-12: a glass bottom nav (history · + · room) instead of a top bar over the XP row; one FAB logs anything.
+            .safeAreaInset(edge: .bottom) { bottomNav }
+            .sheet(isPresented: $showLog) {
+                LogSheet(onTrackWorkout: {
+                    showLog = false
+                    Task { @MainActor in try? await Task.sleep(for: .milliseconds(450)); showWorkout = true }
+                })
             }
-            .safeAreaInset(edge: .bottom) {
-                HStack(spacing: NeoTokyo.Spacing.sm) {
-                    Button(state.activeWorkout == nil ? "Start workout" : "Resume workout") { showWorkout = true }
-                        .buttonStyle(PrimaryButtonStyle())
-                    Button("Log activity") { showLog = true }
-                        .buttonStyle(SecondaryButtonStyle())
-                }
-                .padding(.horizontal, NeoTokyo.Spacing.lg)
-                .padding(.bottom, NeoTokyo.Spacing.sm)
-                .background(NeoTokyo.Surface.base.opacity(0.92))
-            }
-            .sheet(isPresented: $showLog) { LogSheet() }
             .fullScreenCover(isPresented: $showWorkout) { WorkoutView() }
             .sheet(isPresented: $showHistory) { HistoryView() }
             .fullScreenCover(item: $departure) { run in DepartureView(run: run) }
@@ -260,6 +240,41 @@ struct HomeView: View {
         }
     }
 
+    /// Glass bottom nav: history on the left, the room on the right, one FAB in the middle that logs anything
+    /// (the strength logger is reached from inside it). Dev controls keep their wrench in debug builds.
+    private var bottomNav: some View {
+        HStack(spacing: NeoTokyo.Spacing.lg) {
+            Button { showHistory = true } label: { Image(systemName: "clock.arrow.circlepath").font(HeroFont.headline).frame(width: 44, height: 44) }
+                .foregroundStyle(NeoTokyo.Text.secondary)
+            #if DEBUG
+            Button { showDev = true } label: { Image(systemName: "wrench.and.screwdriver").font(HeroFont.headline).frame(width: 44, height: 44) }
+                .foregroundStyle(NeoTokyo.Text.muted)
+            #endif
+            Spacer()
+            Button { showLog = true } label: {
+                Image(systemName: "plus").font(.system(size: 26, weight: .semibold))
+                    .foregroundStyle(NeoTokyo.Text.onAccent)
+                    .frame(width: 60, height: 60)
+                    .background(NeoTokyo.Accent.button, in: Circle())
+                    .shadow(color: NeoTokyo.Surface.scrim.opacity(0.5), radius: 10, y: 4)
+            }
+            .accessibilityLabel("Log")
+            .offset(y: -10)
+            Spacer()
+            if state.hasFeature("home_room") {
+                Button { showRoom = true } label: { Image(systemName: "house").font(HeroFont.headline).frame(width: 44, height: 44) }
+                    .foregroundStyle(NeoTokyo.Text.secondary)
+            } else {
+                Color.clear.frame(width: 44, height: 44)
+            }
+        }
+        .padding(.horizontal, NeoTokyo.Spacing.lg)
+        .padding(.vertical, NeoTokyo.Spacing.xs)
+        .glass(cornerRadius: NeoTokyo.Radius.lg, tint: NeoTokyo.Surface.overlay)
+        .padding(.horizontal, NeoTokyo.Spacing.lg)
+        .padding(.bottom, NeoTokyo.Spacing.xs)
+    }
+
     /// Manual beats (boss encounters) wait on the card until the player starts them.
     @ViewBuilder
     private var storyCard: some View {
@@ -342,7 +357,7 @@ struct HomeView: View {
             GeometryReader { geo in
                 progressRow(snapshot)
                     .padding(.horizontal, NeoTokyo.Spacing.lg)
-                    .padding(.top, geo.safeAreaInsets.top + 48)
+                    .padding(.top, geo.safeAreaInsets.top + 12)
                     .frame(maxWidth: .infinity, alignment: .top)
             }
         }
@@ -377,6 +392,8 @@ struct HomeView: View {
         HStack {
             ForEach(state.bundle.attributes, id: \.id) { attribute in
                 VStack(spacing: 2) {
+                    // Owner 2026-10-12: the glyph sits with every stat so the icon alone comes to mean it.
+                    Image(systemName: AttributeGlyph.symbol(for: attribute.id)).font(HeroFont.caption).foregroundStyle(NeoTokyo.Attribute.color(for: attribute.id.rawValue))
                     CountingText(value: Double(snapshot.attributes[attribute.id] ?? 0), font: HeroFont.statSM, color: NeoTokyo.Attribute.color(for: attribute.id.rawValue))
                     Text(attribute.displayName).font(HeroFont.label).foregroundStyle(NeoTokyo.Text.secondary)
                 }
@@ -425,25 +442,37 @@ struct HomeView: View {
 
     // MARK: utility (numbers in white; owner decision 2026-09-28)
 
+    /// Owner 2026-10-12: the week as a chart. One column per day; a lit glyph for each attribute that saw
+    /// meaningful effort (ten minutes or more in a family that feeds it). The totals stay, smaller, underneath.
     private var weekCard: some View {
         VStack(alignment: .leading, spacing: NeoTokyo.Spacing.md) {
             Eyebrow(text: "This week")
-            HStack(alignment: .firstTextBaseline, spacing: NeoTokyo.Spacing.xl) {
-                StatNumber(value: state.weekMinutes, unit: "min")
-                StatNumber(value: state.weekSessions, unit: state.weekSessions == 1 ? "session" : "sessions")
-                Spacer()
-            }
-            let byFamily = state.weekMinutesByFamily
-            if !byFamily.isEmpty {
-                VStack(spacing: NeoTokyo.Spacing.xs) {
-                    ForEach(byFamily, id: \.family.id) { entry in
-                        HStack {
-                            Text(entry.family.displayName).font(HeroFont.callout).foregroundStyle(NeoTokyo.Text.primary)
-                            Spacer()
-                            Text("\(entry.minutes) min").font(HeroFont.captionNumber).foregroundStyle(NeoTokyo.Text.secondary)
+            HStack(alignment: .top, spacing: 0) {
+                ForEach(Array(state.weekEffort.enumerated()), id: \.offset) { pair in
+                    let day = pair.element
+                    VStack(spacing: NeoTokyo.Spacing.xs) {
+                        Text(day.day.formatted(.dateTime.weekday(.narrow)))
+                            .font(HeroFont.label).foregroundStyle(day.isToday ? NeoTokyo.Text.primary : NeoTokyo.Text.muted)
+                        VStack(spacing: 3) {
+                            ForEach(state.bundle.attributes, id: \.id) { attribute in
+                                let lit = day.attributes.contains(attribute.id)
+                                Image(systemName: AttributeGlyph.symbol(for: attribute.id))
+                                    .font(HeroFont.label)
+                                    .foregroundStyle(lit ? NeoTokyo.Attribute.color(for: attribute.id.rawValue) : NeoTokyo.Surface.line)
+                                    .opacity(lit ? 1 : 0.6)
+                            }
                         }
+                        .padding(.vertical, NeoTokyo.Spacing.xs)
+                        .frame(maxWidth: .infinity)
+                        .background(day.isToday ? NeoTokyo.Surface.overlay : .clear, in: RoundedRectangle(cornerRadius: NeoTokyo.Radius.sm, style: .continuous))
                     }
+                    .frame(maxWidth: .infinity)
                 }
+            }
+            HStack(alignment: .firstTextBaseline, spacing: NeoTokyo.Spacing.lg) {
+                StatNumber(value: state.weekMinutes, unit: "min", font: HeroFont.statSM)
+                StatNumber(value: state.weekSessions, unit: state.weekSessions == 1 ? "session" : "sessions", font: HeroFont.statSM)
+                Spacer()
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

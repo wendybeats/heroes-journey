@@ -129,3 +129,7 @@ Two quest variables, no threshold change (the derived curve still checks). `pity
 
 `attribute_points_per_xp` 0.5 → 0.1 (owner). At 0.5 a single-family player would reach about 21,000 in one attribute by Level 100 (42,359 total XP); at 0.1 the ceiling is about 4,200, with goals adding their own points on top. Attributes were already integers (points round down per fact; the UI rounds the animated counter), so no display change. Thresholds untouched; the curve check still passes. Existing ledgers keep their earlier points (facts are not re-priced).
 
+
+## dev-5e: the daily cap holds a whole day (2026-10-12)
+
+Owner QA: the 40 XP activity cap ran out before onboarding finished. The owner's budget for a day: a challenge, the three daily goals, a workout, and a non-workout action such as reading or studying. Challenges and goals were already outside the cap; the cap only let one of the two activities count. A 30-minute session is 60 + 15 base XP; 30 minutes of reading is 36 + 15. `daily_activity_xp_cap` 40 → 120 so both fit at full credit, with the taper still holding volume past 30 minutes per family. Thresholds re-derived with `Tools/derive_level_curve.py` so the days-per-level schedule is unchanged (Level 5 still about day 6.4 for the light persona, Level 10 about day 24): Level 5 is now 574 XP (was 467), Level 10 is 2054 (was 1700). The challenge odds target scales with these thresholds automatically.

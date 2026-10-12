@@ -18,7 +18,7 @@ struct DevControlsView: View {
                         row("Day offset", value: "\(state.devDayOffset) · \(state.today.year)-\(state.today.month)-\(state.today.day)")
                         Button("Advance one day") { state.devAdvanceDay() }.buttonStyle(SecondaryButtonStyle())
                         Button("Back to today") { state.devResetDay() }.buttonStyle(SecondaryButtonStyle())
-                        Text("New goals, the stage screen and a new daily quest. Activity XP today still counts the real calendar.")
+                        Text("Moves the app's clock a whole day: new goals, the stage screen, a new daily quest and a new challenge roll. Facts logged after this land on the advanced day; Health still reads the real calendar.")
                             .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
                     }
                     section("Quest") {

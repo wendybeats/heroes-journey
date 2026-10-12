@@ -99,10 +99,10 @@ public enum ChallengeMath {
     /// `daysSinceLastOffer` is nil when there has never been one.
     public static func offersToday(level: Int, daysSinceLastOffer: Int?, seed: String, ruleset: ProgressionRuleset) -> Bool {
         guard let c = ruleset.challenges?.cadence, level >= c.fromLevel else { return false }
-        if let gap = daysSinceLastOffer {
-            if gap <= c.minGapDays { return false }
-            if gap > c.maxGapDays { return true }
-        }
+        // Never offered yet: the first eligible day offers, so a new player meets the system at once.
+        guard let gap = daysSinceLastOffer else { return true }
+        if gap <= c.minGapDays { return false }
+        if gap > c.maxGapDays { return true }
         return roll(seed: seed) < c.chancePerDay
     }
 

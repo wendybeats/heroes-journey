@@ -167,7 +167,7 @@ final class AppState {
     }
     /// Real activity only: goal completions and quest returns are facts too, but not sessions.
     var activityEvents: [ActivityEvent] { visibleEvents.filter { $0.source != .goal && $0.source != .quest && $0.source != .bond && $0.source != .story && $0.source != .challenge } }
-    var todayEvents: [ActivityEvent] { activityEvents.filter { Calendar.current.isDateInToday($0.startedAt) }.sorted { $0.startedAt > $1.startedAt } }
+    var todayEvents: [ActivityEvent] { activityEvents.filter { Calendar.current.isDate($0.startedAt, inSameDayAs: now) }.sorted { $0.startedAt > $1.startedAt } }
     /// XP granted today to real activity (what the dev-5 daily cap counts).
     var todayActivityXP: Int {
         let ids = Set(todayEvents.map(\.id))
@@ -190,10 +190,25 @@ final class AppState {
     /// Events in the current calendar week (locale-aware week start). Facts only, no game math.
     var weekEvents: [ActivityEvent] {
         let cal = Calendar.current
-        guard let interval = cal.dateInterval(of: .weekOfYear, for: Date()) else { return [] }
+        guard let interval = cal.dateInterval(of: .weekOfYear, for: now) else { return [] }
         return activityEvents.filter { interval.contains($0.startedAt) }
     }
     var weekMinutes: Int { weekEvents.reduce(0) { $0 + $1.durationSeconds / 60 } }
+    /// Owner 2026-10-12: the week as a chart. For each day of the current week, the attributes that saw meaningful
+    /// effort (an activity of at least ten minutes in a family that feeds them). Facts only.
+    struct DayEffort { let day: Date; let isToday: Bool; let attributes: Set<AttributeID> }
+    var weekEffort: [DayEffort] {
+        let cal = Calendar.current
+        guard let interval = cal.dateInterval(of: .weekOfYear, for: now) else { return [] }
+        return (0..<7).compactMap { offset in
+            guard let day = cal.date(byAdding: .day, value: offset, to: interval.start) else { return nil }
+            var attrs: Set<AttributeID> = []
+            for e in activityEvents where cal.isDate(e.startedAt, inSameDayAs: day) && e.durationSeconds >= 10 * 60 {
+                attrs.insert(BondReference.attribute(forFamily: e.familyID.rawValue, ruleset: ruleset, fallback: "endurance"))
+            }
+            return DayEffort(day: day, isToday: cal.isDate(day, inSameDayAs: now), attributes: attrs)
+        }
+    }
     var weekSessions: Int { weekEvents.count }
     struct FamilyMinutes { let family: ContentBundle.Family; let minutes: Int }
     var weekMinutesByFamily: [FamilyMinutes] {
@@ -248,14 +263,14 @@ final class AppState {
     // MARK: logging → submission → receipt (the core loop)
 
     /// Records an immutable fact, queues it, and submits. The UI shows only the receipt.
-    func log(activityTypeID: ActivityTypeID, minutes: Int, sets: Int? = nil, distanceMeters: Int? = nil, rounds: Int? = nil, startedAt: Date = Date()) {
+    func log(activityTypeID: ActivityTypeID, minutes: Int, sets: Int? = nil, distanceMeters: Int? = nil, rounds: Int? = nil, startedAt: Date? = nil) {
         guard let type = bundle.activityType(activityTypeID) else { return }
-        let event = ActivityEvent(userID: userID, activityTypeID: type.id, familyID: type.familyID, startedAt: startedAt, durationSeconds: minutes * 60, source: .manual, verification: .selfReported,
+        let event = ActivityEvent(userID: userID, activityTypeID: type.id, familyID: type.familyID, startedAt: startedAt ?? now, durationSeconds: minutes * 60, source: .manual, verification: .selfReported,
                                   structuredSetCount: sets.flatMap { $0 > 0 ? $0 : nil }, distanceMeters: distanceMeters.flatMap { $0 > 0 ? $0 : nil }, rounds: rounds.flatMap { $0 > 0 ? $0 : nil })
         events.append(event)
-        let submission = ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: Date())
+        let submission = ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now)
         outbox.enqueue(submission)
-        evaluateGoals(now: Date())
+        evaluateGoals(now: now)
         save()
         Task { await drain(showReward: true) }
     }
@@ -302,7 +317,7 @@ final class AppState {
 
     func startWorkout() {
         guard activeWorkout == nil else { return }
-        activeWorkout = Workout(userID: userID, startedAt: Date())
+        activeWorkout = Workout(userID: userID, startedAt: now)
     }
 
     func discardWorkout() { activeWorkout = nil }
@@ -356,7 +371,7 @@ final class AppState {
     func suggestedWorkoutMinutes() -> Int {
         guard let w = activeWorkout else { return 45 }
         let sw = ruleset.structuredWorkout
-        let elapsed = w.elapsedMinutes(now: Date())
+        let elapsed = w.elapsedMinutes(now: now)
         if elapsed >= (sw?.liveThresholdMinutes ?? 5) { return Int(elapsed.rounded()) }
         return Int((sw?.defaultMinutes ?? 45).rounded())
     }
@@ -364,7 +379,7 @@ final class AppState {
     @discardableResult
     func finishWorkout(sessionMinutes: Int? = nil) -> Bool {
         guard var w = activeWorkout else { return false }
-        let now = Date()
+        let now = self.now
         w.endedAt = now
         let minutes = sessionMinutes.map { Double(max(1, $0)) }
         guard let event = w.makeActivityEvent(now: now, durationMinutes: minutes, weightliftingID: "weightlifting", calisthenicsID: "calisthenics", familyID: "strength") else { return false }
@@ -412,7 +427,7 @@ final class AppState {
         do {
             let firstSync = healthSync.anchor == nil
             let page = try await importer.fetchWorkouts(after: healthSync.anchor)
-            let now = Date()
+            let now = self.now
             // First sync: credit only the recent window; older workouts are kept as history (doc 15).
             let creditFrom: Date? = firstSync ? ruleset.healthHistoryWindowDays.map { now.addingTimeInterval(-Double($0) * 86_400) } : nil
             var importedCount = 0
@@ -453,17 +468,20 @@ final class AppState {
     /// Today's step total → `todaySteps`, then goal evaluation. A read failure leaves the last value.
     func refreshSteps() async {
         guard healthSync.authorization == .requested else { return }
-        guard let steps = try? await importer.fetchSteps(on: Date()) else { return }
+        guard let steps = try? await importer.fetchSteps(on: Date()) else { return }   // Health reads the real calendar
         let before = outbox.pending.count
         todaySteps = steps
-        evaluateGoals(now: Date())
+        evaluateGoals(now: now)
         if outbox.pending.count > before { save(); await drain(showReward: true) }
     }
 
     // MARK: daily goals (doc 24)
 
-    /// The app's day. `devDayOffset` (debug controls) shifts it so daily progression can be seen without waiting.
-    var today: DayKey { DayKey(Date().addingTimeInterval(TimeInterval(devDayOffset) * 86_400), calendar: .current) }
+    /// The app's clock. `devDayOffset` (debug controls) shifts it so daily progression can be seen without waiting;
+    /// everything day-sensitive (today's facts, goals, quests, offers, the week) reads this, never the wall clock
+    /// (owner QA 2026-10-12: an advanced day has to feel like a real one).
+    var now: Date { Date().addingTimeInterval(TimeInterval(devDayOffset) * 86_400) }
+    var today: DayKey { DayKey(now, calendar: .current) }
 
     // MARK: challenges (doc 33)
 
@@ -479,7 +497,7 @@ final class AppState {
     }
     /// One roll a day (doc 33 cadence), skipped while the story owns the day (unclaimed cache, held beat).
     private func rollChallengeOffer() {
-        guard !challengeOffers.contains(where: { $0.day == today }), unclaimedQuest == nil, heldBeat == nil else { return }
+        guard !challengeOffers.contains(where: { $0.day == today }), unclaimedQuest == nil else { return }
         let lastDay = challengeOffers.map(\.day).max()
         let gap = lastDay.map { today.daysSince($0, calendar: .current) }
         guard ChallengeMath.offersToday(level: snapshot.level, daysSinceLastOffer: gap, seed: "\(userID.rawValue.uuidString)|\(today.rawValue)|offer", ruleset: ruleset) else { return }
@@ -530,7 +548,7 @@ final class AppState {
         let ref = ChallengeReference(challengeID: challenge.id, characterID: challenge.characterID.rawValue, attributeID: challenge.attributeID, difficulty: challenge.difficulty,
                                      stat: o.stat, trainingBonus: o.bonus, target: o.target, probability: o.probability, roll: roll, won: roll < o.probability, setIndex: challengeOffers[i].setIndex)
         let family = o.helpingFamilies.first ?? goalPreferences.primaryFamily
-        let now = Date()
+        let now = self.now
         let event = ChallengeReference.makeEvent(ref, userID: userID, familyFallback: family, at: now)
         events.append(event)
         outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
@@ -564,7 +582,7 @@ final class AppState {
     /// Pull the active quest's return to now and resolve it.
     func devFinishQuest() {
         guard let i = questRuns.firstIndex(where: { !$0.isResolved }) else { return }
-        questRuns[i].returnsAt = Date()
+        questRuns[i].returnsAt = now
         resolveQuestIfDue()
     }
     /// Replay the Ascension takeover for the current tier (0 → current), with its scene.
@@ -618,11 +636,11 @@ final class AppState {
         guard recipe != nil else { return }
         rollChallengeOffer()
         guard todayPlan == nil else { return }
-        let plan = GoalGenerator.plan(generatorInputs(for: today), now: Date())
+        let plan = GoalGenerator.plan(generatorInputs(for: today), now: now)
         if startedOn == nil { startedOn = today }
         goalPlans.append(plan)
         goalPlans = goalPlans.filter { today.daysSince($0.day, calendar: .current) <= 30 }   // keep the repeat window, not forever
-        evaluateGoals(now: Date())
+        evaluateGoals(now: now)
         save()
         Task { await drain(showReward: false) }
     }
@@ -643,7 +661,7 @@ final class AppState {
     func completeGoal(_ goal: DailyGoal) {
         // Only manual goals can be self-reported; the rest complete from facts (dev-4, docs/21).
         guard !isCompleted(goal), template(for: goal)?.rule.isManual == true else { return }
-        record(goal, source: .manual, now: Date())
+        record(goal, source: .manual, now: now)
         save()
         Task { await drain(showReward: true) }
     }
@@ -675,7 +693,7 @@ final class AppState {
         recipe = newRecipe
         // Seal the bond: one permanent starting grant through the same engine (owner, 2026-10-02).
         guard ruleset.bondGrant != nil, !events.contains(where: { $0.source == .bond }) else { return }
-        let now = Date()
+        let now = self.now
         let event = BondReference.makeEvent(primaryFamily: preferences.primaryFamily, secondaryInterest: preferences.secondaryInterest, ruleset: ruleset, userID: userID, at: now)
         events.append(event)
         outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
@@ -710,7 +728,7 @@ final class AppState {
             r.backdropID = backdrop.id; recipe = r
         }
         if milestone.reward != nil, !events.contains(where: { $0.story?.milestoneID == milestone.id }) {
-            let now = Date()
+            let now = self.now
             let event = StoryReference.makeEvent(for: milestone, userID: userID, familyFallback: goalPreferences.primaryFamily, at: now)
             events.append(event)
             outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
@@ -752,7 +770,7 @@ final class AppState {
     /// Depart. One quest per day, only when today's goals are done; a quest already out blocks a second.
     func beginQuest(requestNotifications: Bool = true) async {
         guard let quest, questReady, activeQuest == nil, todayQuest == nil, ruleset.dailyQuest != nil else { return }
-        let now = Date()
+        let now = self.now
         let run = QuestRun(questID: quest.id, day: today, startedAt: now, returnsAt: now.addingTimeInterval(questDuration))
         questRuns.append(run)
         questRuns = questRuns.filter { today.daysSince($0.day, calendar: .current) <= 30 || !$0.isResolved }
@@ -765,7 +783,7 @@ final class AppState {
 
     /// Resolve a due run: roll, record the return fact, submit, show the reveal. Never early.
     func resolveQuestIfDue() {
-        let now = Date()
+        let now = self.now
         guard let i = questRuns.firstIndex(where: { $0.isDue(at: now) }), let table = ruleset.dailyQuest?.rewardTable,
               let index = QuestResolver.roll(table: table, runID: questRuns[i].id, runsSinceRare: runsSinceRare, pityAfter: ruleset.dailyQuest?.pityRareAfter) else { return }
         // The quest's own loot pool decides what the rolled tier hands out, preferring something not yet owned (doc 29).
@@ -808,7 +826,7 @@ final class AppState {
     /// Open the cache: show the receipt (XP, level-up) and queue the quest's end scene. Idempotent.
     func claimQuest(_ run: QuestRun) {
         guard let i = questRuns.firstIndex(where: { $0.id == run.id }), questRuns[i].isResolved, !questRuns[i].isClaimed else { return }
-        questRuns[i].claimedAt = Date()
+        questRuns[i].claimedAt = now
         if let eventID = questRuns[i].activityEventID, let receipt = outbox.receipt(for: eventID) { lastReceipt = receipt }
         // Owner QA 2026-10-06: a quest's end scene plays on its first completion only; later runs keep their
         // return lines but no scene. Repeat exchanges, if written, would be content on the quest, not code.

@@ -52,3 +52,19 @@ struct CacheIcon: View {
         }
     }
 }
+
+
+/// Owner 2026-10-12: every attribute has a glyph, shown wherever the attribute is named, so the icon alone
+/// comes to mean the stat. The same symbols onboarding uses.
+enum AttributeGlyph {
+    static func symbol(for attribute: String) -> String {
+        switch attribute {
+        case "strength": return "hand.raised.fingers.spread.fill"
+        case "endurance": return "shoeprints.fill"
+        case "knowledge": return "brain.head.profile"
+        case "mindfulness": return "leaf.fill"
+        default: return "circle.fill"
+        }
+    }
+    static func symbol(for attribute: AttributeID) -> String { symbol(for: attribute.rawValue) }
+}
