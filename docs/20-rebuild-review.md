@@ -254,6 +254,12 @@ Owner QA: a quest's end scene (`on_return_chapter`, the three Gym quests) replay
 
 Owner flags to revisit: the "Skip one sugary drink" and "Finish your shower cold" goals read as prescription and may be cut. Backlog (owner §5): a rare pool (5–10%) of story-aware alternate goal lines unlocked by chapter progress (before Colossus, after meeting him, after chapter one, after the Under City door, after Central Hill); companion responses, not new goals.
 
+## Planned (owner, 2026-10-12): challenges and between-beat content
+
+Doc 33 holds the design, the five-increment plan (40–44) and the content inventory (lines and art the owner writes separately). Order: beats wait for their quest (`requires_quest`), Challenges with Cairon then the lifter, repeat quest exchanges and found pages, story-aware goal lines and Row rumours. Each lands behind its content: a field with no lines renders nothing.
+
+Balance finding recorded while sizing the odds model: attribute points floor per event, so at the 40 XP daily cap any family weight under 0.25 earns zero (a strength session gives 4 strength, 0 endurance). Not changed here; it belongs with the next ruleset pass.
+
 ## Parked (owner, 2026-10-06): style protection
 
 Not for MVP. When the item library grows: a sprite style profile (`Content/v1/sprite-style.json`: master palette of about 32 colours, per-slot row bounds, outline rule, island and gradient limits, per-slot colour caps), a normaliser (`Tools/normalize_art.py`: snap near-miss colours, remove islands, enforce 8×8 blocks, fail beyond a threshold, report changes) and a stricter per-slot gate in `validate_sprites.py`. Free-palette art (backdrops, portraits, stills) stays guarded by the reference pack and one approval per asset. Also parked from doc 32: sleeve families, hand anchors, `overlays` for print variants, Ascension IV–V and world reactions.
