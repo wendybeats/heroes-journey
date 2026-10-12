@@ -375,7 +375,8 @@ public struct ContentBundle: Codable, Sendable, Equatable {
             if !attributeIDs.contains(t.attributeID) { problems.append("goal \(t.id) → unknown attribute \(t.attributeID)") }
             if t.lines.isEmpty { problems.append("goal \(t.id) has no lines") }
             if case let .activityFamily(f, _) = t.rule, !familyIDs.contains(f) { problems.append("goal \(t.id) → unknown family \(f)") }
-            for tag in t.tags where familyIDs.contains(FamilyID(tag)) == false && !["training", "rest", "learning", "mindfulness", "creativity", "rare", "strength_goal", "energy", "calm", "discipline", "balance", "steps"].contains(tag) {
+            if case let .anyFamily(fs, _) = t.rule { for f in fs where !familyIDs.contains(f) { problems.append("goal \(t.id) → unknown family \(f)") } }
+            for tag in t.tags where familyIDs.contains(FamilyID(tag)) == false && !["training", "rest", "physical", "learning", "mindfulness", "creativity", "rare", "strength_goal", "energy", "calm", "discipline", "balance", "steps"].contains(tag) {
                 problems.append("goal \(t.id) has unknown tag \(tag)")
             }
         }
