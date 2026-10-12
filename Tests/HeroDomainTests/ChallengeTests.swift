@@ -20,7 +20,7 @@ final class ChallengeTests: XCTestCase {
         let r = ruleset
         let s2 = ChallengeMath.share(level: 2, ruleset: r, attributeCount: 4), s8 = ChallengeMath.share(level: 8, ruleset: r, attributeCount: 4)
         XCTAssertGreaterThan(s8, s2 * 5, "the balanced share grows with the curve")
-        XCTAssertEqual(s8, 0.1 * Double(1386 + 1700) / 2 / 4, accuracy: 0.001)
+        XCTAssertEqual(s8, 0.1 * Double(1113 + 1386) / 2 / 4, accuracy: 0.001, "Level 8 sits between its own threshold (index 7) and the next")
         let easy = ChallengeMath.target(difficulty: "easy", share: s8, ruleset: r), hard = ChallengeMath.target(difficulty: "hard", share: s8, ruleset: r)
         XCTAssertEqual(easy, s8 * 0.6, accuracy: 0.001); XCTAssertEqual(hard, s8 * 1.1, accuracy: 0.001)
         XCTAssertEqual(ChallengeMath.target(difficulty: "unknown", share: s8, ruleset: r), s8 * 0.8, accuracy: 0.001, "unknown words read as standard")
