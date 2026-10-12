@@ -41,6 +41,8 @@ struct HomeView: View {
     @State private var showRoom = false
     @State private var clash: AppState.ChallengeOutcome?
     @State private var toast: ToastItem?
+    /// Toasts wait until Home is quiet again (owner 2026-10-12: they were firing under the next scene).
+    @State private var pendingToasts: [ToastItem] = []
     #if DEBUG
     @State private var showDev = false
     #endif
@@ -155,7 +157,7 @@ struct HomeView: View {
         .onChange(of: state.showDeparture) { _, show in
             if show, let run = state.activeQuest ?? state.unclaimedQuest { departure = run; state.showDeparture = false }
         }
-        .task(id: state.activeQuest?.id) {
+        .task(id: "\(state.activeQuest?.id.uuidString ?? "")|\(state.devDayOffset)") {   // re-armed when the dev clock moves
             // Resolve on time while the app stays in the foreground; the notification covers the rest.
             guard let run = state.activeQuest else { return }
             try? await Task.sleep(for: .seconds(max(0.5, run.remaining(at: state.now))))
@@ -219,7 +221,7 @@ struct HomeView: View {
             if let chapter = state.bundle.chapter(id) { storyScene = StoryScene(chapter: chapter, milestone: nil) } else { state.clearPendingReturnChapter() }
             return
         }
-        guard let milestone = state.nextStoryBeat else { return }
+        guard let milestone = state.nextStoryBeat else { flushToasts(); return }
         if let id = milestone.storyChapter, let chapter = state.bundle.chapter(id) {
             storyScene = StoryScene(chapter: chapter, milestone: milestone)
         } else {
@@ -303,11 +305,21 @@ struct HomeView: View {
 
     // MARK: toasts (owner 2026-10-12): quick, above the stats, slide in and out
 
+    /// Queue a toast; it shows once nothing else is on screen and no beat is about to play (the director calls back).
     private func showToast(_ item: ToastItem) {
+        pendingToasts.append(item)
+        flushToasts()
+    }
+
+    private func flushToasts() {
+        guard toast == nil, storyIdle, state.pendingAscension == nil, state.pendingReturnChapter == nil, state.nextStoryBeat == nil, !pendingToasts.isEmpty else { return }
+        let item = pendingToasts.removeFirst()
         withAnimation(.spring(duration: 0.45, bounce: 0.25)) { toast = item }
         Task { @MainActor in
             try? await Task.sleep(for: .milliseconds(Int(item.holdSeconds * 1000)))
             if toast?.id == item.id { withAnimation(.easeIn(duration: 0.3)) { toast = nil } }
+            try? await Task.sleep(for: .milliseconds(400))
+            flushToasts()
         }
     }
 
