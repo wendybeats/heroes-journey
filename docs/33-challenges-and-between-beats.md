@@ -60,17 +60,13 @@ Optional later (not in the first build): the day's logged minutes in the tested 
 ### Rewards scale with difficulty (owner 2026-10-12)
 | Difficulty | `D` multiple | Win: points in the tested attribute | Win: XP | Lose |
 |---|---|---|---|---|
-| easy | 0.6 | 3 | 6 | see below |
-| standard | 0.8 | 5 | 10 | see below |
-| hard | 1.1 | 8 | 16 | see below |
+| easy | 0.6 | 3 | 6 | 2 XP |
+| standard | 0.8 | 5 | 10 | 3 XP |
+| hard | 1.1 | 8 | 16 | 4 XP |
 
-Ruleset block `challenge_grant: { "easy": {"points": 3, "xp": 6}, "standard": {"points": 5, "xp": 10}, "hard": {"points": 8, "xp": 16}, "lose_xp": <decision> }`. For scale a primary goal is 30 XP / 3 points, so a hard win is under a goal of XP and under three goals of stat.
+Ruleset block `challenge_grant: { "easy": {"points": 3, "xp": 6, "lose_xp": 2}, "standard": {"points": 5, "xp": 10, "lose_xp": 3}, "hard": {"points": 8, "xp": 16, "lose_xp": 4} }`. For scale a primary goal is 30 XP / 3 points, so a hard win is under a goal of XP and under three goals of stat; a loss is a fraction of a small win.
 
-**Losing and XP: the rule conflict.** The owner asked for a loss to cost a little XP, for risk. Architecture rule 4 says earned rewards are permanent, and the level ledger assumes XP never falls (story beats, evolutions and unlocks all key off level reached). Options, in order of preference:
-1. **A loss grants nothing and is remembered.** The challenger's next offer references it (the sets already do), the ledger shows the loss, and the aftermath carries the sting. Risk is social, not numeric; rule 4 intact.
-2. **A loss costs XP within the current level.** `lose_xp` negative (−4 / −6 / −10 by difficulty), floored so total XP never drops below the current level's threshold: a loss can slow the next level but never undo one. Rule 4 gets a recorded exception ("a challenge is a wager; the stake is XP above the current level"). The engine already supports negative proposals through the normal fact path; nothing is rewritten.
-3. **Stake up front.** Accepting costs the stake, a win returns it plus the grant. Same ledger math as 2, reads as a bet. Not recommended: it makes "Not today" the safe default.
-Recommendation: 1 for the first build; if the owner reaffirms the XP cost, 2 with the level floor.
+**Losing never costs XP (owner decision 2026-10-12).** The owner first asked for a loss to cost a little XP for risk; that conflicts with rule 4 (earned rewards are permanent) and with every level-gated system. Decision: a loss grants a very minor XP instead (2 / 3 / 4), no stat. The risk is social: the loss is on the ledger, the challenger's next set references it, and the aftermath carries the sting. Rule 4 stays intact.
 
 ### Cadence: average 2–4 a week (owner 2026-10-12)
 - An offer is rolled once per day at the stage screen, seeded by day: `challenge_cadence: { "from_level": 2, "chance_per_day": 0.45, "min_gap_days": 1, "max_gap_days": 3 }`. No offers on consecutive days; a guaranteed offer on the third quiet day. Expected rate about 3 a week, range 2.3–3.5 depending on gaps; the simulator reports the realised rate per persona.
