@@ -40,6 +40,7 @@ struct HomeView: View {
     @State private var chaining = false
     @State private var showRoom = false
     @State private var clash: AppState.ChallengeOutcome?
+    @State private var toast: ToastItem?
     #if DEBUG
     @State private var showDev = false
     #endif
@@ -58,6 +59,10 @@ struct HomeView: View {
                         // Doc 33 (owner build notes 2026-10-12): today's challenge offer overlaps the foot of the scene and slides in.
                         ChallengeCard { if let outcome = state.acceptChallenge() { clash = outcome } }
                             .padding(.top, -96)
+                        if let toast {
+                            ToastBanner(item: toast)
+                                .transition(.move(edge: .bottom).combined(with: .opacity))
+                        }
                         attributesRow(snapshot)
                         GoalsCard()
                         storyCard
@@ -66,6 +71,7 @@ struct HomeView: View {
                     }
                     .padding(.horizontal, NeoTokyo.Spacing.lg)
                     .animation(.spring(duration: 0.55, bounce: 0.2), value: state.todayOffer?.challengeID)
+                    .animation(.spring(duration: 0.45, bounce: 0.25), value: toast?.id)
                 }
                 .padding(.bottom, 96)
             }
@@ -99,8 +105,16 @@ struct HomeView: View {
                         return
                     }
                     // Recorded on finish, so an interrupted scene replays rather than being lost (idempotent).
-                    if scene.completesAscension { state.clearPendingAscension() }
-                    else if let milestone = scene.milestone { state.completeMilestone(milestone) } else { state.clearPendingReturnChapter() }
+                    if scene.completesAscension {
+                        let name = state.evolution?.displayName ?? "Ascension"
+                        state.clearPendingAscension()
+                        showToast(ToastItem(text: "Ascended · \(name)", symbol: "arrow.up.circle.fill", style: .gold, holdSeconds: 2.2))
+                    } else if let milestone = scene.milestone {
+                        state.completeMilestone(milestone)
+                        if milestone.unlockQuest != nil || milestone.unlockBackdrop != nil {
+                            showToast(ToastItem(text: "New quest area unlocked", symbol: "checkmark.circle.fill"))
+                        }
+                    } else { state.clearPendingReturnChapter() }
                     // `then: room` (chapter.home): land in the room the chapter just gave you.
                     if scene.chapter.then == "room" { Task { try? await Task.sleep(for: .milliseconds(500)); showRoom = true } }
                 }
@@ -144,7 +158,7 @@ struct HomeView: View {
         .task(id: state.activeQuest?.id) {
             // Resolve on time while the app stays in the foreground; the notification covers the rest.
             guard let run = state.activeQuest else { return }
-            try? await Task.sleep(for: .seconds(max(0.5, run.remaining(at: Date()))))
+            try? await Task.sleep(for: .seconds(max(0.5, run.remaining(at: state.now))))
             state.resolveQuestIfDue()
         }
         .onChange(of: state.snapshot) { _, new in
@@ -172,6 +186,7 @@ struct HomeView: View {
                     withAnimation(.easeOut(duration: 0.6)) { levelFlash = false }
                     try? await Task.sleep(for: .milliseconds(600))
                     levelUpStart = nil
+                    showToast(ToastItem(text: "Level \(new.level)", symbol: "arrow.up.circle.fill"))
                 }
             } else {
                 withAnimation(.easeOut(duration: 1.2)) { shown = new; barFill = levelProgress(new) }
@@ -240,39 +255,60 @@ struct HomeView: View {
         }
     }
 
-    /// Glass bottom nav: history on the left, the room on the right, one FAB in the middle that logs anything
-    /// (the strength logger is reached from inside it). Dev controls keep their wrench in debug builds.
+    /// Glass bottom nav (owner 2026-10-12): a short bar with even slots, the FAB poking out of the top. The room
+    /// slot is always there (dimmed until the story opens it) so nothing sits off to one side.
     private var bottomNav: some View {
-        HStack(spacing: NeoTokyo.Spacing.lg) {
-            Button { showHistory = true } label: { Image(systemName: "clock.arrow.circlepath").font(HeroFont.headline).frame(width: 44, height: 44) }
-                .foregroundStyle(NeoTokyo.Text.secondary)
-            #if DEBUG
-            Button { showDev = true } label: { Image(systemName: "wrench.and.screwdriver").font(HeroFont.headline).frame(width: 44, height: 44) }
-                .foregroundStyle(NeoTokyo.Text.muted)
-            #endif
-            Spacer()
+        ZStack(alignment: .top) {
+            HStack(spacing: 0) {
+                navButton("clock.arrow.circlepath", label: "History") { showHistory = true }
+                #if DEBUG
+                navButton("wrench.and.screwdriver", label: "Dev controls", muted: true) { showDev = true }
+                #endif
+                Color.clear.frame(maxWidth: .infinity).frame(height: 44)   // the FAB's slot
+                navButton("house", label: "Room", muted: !state.hasFeature("home_room")) { if state.hasFeature("home_room") { showRoom = true } }
+                    .disabled(!state.hasFeature("home_room"))
+            }
+            .padding(.horizontal, NeoTokyo.Spacing.sm)
+            .padding(.top, NeoTokyo.Spacing.sm)
+            .padding(.bottom, NeoTokyo.Spacing.xs)
+            .glass(cornerRadius: NeoTokyo.Radius.lg, tint: NeoTokyo.Surface.overlay)
+            .padding(.top, 22)
             Button { showLog = true } label: {
-                Image(systemName: "plus").font(.system(size: 26, weight: .semibold))
-                    .foregroundStyle(NeoTokyo.Text.onAccent)
-                    .frame(width: 60, height: 60)
-                    .background(NeoTokyo.Accent.button, in: Circle())
-                    .shadow(color: NeoTokyo.Surface.scrim.opacity(0.5), radius: 10, y: 4)
+                ZStack {
+                    Circle().fill(NeoTokyo.Accent.button)
+                    Circle().strokeBorder(NeoTokyo.Text.primary.opacity(0.55), lineWidth: 1.5)
+                    Circle().fill(LinearGradient(colors: [NeoTokyo.Text.primary.opacity(0.35), .clear], startPoint: .top, endPoint: .center))
+                    Image(systemName: "plus").font(.system(size: 28, weight: .semibold)).foregroundStyle(NeoTokyo.Text.onAccent)
+                }
+                .frame(width: 64, height: 64)
+                .shadow(color: NeoTokyo.Surface.scrim.opacity(0.7), radius: 14, y: 6)
+                .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.18), radius: 22)
             }
+            .buttonStyle(.plain)
             .accessibilityLabel("Log")
-            .offset(y: -10)
-            Spacer()
-            if state.hasFeature("home_room") {
-                Button { showRoom = true } label: { Image(systemName: "house").font(HeroFont.headline).frame(width: 44, height: 44) }
-                    .foregroundStyle(NeoTokyo.Text.secondary)
-            } else {
-                Color.clear.frame(width: 44, height: 44)
-            }
         }
         .padding(.horizontal, NeoTokyo.Spacing.lg)
-        .padding(.vertical, NeoTokyo.Spacing.xs)
-        .glass(cornerRadius: NeoTokyo.Radius.lg, tint: NeoTokyo.Surface.overlay)
-        .padding(.horizontal, NeoTokyo.Spacing.lg)
         .padding(.bottom, NeoTokyo.Spacing.xs)
+    }
+
+    private func navButton(_ symbol: String, label: String, muted: Bool = false, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol).font(HeroFont.headline)
+                .foregroundStyle(muted ? NeoTokyo.Text.muted : NeoTokyo.Text.secondary)
+                .frame(maxWidth: .infinity).frame(height: 44)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+    }
+
+    // MARK: toasts (owner 2026-10-12): quick, above the stats, slide in and out
+
+    private func showToast(_ item: ToastItem) {
+        withAnimation(.spring(duration: 0.45, bounce: 0.25)) { toast = item }
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(Int(item.holdSeconds * 1000)))
+            if toast?.id == item.id { withAnimation(.easeIn(duration: 0.3)) { toast = nil } }
+        }
     }
 
     /// Manual beats (boss encounters) wait on the card until the player starts them.
@@ -354,12 +390,10 @@ struct HomeView: View {
         // Owner 2026-10-06 / 2026-10-12: XP and level are part of the scene, not a card, and they sit at the top of it
         // (under the toolbar row) so the character keeps the road. No background.
         .overlay(alignment: .top) {
-            GeometryReader { geo in
-                progressRow(snapshot)
-                    .padding(.horizontal, NeoTokyo.Spacing.lg)
-                    .padding(.top, geo.safeAreaInsets.top + 12)
-                    .frame(maxWidth: .infinity, alignment: .top)
-            }
+            // Under the status bar and the Dynamic Island, over the world (owner QA 2026-10-12).
+            progressRow(snapshot)
+                .padding(.horizontal, NeoTokyo.Spacing.lg)
+                .padding(.top, DeviceInsets.top + 16)
         }
     }
 
@@ -392,9 +426,12 @@ struct HomeView: View {
         HStack {
             ForEach(state.bundle.attributes, id: \.id) { attribute in
                 VStack(spacing: 2) {
-                    // Owner 2026-10-12: the glyph sits with every stat so the icon alone comes to mean it.
-                    Image(systemName: AttributeGlyph.symbol(for: attribute.id)).font(HeroFont.caption).foregroundStyle(NeoTokyo.Attribute.color(for: attribute.id.rawValue))
-                    CountingText(value: Double(snapshot.attributes[attribute.id] ?? 0), font: HeroFont.statSM, color: NeoTokyo.Attribute.color(for: attribute.id.rawValue))
+                    // Owner 2026-10-12: the glyph sits inline with every stat so the icon alone comes to mean it.
+                    HStack(spacing: 4) {
+                        Image(systemName: AttributeGlyph.symbol(for: attribute.id)).font(HeroFont.caption)
+                        CountingText(value: Double(snapshot.attributes[attribute.id] ?? 0), font: HeroFont.statSM, color: NeoTokyo.Attribute.color(for: attribute.id.rawValue))
+                    }
+                    .foregroundStyle(NeoTokyo.Attribute.color(for: attribute.id.rawValue))
                     Text(attribute.displayName).font(HeroFont.label).foregroundStyle(NeoTokyo.Text.secondary)
                 }
                 .overlay(alignment: .top) {

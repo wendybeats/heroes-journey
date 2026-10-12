@@ -72,7 +72,7 @@ struct DevControlsView: View {
         switch state.questState {
         case .locked: return "locked"
         case .ready: return "ready"
-        case let .away(run): return "away · back \(Countdown.format(max(0, run.returnsAt.timeIntervalSinceNow)))"
+        case let .away(run): return "away · back \(Countdown.format(max(0, run.returnsAt.timeIntervalSince(state.now))))"
         case let .returned(run): return run.isClaimed ? "claimed" : "back · unclaimed"
         }
     }

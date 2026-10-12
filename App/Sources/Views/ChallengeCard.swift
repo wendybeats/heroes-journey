@@ -35,7 +35,7 @@ struct ChallengeCard: View {
                             Image(systemName: odds.bonus > 0 ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                                 .font(HeroFont.label)
                                 .foregroundStyle(odds.bonus > 0 ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.secondary)
-                            Text(odds.bonus > 0 ? "Today's workout boosted your odds" : "Logging a workout increases odds")
+                            Text(odds.bonus > 0 ? "Today's \(attribute?.displayName ?? "") activity boosted your odds" : "A \(attribute?.displayName ?? "") activity today increases odds")
                                 .font(HeroFont.label).foregroundStyle(NeoTokyo.Text.secondary)
                         }
                         if record.won + record.lost > 0 {

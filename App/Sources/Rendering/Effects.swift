@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// Pixel-art star effects. Stars are 4-point pluses drawn on a 3 pt grid so they sit
 /// naturally next to the sprite. Prototype: the "Level Badge Motion" artifact (2026-09-29).
@@ -185,5 +188,19 @@ struct AscensionField: View {
             }
         }
         .allowsHitTesting(false)
+    }
+}
+
+
+/// The device's top safe-area inset (status bar, notch), for overlays laid out inside a view that ignores the safe
+/// area and so reports none of its own (owner QA 2026-10-12: the XP row sat under the clock).
+enum DeviceInsets {
+    @MainActor static var top: CGFloat {
+        #if canImport(UIKit)
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        return scenes.flatMap(\.windows).first { $0.isKeyWindow }?.safeAreaInsets.top ?? 47
+        #else
+        return 0
+        #endif
     }
 }

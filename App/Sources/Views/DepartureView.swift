@@ -288,11 +288,13 @@ struct LootBoxIcon: View {
 
 /// H:MM:SS until `until`, tabular digits, updates every second. Reads "Back" once due.
 struct Countdown: View {
+    @Environment(AppState.self) private var state
     let until: Date
     var font: Font = HeroFont.statMD
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { timeline in
-            let remaining = max(0, until.timeIntervalSince(timeline.date))
+            // The app's clock, not the wall clock: a dev-advanced day must not read as a 50-hour quest.
+            let remaining = max(0, until.timeIntervalSince(timeline.date.addingTimeInterval(TimeInterval(state.devDayOffset) * 86_400)))
             Text(remaining == 0 ? "Back" : Self.format(remaining))
                 .font(font).foregroundStyle(NeoTokyo.Text.primary)
         }
