@@ -135,7 +135,7 @@ final class ContentBundleTests: XCTestCase {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
         let rewards = bundle.levelRewards
         XCTAssertTrue(rewards.isEmpty, "owner 2026-10-05: level-up grants are off; the former level rewards stay defined as unassigned")
-        XCTAssertEqual(bundle.rewards.filter { $0.trigger.type == "unassigned" }.count, 10, "the ten former level rewards are kept for the chapter to assign")
+        XCTAssertEqual(bundle.rewards.filter { $0.trigger.type == "unassigned" }.count, 9, "the former level rewards are kept for the chapter to assign; doc 33 gave the rain to Protein Row")
         XCTAssertEqual(bundle.evolution(forLevel: 1)?.id, "ev1_awakened")
         // Doc 32: evolutions are ascension tiers on one canonical body; the starter outfit is items.
         XCTAssertEqual(bundle.evolutions.map { $0.ascensionTier ?? -1 }, [0, 1, 2, 3])

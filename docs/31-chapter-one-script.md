@@ -370,6 +370,7 @@ Spoken by the hero on the quest card, departure screen, notification prompt and 
 - **Return (common):** Back. Arms are wrecked. Going again when they'll let me.
 - **Return (uncommon):** Back. A man gave me his old chalk and would not say why.
 - **Return (rare):** Back. There is a door at the end of the floor that nobody looks at.
+- **Return (page):** Back. Found a page on the floor under the rack. His handwriting. Nobody saw me take it.
 
 ### Colossus Gym · deeper  `quest.colossus_gym_02`
 **Available:** after milestone `under_city.7.deeper` · **duration:** 480 min
@@ -383,6 +384,7 @@ Spoken by the hero on the quest card, departure screen, notification prompt and 
 - **Return (common):** Back. Nobody down there talks about going home.
 - **Return (uncommon):** Back. Found a logbook. Same name, every page, every year.
 - **Return (rare):** Back. Heard someone say "Colossus" before a set. Like they were asking for help.
+- **Return (page):** Back. Another page, folded into a logbook that was not mine. I'm keeping all of them.
 
 ### Colossus Gym · the last floor  `quest.colossus_gym_03`
 **Available:** after milestone `under_city.9.final` · **duration:** 480 min
@@ -396,3 +398,4 @@ Spoken by the hero on the quest card, departure screen, notification prompt and 
 - **Return (common):** Back. He asked if I'm stronger now. I said yes.
 - **Return (uncommon):** Back. He asked why I came. I did not have an answer yet.
 - **Return (rare):** Back. Up close, he doesn't look angry. He looks tired.
+- **Return (page):** Back. A page, by the door nobody looks at. I think he wanted it found.

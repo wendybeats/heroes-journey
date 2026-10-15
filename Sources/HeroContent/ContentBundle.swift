@@ -477,7 +477,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         for r in rumours where !milestoneIDs.contains(r.after) { problems.append("rumour → unknown milestone \(r.after)") }
         // A story-aware goal line waits on a milestone or on `quest.<id>.rare` (the app raises that flag); anything else never fires.
         for t in goalTemplates { for sl in t.storyLines {
-            let isQuestFlag = sl.after.hasPrefix("quest.") && sl.after.hasSuffix(".rare") && questIDs.contains(QuestID(String(sl.after.dropFirst(6).dropLast(5))))
+            let isQuestFlag = sl.after.hasPrefix("quest.") && sl.after.hasSuffix(".rare") && questIDs.contains(QuestID(String(sl.after.dropLast(5))))
             if !milestoneIDs.contains(MilestoneID(sl.after)) && !isQuestFlag { problems.append("goal \(t.id) story line → unknown flag \(sl.after)") }
             if sl.lines.isEmpty { problems.append("goal \(t.id) story line after \(sl.after) has no lines") }
         } }
@@ -512,7 +512,8 @@ public struct ContentBundle: Codable, Sendable, Equatable {
             if quest.durationMinutes <= 0 { problems.append("ruleset daily_quest duration must be positive") }
             for entry in quest.rewardTable {
                 if let r = entry.rewardID, !rewardIDs.contains(r) { problems.append("quest reward table → unknown reward \(r)") }
-                for q in quests where q.returnLines[entry.tier]?.isEmpty ?? true { problems.append("quest \(q.id) has no return lines for tier \(entry.tier)") }
+                // A quest needs a return line for every tier it can roll: every row when it has no pools, else the rows it has a pool for (doc 33: the page row).
+                for q in quests where (q.loot == nil || q.loot?[entry.tier] != nil) && (q.returnLines[entry.tier]?.isEmpty ?? true) { problems.append("quest \(q.id) has no return lines for tier \(entry.tier)") }
             }
         }
         return problems

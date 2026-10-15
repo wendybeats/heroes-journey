@@ -2312,6 +2312,9 @@
         ],
         "rare": [
           "Back. There is a door at the end of the floor that nobody looks at."
+        ],
+        "page": [
+          "Back. Found a page on the floor under the rack. His handwriting. Nobody saw me take it."
         ]
       },
       "loot": {
@@ -2428,6 +2431,9 @@
         ],
         "rare": [
           "Back. Heard someone say \"Colossus\" before a set. Like they were asking for help."
+        ],
+        "page": [
+          "Back. Another page, folded into a logbook that was not mine. I'm keeping all of them."
         ]
       },
       "loot": {
@@ -2521,6 +2527,9 @@
         ],
         "rare": [
           "Back. Up close, he doesn't look angry. He looks tired."
+        ],
+        "page": [
+          "Back. A page, by the door nobody looks at. I think he wanted it found."
         ]
       },
       "loot": {
