@@ -60,8 +60,11 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     }
     public struct Reward: Codable, Sendable, Equatable {
         public struct Trigger: Codable, Sendable, Equatable {
+            /// `level`, `quest_completed` (doc 33: granted once on a quest's first claimed completion), `unassigned`.
             public let type: String
             public let level: Int?
+            public let questID: QuestID?
+            enum CodingKeys: String, CodingKey { case type, level, questID = "quest_id" }
         }
         public struct Grant: Codable, Sendable, Equatable {
             public let type: String
@@ -76,7 +79,12 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let id: RewardID
         public let trigger: Trigger
         public let grants: [Grant]
+        /// What the grant is called when it lands, for grants that are not an item, backdrop or evolution (a world reaction).
+        public let displayName: String?
+        enum CodingKeys: String, CodingKey { case id, trigger, grants, displayName = "display_name" }
     }
+    /// Rewards granted once when a quest is first completed (doc 33).
+    public func rewards(onCompleting quest: QuestID) -> [Reward] { rewards.filter { $0.trigger.type == "quest_completed" && $0.trigger.questID == quest } }
     public struct Backdrop: Codable, Sendable, Equatable {
         public let id: BackdropID
         public let displayName: String
@@ -140,6 +148,13 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public let areas: [Area]
     /// Chapters of milestones bound to levels (doc 28). The director plays them; nothing else reads levels for story.
     public let campaign: Campaign
+    /// Doc 33 Row rumours: one a day on the goals card once the story has reached `after`.
+    public struct Rumour: Codable, Sendable, Equatable {
+        public let after: MilestoneID
+        public let text: String
+    }
+    public let rumourList: [Rumour]?
+    public var rumours: [Rumour] { rumourList ?? [] }
     /// Doc 33 challenges. Optional in the file: an older bundle has none.
     public let challengeList: [Challenge]?
     public var challenges: [Challenge] { challengeList ?? [] }
@@ -178,6 +193,13 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         /// This quest's reward pools by tier (doc 29). The ruleset table rolls the tier; the app picks an
         /// ungranted reward from the pool. Absent = the ruleset row's reward.
         public let loot: [String: [RewardID]]?
+        /// Doc 33: short exchanges for the second completion onward (hero and the guide), in order, cycling.
+        public let repeatExchanges: [[StoryBeat]]?
+        /// The exchange for the n-th claimed completion (1-based; 1 is the end scene's), or nil when there are none.
+        public func repeatExchange(forCompletion n: Int) -> [StoryBeat]? {
+            guard let xs = repeatExchanges, !xs.isEmpty, n >= 2 else { return nil }
+            return xs[(n - 2) % xs.count]
+        }
         /// Campaign placement (doc 28). A quest with `unlocked_by_milestone` is offered once that milestone is complete.
         public let areaID: AreaID?
         public let unlockedByMilestone: MilestoneID?
@@ -193,11 +215,11 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         public let returnLines: [String: [String]]
         /// Chapter played before departure on this quest, once (gym floors). Optional.
         public let onDepartChapter: String?
-        public static let tierOrder = ["common", "uncommon", "rare"]
+        public static let tierOrder = ["common", "uncommon", "rare", "page"]
         /// One reward per tier for the loot tooltip: the explicit preview, else the first of each pool.
         public var previewRewards: [RewardID] { lootPreview ?? Self.tierOrder.compactMap { loot?[$0]?.first } }
         public var lootPools: [LootPool] { Self.tierOrder.compactMap { t in loot?[t].map { LootPool(tier: t, rewards: $0) } } }
-        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", backdropID = "backdrop_id", walkAssetSetID = "walk_asset_set_id", notificationPrompt = "notification_prompt", subtext, lootPreview = "loot_preview", loot, areaID = "area_id", unlockedByMilestone = "unlocked_by_milestone", durationMinutes = "duration_minutes", onReturnChapter = "on_return_chapter", onDepartChapter = "on_depart_chapter", departLines = "depart_lines", awayLines = "away_lines", returnLines = "return_lines" }
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", backdropID = "backdrop_id", walkAssetSetID = "walk_asset_set_id", notificationPrompt = "notification_prompt", subtext, lootPreview = "loot_preview", loot, areaID = "area_id", unlockedByMilestone = "unlocked_by_milestone", durationMinutes = "duration_minutes", onReturnChapter = "on_return_chapter", onDepartChapter = "on_depart_chapter", departLines = "depart_lines", awayLines = "away_lines", returnLines = "return_lines", repeatExchanges = "repeat_exchanges" }
     }
 
     /// A speaking character (doc 25). The hero is one too; its portrait is replaced by the live sprite after creation.
@@ -294,7 +316,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         case schemaVersion = "schema_version", contentVersion = "content_version"
         case families, activityTypes = "activity_types", attributes, evolutions, items, rewards, backdrops
         case avatarOptions = "avatar_options", exerciseDefinitions = "exercise_definitions", healthWorkoutMapping = "health_workout_mapping"
-        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters", dailyQuotes = "daily_quotes", areas, campaign, challengeList = "challenges"
+        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters", dailyQuotes = "daily_quotes", areas, campaign, challengeList = "challenges", rumourList = "rumours"
     }
 
     public static func decode(_ data: Data) throws -> ContentBundle {
@@ -451,6 +473,15 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         for m in campaign.milestones {
             if let q = m.requiresQuest, !questIDs.contains(q) { problems.append("milestone \(m.id) → unknown requires_quest \(q)") }
         }
+        for q in quests { for x in q.repeatExchanges ?? [] { for beat in x where !characterIDs.contains(beat.speaker) { problems.append("quest \(q.id) repeat exchange → unknown speaker \(beat.speaker)") } } }
+        for r in rumours where !milestoneIDs.contains(r.after) { problems.append("rumour → unknown milestone \(r.after)") }
+        // A story-aware goal line waits on a milestone or on `quest.<id>.rare` (the app raises that flag); anything else never fires.
+        for t in goalTemplates { for sl in t.storyLines {
+            let isQuestFlag = sl.after.hasPrefix("quest.") && sl.after.hasSuffix(".rare") && questIDs.contains(QuestID(String(sl.after.dropFirst(6).dropLast(5))))
+            if !milestoneIDs.contains(MilestoneID(sl.after)) && !isQuestFlag { problems.append("goal \(t.id) story line → unknown flag \(sl.after)") }
+            if sl.lines.isEmpty { problems.append("goal \(t.id) story line after \(sl.after) has no lines") }
+        } }
+        for r in rewards where r.trigger.type == "quest_completed" { if let q = r.trigger.questID, !questIDs.contains(q) { problems.append("reward \(r.id) → unknown quest \(q)") } else if r.trigger.questID == nil { problems.append("reward \(r.id) quest_completed trigger names no quest") } }
         unique(challenges.map(\.id), "challenge")
         for ch in challenges {
             if !characterIDs.contains(ch.characterID) { problems.append("challenge \(ch.id) → unknown character \(ch.characterID)") }

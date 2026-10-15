@@ -5,7 +5,12 @@ public struct AvatarRecipe: Hashable, Codable, Sendable {
     public static let schemaVersion = 1
 
     public enum BaseBody: String, Codable, Sendable, CaseIterable { case male, female }
-    public enum Slot: String, Codable, Sendable, CaseIterable { case head, face, body, waist, legs, feet, hand, back, effect }
+    public enum Slot: String, Codable, Sendable, CaseIterable {
+        case head, face, body, waist, legs, feet, hand, back, effect
+        /// Doc 33: a found object (Colossus's log pages). Owned and shown in the Room, never worn.
+        case collectible
+        public var isWearable: Bool { self != .collectible }
+    }
 
     public var name: String
     public var baseBody: BaseBody

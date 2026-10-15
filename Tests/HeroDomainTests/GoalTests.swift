@@ -132,6 +132,31 @@ final class GoalTests: XCTestCase {
         }
     }
 
+    /// Doc 33: a story-aware line replaces the rotating one only once its flag is set, and only about one goal in ten.
+    func testStoryLinesWaitForTheirFlagAndStayRare() throws {
+        var strength = t("p.strength", .primary, rule: .activityFamily(family: "strength", minMinutes: 30), attr: "strength", tags: ["training", "strength"])
+        strength = GoalTemplate(id: strength.id, slot: strength.slot, title: strength.title, lines: strength.lines, attributeID: strength.attributeID, rule: strength.rule, tags: strength.tags,
+                                storyLines: [.init(after: "under_city.5.gym_unlock", lines: ["The gym is open now."])])
+        let ts = [strength] + templates.filter { $0.id != "p.strength" && $0.slot != .primary }
+        let prefs = GoalPreferences(primaryFamily: "strength", trainingDaysPerWeek: 4)   // Monday trains
+        func plan(flags: Set<String>, chance: Double, seed: UInt64) -> GoalPlan {
+            GoalGenerator.plan(.init(day: monday, templates: ts, preferences: prefs, level: 3, history: [], completions: [], seed: seed, calendar: calendar, storyFlags: flags, storyLineChance: chance), now: now)
+        }
+        for seed in 1...50 { XCTAssertNil(plan(flags: [], chance: 1.0, seed: UInt64(seed)).goals.first?.storyLine, "never before the flag") }
+        for seed in 1...50 { XCTAssertNil(plan(flags: ["under_city.5.gym_unlock"], chance: 0, seed: UInt64(seed)).goals.first?.storyLine, "never at chance zero") }
+        XCTAssertEqual(plan(flags: ["under_city.5.gym_unlock"], chance: 1.0, seed: 7).goals.first?.storyLine, "The gym is open now.")
+        var hits = 0
+        for seed in 1...1000 where plan(flags: ["under_city.5.gym_unlock"], chance: 0.1, seed: UInt64(seed)).goals.first?.storyLine != nil { hits += 1 }
+        XCTAssertEqual(Double(hits) / 1000, 0.1, accuracy: 0.04, "about one in ten: \(hits)")
+        // An old plan without the field still decodes; the day's line is unchanged by the flag when no line fires.
+        let plain = plan(flags: [], chance: 1.0, seed: 7), flagged = plan(flags: ["under_city.5.gym_unlock"], chance: 0, seed: 7)
+        XCTAssertEqual(plain.goals.map(\.lineIndex), flagged.goals.map(\.lineIndex))
+        let goal = try XCTUnwrap(plan(flags: ["under_city.5.gym_unlock"], chance: 1.0, seed: 7).goals.first)
+        var json = try XCTUnwrap(try JSONSerialization.jsonObject(with: JSONEncoder().encode(goal)) as? [String: Any])
+        json.removeValue(forKey: "storyLine")
+        XCTAssertNil(try JSONDecoder().decode(DailyGoal.self, from: try JSONSerialization.data(withJSONObject: json)).storyLine)
+    }
+
     func testStepsCompleteRestGoalAtTarget() {
         let plan = GoalGenerator.plan(inputs(day: sunday, prefs: GoalPreferences(trainingDaysPerWeek: 4)), now: now)
         XCTAssertTrue(GoalEvaluator.satisfied(plan: plan, templates: templates, completed: [], events: [], steps: 4999).isEmpty)

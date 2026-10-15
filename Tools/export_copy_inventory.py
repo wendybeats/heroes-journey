@@ -55,6 +55,7 @@ td.copy {{ min-width: 24ch; }}
 details {{ margin-top: 8px; }} summary {{ cursor: pointer; color: var(--muted); }}
 ul.lines {{ margin: 4px 0 0; padding-left: 18px; }} ul.lines li {{ margin: 2px 0; }}
 .var {{ font-family: var(--mono); font-size: 12px; color: var(--gold); }}
+li.story {{ color: var(--gold); }}
 </style>
 <main>
 <header>
@@ -185,9 +186,17 @@ for slot, label in slots:
     rows = [g for g in goals if g["slot"] == slot]
     out.append(f"<h3>{e(label)} · {len(rows)}</h3><div class='wrap'><table><tr><th>Title</th><th>Lines</th><th>Attribute</th><th>Completes when</th></tr>")
     for g in rows:
-        lines = "".join(f"<li>{e(l)}</li>" for l in g["lines"])
+        lines = "".join(f"<li>{e(l)}</li>" for l in g["lines"]) + "".join(f"<li class='story'><span class='meta'>after {e(sl['after'])}:</span> {e(l)}</li>" for sl in g.get("story_lines") or [] for l in sl["lines"])
         out.append(f"<tr><td class='copy'><strong>{e(g['title'])}</strong><br><span class='meta'>{e(g['id'])}</span></td><td class='copy'><ul class='lines'>{lines}</ul></td><td>{e(attrs.get(g['attribute_id'], g['attribute_id']))}</td><td class='where'>{e(rule(g['rule']))}</td></tr>")
     out.append("</table></div>")
+# 4. Row rumours
+rumours = b.get("rumours", [])
+out.append(f"""<section id="rumours">
+<h2>4 · Row rumours <span class="count">{len(rumours)}</span></h2>
+<p class="lede">One a day on the goals card on rest days, under “Heard on the Row”, from the rumours the story has unlocked.</p><div class='wrap'><table><tr><th>After</th><th>Copy</th></tr>""")
+for r in rumours:
+    out.append(f"<tr><td class='where'>{e(r['after'])}</td><td class='copy'>{e(r['text'])}</td></tr>")
+out.append("</table></div></section>")
 out.append("</section></main>")
 open(out_path, "w").write("\n".join(out))
 print(f"wrote {out_path}: {len(items)} items ({len(missing)} without description), {len(quests)} quests, {len(goals)} goals")

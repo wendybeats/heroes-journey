@@ -49,6 +49,22 @@ for m in ms:
 out.append("## Quest end scenes\nPlay after the cache from that quest is claimed.\n")
 for q in quests.values():
     if q.get("on_return_chapter"): chapter(q["on_return_chapter"], f"Claiming the cache from `{q['id']}` ({q['display_name']})")
+out.append("## Repeat exchanges\nDoc 33 §C. The end scene plays on a quest's first completion; from the second on, the cache claim plays one of these short exchanges instead, cycling in order. Quests without any play nothing.\n")
+for q in quests.values():
+    for n, x in enumerate(q.get("repeat_exchanges") or [], start=1):
+        out.append(f"### {q['display_name']} · exchange {n}  `repeat.{q['id']}.{n + 1}`\n**Trigger:** completion {n + 1} of `{q['id']}` (then every {len(q['repeat_exchanges'])} completions after)\n")
+        for bt in x:
+            for l in bt["lines"]: out.append(f"- **{chars.get(bt['speaker'], bt['speaker'])}:** {text(l)}")
+        out.append("")
+out.append("## Row rumours\nDoc 33 §C. One a day on the goals card on rest days (\u201cHeard on the Row\u201d), drawn from the pool the story has unlocked; the same day shows the same rumour.\n")
+for r in b.get("rumours", []):
+    out.append(f"- **after `{r['after']}`:** {r['text']}")
+out.append("")
+out.append("## Story-aware goal lines\nDoc 33 §C. About one goal in ten carries a line that knows what has happened, once its flag is set; otherwise the goal's rotating line shows. Flags are milestone ids or `quest.<id>.rare`.\n")
+for g in b["goal_templates"]:
+    for sl in g.get("story_lines") or []:
+        for l in sl["lines"]: out.append(f"- **{g['title']} · after `{sl['after']}`:** {l}")
+out.append("")
 out.append("## Quest lines\nSpoken by the hero on the quest card, departure screen, notification prompt and return.\n")
 for q in quests.values():
     out.append(f"### {q['display_name']}  `{q['id']}`\n**Available:** " + (f"after milestone `{q['unlocked_by_milestone']}`" if q.get("unlocked_by_milestone") else "from the start") + f" · **duration:** {q.get('duration_minutes', 240)} min\n")

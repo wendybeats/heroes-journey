@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "icon.item.page",
+  "revision": 1,
+  "status": "review",
+  "kind": "icon",
+  "canvas": {
+    "width": 627,
+    "height": 627
+  },
+  "pivot": {
+    "x": 313,
+    "y": 626
+  },
+  "layer_order": 0,
+  "max_palette_colors": 100000,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Doc 33 (2026-10-15): a torn, ruled page from Colossus's training log, the still every log page item shares (item.page.colossus_log.NN). Drawn in-house to the quest-item still spec (627 canvas, navy outline, ~5 px pixel grid, 9 colours, soft alpha allowed) as a stand-in until the owner authors one; not a sprite layer. Shown in the claim modal and the Room's log set.",
+  "world": "city",
+  "area": "colossus_gym",
+  "scene": "deep_floor",
+  "mood": [
+    "iron",
+    "paper"
+  ],
+  "time": "night"
+}

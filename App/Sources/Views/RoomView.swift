@@ -21,6 +21,7 @@ struct RoomView: View {
                     VStack(spacing: NeoTokyo.Spacing.lg) {
                         appearance
                         equipment
+                        logPages
                         homeScene
                         progress
                         settings
@@ -76,7 +77,7 @@ struct RoomView: View {
     private var equipment: some View {
         VStack(alignment: .leading, spacing: NeoTokyo.Spacing.md) {
             Eyebrow(text: "Equipment")
-            let owned = state.ownedItems
+            let owned = state.ownedItems.filter { $0.slot.isWearable }
             if owned.isEmpty {
                 Text("Nothing yet. The Under City gives things to people who come back for them.").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.muted)
             } else {
@@ -99,6 +100,35 @@ struct RoomView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .card()
+    }
+
+    /// Doc 33 found pages: Colossus's log, shown in order with gaps for the pages not yet found.
+    @ViewBuilder
+    private var logPages: some View {
+        let all = state.bundle.items.filter { $0.slot == .collectible }.sorted { $0.id.rawValue < $1.id.rawValue }
+        let owned = Set(state.ownedItems.map(\.id))
+        if !all.isEmpty, all.contains(where: { owned.contains($0.id) }) {
+            VStack(alignment: .leading, spacing: NeoTokyo.Spacing.sm) {
+                HStack {
+                    Eyebrow(text: "Colossus's log")
+                    Spacer()
+                    Text("\(all.filter { owned.contains($0.id) }.count) of \(all.count)").font(HeroFont.captionNumber).foregroundStyle(NeoTokyo.Text.secondary)
+                }
+                ForEach(all, id: \.id) { page in
+                    let have = owned.contains(page.id)
+                    HStack(alignment: .top, spacing: NeoTokyo.Spacing.sm) {
+                        if have, let icon = page.iconAssetSetID { AssetIcon(assetSetID: icon.rawValue, size: 32) }
+                        else { RoundedRectangle(cornerRadius: 4).strokeBorder(NeoTokyo.Surface.line, style: StrokeStyle(lineWidth: 1, dash: [3])).frame(width: 32, height: 32) }
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(have ? page.displayName : "A page still down there").font(HeroFont.bodyMedium).foregroundStyle(have ? NeoTokyo.Text.primary : NeoTokyo.Text.muted)
+                            if have, let line = page.description { Text(line).font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary).fixedSize(horizontal: false, vertical: true) }
+                        }
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .card()
+        }
     }
 
     private var homeScene: some View {

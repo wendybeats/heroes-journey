@@ -41,8 +41,8 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(ruleset.sessionBaseXP, 15); XCTAssertEqual(ruleset.healthHistoryWindowDays, 7)
         XCTAssertEqual(ruleset.goalXP, ["primary": 30, "secondary": 20, "small_win": 12])
         XCTAssertEqual(ruleset.dailyQuest?.durationMinutes, 240, "owner decision 2026-10-02")
-        XCTAssertEqual(ruleset.dailyQuest?.rewardTable.map(\.tier), ["common", "uncommon", "rare"])
-        XCTAssertEqual(ruleset.dailyQuest?.rewardTable.map(\.xp), [10, 15, 25])
+        XCTAssertEqual(ruleset.dailyQuest?.rewardTable.map(\.tier), ["common", "uncommon", "rare", "page"], "doc 33: the page row only counts where a quest has a page pool")
+        XCTAssertEqual(ruleset.dailyQuest?.rewardTable.map(\.xp), [10, 15, 25, 12])
         XCTAssertEqual(ruleset.dailyQuest?.pityRareAfter, 7); XCTAssertEqual(ruleset.dailyQuest?.tradeInXP?["rare"], 25, "doc 29")
         XCTAssertEqual(bundle.quests.count, 5, "the first walk, Protein Row and three gym quests (doc 28)")
         XCTAssertEqual(bundle.defaultQuest?.returnLines.keys.sorted(), ["common", "rare", "uncommon"])
@@ -244,22 +244,29 @@ final class ContentBundleTests: XCTestCase {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
         for q in bundle.quests {
             XCTAssertFalse(q.lootPools.isEmpty, "\(q.id) has no loot")
-            XCTAssertEqual(q.lootPools.map { $0.tier }, ["common", "uncommon", "rare"], q.id.rawValue)
+            // Doc 33: the gym quests also carry a page pool (Colossus's log); the walks do not.
+            let isGym = q.id.rawValue.hasPrefix("quest.colossus_gym")
+            XCTAssertEqual(q.lootPools.map { $0.tier }, isGym ? ["common", "uncommon", "rare", "page"] : ["common", "uncommon", "rare"], q.id.rawValue)
             for pool in q.lootPools { for r in pool.rewards { XCTAssertNotNil(bundle.reward(r)?.grants.first?.itemID, "\(q.id) \(r) must grant an item") } }
-            XCTAssertEqual(q.previewRewards.count, 3, q.id.rawValue)
+            XCTAssertEqual(q.previewRewards.count, isGym ? 4 : 3, q.id.rawValue)
+            if isGym { XCTAssertEqual(q.loot?["page"]?.count, 4, "\(q.id): four pages per gym quest, overlapping so every page is reachable") }
         }
         XCTAssertEqual(bundle.quest("quest.protein_row")?.loot?["rare"], ["reward.quest.row_shades"])
         let allLoot: [RewardID] = bundle.quests.flatMap { q in q.lootPools.flatMap { $0.rewards } }
-        XCTAssertEqual(Set(allLoot).count, 9, "nine quest items across chapter one")
+        XCTAssertEqual(Set(allLoot).count, 17, "nine quest items plus eight log pages across chapter one")
+        let pageRewards = Set(bundle.quests.flatMap { $0.loot?["page"] ?? [] })
+        XCTAssertEqual(pageRewards.count, 8, "every page is in some gym quest's pool")
     }
 
     /// Doc 29: every quest item has its inventory still and a one-sentence description for the claim moment.
     func testQuestItemsHaveStillsAndDescriptions() throws {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
         let questItems = Set(bundle.quests.flatMap { q in q.lootPools.flatMap { $0.rewards } }.compactMap { bundle.reward($0)?.grants.first?.itemID })
-        XCTAssertEqual(questItems.count, 9)
+        XCTAssertEqual(questItems.count, 17, "nine wearables and eight log pages")
+        XCTAssertEqual(questItems.filter { bundle.item($0)?.slot == .collectible }.count, 8)
         for id in questItems {
             let item = try XCTUnwrap(bundle.item(id))
+            XCTAssertEqual(item.slot.isWearable, item.slot != .collectible, id.rawValue)
             XCTAssertEqual(item.iconAssetSetID?.rawValue.hasPrefix("icon.item."), true, id.rawValue)
             let sentence = try XCTUnwrap(item.description, id.rawValue)
             XCTAssertTrue(sentence.hasSuffix("."), id.rawValue); XCTAssertLessThan(sentence.count, 140, id.rawValue)
@@ -269,5 +276,32 @@ final class ContentBundleTests: XCTestCase {
         for tier in ["common", "uncommon", "rare", "legendary"] {
             XCTAssertEqual(try SpriteManifest.decode(RepoFiles.data("assets/sprites/icon.cache.\(tier)/rev1/manifest.json")).kind, .icon)
         }
+    }
+
+    /// Doc 33 §C: the between-beat content. Repeat exchanges on the gym quests (the first completion plays the
+    /// end scene, later ones cycle the short exchanges), Row rumours gated on milestones, story-aware goal lines
+    /// gated on flags the app can raise, and the rain on Protein Row stops once that quest is done.
+    func testBetweenBeatContent() throws {
+        let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
+        let gym1 = try XCTUnwrap(bundle.quest("quest.colossus_gym_01"))
+        XCTAssertEqual(gym1.repeatExchanges?.count, 3)
+        XCTAssertNil(gym1.repeatExchange(forCompletion: 1), "the first completion plays the end scene, not an exchange")
+        XCTAssertEqual(gym1.repeatExchange(forCompletion: 2), gym1.repeatExchanges?[0])
+        XCTAssertEqual(gym1.repeatExchange(forCompletion: 4), gym1.repeatExchanges?[2])
+        XCTAssertEqual(gym1.repeatExchange(forCompletion: 5), gym1.repeatExchanges?[0], "exchanges cycle")
+        XCTAssertNil(bundle.quest("quest.lower_district")?.repeatExchange(forCompletion: 2), "the walks have none")
+        for q in bundle.quests { for x in q.repeatExchanges ?? [] { XCTAssertLessThanOrEqual(x.flatMap(\.lines).count, 4, "\(q.id): an exchange is short") } }
+        XCTAssertEqual(bundle.rumours.count, 12)
+        let milestoneIDs = Set(bundle.campaign.chapters.flatMap { $0.milestones.map(\.id) })
+        for r in bundle.rumours { XCTAssertTrue(milestoneIDs.contains(r.after), "rumour gated on unknown milestone \(r.after.rawValue)") }
+        XCTAssertEqual(bundle.rumours.filter { $0.after == "under_city.3.protein_row" }.count, 6, "six rumours open with the Row")
+        let storyLined = bundle.goalTemplates.filter { !$0.storyLines.isEmpty }
+        XCTAssertEqual(storyLined.map(\.id.rawValue).sorted(), ["goal.rest.walk", "goal.train.strength"], "the Central Hill line stays in drafts until chapter two")
+        for t in storyLined { for s in t.storyLines { XCTAssertFalse(s.lines.isEmpty, t.id.rawValue); XCTAssertTrue(milestoneIDs.contains(MilestoneID(s.after)) || s.after.hasPrefix("quest."), "\(t.id): \(s.after)") } }
+        let rain = try XCTUnwrap(bundle.reward("reward.l3.world"))
+        XCTAssertEqual(rain.trigger.questID, "quest.protein_row", "the rain stops when Protein Row is first completed, not at a level")
+        XCTAssertEqual(rain.displayName, "The rain stops")
+        XCTAssertEqual(bundle.rewards(onCompleting: "quest.protein_row").map(\.id), ["reward.l3.world"])
+        XCTAssertTrue(bundle.rewards(onCompleting: "quest.lower_district").isEmpty)
     }
 }

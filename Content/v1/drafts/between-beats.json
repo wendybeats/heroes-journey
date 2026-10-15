@@ -1,5 +1,5 @@
 {
-  "_draft": "Doc 33 content drafts. Moved into bundle.json 2026-10-12: held_lines, chapter.ascension_2, Cairon's four challenges and the three lifter challenges (ids remapped to npc.gym.lifter_01/02/03). Still here: courier and shake-stand challenges (no art yet), repeat_exchanges, pages, story_lines, rumours.",
+  "_draft": "Doc 33 content drafts. Moved into bundle.json: held_lines, chapter.ascension_2, Cairon and lifter challenges (2026-10-12); repeat_exchanges, pages, story_lines, rumours (2026-10-15). Still here only: the courier and shake-stand challenges (no art yet).",
   "characters": [
     {
       "id": "npc.gym.lifter",
@@ -1008,48 +1008,18 @@
       "description": "Someone new on the floor today. Looked at the stairs. They all do."
     }
   ],
-  "story_lines": [
-    {
-      "goal": "goal.train.strength",
-      "after": "under_city.5.gym_unlock",
-      "lines": [
-        "Thirty minutes under load. The Gym will still be there when you're done.",
-        "Lift. Then come back. Both halves count."
-      ]
-    },
-    {
-      "goal": "goal.train.strength",
-      "after": "under_city.8.reveal",
-      "lines": [
-        "Thirty minutes. Stronger isn't the problem. Remember that.",
-        "Thirty minutes. Colossus would call that a warm-up."
-      ]
-    },
-    {
-      "goal": "goal.train.strength",
-      "after": "under_city.10.resolution",
-      "lines": [
-        "Go train. Just come home when you're done.",
-        "Thirty minutes. Then something else."
-      ]
-    },
-    {
-      "goal": "goal.rest.walk",
-      "after": "quest.lower_district.rare",
-      "lines": [
-        "Take the long way. Tell me if you see that door again.",
-        "Twenty minutes. If the door's there, don't open it. Just tell me."
-      ]
-    },
-    {
-      "goal": "goal.train.cardio.long",
-      "after": "central_hill.reached",
-      "lines": [
-        "Forty-five minutes. And yes, I know what the Runner would say. Ignore him.",
-        "Longer one. The Hill has runners who never stop. You can stop."
-      ]
-    }
-  ],
+  "story_lines": {
+    "_note": "Parked until a Central Hill milestone exists (chapter two). Story-line flags must be a milestone id or quest.<id>.rare; integrity rejects anything else.",
+    "goal.train.cardio.long": [
+      {
+        "after": "central_hill.reached",
+        "lines": [
+          "Forty-five minutes. And yes, I know what the Runner would say. Ignore him.",
+          "Longer one. The Hill has runners who never stop. You can stop."
+        ]
+      }
+    ]
+  },
   "rumours": [
     {
       "after": "under_city.3.protein_row",

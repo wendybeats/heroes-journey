@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.12-2",
+  "content_version": "2026.10.15-1",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -426,6 +426,86 @@
       "starter": true,
       "description": "Grey trainers, soles worn nearly smooth. Whatever wore them down happened before you woke up.",
       "notes": "Starter outfit (doc 32): the running shoes layer recoloured."
+    },
+    {
+      "id": "item.page.colossus_log.01",
+      "display_name": "Log, day one",
+      "slot": "collectible",
+      "rarity": "uncommon",
+      "asset_set_id": "icon.item.page",
+      "icon_asset_set_id": "icon.item.page",
+      "description": "First day. Bench felt good. Coming back tomorrow.",
+      "notes": "Doc 33 found page: a line from Colossus's training log. Owned, never worn; the Room shows the set in order."
+    },
+    {
+      "id": "item.page.colossus_log.02",
+      "display_name": "Log, year one",
+      "slot": "collectible",
+      "rarity": "uncommon",
+      "asset_set_id": "icon.item.page",
+      "icon_asset_set_id": "icon.item.page",
+      "description": "One year today. Added the vest. Stairs feel easier.",
+      "notes": "Doc 33 found page: a line from Colossus's training log. Owned, never worn; the Room shows the set in order."
+    },
+    {
+      "id": "item.page.colossus_log.03",
+      "display_name": "Log, year two",
+      "slot": "collectible",
+      "rarity": "uncommon",
+      "asset_set_id": "icon.item.page",
+      "icon_asset_set_id": "icon.item.page",
+      "description": "Old man on the Row says I spend too much time here. He looked smaller than I remembered.",
+      "notes": "Doc 33 found page: a line from Colossus's training log. Owned, never worn; the Room shows the set in order."
+    },
+    {
+      "id": "item.page.colossus_log.04",
+      "display_name": "Log, year four",
+      "slot": "collectible",
+      "rarity": "uncommon",
+      "asset_set_id": "icon.item.page",
+      "icon_asset_set_id": "icon.item.page",
+      "description": "They put my name on the sign. Asked for it bigger.",
+      "notes": "Doc 33 found page: a line from Colossus's training log. Owned, never worn; the Room shows the set in order."
+    },
+    {
+      "id": "item.page.colossus_log.05",
+      "display_name": "Log, year six",
+      "slot": "collectible",
+      "rarity": "uncommon",
+      "asset_set_id": "icon.item.page",
+      "icon_asset_set_id": "icon.item.page",
+      "description": "Missed six days. First time in years. Made them back.",
+      "notes": "Doc 33 found page: a line from Colossus's training log. Owned, never worn; the Room shows the set in order."
+    },
+    {
+      "id": "item.page.colossus_log.06",
+      "display_name": "Log, year eight",
+      "slot": "collectible",
+      "rarity": "uncommon",
+      "asset_set_id": "icon.item.page",
+      "icon_asset_set_id": "icon.item.page",
+      "description": "Kid asked what I'm training for. Told him I'll know when I get there.",
+      "notes": "Doc 33 found page: a line from Colossus's training log. Owned, never worn; the Room shows the set in order."
+    },
+    {
+      "id": "item.page.colossus_log.07",
+      "display_name": "Log, year ten",
+      "slot": "collectible",
+      "rarity": "uncommon",
+      "asset_set_id": "icon.item.page",
+      "icon_asset_set_id": "icon.item.page",
+      "description": "Couldn't remember my first program today. Added a plate.",
+      "notes": "Doc 33 found page: a line from Colossus's training log. Owned, never worn; the Room shows the set in order."
+    },
+    {
+      "id": "item.page.colossus_log.08",
+      "display_name": "Log, year eleven",
+      "slot": "collectible",
+      "rarity": "uncommon",
+      "asset_set_id": "icon.item.page",
+      "icon_asset_set_id": "icon.item.page",
+      "description": "Someone new on the floor today. Looked at the stairs. They all do.",
+      "notes": "Doc 33 found page: a line from Colossus's training log. Owned, never worn; the Room shows the set in order."
     }
   ],
   "rewards": [
@@ -446,8 +526,8 @@
     {
       "id": "reward.l3.world",
       "trigger": {
-        "type": "unassigned",
-        "level": 3
+        "type": "quest_completed",
+        "quest_id": "quest.protein_row"
       },
       "grants": [
         {
@@ -455,7 +535,8 @@
           "reaction_id": "world.rain_stops"
         }
       ],
-      "notes": "Owner 2026-10-05: nothing is granted on level-up yet; kept with its former level for when the chapter decides it."
+      "notes": "Doc 33 (2026-10-15): the world reaction moves from an unassigned level reward to the first claimed completion of Protein Row. No dry backdrop yet; the grant is on the ledger for when one exists.",
+      "display_name": "The rain stops"
     },
     {
       "id": "reward.l4.gloves",
@@ -680,6 +761,110 @@
           "item_id": "item.vest.colossus"
         }
       ]
+    },
+    {
+      "id": "reward.page.colossus_log.01",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.page.colossus_log.01"
+        }
+      ],
+      "notes": "Doc 33 found page, dropped by the Gym quests' page row."
+    },
+    {
+      "id": "reward.page.colossus_log.02",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.page.colossus_log.02"
+        }
+      ],
+      "notes": "Doc 33 found page, dropped by the Gym quests' page row."
+    },
+    {
+      "id": "reward.page.colossus_log.03",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.page.colossus_log.03"
+        }
+      ],
+      "notes": "Doc 33 found page, dropped by the Gym quests' page row."
+    },
+    {
+      "id": "reward.page.colossus_log.04",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.page.colossus_log.04"
+        }
+      ],
+      "notes": "Doc 33 found page, dropped by the Gym quests' page row."
+    },
+    {
+      "id": "reward.page.colossus_log.05",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.page.colossus_log.05"
+        }
+      ],
+      "notes": "Doc 33 found page, dropped by the Gym quests' page row."
+    },
+    {
+      "id": "reward.page.colossus_log.06",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.page.colossus_log.06"
+        }
+      ],
+      "notes": "Doc 33 found page, dropped by the Gym quests' page row."
+    },
+    {
+      "id": "reward.page.colossus_log.07",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.page.colossus_log.07"
+        }
+      ],
+      "notes": "Doc 33 found page, dropped by the Gym quests' page row."
+    },
+    {
+      "id": "reward.page.colossus_log.08",
+      "trigger": {
+        "type": "quest"
+      },
+      "grants": [
+        {
+          "type": "item",
+          "item_id": "item.page.colossus_log.08"
+        }
+      ],
+      "notes": "Doc 33 found page, dropped by the Gym quests' page row."
     }
   ],
   "backdrops": [
@@ -1001,7 +1186,30 @@
         "combat",
         "mobility"
       ],
-      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays."
+      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays.",
+      "story_lines": [
+        {
+          "after": "under_city.5.gym_unlock",
+          "lines": [
+            "Thirty minutes under load. The Gym will still be there when you're done.",
+            "Lift. Then come back. Both halves count."
+          ]
+        },
+        {
+          "after": "under_city.8.reveal",
+          "lines": [
+            "Thirty minutes. Stronger isn't the problem. Remember that.",
+            "Thirty minutes. Colossus would call that a warm-up."
+          ]
+        },
+        {
+          "after": "under_city.10.resolution",
+          "lines": [
+            "Go train. Just come home when you're done.",
+            "Thirty minutes. Then something else."
+          ]
+        }
+      ]
     },
     {
       "id": "goal.train.strength.sets",
@@ -1179,7 +1387,16 @@
       "tags": [
         "rest"
       ],
-      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays."
+      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays.",
+      "story_lines": [
+        {
+          "after": "quest.lower_district.rare",
+          "lines": [
+            "Take the long way. Tell me if you see that door again.",
+            "Twenty minutes. If the door's there, don't open it. Just tell me."
+          ]
+        }
+      ]
     },
     {
       "id": "goal.rest.mobility",
@@ -2106,8 +2323,82 @@
         ],
         "rare": [
           "reward.quest.colossus_vest"
+        ],
+        "page": [
+          "reward.page.colossus_log.01",
+          "reward.page.colossus_log.02",
+          "reward.page.colossus_log.03",
+          "reward.page.colossus_log.04"
         ]
-      }
+      },
+      "repeat_exchanges": [
+        [
+          {
+            "speaker": "hero",
+            "lines": [
+              "Same floor. Same people."
+            ]
+          },
+          {
+            "speaker": "guide.elder",
+            "lines": [
+              "Same you?"
+            ]
+          },
+          {
+            "speaker": "hero",
+            "lines": [
+              "...Mostly."
+            ]
+          }
+        ],
+        [
+          {
+            "speaker": "hero",
+            "lines": [
+              "One of them asked how long I've been coming."
+            ]
+          },
+          {
+            "speaker": "guide.elder",
+            "lines": [
+              "What did you say?"
+            ]
+          },
+          {
+            "speaker": "hero",
+            "lines": [
+              "I said not long. He said that's what he said."
+            ]
+          }
+        ],
+        [
+          {
+            "speaker": "hero",
+            "lines": [
+              "I didn't look at the stairs today."
+            ]
+          },
+          {
+            "speaker": "guide.elder",
+            "lines": [
+              "You noticed you didn't look."
+            ]
+          },
+          {
+            "speaker": "hero",
+            "lines": [
+              "Yeah."
+            ]
+          },
+          {
+            "speaker": "guide.elder",
+            "lines": [
+              "Good."
+            ]
+          }
+        ]
+      ]
     },
     {
       "id": "quest.colossus_gym_02",
@@ -2151,8 +2442,56 @@
         "rare": [
           "reward.quest.colossus_vest",
           "reward.quest.junko_pants"
+        ],
+        "page": [
+          "reward.page.colossus_log.03",
+          "reward.page.colossus_log.04",
+          "reward.page.colossus_log.05",
+          "reward.page.colossus_log.06"
         ]
-      }
+      },
+      "repeat_exchanges": [
+        [
+          {
+            "speaker": "hero",
+            "lines": [
+              "The logbook had a new page."
+            ]
+          },
+          {
+            "speaker": "guide.elder",
+            "lines": [
+              "Same name?"
+            ]
+          },
+          {
+            "speaker": "hero",
+            "lines": [
+              "Same name. Today's date."
+            ]
+          }
+        ],
+        [
+          {
+            "speaker": "hero",
+            "lines": [
+              "Someone down there asked me to spot them. They didn't say thanks. They said \"again\"."
+            ]
+          },
+          {
+            "speaker": "guide.elder",
+            "lines": [
+              "Did you?"
+            ]
+          },
+          {
+            "speaker": "hero",
+            "lines": [
+              "I came home."
+            ]
+          }
+        ]
+      ]
     },
     {
       "id": "quest.colossus_gym_03",
@@ -2197,8 +2536,56 @@
           "reward.quest.colossus_vest",
           "reward.quest.row_shades",
           "reward.quest.junko_pants"
+        ],
+        "page": [
+          "reward.page.colossus_log.05",
+          "reward.page.colossus_log.06",
+          "reward.page.colossus_log.07",
+          "reward.page.colossus_log.08"
         ]
-      }
+      },
+      "repeat_exchanges": [
+        [
+          {
+            "speaker": "hero",
+            "lines": [
+              "He nodded at me today."
+            ]
+          },
+          {
+            "speaker": "guide.elder",
+            "lines": [
+              "Colossus?"
+            ]
+          },
+          {
+            "speaker": "hero",
+            "lines": [
+              "Yeah."
+            ]
+          },
+          {
+            "speaker": "guide.elder",
+            "lines": [
+              "Hm."
+            ]
+          }
+        ],
+        [
+          {
+            "speaker": "hero",
+            "lines": [
+              "I trained next to him. Neither of us said anything."
+            ]
+          },
+          {
+            "speaker": "guide.elder",
+            "lines": [
+              "Then you both said the same thing."
+            ]
+          }
+        ]
+      ]
     }
   ],
   "world_name": "Neo Tokyo",
@@ -3808,6 +4195,56 @@
           ]
         }
       ]
+    }
+  ],
+  "rumours": [
+    {
+      "after": "under_city.3.protein_row",
+      "text": "Someone on the Row swears the Gym's sign got bigger overnight. Nobody measured it."
+    },
+    {
+      "after": "under_city.3.protein_row",
+      "text": "Test MAX is offering a \"final formula\" again. Apparently this is the fourth one."
+    },
+    {
+      "after": "under_city.3.protein_row",
+      "text": "A courier says there's a block past the overpass that doesn't end. Couriers say a lot."
+    },
+    {
+      "after": "under_city.3.protein_row",
+      "text": "The shake stand's been there longer than the street, apparently. The old man won't say which came first."
+    },
+    {
+      "after": "under_city.3.protein_row",
+      "text": "Somebody saw the sunglasses man blink. Nobody believes them."
+    },
+    {
+      "after": "under_city.3.protein_row",
+      "text": "The rain on the Row stops for nobody. Except, people say, once."
+    },
+    {
+      "after": "under_city.5.gym_unlock",
+      "text": "Someone on the Row says the Gym never closes. The front desk says it closes every night."
+    },
+    {
+      "after": "under_city.5.gym_unlock",
+      "text": "They say the lower floor plays music. Nobody who's been down there remembers hearing it."
+    },
+    {
+      "after": "under_city.5.gym_unlock",
+      "text": "Someone ordered food to the Gym three nights in a row. Same order. Same name. Different courier each time."
+    },
+    {
+      "after": "under_city.5.gym_unlock",
+      "text": "Someone left a logbook page on the crates outside. Blank except the date. Tomorrow's."
+    },
+    {
+      "after": "under_city.5.gym_unlock",
+      "text": "The front desk doesn't keep a member list. Nobody seems bothered by this."
+    },
+    {
+      "after": "under_city.7.deeper",
+      "text": "People say Colossus hasn't left the building in a year. People also say the building's been getting bigger."
     }
   ]
 }

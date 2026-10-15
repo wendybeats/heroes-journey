@@ -59,18 +59,24 @@ public enum QuestResolver {
     /// reward. Nil when the table is empty.
     /// `runsSinceRare` + `pityAfter` (doc 29): once the player has gone `pityAfter` resolved runs without a
     /// rare, the roll is the rare row (the last `rare`-tier row). Deterministic like the plain roll.
-    public static func roll(table: [ProgressionRuleset.DailyQuest.RewardEntry], runID: UUID, runsSinceRare: Int = 0, pityAfter: Int? = nil) -> Int? {
+    /// `availableTiers`, when given, zero-weights rows whose tier the quest has no pool for (doc 33: the page row
+    /// only rolls on quests that carry pages), so indices still address the ruleset table.
+    public static func roll(table: [ProgressionRuleset.DailyQuest.RewardEntry], runID: UUID, runsSinceRare: Int = 0, pityAfter: Int? = nil, availableTiers: Set<String>? = nil) -> Int? {
         guard !table.isEmpty else { return nil }
+        func weight(_ e: ProgressionRuleset.DailyQuest.RewardEntry) -> Double {
+            if let availableTiers, !availableTiers.contains(e.tier) { return 0 }
+            return max(0, e.weight)
+        }
         if let pity = pityAfter, pity > 0, runsSinceRare >= pity, let rare = table.lastIndex(where: { $0.tier == "rare" }) { return rare }
         var rng = SeededGenerator(seed: runID.uuidString.hashValueStable)
-        let total = table.reduce(0.0) { $0 + max(0, $1.weight) }
-        guard total > 0 else { return 0 }
+        let total = table.reduce(0.0) { $0 + weight($1) }
+        guard total > 0 else { return table.firstIndex { $0.weight > 0 } ?? 0 }
         var roll = Double(rng.next() % 1_000_000) / 1_000_000 * total
         for (i, entry) in table.enumerated() {
-            roll -= max(0, entry.weight)
+            roll -= weight(entry)
             if roll < 0 { return i }
         }
-        return table.count - 1
+        return table.lastIndex { weight($0) > 0 } ?? table.count - 1
     }
 
     /// Choose the reward for a rolled tier from the quest's pools: an ungranted reward of that tier

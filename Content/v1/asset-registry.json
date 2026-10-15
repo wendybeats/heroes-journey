@@ -478,6 +478,35 @@
       "source": "assets/sprites/icon.item.hoodie_box/rev1/source"
     },
     {
+      "id": "icon.item.page",
+      "kind": "icon",
+      "world": "city",
+      "area": "colossus_gym",
+      "scene": "deep_floor",
+      "mood": [
+        "iron",
+        "paper"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/icon.item.page/rev1",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 627,
+            "height": 627
+          }
+        }
+      ],
+      "source": "assets/sprites/icon.item.page/rev1/source"
+    },
+    {
       "id": "icon.item.pants_junko",
       "kind": "icon",
       "world": "city",
@@ -995,6 +1024,7 @@
     "colossus_gym": [
       "backdrop.colossus_gym.exterior_01",
       "backdrop.colossus_gym.interior_01",
+      "icon.item.page",
       "npc.colossus",
       "npc.gym.lifter_01",
       "npc.gym.lifter_02",

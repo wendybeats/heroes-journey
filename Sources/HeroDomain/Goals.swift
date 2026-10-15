@@ -73,11 +73,26 @@ public struct GoalTemplate: Hashable, Codable, Sendable {
     /// Selection tags: `training`, `rest`, a family id, an interest (`learning`, `mindfulness`),
     /// a motivation, `rare`. Matching the generator's inputs raises a template's weight.
     public let tags: [String]
+    /// Doc 33: rare alternate lines once a story flag is set (a milestone id, or a flag the app derives such as
+    /// `quest.lower_district.rare`). The generator uses one in place of `lines` at the ruleset's chance.
+    public struct StoryLines: Hashable, Codable, Sendable {
+        public let after: String
+        public let lines: [String]
+        public init(after: String, lines: [String]) { self.after = after; self.lines = lines }
+    }
+    public let storyLines: [StoryLines]
 
-    enum CodingKeys: String, CodingKey { case id, slot, title, lines, attributeID = "attribute_id", rule, tags }
+    enum CodingKeys: String, CodingKey { case id, slot, title, lines, attributeID = "attribute_id", rule, tags, storyLines = "story_lines" }
 
-    public init(id: GoalTemplateID, slot: GoalSlot, title: String, lines: [String], attributeID: AttributeID, rule: GoalCompletionRule, tags: [String]) {
-        self.id = id; self.slot = slot; self.title = title; self.lines = lines; self.attributeID = attributeID; self.rule = rule; self.tags = tags
+    public init(id: GoalTemplateID, slot: GoalSlot, title: String, lines: [String], attributeID: AttributeID, rule: GoalCompletionRule, tags: [String], storyLines: [StoryLines] = []) {
+        self.id = id; self.slot = slot; self.title = title; self.lines = lines; self.attributeID = attributeID; self.rule = rule; self.tags = tags; self.storyLines = storyLines
+    }
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(GoalTemplateID.self, forKey: .id); slot = try c.decode(GoalSlot.self, forKey: .slot); title = try c.decode(String.self, forKey: .title)
+        lines = try c.decode([String].self, forKey: .lines); attributeID = try c.decode(AttributeID.self, forKey: .attributeID)
+        rule = try c.decode(GoalCompletionRule.self, forKey: .rule); tags = try c.decodeIfPresent([String].self, forKey: .tags) ?? []
+        storyLines = try c.decodeIfPresent([StoryLines].self, forKey: .storyLines) ?? []
     }
 }
 
@@ -152,9 +167,11 @@ public struct DailyGoal: Hashable, Codable, Sendable, Identifiable {
     public let lineIndex: Int
     /// Resolved numeric target (steps), if the rule has one.
     public let target: Int?
+    /// Doc 33: a story-aware line chosen for the day instead of `lines[lineIndex]`. Absent on older plans.
+    public let storyLine: String?
 
-    public init(id: UUID = UUID(), templateID: GoalTemplateID, slot: GoalSlot, day: DayKey, lineIndex: Int, target: Int?) {
-        self.id = id; self.templateID = templateID; self.slot = slot; self.day = day; self.lineIndex = lineIndex; self.target = target
+    public init(id: UUID = UUID(), templateID: GoalTemplateID, slot: GoalSlot, day: DayKey, lineIndex: Int, target: Int?, storyLine: String? = nil) {
+        self.id = id; self.templateID = templateID; self.slot = slot; self.day = day; self.lineIndex = lineIndex; self.target = target; self.storyLine = storyLine
     }
 }
 
@@ -229,9 +246,14 @@ public enum GoalGenerator {
         public let completions: [GoalCompletion]
         public let seed: UInt64
         public let calendar: Calendar
-        public init(day: DayKey, templates: [GoalTemplate], preferences: GoalPreferences, level: Int, history: [GoalPlan], completions: [GoalCompletion], seed: UInt64, calendar: Calendar) {
+        /// Doc 33: story flags the player has reached (milestone ids and app-derived flags); a template's
+        /// `story_lines` whose `after` is among them may replace the day's line, at `storyLineChance`.
+        public let storyFlags: Set<String>
+        public let storyLineChance: Double
+        public init(day: DayKey, templates: [GoalTemplate], preferences: GoalPreferences, level: Int, history: [GoalPlan], completions: [GoalCompletion], seed: UInt64, calendar: Calendar, storyFlags: Set<String> = [], storyLineChance: Double = 0) {
             self.day = day; self.templates = templates; self.preferences = preferences; self.level = level
             self.history = history; self.completions = completions; self.seed = seed; self.calendar = calendar
+            self.storyFlags = storyFlags; self.storyLineChance = storyLineChance
         }
     }
 
@@ -244,7 +266,12 @@ public enum GoalGenerator {
         for slot in GoalSlot.allCases {
             guard let pick = select(slot: slot, inputs: inputs, trainingDay: isTrainingDay, rng: &rng) else { continue }
             let lineIndex = pick.lines.isEmpty ? 0 : Int(rng.next() % UInt64(pick.lines.count))
-            goals.append(DailyGoal(templateID: pick.id, slot: slot, day: inputs.day, lineIndex: lineIndex, target: target(for: pick, level: inputs.level)))
+            // Doc 33: rarely, a line that knows what has happened (the owner's rule: about one in ten, never every goal).
+            var storyLine: String? = nil
+            let unlocked = pick.storyLines.filter { inputs.storyFlags.contains($0.after) }.flatMap(\.lines)
+            let chanceRoll = Double(rng.next() % 1_000_000) / 1_000_000
+            if !unlocked.isEmpty, chanceRoll < inputs.storyLineChance { storyLine = unlocked[Int(rng.next() % UInt64(unlocked.count))] }
+            goals.append(DailyGoal(templateID: pick.id, slot: slot, day: inputs.day, lineIndex: lineIndex, target: target(for: pick, level: inputs.level), storyLine: storyLine))
         }
         return GoalPlan(day: inputs.day, goals: goals, generatedAt: now)
     }

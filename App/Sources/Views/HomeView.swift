@@ -147,7 +147,8 @@ struct HomeView: View {
         .onChange(of: levelUpStart == nil) { _, _ in scheduleStory() }
         .onChange(of: ascension == nil) { _, _ in scheduleStory() }
         .onChange(of: state.needsStage) { _, _ in scheduleStory() }
-        .onChange(of: state.pendingReturnChapter) { _, _ in scheduleStory() }
+        .onChange(of: state.pendingReturnScene?.id) { _, _ in scheduleStory() }
+        .onChange(of: state.lastWorldReaction) { _, name in if let name { state.lastWorldReaction = nil; showToast(ToastItem(text: name, symbol: "cloud.sun.fill")) } }
         .onChange(of: state.pendingAscension) { _, _ in scheduleStory() }
         .onChange(of: storyScene == nil) { _, _ in scheduleStory() }
         .onChange(of: departure == nil) { _, _ in scheduleStory() }
@@ -217,8 +218,8 @@ struct HomeView: View {
         // Owner 2026-10-06: an Ascension outranks every other beat. The takeover plays, then its scene, then the level's story.
         if let pending = state.pendingAscension { playAscension(pending); return }
         // A quest's end scene plays first (after its return reveal), then any beat the level has reached.
-        if let id = state.pendingReturnChapter {
-            if let chapter = state.bundle.chapter(id) { storyScene = StoryScene(chapter: chapter, milestone: nil) } else { state.clearPendingReturnChapter() }
+        if let chapter = state.pendingReturnScene {
+            storyScene = StoryScene(chapter: chapter, milestone: nil)
             return
         }
         guard let milestone = state.nextStoryBeat else { flushToasts(); return }
@@ -312,7 +313,7 @@ struct HomeView: View {
     }
 
     private func flushToasts() {
-        guard toast == nil, storyIdle, state.pendingAscension == nil, state.pendingReturnChapter == nil, state.nextStoryBeat == nil, !pendingToasts.isEmpty else { return }
+        guard toast == nil, storyIdle, state.pendingAscension == nil, state.pendingReturnScene == nil, state.nextStoryBeat == nil, !pendingToasts.isEmpty else { return }
         let item = pendingToasts.removeFirst()
         withAnimation(.spring(duration: 0.45, bounce: 0.25)) { toast = item }
         Task { @MainActor in

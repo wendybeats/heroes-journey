@@ -126,8 +126,10 @@ final class AppState {
     /// Doc 28: what the player has experienced and unlocked. Levels make beats eligible; this records them.
     private(set) var storyProgress: StoryProgress
     private(set) var challengeOffers: [ChallengeOffer]
-    /// A quest's end scene waiting to play after its return reveal.
-    private(set) var pendingReturnChapter: String?
+    /// A quest's end scene (first completion) or repeat exchange (later ones) waiting to play after its return reveal.
+    private(set) var pendingReturnScene: ContentBundle.StoryChapter?
+    /// A world reaction just granted (doc 33: the rain stops on Protein Row), for Home to toast once.
+    var lastWorldReaction: String?
     /// Owner 2026-10-06: an Ascension is a cutscene, never a stat that just appears. Recorded when the ledger
     /// crosses an evolution boundary (wherever that happens: a sheet, the quest screen, a relaunch) and played
     /// by Home as the highest-priority beat once the screen is quiet. Persisted so a kill mid-cover keeps it.
@@ -631,8 +633,10 @@ final class AppState {
         return raw.replacingOccurrences(of: "{target}", with: goal.target.map { $0.formatted() } ?? "")
     }
     func line(for goal: DailyGoal) -> String {
+        let target = goal.target.map { $0.formatted() } ?? ""
+        if let story = goal.storyLine { return story.replacingOccurrences(of: "{target}", with: target) }
         guard let t = template(for: goal), !t.lines.isEmpty else { return "" }
-        return t.lines[min(goal.lineIndex, t.lines.count - 1)].replacingOccurrences(of: "{target}", with: goal.target.map { $0.formatted() } ?? "")
+        return t.lines[min(goal.lineIndex, t.lines.count - 1)].replacingOccurrences(of: "{target}", with: target)
     }
     func isTrainingDay() -> Bool { GoalGenerator.isTrainingDay(today, preferences: goalPreferences, calendar: .current) }
 
@@ -652,7 +656,23 @@ final class AppState {
 
     private func generatorInputs(for day: DayKey) -> GoalGenerator.Inputs {
         .init(day: day, templates: bundle.goalTemplates, preferences: goalPreferences, level: snapshot.level,
-              history: goalPlans.filter { $0.day != day }, completions: goalCompletions, seed: goalSeed, calendar: .current)
+              history: goalPlans.filter { $0.day != day }, completions: goalCompletions, seed: goalSeed, calendar: .current,
+              storyFlags: storyFlags, storyLineChance: ruleset.goalStoryLineChance ?? 0)
+    }
+
+    /// Doc 33: what the story has reached, as flags the content can name: completed milestone ids, plus
+    /// `quest.<id>.rare` once a quest has come back with a rare roll.
+    var storyFlags: Set<String> {
+        var flags = Set(storyProgress.completedMilestones.map(\.rawValue))
+        for run in questRuns where run.isClaimed && rewardTier(for: run) == "rare" { flags.insert("quest.\(run.questID.rawValue).rare") }
+        return flags
+    }
+    /// Doc 33 Row rumours: one a day from the pool the story has unlocked, on rest days.
+    var todayRumour: String? {
+        let pool = bundle.rumours.filter { storyProgress.isComplete($0.after) }
+        guard !pool.isEmpty else { return nil }
+        let roll = ChallengeMath.roll(seed: "\(userID.rawValue.uuidString)|\(today.rawValue)|rumour")
+        return pool[Int(roll * Double(pool.count)) % pool.count].text
     }
 
     /// Preferences changed (onboarding, settings): rebuild today only if nothing was completed yet.
@@ -744,7 +764,7 @@ final class AppState {
         save()
     }
 
-    func clearPendingReturnChapter() { pendingReturnChapter = nil }
+    func clearPendingReturnChapter() { pendingReturnScene = nil }
 
     // MARK: setting the stage (doc 24)
 
@@ -790,7 +810,8 @@ final class AppState {
     func resolveQuestIfDue() {
         let now = self.now
         guard let i = questRuns.firstIndex(where: { $0.isDue(at: now) }), let table = ruleset.dailyQuest?.rewardTable,
-              let index = QuestResolver.roll(table: table, runID: questRuns[i].id, runsSinceRare: runsSinceRare, pityAfter: ruleset.dailyQuest?.pityRareAfter) else { return }
+              let index = QuestResolver.roll(table: table, runID: questRuns[i].id, runsSinceRare: runsSinceRare, pityAfter: ruleset.dailyQuest?.pityRareAfter,
+                                             availableTiers: (bundle.quest(questRuns[i].questID)?.lootPools).flatMap { $0.isEmpty ? nil : Set($0.map(\.tier)) }) else { return }
         // The quest's own loot pool decides what the rolled tier hands out, preferring something not yet owned (doc 29).
         let pools = bundle.quest(questRuns[i].questID)?.lootPools ?? []
         let chosen = QuestResolver.pick(tier: table[index].tier, pools: pools, granted: ledger.grantedRewardIDs, runID: questRuns[i].id)
@@ -833,16 +854,36 @@ final class AppState {
         guard let i = questRuns.firstIndex(where: { $0.id == run.id }), questRuns[i].isResolved, !questRuns[i].isClaimed else { return }
         questRuns[i].claimedAt = now
         if let eventID = questRuns[i].activityEventID, let receipt = outbox.receipt(for: eventID) { lastReceipt = receipt }
-        // Owner QA 2026-10-06: a quest's end scene plays on its first completion only; later runs keep their
-        // return lines but no scene. Repeat exchanges, if written, would be content on the quest, not code.
-        let firstCompletion = !questRuns.contains { $0.questID == questRuns[i].questID && $0.isClaimed && $0.id != run.id }
-        pendingReturnChapter = firstCompletion ? bundle.quest(questRuns[i].questID)?.onReturnChapter : nil
+        // Owner QA 2026-10-06 / doc 33: the end scene plays on the first completion; later completions play the
+        // quest's repeat exchanges in order (content), cycling, so a seventh walk still says something.
+        let questID = questRuns[i].questID
+        let completion = questRuns.filter { $0.questID == questID && $0.isClaimed }.count   // this one included
+        let quest = bundle.quest(questID)
+        if completion == 1 {
+            pendingReturnScene = quest?.onReturnChapter.flatMap { bundle.chapter($0) }
+            // Doc 33: rewards tied to a quest's first completion (the rain stops on Protein Row) go through the engine once.
+            for reward in bundle.rewards(onCompleting: questID) where !ledger.grantedRewardIDs.contains(reward.id) && !events.contains(where: { $0.story?.rewardID == reward.id }) {
+                let now = self.now
+                let event = ActivityEvent(userID: userID, activityTypeID: ActivityTypeID("quest.\(questID.rawValue).completed"), familyID: goalPreferences.primaryFamily, startedAt: now, durationSeconds: 0,
+                                          source: .story, verification: .selfReported, story: StoryReference(milestoneID: MilestoneID("quest.\(questID.rawValue).completed"), rewardID: reward.id), createdAt: now)
+                events.append(event)
+                outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
+                lastWorldReaction = reward.displayName ?? rewardDisplayName(reward.id)
+                Task { await drain(showReward: false) }
+            }
+        } else if let quest, let beats = quest.repeatExchange(forCompletion: completion) {
+            let backdrop = quest.onReturnChapter.flatMap { bundle.chapter($0) }?.backdropID ?? recipe?.backdropID ?? "backdrop.alley_awakening"
+            pendingReturnScene = ContentBundle.StoryChapter(id: "repeat.\(questID.rawValue).\(completion)", title: quest.displayName, backdropID: backdrop, then: "return", beats: beats)
+        } else {
+            pendingReturnScene = nil
+        }
         save()
     }
 
     /// What a reward is called when it lands: the item, backdrop or evolution it grants, else its id.
     func rewardDisplayName(_ id: RewardID) -> String {
         guard let reward = bundle.reward(id), let grant = reward.grants.first else { return id.rawValue }
+        if let name = reward.displayName { return name }
         if let i = grant.itemID, let item = bundle.item(i) { return item.displayName }
         if let b = grant.backdropID, let backdrop = bundle.backdrop(b) { return backdrop.displayName }
         if let e = grant.evolutionID, let ev = bundle.evolutions.first(where: { $0.id == e }) { return ev.displayName }
@@ -881,7 +922,7 @@ final class AppState {
         return bundle.backdrops.filter { ($0.isHomeScene && ($0.isDefault == true || grantedIDs.contains($0.id))) || (storyProgress.unlockedBackdrops.contains($0.id) && $0.role != "home_room") }
     }
     func setEquipped(_ item: ContentBundle.Item?, slot: AvatarRecipe.Slot) {
-        guard var r = recipe else { return }
+        guard var r = recipe, slot.isWearable else { return }
         if let item { r.equipped[slot] = item.id } else { r.equipped.removeValue(forKey: slot) }
         recipe = r
     }

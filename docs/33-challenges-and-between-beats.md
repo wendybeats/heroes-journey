@@ -111,8 +111,8 @@ Cairon has one challenge per attribute (`available_from_level: 2`); the cadence 
 4. **World reaction on a quest.** `world.rain_stops` exists as a reward with trigger `unassigned`; attach it to the first claimed completion of `quest.protein_row` (new reward trigger `quest_completed`). Visible only if a dry backdrop variant is authored.
 5. **Row rumours.** `rumours: [{ after, text }]` on the bundle; one a day on the goals card's rest-day line from the unlocked pool.
 
-## Status (2026-10-12)
-Increments 40, 41 and 42 are built (doc 20 increments 40–42): beats wait for their quest; challenges with Cairon and the three lifters from the owner's npcs-v3 handoff. The courier and the old man wait for art. Increments 43–44 are next.
+## Status (2026-10-15)
+Increments 40–44 are built (doc 20 increments 40–42 and 48): beats wait for their quest; challenges with Cairon and the three lifters; repeat exchanges on the gym quests; the eight log pages; story-aware goal lines (`goal_story_line_chance` 0.1); Row rumours; the rain stops on Protein Row's first completion. Still waiting: the courier and the old man (art), a dry Protein Row backdrop (art), and the Central Hill goal line (needs a chapter-two milestone; parked in drafts).
 
 ## D. Build plan and the changes each increment makes
 
@@ -159,7 +159,7 @@ Each increment ships behind its content: a field with no lines renders nothing, 
 - `Sources/HeroDomain/Goals.swift` (generator): story-line pool weighted by the ruleset once the trigger is met.
 - `Sources/HeroContent/ContentBundle.swift`: `GoalTemplate.storyLines`, `rumours`.
 - `App/Sources/Views/GoalsCard.swift`: rest-day rumour line.
-- `Content/v1/bundle.json`: the lines and rumours from the drafts; ruleset `story_line_weight: 0.1`.
+- `Content/v1/bundle.json`: the lines and rumours from the drafts; ruleset `goal_story_line_chance: 0.1`.
 - Tests: story lines never appear before their trigger; frequency within 5–15 % over a seeded year.
 
 ## E. Content inventory

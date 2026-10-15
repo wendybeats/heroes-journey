@@ -45,6 +45,14 @@ struct GoalsCard: View {
                 Text(held).font(HeroFont.caption).foregroundStyle(NeoTokyo.Hierarchy.primary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            // Doc 33 §C Row rumours: on a rest day, one line of talk from the Row, from the pool the story has unlocked.
+            if !state.isTrainingDay(), state.heldBeat == nil, let rumour = state.todayRumour {
+                VStack(alignment: .leading, spacing: 2) {
+                    Eyebrow(text: "Heard on the Row")
+                    Text(rumour).font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
             if case .ready = state.questState {
                 // The notification explainer appears only until the system prompt has been answered; after that
                 // "Begin quest" departs straight away (owner QA 2026-10-05).

@@ -111,6 +111,22 @@ final class QuestTests: XCTestCase {
         XCTAssertTrue(claimed.isClaimed)
     }
 
+    /// Doc 33: the page row is in the shared table but only counts for quests that have a page pool.
+    func testAvailableTiersZeroWeightRowsTheQuestCannotPay() {
+        let withPage = table + [ProgressionRuleset.DailyQuest.RewardEntry(weight: 25, xp: 12, tier: "page")]
+        var pageRolls = 0
+        for _ in 0..<2000 {
+            let id = UUID()
+            let walk = QuestResolver.roll(table: withPage, runID: id, availableTiers: ["common", "uncommon", "rare"])!
+            XCTAssertNotEqual(withPage[walk].tier, "page", "a walk never rolls a page")
+            if withPage[QuestResolver.roll(table: withPage, runID: id, availableTiers: ["common", "uncommon", "rare", "page"])!].tier == "page" { pageRolls += 1 }
+        }
+        XCTAssertEqual(Double(pageRolls) / 2000, 0.2, accuracy: 0.04, "25 of 125 for a gym quest")
+        let id = UUID()
+        XCTAssertEqual(QuestResolver.roll(table: withPage, runID: id, availableTiers: nil), QuestResolver.roll(table: withPage, runID: id), "nil means every row is live")
+        XCTAssertEqual(QuestResolver.roll(table: withPage, runID: id, availableTiers: []), 0, "nothing available: the first paying row, XP only")
+    }
+
     /// Doc 29: pity forces the rare row once the drought is long enough; off by default; still deterministic.
     func testPityForcesTheRareRowAfterTheDrought() {
         let id = UUID()
