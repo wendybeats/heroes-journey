@@ -29,6 +29,8 @@ jobs:
         run: python3 Tools/build_asset_registry.py --check
       - name: Level curve matches its derivation (docs/21 dev-5)
         run: python3 Tools/derive_level_curve.py Content/v1/ruleset.dev-5.json --check
+      - name: Chapter is complete, reachable and inside its surfaces (docs/34)
+        run: python3 Tools/check_chapter.py Content/v1/bundle.json
       - name: Validate every sprite revision
         run: |
           set -e

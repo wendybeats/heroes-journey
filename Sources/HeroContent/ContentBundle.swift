@@ -472,6 +472,11 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         // Doc 33: beats that wait for a quest name a real quest; challenges resolve every id they name.
         for m in campaign.milestones {
             if let q = m.requiresQuest, !questIDs.contains(q) { problems.append("milestone \(m.id) → unknown requires_quest \(q)") }
+            if let gate = m.requiresAreaQuests {
+                if !areaIDs.contains(gate.areaID) { problems.append("milestone \(m.id) → unknown requires_area_quests area \(gate.areaID)") }
+                if gate.count < 1 { problems.append("milestone \(m.id) requires_area_quests count must be at least 1") }
+                if !quests.contains(where: { $0.areaID == gate.areaID }) { problems.append("milestone \(m.id) requires quests in \(gate.areaID) but no quest is in that area") }
+            }
         }
         for q in quests { for x in q.repeatExchanges ?? [] { for beat in x where !characterIDs.contains(beat.speaker) { problems.append("quest \(q.id) repeat exchange → unknown speaker \(beat.speaker)") } } }
         for r in rumours where !milestoneIDs.contains(r.after) { problems.append("rumour → unknown milestone \(r.after)") }

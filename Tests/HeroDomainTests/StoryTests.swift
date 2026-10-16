@@ -46,6 +46,24 @@ final class StoryTests: XCTestCase {
         XCTAssertEqual(try! JSONDecoder().decode(Milestone.self, from: data), held)
     }
 
+    /// Doc 34: the boss beat waits for Level 10 and three completed gym-area runs; repeats of one quest count.
+    func testBeatsWaitForEnoughQuestRunsInAnArea() throws {
+        let boss = Milestone(id: "one.10", level: 10, trigger: .manual, triggerLabel: "Face him", storyChapter: "chapter.boss", completesChapter: true,
+                             requiresQuest: "quest.gym_3", requiresAreaQuests: AreaQuestGate(areaID: "colossus_gym", count: 3), heldLine: "Three floors first.")
+        let c = Campaign(chapters: [CampaignChapter(id: "chapter.one", areaID: "under_city", displayName: "One", levels: [1, 10], milestones: [m("one.9", 9), boss])])
+        var p = StoryProgress()
+        p = StoryDirector.complete(c.milestone("one.9")!, campaign: c, progress: p)
+        XCTAssertTrue(StoryDirector.offered(level: 10, campaign: c, progress: p, completedQuests: ["quest.gym_3"], areaQuestRuns: ["colossus_gym": 2]).isEmpty, "two runs: held")
+        XCTAssertEqual(StoryDirector.held(level: 10, campaign: c, progress: p, completedQuests: ["quest.gym_3"], areaQuestRuns: ["colossus_gym": 2])?.heldLine, "Three floors first.")
+        XCTAssertTrue(StoryDirector.offered(level: 10, campaign: c, progress: p, completedQuests: [], areaQuestRuns: ["colossus_gym": 5]).isEmpty, "runs enough, named quest never done: still held")
+        XCTAssertEqual(StoryDirector.offered(level: 10, campaign: c, progress: p, completedQuests: ["quest.gym_3"], areaQuestRuns: ["colossus_gym": 3]).map(\.id), ["one.10"])
+        XCTAssertTrue(StoryDirector.offered(level: 9, campaign: c, progress: p, completedQuests: ["quest.gym_3"], areaQuestRuns: ["colossus_gym": 3]).isEmpty, "not before its level")
+        XCTAssertTrue(StoryDirector.offered(level: 10, campaign: c, progress: p, completedQuests: ["quest.gym_3"], areaQuestRuns: ["under_city": 9]).isEmpty, "another area's runs do not count")
+        XCTAssertFalse(StoryDirector.isHeld(m("one.9", 9), completedQuests: [], areaQuestRuns: [:]), "no gate, never held")
+        let back = try JSONDecoder().decode(Milestone.self, from: try JSONEncoder().encode(boss))
+        XCTAssertEqual(back, boss); XCTAssertEqual(back.requiresAreaQuests?.count, 3)
+    }
+
     func testManualMilestoneGatesTheStoryUntilThePlayerStartsIt() {
         var p = StoryProgress()
         for id in ["one.1", "one.2", "one.5", "one.8"] { p = StoryDirector.complete(campaign.milestone(MilestoneID(id))!, campaign: campaign, progress: p) }

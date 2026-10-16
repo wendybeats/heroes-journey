@@ -6,6 +6,15 @@ import Foundation
 public enum MilestoneTag: Sendable {}
 public typealias MilestoneID = StableID<MilestoneTag>
 
+/// Doc 34 boss unlock: a beat that waits until the player has completed (claimed) at least `count` quest runs
+/// in an area. Runs of the same quest count; it is effort in the area the story wants, not a checklist.
+public struct AreaQuestGate: Hashable, Codable, Sendable {
+    public let areaID: AreaID
+    public let count: Int
+    public init(areaID: AreaID, count: Int) { self.areaID = areaID; self.count = count }
+    enum CodingKeys: String, CodingKey { case areaID = "area_id", count }
+}
+
 /// One beat of the campaign, bound to a level. Everything it does is declared as data; the app
 /// plays the chapter, applies the unlocks, and records completion.
 public struct Milestone: Hashable, Codable, Sendable {
@@ -28,20 +37,22 @@ public struct Milestone: Hashable, Codable, Sendable {
     /// Doc 33 §A: the beat waits until this quest has been completed (claimed) once. Beats play in order, so
     /// everything after a held beat waits too; a level never outruns the visit the story assumes.
     public let requiresQuest: QuestID?
+    /// Doc 34: the beat also waits for this many completed quest runs in an area (the boss: three gym quests).
+    public let requiresAreaQuests: AreaQuestGate?
     /// Shown on the goals card while the beat is held, so the stall reads as intent.
     public let heldLine: String?
     public let notes: String?
 
-    public init(id: MilestoneID, level: Int, trigger: Trigger = .auto, triggerLabel: String? = nil, storyChapter: String? = nil, unlockBackdrop: BackdropID? = nil, unlockQuest: QuestID? = nil, unlockFeature: String? = nil, reward: RewardID? = nil, completesChapter: Bool = false, teaseArea: AreaID? = nil, requiresQuest: QuestID? = nil, heldLine: String? = nil, notes: String? = nil) {
+    public init(id: MilestoneID, level: Int, trigger: Trigger = .auto, triggerLabel: String? = nil, storyChapter: String? = nil, unlockBackdrop: BackdropID? = nil, unlockQuest: QuestID? = nil, unlockFeature: String? = nil, reward: RewardID? = nil, completesChapter: Bool = false, teaseArea: AreaID? = nil, requiresQuest: QuestID? = nil, requiresAreaQuests: AreaQuestGate? = nil, heldLine: String? = nil, notes: String? = nil) {
         self.id = id; self.level = level; self.trigger = trigger; self.triggerLabel = triggerLabel; self.storyChapter = storyChapter
         self.unlockBackdrop = unlockBackdrop; self.unlockQuest = unlockQuest; self.unlockFeature = unlockFeature; self.reward = reward
-        self.completesChapter = completesChapter; self.teaseArea = teaseArea; self.requiresQuest = requiresQuest; self.heldLine = heldLine; self.notes = notes
+        self.completesChapter = completesChapter; self.teaseArea = teaseArea; self.requiresQuest = requiresQuest; self.requiresAreaQuests = requiresAreaQuests; self.heldLine = heldLine; self.notes = notes
     }
 
     enum CodingKeys: String, CodingKey {
         case id, level, trigger, triggerLabel = "trigger_label", storyChapter = "story_chapter", unlockBackdrop = "unlock_backdrop"
         case unlockQuest = "unlock_quest", unlockFeature = "unlock_feature", reward, completesChapter = "completes_chapter", teaseArea = "tease_area"
-        case requiresQuest = "requires_quest", heldLine = "held_line", notes
+        case requiresQuest = "requires_quest", requiresAreaQuests = "requires_area_quests", heldLine = "held_line", notes
     }
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -56,6 +67,7 @@ public struct Milestone: Hashable, Codable, Sendable {
         completesChapter = try c.decodeIfPresent(Bool.self, forKey: .completesChapter) ?? false
         teaseArea = try c.decodeIfPresent(AreaID.self, forKey: .teaseArea)
         requiresQuest = try c.decodeIfPresent(QuestID.self, forKey: .requiresQuest)
+        requiresAreaQuests = try c.decodeIfPresent(AreaQuestGate.self, forKey: .requiresAreaQuests)
         heldLine = try c.decodeIfPresent(String.self, forKey: .heldLine)
         notes = try c.decodeIfPresent(String.self, forKey: .notes)
     }
@@ -103,29 +115,31 @@ public enum StoryDirector {
         campaign.milestones.filter { $0.level <= level && !progress.isComplete($0.id) }
     }
 
-    /// Doc 33 §A: a milestone is held while the quest it requires has not been completed once.
-    public static func isHeld(_ milestone: Milestone, completedQuests: Set<QuestID>) -> Bool {
-        guard let q = milestone.requiresQuest else { return false }
-        return !completedQuests.contains(q)
+    /// Doc 33 §A / doc 34: a milestone is held while the quest it requires has not been completed once, or
+    /// while the area it names has fewer completed quest runs than it asks for. Both gates must clear.
+    public static func isHeld(_ milestone: Milestone, completedQuests: Set<QuestID>, areaQuestRuns: [AreaID: Int] = [:]) -> Bool {
+        if let q = milestone.requiresQuest, !completedQuests.contains(q) { return true }
+        if let gate = milestone.requiresAreaQuests, (areaQuestRuns[gate.areaID] ?? 0) < gate.count { return true }
+        return false
     }
 
     /// The first due beat that is waiting on its quest, if the story is stalled on one.
-    public static func held(level: Int, campaign: Campaign, progress: StoryProgress, completedQuests: Set<QuestID>) -> Milestone? {
-        guard let first = due(level: level, campaign: campaign, progress: progress).first, isHeld(first, completedQuests: completedQuests) else { return nil }
+    public static func held(level: Int, campaign: Campaign, progress: StoryProgress, completedQuests: Set<QuestID>, areaQuestRuns: [AreaID: Int] = [:]) -> Milestone? {
+        guard let first = due(level: level, campaign: campaign, progress: progress).first, isHeld(first, completedQuests: completedQuests, areaQuestRuns: areaQuestRuns) else { return nil }
         return first
     }
 
     /// The next beat to present automatically: the earliest due milestone, unless an earlier due
     /// milestone is manual (a boss gate) or held for its quest, in which case the story waits.
-    public static func nextAuto(level: Int, campaign: Campaign, progress: StoryProgress, completedQuests: Set<QuestID> = []) -> Milestone? {
+    public static func nextAuto(level: Int, campaign: Campaign, progress: StoryProgress, completedQuests: Set<QuestID> = [], areaQuestRuns: [AreaID: Int] = [:]) -> Milestone? {
         guard let first = due(level: level, campaign: campaign, progress: progress).first else { return nil }
-        return first.trigger == .auto && !isHeld(first, completedQuests: completedQuests) ? first : nil
+        return first.trigger == .auto && !isHeld(first, completedQuests: completedQuests, areaQuestRuns: areaQuestRuns) ? first : nil
     }
 
-    /// Manual milestones the player may start now (every earlier milestone is complete, its quest done).
-    public static func offered(level: Int, campaign: Campaign, progress: StoryProgress, completedQuests: Set<QuestID> = []) -> [Milestone] {
+    /// Manual milestones the player may start now (every earlier milestone is complete, its quests done).
+    public static func offered(level: Int, campaign: Campaign, progress: StoryProgress, completedQuests: Set<QuestID> = [], areaQuestRuns: [AreaID: Int] = [:]) -> [Milestone] {
         let dueList = due(level: level, campaign: campaign, progress: progress)
-        guard let first = dueList.first, first.trigger == .manual, !isHeld(first, completedQuests: completedQuests) else { return [] }
+        guard let first = dueList.first, first.trigger == .manual, !isHeld(first, completedQuests: completedQuests, areaQuestRuns: areaQuestRuns) else { return [] }
         return [first]
     }
 

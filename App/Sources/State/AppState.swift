@@ -734,13 +734,19 @@ final class AppState {
 
     var campaign: Campaign { bundle.campaign }
     /// The next beat to play automatically, if the player's level has reached it.
-    var nextStoryBeat: Milestone? { StoryDirector.nextAuto(level: snapshot.level, campaign: campaign, progress: storyProgress, completedQuests: completedQuestIDs) }
+    var nextStoryBeat: Milestone? { StoryDirector.nextAuto(level: snapshot.level, campaign: campaign, progress: storyProgress, completedQuests: completedQuestIDs, areaQuestRuns: completedRunsByArea) }
     /// Manual beats the player can start now (boss encounters).
-    var offeredMilestones: [Milestone] { StoryDirector.offered(level: snapshot.level, campaign: campaign, progress: storyProgress, completedQuests: completedQuestIDs) }
+    var offeredMilestones: [Milestone] { StoryDirector.offered(level: snapshot.level, campaign: campaign, progress: storyProgress, completedQuests: completedQuestIDs, areaQuestRuns: completedRunsByArea) }
     /// Doc 33 §A: quests completed (claimed) at least once; beats that require one wait for it.
     var completedQuestIDs: Set<QuestID> { Set(questRuns.filter(\.isClaimed).map(\.questID)) }
+    /// Doc 34: completed (claimed) quest runs per area, for beats that wait on effort in an area (the boss gate).
+    var completedRunsByArea: [AreaID: Int] {
+        var counts: [AreaID: Int] = [:]
+        for run in questRuns where run.isClaimed { if let area = bundle.quest(run.questID)?.areaID { counts[area, default: 0] += 1 } }
+        return counts
+    }
     /// The beat the story is waiting on, if any (its `heldLine` shows on the goals card).
-    var heldBeat: Milestone? { StoryDirector.held(level: snapshot.level, campaign: campaign, progress: storyProgress, completedQuests: completedQuestIDs) }
+    var heldBeat: Milestone? { StoryDirector.held(level: snapshot.level, campaign: campaign, progress: storyProgress, completedQuests: completedQuestIDs, areaQuestRuns: completedRunsByArea) }
     func hasFeature(_ feature: String) -> Bool { storyProgress.hasFeature(feature) }
     var currentChapter: CampaignChapter? { campaign.chapters.first { !storyProgress.completedChapters.contains($0.id) && $0.levelRange.contains(snapshot.level) } ?? campaign.chapters.last }
 

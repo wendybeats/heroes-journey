@@ -292,6 +292,10 @@ Story-aware goal lines: `GoalTemplate.story_lines [{after, lines}]`, chosen at `
 
 Not done here: the courier and the old man still wait for art; the dry Protein Row backdrop is not authored, so the rain reward is a toast and a ledger entry until it is.
 
+## Increment 49, 2026-10-16: the boss gate, the chapter gate, the area kit
+
+Prep that needs nothing from the owner's boss draft. **Area-quest gate:** `Milestone.requires_area_quests {area_id, count}` holds a beat until the player has claimed that many quest runs in the area; repeats of one quest count, since it is effort in the area the story wants. The director takes `areaQuestRuns` beside `completedQuests`; the app counts claimed runs by the quest's area. `under_city.10.resolution` now carries `colossus_gym × 3` with its existing `requires_quest` (the Level 10 ascension already precedes it). **Chapter gate:** `Tools/check_chapter.py` runs in CI: level coverage, dead story chapters, items, backdrops and characters, gates that can never open (a beat waiting on a quest unlocked later), and per-surface copy limits. Ids referenced from app code count as reachable. It passes on the bundle and fails on each of five planted faults. **Area kit:** doc 35, the two-week shape, build order, limits, art list, gates and definition of done, written from the chapter-one build. One inconsistency surfaced: `areas[].levels` still carries the hundred-level bands while chapter one plays the gym at 5–10.
+
 ## Planned (owner, 2026-10-12): challenges and between-beat content
 
 Doc 33 holds the design, the five-increment plan (40–44) and the content inventory (lines and art the owner writes separately). Order: beats wait for their quest (`requires_quest`), Challenges with Cairon then the lifter, repeat quest exchanges and found pages, story-aware goal lines and Row rumours. Each lands behind its content: a field with no lines renders nothing.

@@ -180,7 +180,7 @@ Each plays once, when its level is reached and the screen is quiet (no reward mo
 - **Cairon:** Means you're still asking.
 
 ### Tomorrow  `chapter.colossus_resolution`
-**Trigger:** Level 10, the player taps “Face Colossus” on Home · completes the chapter; teases `central_hill`; waits until `quest.colossus_gym_03` has been completed once; meanwhile the goals card says “He's down there. Don't make him wait longer than you need to.”  
+**Trigger:** Level 10, the player taps “Face Colossus” on Home · completes the chapter; teases `central_hill`; waits until `quest.colossus_gym_03` has been completed once; meanwhile the goals card says “He's down there. Don't make him wait longer than you need to.”; also waits for 3 completed quest runs in `colossus_gym`  
 **Backdrop:** `backdrop.colossus_gym.interior_01` · **then:** return · **next:** `chapter.up`
 
 - **Colossus:** You came back.

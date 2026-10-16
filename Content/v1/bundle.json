@@ -3711,9 +3711,13 @@
             "completes_chapter": true,
             "tease_area": "central_hill",
             "reward": null,
-            "notes": "Owner 2026-10-05: manual trigger; encounter scene and conventions TBD; completion reward TBD (room upgrade or feature unlock).",
+            "notes": "Owner 2026-10-16: the boss fight unlocks at Level 10 (after the tier-2 Ascension) AND at least three completed gym-area quest runs; the post-fight cutscene closes chapter one and introduces chapter two. Encounter mechanics and the Colossus redesign arrive from the owner.",
             "requires_quest": "quest.colossus_gym_03",
-            "held_line": "He's down there. Don't make him wait longer than you need to."
+            "held_line": "He's down there. Don't make him wait longer than you need to.",
+            "requires_area_quests": {
+              "area_id": "colossus_gym",
+              "count": 3
+            }
           }
         ]
       }
