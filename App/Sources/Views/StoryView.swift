@@ -4,8 +4,9 @@ import HeroContent
 
 /// Dialogue player for a content `StoryChapter` (doc 25). The speaker's portrait stands on the
 /// backdrop; lines appear one per tap in full-width bubbles with large type so they read at a
-/// glance (owner: "stupid simple to read, like Pokémon or Fire Emblem"). Hero bubbles sit on the
-/// left under the right-hand portrait and the guide's on the right, as in the owner's boards.
+/// glance (owner: "stupid simple to read, like Pokémon or Fire Emblem"). Which side a speaker stands on is
+/// content (`characters[].side`): the hero is always on the left (owner, 2026-10-16), everyone else on the
+/// right; a speaker's bubbles sit on the opposite side from their portrait.
 struct StoryView: View {
     @Environment(AppState.self) private var state
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -21,7 +22,7 @@ struct StoryView: View {
     private var beat: ContentBundle.StoryBeat { chapter.beats[min(beatIndex, chapter.beats.count - 1)] }
     private var speaker: ContentBundle.Character? { state.bundle.character(beat.speaker) }
     private var isLastLine: Bool { beatIndex >= chapter.beats.count - 1 && lineCount >= beat.lines.count }
-    private var heroOnRight: Bool { speaker?.side != "left" }
+    private var speakerOnRight: Bool { speaker?.side != "left" }
     /// The last two revealed lines of the current beat, keyed by their index so transitions track identity.
     private var visibleLines: [(offset: Int, line: ContentBundle.StoryLine)] {
         let revealed = Array(beat.lines.prefix(lineCount).enumerated()).map { (offset: $0.offset, line: $0.element) }
@@ -33,14 +34,14 @@ struct StoryView: View {
             stage
             // Owner rule (2026-10-02): at most two bubbles on screen, no scrolling. The newest enters
             // from below; the one before it stays; anything older slides up and fades out.
-            VStack(alignment: heroOnRight ? .leading : .trailing, spacing: NeoTokyo.Spacing.sm) {
+            VStack(alignment: speakerOnRight ? .leading : .trailing, spacing: NeoTokyo.Spacing.sm) {
                 ForEach(Array(visibleLines.enumerated()), id: \.element.offset) { pair in
-                    Bubble(text: pair.element.line.resolved(worldName: state.bundle.worldName), trailing: !heroOnRight)
+                    Bubble(text: pair.element.line.resolved(worldName: state.bundle.worldName), trailing: !speakerOnRight)
                         .opacity(pair.offset == 0 && visibleLines.count == 2 ? 0.55 : 1)
                         .transition(reduceMotion ? .opacity : .asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity), removal: .move(edge: .top).combined(with: .opacity)))
                 }
             }
-            .frame(maxWidth: .infinity, alignment: heroOnRight ? .leading : .trailing)
+            .frame(maxWidth: .infinity, alignment: speakerOnRight ? .leading : .trailing)
             .padding(.horizontal, NeoTokyo.Spacing.lg)
             .padding(.top, NeoTokyo.Spacing.md)
             .frame(maxHeight: .infinity, alignment: .top)
@@ -60,7 +61,7 @@ struct StoryView: View {
 
     /// Backdrop with the speaker's portrait low on one side, bleeding off the top like Home.
     private var stage: some View {
-        ZStack(alignment: heroOnRight ? .bottomTrailing : .bottomLeading) {
+        ZStack(alignment: speakerOnRight ? .bottomTrailing : .bottomLeading) {
             BackdropImage(assetSetID: stageBackdrop)
             if let speaker {
                 SpeakerPortrait(character: speaker, recipe: heroRecipe, size: 170)

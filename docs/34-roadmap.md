@@ -26,7 +26,7 @@ Legend for state: ✅ built · 🟡 partial · ⬜ not started · 🎨 waits on 
 | Item | State | What done means | Where |
 |---|---|---|---|
 | Leveling | ✅ | Pure engine, versioned rulesets, derived thresholds, idempotent ledger, outbox. Remaining: promote a ruleset to `active`. | doc 05, `Sources/HeroDomain` |
-| Apple Health | ✅ | Anchored import with reconciliation and the seven-day history window. Remaining: steps credit policy beyond the steps goal (open since doc 24). | `HealthKitImporter.swift`, doc 08 |
+| Apple Health | ✅ | Anchored import with reconciliation and the seven-day history window. Day-one credit is told once (`HealthWelcome`, doc 20 increment 54) and holds the day's beats and offer. Remaining: steps credit policy beyond the steps goal (open since doc 24). | `HealthKitImporter.swift`, doc 08 |
 | Backend (BE) | ⬜ | Supabase is the recorded default (doc 09). Nothing is wired: the app persists in UserDefaults and an archive on device. Done when auth, the append-only ledgers, grants, content versions and sync/recovery are live and the local outbox drains to the server. | doc 09, doc 04 schema |
 | Auth | ⬜ | Recommendation on record: Sign in with Apple plus guest, guest claiming. Not implemented. | doc 20 "Still open" |
 | Payment | ⬜ | No StoreKit code. Doc 01 says monetisation must not block retention testing and the game is never pay-to-win. Needs a decision on what is sold (cosmetics, a supporter tier, nothing yet) before any code. | doc 01 §Monetization |

@@ -35,12 +35,16 @@ final class AppState {
         var storyProgress: StoryProgress = StoryProgress()
         /// Doc 33: one offer per day at most; declined or accepted offers stay so the cadence and sets can read them.
         var challengeOffers: [ChallengeOffer] = []
+        /// Owner QA 2026-10-16: day-one Health credit, told once (see `HealthWelcome`), and the day the story holds for it.
+        var healthWelcome: HealthWelcome? = nil
+        var healthGraceDay: DayKey? = nil
 
-        init(userID: UserID, recipe: AvatarRecipe?, events: [ActivityEvent], ledger: ProgressionLedger, outbox: Outbox, workouts: [Workout], activeWorkout: Workout?, preferredUnit: WeightUnit, healthSync: HealthSyncState, corrections: [ActivityCorrection], importLog: [String: ImportDisposition], goalPreferences: GoalPreferences, goalPlans: [GoalPlan], goalCompletions: [GoalCompletion], goalSeed: UInt64, questRuns: [QuestRun], startedOn: DayKey?, lastStageDay: DayKey?, storyProgress: StoryProgress, challengeOffers: [ChallengeOffer] = []) {
+        init(userID: UserID, recipe: AvatarRecipe?, events: [ActivityEvent], ledger: ProgressionLedger, outbox: Outbox, workouts: [Workout], activeWorkout: Workout?, preferredUnit: WeightUnit, healthSync: HealthSyncState, corrections: [ActivityCorrection], importLog: [String: ImportDisposition], goalPreferences: GoalPreferences, goalPlans: [GoalPlan], goalCompletions: [GoalCompletion], goalSeed: UInt64, questRuns: [QuestRun], startedOn: DayKey?, lastStageDay: DayKey?, storyProgress: StoryProgress, challengeOffers: [ChallengeOffer] = [], healthWelcome: HealthWelcome? = nil, healthGraceDay: DayKey? = nil) {
             self.userID = userID; self.recipe = recipe; self.events = events; self.ledger = ledger; self.outbox = outbox
             self.workouts = workouts; self.activeWorkout = activeWorkout; self.preferredUnit = preferredUnit
             self.healthSync = healthSync; self.corrections = corrections; self.importLog = importLog
             self.goalPreferences = goalPreferences; self.goalPlans = goalPlans; self.goalCompletions = goalCompletions; self.goalSeed = goalSeed; self.questRuns = questRuns; self.startedOn = startedOn; self.lastStageDay = lastStageDay; self.storyProgress = storyProgress; self.challengeOffers = challengeOffers
+            self.healthWelcome = healthWelcome; self.healthGraceDay = healthGraceDay
         }
         // v2 archives lack the workout fields; read them as empty rather than discarding the user's data.
         init(from decoder: Decoder) throws {
@@ -66,6 +70,8 @@ final class AppState {
             lastStageDay = try c.decodeIfPresent(DayKey.self, forKey: .lastStageDay)
             storyProgress = try c.decodeIfPresent(StoryProgress.self, forKey: .storyProgress) ?? StoryProgress()
             challengeOffers = try c.decodeIfPresent([ChallengeOffer].self, forKey: .challengeOffers) ?? []
+            healthWelcome = try c.decodeIfPresent(HealthWelcome.self, forKey: .healthWelcome)
+            healthGraceDay = try c.decodeIfPresent(DayKey.self, forKey: .healthGraceDay)
         }
     }
 
@@ -130,6 +136,30 @@ final class AppState {
     private(set) var pendingReturnScene: ContentBundle.StoryChapter?
     /// A world reaction just granted (doc 33: the rain stops on Protein Row), for Home to toast once.
     var lastWorldReaction: String?
+    /// Owner QA 2026-10-16: the first Health sync on day one can land a day's steps and a week's workouts at once,
+    /// and the first screen became a queue of modals, scenes and offers. The facts and the XP are real and stay
+    /// (rules 1 and 4); what changes is the telling. Health credit on the day the character woke never opens the
+    /// reward modal: it is gathered into one card from Cairon, Home holds the numbers at `before` until the card
+    /// is dismissed so the level-up plays once, and the day's auto beats and challenge offer wait for tomorrow.
+    struct HealthWelcome: Codable, Equatable {
+        let day: DayKey
+        let levelBefore: Int, totalXPBefore: Int, attributesBefore: [AttributeID: Int]
+        var steps: Int?
+        var workouts: Int
+        var before: ProgressSnapshot { ProgressSnapshot(totalXP: totalXPBefore, level: levelBefore, attributes: attributesBefore, grantedRewards: []) }
+    }
+    private(set) var healthWelcome: HealthWelcome?
+    /// The woke day on which Health credit landed; the director and the challenge roll hold until the next day.
+    private(set) var healthGraceDay: DayKey?
+    var storyHeldForHealth: Bool { healthGraceDay == today }
+    /// Day one, or still in onboarding: Health credit is told once, not as receipts.
+    private var isWokeDay: Bool { startedOn.map { $0 == today } ?? true }
+    func dismissHealthWelcome() {
+        guard healthWelcome != nil else { return }
+        healthWelcome = nil
+        save()
+        rewardToken += 1   // Home animates from `before` to the real numbers, one level-up, like a dismissed receipt
+    }
     /// Owner 2026-10-06: an Ascension is a cutscene, never a stat that just appears. Recorded when the ledger
     /// crosses an evolution boundary (wherever that happens: a sheet, the quest screen, a relaunch) and played
     /// by Home as the highest-priority beat once the screen is quiet. Persisted so a kill mid-cover keeps it.
@@ -250,6 +280,8 @@ final class AppState {
         self.startedOn = archive?.startedOn
         self.lastStageDay = archive?.lastStageDay
         self.storyProgress = archive?.storyProgress ?? StoryProgress()
+        self.healthWelcome = archive?.healthWelcome
+        self.healthGraceDay = archive?.healthGraceDay
         challengeOffers = archive?.challengeOffers ?? []
         self.goalSeed = (archive?.goalSeed).flatMap { $0 == 0 ? nil : $0 } ?? UInt64.random(in: 1...UInt64.max)
         self.baseRuleset = ruleset
@@ -463,7 +495,7 @@ final class AppState {
             healthSync.lastImportedCount = importedCount
             healthSync.lastError = nil
             save()
-            await drain(showReward: importedCount > 0)
+            await drainHealth(imported: importedCount)
         } catch {
             healthSync.lastError = String(describing: error)
             save()
@@ -477,7 +509,27 @@ final class AppState {
         let before = outbox.pending.count
         todaySteps = steps
         evaluateGoals(now: now)
-        if outbox.pending.count > before { save(); await drain(showReward: true) }
+        if outbox.pending.count > before { save(); await drainHealth(imported: 0) }
+    }
+
+    /// Health credit: receipts as usual, except on the woke day, where it folds into the welcome card (see `HealthWelcome`).
+    private func drainHealth(imported: Int) async {
+        guard isWokeDay || healthWelcome != nil else { await drain(showReward: imported > 0 || outbox.pending.contains { $0.submission.event.goal != nil }); return }
+        let before = snapshot
+        await drain(showReward: false)
+        foldHealthCredit(before: before, imported: imported)
+    }
+
+    /// Record Health credit that just landed on the woke day into the one card, and hold the day's story for it.
+    private func foldHealthCredit(before: ProgressSnapshot, imported: Int) {
+        guard snapshot.totalXP > before.totalXP else { return }
+        if var w = healthWelcome {
+            w.workouts += imported; w.steps = todaySteps; healthWelcome = w
+        } else {
+            healthWelcome = HealthWelcome(day: today, levelBefore: before.level, totalXPBefore: before.totalXP, attributesBefore: before.attributes, steps: todaySteps, workouts: imported)
+        }
+        healthGraceDay = today
+        save()
     }
 
     // MARK: daily goals (doc 24)
@@ -502,7 +554,7 @@ final class AppState {
     }
     /// One roll a day (doc 33 cadence), skipped while the story owns the day (unclaimed cache, held beat).
     private func rollChallengeOffer() {
-        guard !challengeOffers.contains(where: { $0.day == today }), unclaimedQuest == nil else { return }
+        guard !challengeOffers.contains(where: { $0.day == today }), unclaimedQuest == nil, !storyHeldForHealth else { return }
         let lastDay = challengeOffers.map(\.day).max()
         let gap = lastDay.map { today.daysSince($0, calendar: .current) }
         guard ChallengeMath.offersToday(level: snapshot.level, daysSinceLastOffer: gap, seed: "\(userID.rawValue.uuidString)|\(today.rawValue)|offer", ruleset: ruleset) else { return }
@@ -681,9 +733,22 @@ final class AppState {
         if startedOn == nil { startedOn = today }
         goalPlans.append(plan)
         goalPlans = goalPlans.filter { today.daysSince($0.day, calendar: .current) <= 30 }   // keep the repeat window, not forever
-        evaluateGoals(now: now)
+        let hits = evaluateGoals(now: now)
         save()
-        Task { await drain(showReward: false) }
+        // Day one: the plan is drawn with Health already read, so its step and workout goals can complete on the spot.
+        // That credit is Health's and is told once, with the rest (owner QA 2026-10-16).
+        let fromHealth = isWokeDay && hits.contains { source in
+            switch source {
+            case .steps: return true
+            case let .activity(id): return events.first { $0.id == id }?.source == .healthImport
+            case .manual: return false
+            }
+        }
+        Task {
+            let before = snapshot
+            await drain(showReward: false)
+            if fromHealth { foldHealthCredit(before: before, imported: 0) }
+        }
     }
 
     private func generatorInputs(for day: DayKey) -> GoalGenerator.Inputs {
@@ -724,13 +789,18 @@ final class AppState {
     }
 
     /// Auto-completion from the day's facts. Submissions are queued; the caller drains.
-    private func evaluateGoals(now: Date) {
-        guard let plan = todayPlan else { return }
+    /// Completes every goal today's facts satisfy; returns how each was completed.
+    @discardableResult
+    private func evaluateGoals(now: Date) -> [GoalCompletion.Source] {
+        guard let plan = todayPlan else { return [] }
         let completed = Set(goalCompletions.map(\.goalID))
         let todays = activityEvents.filter { Calendar.current.isDate($0.startedAt, inSameDayAs: now) }
+        var sources: [GoalCompletion.Source] = []
         for hit in GoalEvaluator.satisfied(plan: plan, templates: bundle.goalTemplates, completed: completed, events: todays, steps: todaySteps) {
             record(hit.goal, source: hit.source, now: now)
+            sources.append(hit.source)
         }
+        return sources
     }
 
     private func record(_ goal: DailyGoal, source: GoalCompletion.Source, now: Date) {
@@ -766,7 +836,11 @@ final class AppState {
 
     var campaign: Campaign { bundle.campaign }
     /// The next beat to play automatically, if the player's level has reached it.
-    var nextStoryBeat: Milestone? { StoryDirector.nextAuto(level: snapshot.level, campaign: campaign, progress: storyProgress, completedQuests: completedQuestIDs, areaQuestRuns: completedRunsByArea) }
+    /// Held on the woke day once Health credit landed (`storyHeldForHealth`): the beats play tomorrow, after the stage.
+    var nextStoryBeat: Milestone? {
+        guard !storyHeldForHealth else { return nil }
+        return StoryDirector.nextAuto(level: snapshot.level, campaign: campaign, progress: storyProgress, completedQuests: completedQuestIDs, areaQuestRuns: completedRunsByArea)
+    }
     /// Manual beats the player can start now (boss encounters).
     var offeredMilestones: [Milestone] { StoryDirector.offered(level: snapshot.level, campaign: campaign, progress: storyProgress, completedQuests: completedQuestIDs, areaQuestRuns: completedRunsByArea) }
     /// Doc 33 §A: quests completed (claimed) at least once; beats that require one wait for it.
@@ -847,15 +921,18 @@ final class AppState {
     /// Resolve a due run: roll, record the return fact, submit, show the reveal. Never early.
     func resolveQuestIfDue() {
         let now = self.now
+        // Gear rolls over the table's gear rows; the page row sits at weight 0 and is rolled on its own below (2026-10-16).
         guard let i = questRuns.firstIndex(where: { $0.isDue(at: now) }), let table = ruleset.dailyQuest?.rewardTable,
               let index = QuestResolver.roll(table: table, runID: questRuns[i].id, runsSinceRare: runsSinceRare, pityAfter: ruleset.dailyQuest?.pityRareAfter,
-                                             availableTiers: (bundle.quest(questRuns[i].questID)?.lootPools).flatMap { $0.isEmpty ? nil : Set($0.map(\.tier)) }) else { return }
+                                             availableTiers: (bundle.quest(questRuns[i].questID)?.lootPools).flatMap { $0.isEmpty ? nil : Set($0.map(\.tier)).subtracting(["page"]) }) else { return }
         // The quest's own loot pool decides what the rolled tier hands out, preferring something not yet owned (doc 29).
         let pools = bundle.quest(questRuns[i].questID)?.lootPools ?? []
-        let chosen = QuestResolver.pick(tier: table[index].tier, pools: pools, granted: ledger.grantedRewardIDs, runID: questRuns[i].id)
-        let event = QuestResolver.makeEvent(for: questRuns[i], rewardIndex: index, rewardID: chosen, userID: userID, familyFallback: goalPreferences.primaryFamily, at: now)
+        let chosen = QuestResolver.pick(tier: table[index].tier, pools: pools.filter { $0.tier != "page" }, granted: ledger.grantedRewardIDs, runID: questRuns[i].id)
+        // Doc 33 found pages (owner QA 2026-10-16): a page is found beside the gear, never instead of it.
+        let page = QuestResolver.rollsPage(runID: questRuns[i].id, chance: ruleset.dailyQuest?.pageChance) ? QuestResolver.pickPage(pools: pools, granted: ledger.grantedRewardIDs) : nil
+        let event = QuestResolver.makeEvent(for: questRuns[i], rewardIndex: index, rewardID: chosen, pageRewardID: page, userID: userID, familyFallback: goalPreferences.primaryFamily, at: now)
         questRuns[i].resolvedAt = now
-        questRuns[i].reward = QuestReference(questID: questRuns[i].questID, rewardIndex: index, rewardID: chosen)
+        questRuns[i].reward = QuestReference(questID: questRuns[i].questID, rewardIndex: index, rewardID: chosen, pageRewardID: page)
         questRuns[i].activityEventID = event.id
         events.append(event)
         outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
@@ -882,10 +959,16 @@ final class AppState {
               let reward = bundle.reward(id), let itemID = reward.grants.first?.itemID else { return nil }
         return bundle.item(itemID)
     }
-    /// True when the return fact granted something new (false = XP only, everything in the pool was owned).
+    /// True when the return fact granted its gear (false = traded in for XP, everything in the pool was owned).
     func questGrantedSomethingNew(_ run: QuestRun) -> Bool {
-        guard let eventID = run.activityEventID, let receipt = outbox.receipt(for: eventID) else { return questReward(for: run) != nil }
-        return !receipt.rewardsGranted.isEmpty
+        guard let ref = run.reward, let id = ref.rewardID ?? ruleset.dailyQuest?.rewardTable[safe: ref.rewardIndex]?.rewardID else { return false }
+        guard let eventID = run.activityEventID, let receipt = outbox.receipt(for: eventID) else { return true }
+        return receipt.rewardsGranted.contains(id)
+    }
+    /// The page this run found beside its gear (doc 33, 2026-10-16), if any.
+    func questPage(for run: QuestRun) -> ContentBundle.Item? {
+        guard let id = run.reward?.pageRewardID, let reward = bundle.reward(id), let itemID = reward.grants.first?.itemID else { return nil }
+        return bundle.item(itemID)
     }
     /// Open the cache: show the receipt (XP, level-up) and queue the quest's end scene. Idempotent.
     func claimQuest(_ run: QuestRun) {
@@ -930,6 +1013,11 @@ final class AppState {
     func rewardTier(for run: QuestRun) -> String? { run.reward.flatMap { ruleset.dailyQuest?.rewardTable[safe: $0.rewardIndex]?.tier } }
     func returnLine(for run: QuestRun) -> String {
         guard let q = bundle.quest(run.questID) ?? quest, let tier = rewardTier(for: run), let lines = q.returnLines[tier], !lines.isEmpty else { return "Back." }
+        return lines[Int(run.id.uuidString.hashValueStableApp % UInt64(lines.count))]
+    }
+    /// The hero's remark on a found page (doc 33): the quest's page return lines, picked per run. nil = no page or no lines.
+    func pageLine(for run: QuestRun) -> String? {
+        guard run.reward?.pageRewardID != nil, let q = bundle.quest(run.questID) ?? quest, let lines = q.returnLines["page"], !lines.isEmpty else { return nil }
         return lines[Int(run.id.uuidString.hashValueStableApp % UInt64(lines.count))]
     }
     func awayLine(for run: QuestRun) -> String {
@@ -982,7 +1070,7 @@ final class AppState {
     }
 
     private func save() {
-        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit, healthSync: healthSync, corrections: corrections, importLog: importLog, goalPreferences: goalPreferences, goalPlans: goalPlans, goalCompletions: goalCompletions, goalSeed: goalSeed, questRuns: questRuns, startedOn: startedOn, lastStageDay: lastStageDay, storyProgress: storyProgress, challengeOffers: challengeOffers)
+        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit, healthSync: healthSync, corrections: corrections, importLog: importLog, goalPreferences: goalPreferences, goalPlans: goalPlans, goalCompletions: goalCompletions, goalSeed: goalSeed, questRuns: questRuns, startedOn: startedOn, lastStageDay: lastStageDay, storyProgress: storyProgress, challengeOffers: challengeOffers, healthWelcome: healthWelcome, healthGraceDay: healthGraceDay)
         do {
             let data = try JSONEncoder().encode(archive)
             try data.write(to: Self.archiveURL, options: .atomic)

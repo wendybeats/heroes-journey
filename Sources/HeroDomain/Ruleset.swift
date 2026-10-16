@@ -52,10 +52,13 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
         public let pityRareAfter: Int?
         /// Trade-in (doc 29): bonus XP by tier when the return grants nothing new (the pool is owned). Absent tier = 0.
         public let tradeInXP: [String: Int]?
-        public init(durationMinutes: Int, unlockRule: String, rewardTable: [RewardEntry], pityRareAfter: Int? = nil, tradeInXP: [String: Int]? = nil) {
-            self.durationMinutes = durationMinutes; self.unlockRule = unlockRule; self.rewardTable = rewardTable; self.pityRareAfter = pityRareAfter; self.tradeInXP = tradeInXP
+        /// Doc 33 found pages, owner QA 2026-10-16: a page is found beside the gear, never instead of it. The chance, per
+        /// return, that a quest with a page pool also hands over its next unowned page. nil or 0 = pages only through the table.
+        public let pageChance: Double?
+        public init(durationMinutes: Int, unlockRule: String, rewardTable: [RewardEntry], pityRareAfter: Int? = nil, tradeInXP: [String: Int]? = nil, pageChance: Double? = nil) {
+            self.durationMinutes = durationMinutes; self.unlockRule = unlockRule; self.rewardTable = rewardTable; self.pityRareAfter = pityRareAfter; self.tradeInXP = tradeInXP; self.pageChance = pageChance
         }
-        enum CodingKeys: String, CodingKey { case durationMinutes = "duration_minutes", unlockRule = "unlock_rule", rewardTable = "reward_table", pityRareAfter = "pity_rare_after", tradeInXP = "trade_in_xp" }
+        enum CodingKeys: String, CodingKey { case durationMinutes = "duration_minutes", unlockRule = "unlock_rule", rewardTable = "reward_table", pityRareAfter = "pity_rare_after", tradeInXP = "trade_in_xp", pageChance = "page_chance" }
     }
 
     /// Onboarding's starting grant (owner, 2026-10-02). Small next to the first goals.

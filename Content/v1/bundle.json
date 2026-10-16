@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.16-7",
+  "content_version": "2026.10.16-8",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -2621,7 +2621,7 @@
       "id": "guide.elder",
       "display_name": "Cairon",
       "portrait_asset_set_id": "portrait.guide_elder",
-      "side": "left",
+      "side": "right",
       "notes": "Mentor. Named Cairon by the owner 2026-10-05 (provisional). Full-body still npc.guide_elder and the left-facing card portrait from the under-city-npcs-v3 handoff (2026-10-12) for challenges.",
       "sprite_asset_set_id": "npc.guide_elder",
       "card_portrait_asset_set_id": "portrait.guide_elder.left"
@@ -2630,14 +2630,14 @@
       "id": "hero",
       "display_name": "You",
       "portrait_asset_set_id": "portrait.hero_hooded",
-      "side": "right",
+      "side": "left",
       "notes": "Hooded still until the player answers who they are; the live sprite's crop afterwards."
     },
     {
       "id": "chad_colossus",
       "display_name": "Colossus",
       "portrait_asset_set_id": "portrait.colossus",
-      "side": "left",
+      "side": "right",
       "notes": "Antagonist of the Under City / Colossus Gym (doc 26 §9). Working title (owner 2026-10-05). Design settled 2026-10-16 on the hooded oni (base model, no tusks): sprite npc.colossus rev3, combat states npc.colossus.combat rev2, dialogue portrait portrait.colossus rev3 on the 160 grid. The human-head variant stays in the art packages as history.",
       "sprite_asset_set_id": "npc.colossus"
     },
@@ -4356,17 +4356,17 @@
   "ascension_profiles": [
     {
       "tier": 1,
-      "eye_bloom": 0.6,
-      "flares": 2,
-      "flare_radius": 5,
-      "flare_alpha": 0.75,
+      "eye_bloom": 0.9,
+      "flares": 3,
+      "flare_radius": 6,
+      "flare_alpha": 0.9,
       "flare_every_ms": [
-        700,
-        1400
+        380,
+        850
       ],
       "artifact_every_ms": [
-        1800,
-        3500
+        900,
+        1900
       ],
       "fragment_max": 0,
       "echo_alpha": 0.0,
@@ -4377,21 +4377,21 @@
       "echo_lag_ms": 0,
       "arc_alpha": 0.0,
       "afterimage_alpha": 0.3,
-      "notes": "Doc 38 I, Awakened: the body emits something. Altered eyes, light catching disconnected runs of the edge, a rare pixel that detaches. No outline, no ground."
+      "notes": "Doc 38 I, Awakened: the body emits something. Altered eyes, light catching disconnected runs of the edge, a rare pixel that detaches. No outline, no ground. Owner QA 2026-10-16 (device): the first pass was too faint at idle; flares come about twice as often, brighter and one pixel wider, the eye bloom is stronger."
     },
     {
       "tier": 2,
-      "eye_bloom": 0.9,
-      "flares": 3,
+      "eye_bloom": 1.0,
+      "flares": 4,
       "flare_radius": 7,
       "flare_alpha": 1.0,
       "flare_every_ms": [
-        450,
-        1000
+        300,
+        700
       ],
       "artifact_every_ms": [
-        1200,
-        2600
+        700,
+        1500
       ],
       "fragment_max": 5,
       "echo_alpha": 0.2,

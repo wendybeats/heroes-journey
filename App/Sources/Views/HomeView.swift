@@ -60,8 +60,15 @@ struct HomeView: View {
                     sceneCard(snapshot)
                     VStack(spacing: NeoTokyo.Spacing.lg) {
                         // Doc 33 (owner build notes 2026-10-12): today's challenge offer overlaps the foot of the scene and slides in.
-                        ChallengeCard { if let outcome = state.acceptChallenge() { clash = outcome } }
-                            .padding(.top, -96)
+                        // Owner QA 2026-10-16: a boss offer takes that slot in the same shape; the challenge then sits below it.
+                        if let milestone = state.offeredMilestones.first, state.bundle.boss(forMilestone: milestone.id) != nil {
+                            BossCard(milestone: milestone) { startMilestone(milestone) }
+                                .padding(.top, -96)
+                            ChallengeCard { if let outcome = state.acceptChallenge() { clash = outcome } }
+                        } else {
+                            ChallengeCard { if let outcome = state.acceptChallenge() { clash = outcome } }
+                                .padding(.top, -96)
+                        }
                         if let toast {
                             ToastBanner(item: toast)
                                 .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -154,9 +161,13 @@ struct HomeView: View {
                 }
             }
             .overlay { if let receipt = state.lastReceipt { RewardMoment(receipt: receipt) } }
+            .overlay { if let welcome = state.healthWelcome { HealthWelcomeMoment(welcome: welcome) } }
             .animation(.easeInOut(duration: 0.25), value: state.lastReceipt == nil)
+            .animation(.easeInOut(duration: 0.25), value: state.healthWelcome == nil)
         }
-        .onAppear { if shown == nil { shown = state.snapshot; barFill = levelProgress(state.snapshot) }; scheduleStory() }
+        // Day-one Health credit (owner QA 2026-10-16): the numbers hold at the pre-credit values until the welcome card is dismissed.
+        .onAppear { if shown == nil { let s = state.healthWelcome?.before ?? state.snapshot; shown = s; barFill = levelProgress(s) }; scheduleStory() }
+        .onChange(of: state.healthWelcome == nil) { _, _ in scheduleStory() }
         // The director waits for a quiet screen: no reward modal, no level-up or ascension, no stage,
         // nothing presented. Each of these settling is a chance to play the next beat.
         .onChange(of: state.lastReceipt == nil) { _, _ in scheduleStory() }
@@ -183,7 +194,7 @@ struct HomeView: View {
         .onChange(of: state.snapshot) { _, new in
             // Sync silently unless a reward is showing (then wait for dismissal).
             // While an Ascension waits, the badge and bar hold the old level: the takeover is the reveal.
-            if state.lastReceipt == nil && state.pendingAscension == nil { shown = new; barFill = levelProgress(new) }
+            if state.lastReceipt == nil && state.pendingAscension == nil && state.healthWelcome == nil { shown = new; barFill = levelProgress(new) }
         }
         .onChange(of: state.rewardToken) { _, _ in
             let new = state.snapshot
@@ -216,7 +227,7 @@ struct HomeView: View {
     // MARK: story director (doc 28)
 
     private var storyIdle: Bool {
-        state.lastReceipt == nil && ascension == nil && levelUpStart == nil && !state.needsStage && state.unclaimedQuest == nil
+        state.lastReceipt == nil && state.healthWelcome == nil && ascension == nil && levelUpStart == nil && !state.needsStage && state.unclaimedQuest == nil
             && departure == nil && storyScene == nil && clash == nil && !chaining && !showWorkout && !showLog && !showHistory && !showRoom
     }
 
@@ -340,26 +351,28 @@ struct HomeView: View {
         }
     }
 
-    /// Manual beats (boss encounters) wait on the card until the player starts them.
+    /// Manual beats without a boss wait on this card until the player starts them (a boss beat has `BossCard`, above).
     @ViewBuilder
     private var storyCard: some View {
-        if let milestone = state.offeredMilestones.first {
+        if let milestone = state.offeredMilestones.first, state.bundle.boss(forMilestone: milestone.id) == nil {
             VStack(alignment: .leading, spacing: NeoTokyo.Spacing.sm) {
                 Eyebrow(text: state.currentChapter?.displayName ?? "Story")
                 Text(milestone.triggerLabel ?? "Continue").font(HeroFont.headline).foregroundStyle(NeoTokyo.Text.primary)
                 Text("When you're ready. It waits for you.").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
-                Button(milestone.triggerLabel ?? "Continue") {
-                    // Doc 36/37: a boss stands behind the beat; the scene plays only once he is down.
-                    if let boss = state.bundle.boss(forMilestone: milestone.id), let encounter = state.startBossEncounter(boss) {
-                        bossFight = BossFight(encounter: encounter, milestone: milestone)
-                    } else {
-                        playMilestone(milestone)
-                    }
-                }
-                .buttonStyle(SecondaryButtonStyle())
+                Button(milestone.triggerLabel ?? "Continue") { startMilestone(milestone) }
+                    .buttonStyle(SecondaryButtonStyle())
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .card()
+        }
+    }
+
+    /// Start a manual beat. Doc 36/37: a boss stands behind the beat; the scene plays only once he is down.
+    private func startMilestone(_ milestone: Milestone) {
+        if let boss = state.bundle.boss(forMilestone: milestone.id), let encounter = state.startBossEncounter(boss) {
+            bossFight = BossFight(encounter: encounter, milestone: milestone)
+        } else {
+            playMilestone(milestone)
         }
     }
 

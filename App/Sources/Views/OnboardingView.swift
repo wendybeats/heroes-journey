@@ -40,12 +40,13 @@ struct OnboardingView: View {
             scene
             ScrollView {
                 VStack(alignment: .leading, spacing: NeoTokyo.Spacing.lg) {
+                    // Owner 2026-10-16: the hero is always on the left, so the guide and his bubble sit to the right.
                     HStack(alignment: .top, spacing: NeoTokyo.Spacing.sm) {
+                        Bubble(text: line, trailing: true)
                         if let guide = state.bundle.character("guide.elder"), let set = guide.portraitAssetSetID {
                             PortraitView(assetSetID: set, size: 56)
                                 .clipShape(RoundedRectangle(cornerRadius: NeoTokyo.Radius.md, style: .continuous))
                         }
-                        Bubble(text: line)
                     }
                     content
                 }
@@ -157,8 +158,7 @@ struct OnboardingView: View {
                     Button("Connect Apple Health") { healthAsked = true; Task { await state.connectHealth() } }
                         .buttonStyle(SecondaryButtonStyle(accent: NeoTokyo.Hierarchy.fallback))
                 } else if healthAsked {
-                    Text("Asked. Whatever you allowed, I will use; whatever you did not, I will not see.")
-                        .font(HeroFont.callout).foregroundStyle(NeoTokyo.Text.secondary)
+                    HealthBondCard(error: state.healthSync.lastError)
                 } else {
                     Text("Apple Health is not available on this device. Logging by hand works the same.")
                         .font(HeroFont.callout).foregroundStyle(NeoTokyo.Text.secondary)
@@ -239,6 +239,37 @@ struct OnboardingView: View {
     }
 }
 
+/// Owner QA 2026-10-16: once Apple Health has been asked, a card rather than a sentence. What was allowed is not
+/// knowable from the prompt (doc 08), so it says connected, not what it can see; a failed request says so.
+struct HealthBondCard: View {
+    var error: String?
+    private var connected: Bool { error == nil }
+    var body: some View {
+        HStack(spacing: NeoTokyo.Spacing.md) {
+            Image(systemName: connected ? "heart.fill" : "heart.slash.fill")
+                .font(HeroFont.title)
+                .foregroundStyle(connected ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.secondary)
+                .frame(width: 52, height: 52)
+                .background(NeoTokyo.Surface.overlay, in: RoundedRectangle(cornerRadius: NeoTokyo.Radius.md, style: .continuous))
+            VStack(alignment: .leading, spacing: 2) {
+                Eyebrow(text: "Apple Health")
+                Text(connected ? "Connected" : "Not connected").font(HeroFont.headline).foregroundStyle(NeoTokyo.Text.primary)
+                Text(connected ? "Workouts and steps reach you here." : "Logging by hand works the same.")
+                    .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
+            }
+            Spacer(minLength: 0)
+            if connected {
+                Image(systemName: "checkmark.seal.fill").font(HeroFont.headline).foregroundStyle(NeoTokyo.Hierarchy.primary)
+            }
+        }
+        .padding(NeoTokyo.Spacing.md)
+        .glass(tint: NeoTokyo.Surface.raised)
+        .overlay(RoundedRectangle(cornerRadius: NeoTokyo.Radius.lg, style: .continuous).stroke(NeoTokyo.Hierarchy.primary.opacity(connected ? 0.35 : 0), lineWidth: 1))
+        .shadow(color: NeoTokyo.Hierarchy.primary.opacity(connected ? 0.18 : 0), radius: 16)
+        .transition(.scale(scale: 0.96).combined(with: .opacity))
+    }
+}
+
 /// The attributes a question feeds, as coloured glyphs (owner QA 2026-10-02).
 struct AttributeGlyphs: View {
     @Environment(AppState.self) private var state
@@ -267,7 +298,9 @@ struct ChoiceChips: View {
                 ForEach(options, id: \.0) { option in
                     let (id, label) = option
                     let on = selection == id
+                    // Owner QA 2026-10-16 (device): the default button style draws its own capsule inside the glass chip; plain, like the rows.
                     Button(label) { selection = id }
+                        .buttonStyle(.plain)
                         .font(HeroFont.callout)
                         .foregroundStyle(on ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.secondary)
                         .padding(.horizontal, NeoTokyo.Spacing.md).padding(.vertical, NeoTokyo.Spacing.sm)

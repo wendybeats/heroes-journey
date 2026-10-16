@@ -127,6 +127,42 @@ final class QuestTests: XCTestCase {
         XCTAssertEqual(QuestResolver.roll(table: withPage, runID: id, availableTiers: []), 0, "nothing available: the first paying row, XP only")
     }
 
+    /// Doc 33, owner QA 2026-10-16: a page is found beside the gear. Its roll is independent of the gear roll,
+    /// deterministic per run, lands at about the ruleset's chance, and picks the lowest unowned page so a set reads in order.
+    func testPageRollIsIndependentDeterministicAndInOrder() {
+        let id = UUID()
+        XCTAssertEqual(QuestResolver.rollsPage(runID: id, chance: 0.5), QuestResolver.rollsPage(runID: id, chance: 0.5), "replay finds the same page")
+        XCTAssertFalse(QuestResolver.rollsPage(runID: id, chance: nil)); XCTAssertFalse(QuestResolver.rollsPage(runID: id, chance: 0))
+        XCTAssertTrue(QuestResolver.rollsPage(runID: id, chance: 1))
+        var hits = 0
+        for _ in 0..<2000 where QuestResolver.rollsPage(runID: UUID(), chance: 0.5) { hits += 1 }
+        XCTAssertEqual(Double(hits) / 2000, 0.5, accuracy: 0.05)
+        let pools = [LootPool(tier: "common", rewards: ["reward.quest.cap"]), LootPool(tier: "page", rewards: ["reward.page.1", "reward.page.2", "reward.page.3"])]
+        XCTAssertEqual(QuestResolver.pickPage(pools: pools, granted: []), "reward.page.1")
+        XCTAssertEqual(QuestResolver.pickPage(pools: pools, granted: ["reward.page.1"]), "reward.page.2")
+        XCTAssertNil(QuestResolver.pickPage(pools: pools, granted: ["reward.page.1", "reward.page.2", "reward.page.3"]), "the set is complete: nothing, never a gear fallback")
+        XCTAssertNil(QuestResolver.pickPage(pools: [pools[0]], granted: []), "a walk has no pages")
+        // The gear roll never sees the page: the page row sits at weight 0 in the shipped table.
+        let shipped = table + [ProgressionRuleset.DailyQuest.RewardEntry(weight: 0, xp: 12, tier: "page")]
+        for _ in 0..<500 { XCTAssertNotEqual(shipped[QuestResolver.roll(table: shipped, runID: UUID())!].tier, "page") }
+    }
+
+    /// The page rides the same return fact: granted once beside the gear, no XP of its own, never traded in.
+    func testEngineGrantsThePageBesideTheGear() {
+        let run = makeRun()
+        let both = QuestResolver.makeEvent(for: run, rewardIndex: 2, rewardID: "reward.quest.rare", pageRewardID: "reward.page.1", userID: user, familyFallback: "strength", at: now)
+        let ctx = EvaluationContext(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:])
+        let p = ProgressionEngine.evaluate(event: both, ruleset: ruleset, context: ctx)
+        XCTAssertEqual(p.rewardsUnlocked, ["reward.quest.rare", "reward.page.1"]); XCTAssertEqual(p.xp, 16, "the row's XP; the page adds none")
+        let owned = EvaluationContext(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: ["reward.quest.rare", "reward.page.1"], levelRewards: [:])
+        XCTAssertEqual(ProgressionEngine.evaluate(event: both, ruleset: ruleset, context: owned).rewardsUnlocked, [], "never twice")
+        // Older facts decode without a page.
+        let data = try! JSONEncoder().encode(QuestReference(questID: "quest.test", rewardIndex: 2))
+        XCTAssertNil(try! JSONDecoder().decode(QuestReference.self, from: data).pageRewardID)
+        let withPage = try! JSONDecoder().decode(QuestReference.self, from: try! JSONEncoder().encode(both.quest!))
+        XCTAssertEqual(withPage.pageRewardID, "reward.page.1")
+    }
+
     /// Doc 29: pity forces the rare row once the drought is long enough; off by default; still deterministic.
     func testPityForcesTheRareRowAfterTheDrought() {
         let id = UUID()

@@ -92,6 +92,10 @@ public enum ProgressionEngine {
                 // Nothing new to give: the would-be drop is traded in for XP by tier (doc 29). Still one fact, still idempotent.
                 xp += max(0, ruleset.dailyQuest?.tradeInXP?[row.tier] ?? 0)
             }
+            // A page found beside the gear (doc 33, 2026-10-16): granted once, no XP of its own, never traded in.
+            if let page = quest.pageRewardID, !context.grantedRewardIDs.contains(page), !questRewards.contains(page) {
+                questRewards.append(page)
+            }
         } else {
             guard let priced = activityXP(event: event, ruleset: ruleset, context: context) else { return empty() }
             xp = priced.xp; attributes = priced.attributes; credited = priced.credited

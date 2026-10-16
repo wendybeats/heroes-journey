@@ -101,49 +101,74 @@ struct AnyButtonStyle: ButtonStyle {
 /// Doc 29 claim moment: the opened cache, the item's still, one sentence, and "Claim". Shaped like
 /// the reward modal (dimmed scrim, centred glass card). The grant is already on the ledger; this
 /// is the moment it is shown, so nothing here can fail or double-grant.
+/// Owner QA 2026-10-16: a page found beside the gear (doc 33) is its own card after the item's, quick to dismiss:
+/// the gear first, then "Found" with the log line and the hero's remark from the quest's page return lines.
 struct ClaimMoment: View {
     @Environment(AppState.self) private var state
     let run: QuestRun
     let onClaim: () -> Void
+    @State private var showingPage = false
 
     var body: some View {
         let fresh = state.questGrantedSomethingNew(run)
         let item = state.questReward(for: run)
         let tier = state.rewardTier(for: run)
+        let page = state.questPage(for: run)
         let xp = run.activityEventID.flatMap { state.outbox.receipt(for: $0)?.xp }
         ZStack {
             NeoTokyo.Surface.scrim.opacity(0.75).ignoresSafeArea()
             VStack(spacing: NeoTokyo.Spacing.md) {
-                Eyebrow(text: tier.map { "\($0) cache" } ?? "Cache")
-                if let item, fresh {
-                    if let icon = item.iconAssetSetID {
-                        AssetIcon(assetSetID: icon.rawValue, size: 180)
-                            .shadow(color: NeoTokyo.Hierarchy.primary.opacity(item.rarity == "rare" ? 0.6 : 0.25), radius: 18)
+                if showingPage, let page {
+                    Eyebrow(text: "Found")
+                    if let icon = page.iconAssetSetID {
+                        AssetIcon(assetSetID: icon.rawValue, size: 150)
+                            .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 18)
                     }
-                    Text(item.displayName).font(HeroFont.title).foregroundStyle(NeoTokyo.Text.primary)
-                    Text(item.rarity).font(HeroFont.label).textCase(.uppercase).foregroundStyle(item.rarity == "rare" ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.secondary)
-                    if let d = item.description {
-                        Text(d).font(HeroFont.body).foregroundStyle(NeoTokyo.Text.secondary).multilineTextAlignment(.center)
+                    Text(page.displayName).font(HeroFont.title).foregroundStyle(NeoTokyo.Text.primary)
+                    if let d = page.description {
+                        Text("\u{201C}\(d)\u{201D}").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.secondary).multilineTextAlignment(.center)
                     }
-                } else if let item {
-                    // Trade-in (doc 29): the pool is owned, so the would-be drop becomes XP. The ruleset priced it; we only show it.
-                    if let icon = item.iconAssetSetID { AssetIcon(assetSetID: icon.rawValue, size: 150).opacity(0.7) }
-                    Text(item.displayName).font(HeroFont.title).foregroundStyle(NeoTokyo.Text.primary)
-                    Text("Already yours").font(HeroFont.label).textCase(.uppercase).foregroundStyle(NeoTokyo.Text.secondary)
-                    Text(xp.map { "Traded in for +\($0) XP." } ?? "Traded in for XP.").font(HeroFont.body).foregroundStyle(NeoTokyo.Hierarchy.primary).multilineTextAlignment(.center)
+                    if let remark = state.pageLine(for: run) {
+                        Text(remark).font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted).multilineTextAlignment(.center)
+                    }
                 } else {
-                    CacheIcon(tier: tier).frame(width: 140, height: 140)
-                    Text("Nothing new in it").font(HeroFont.title).foregroundStyle(NeoTokyo.Text.primary)
-                    Text("Nothing you haven't seen before. Still worth the walk.").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.secondary).multilineTextAlignment(.center)
+                    Eyebrow(text: tier.map { "\($0) cache" } ?? "Cache")
+                    if let item, fresh {
+                        if let icon = item.iconAssetSetID {
+                            AssetIcon(assetSetID: icon.rawValue, size: 180)
+                                .shadow(color: NeoTokyo.Hierarchy.primary.opacity(item.rarity == "rare" ? 0.6 : 0.25), radius: 18)
+                        }
+                        Text(item.displayName).font(HeroFont.title).foregroundStyle(NeoTokyo.Text.primary)
+                        Text(item.rarity).font(HeroFont.label).textCase(.uppercase).foregroundStyle(item.rarity == "rare" ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.secondary)
+                        if let d = item.description {
+                            Text(d).font(HeroFont.body).foregroundStyle(NeoTokyo.Text.secondary).multilineTextAlignment(.center)
+                        }
+                    } else if let item {
+                        // Trade-in (doc 29): the pool is owned, so the would-be drop becomes XP. The ruleset priced it; we only show it.
+                        if let icon = item.iconAssetSetID { AssetIcon(assetSetID: icon.rawValue, size: 150).opacity(0.7) }
+                        Text(item.displayName).font(HeroFont.title).foregroundStyle(NeoTokyo.Text.primary)
+                        Text("Already yours").font(HeroFont.label).textCase(.uppercase).foregroundStyle(NeoTokyo.Text.secondary)
+                        Text(xp.map { "Traded in for +\($0) XP." } ?? "Traded in for XP.").font(HeroFont.body).foregroundStyle(NeoTokyo.Hierarchy.primary).multilineTextAlignment(.center)
+                    } else {
+                        CacheIcon(tier: tier).frame(width: 140, height: 140)
+                        Text("Nothing new in it").font(HeroFont.title).foregroundStyle(NeoTokyo.Text.primary)
+                        Text("Nothing you haven't seen before. Still worth the walk.").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.secondary).multilineTextAlignment(.center)
+                    }
+                    if page != nil {
+                        Text("There was something else in it.").font(HeroFont.caption).foregroundStyle(NeoTokyo.Hierarchy.primary)
+                    }
                 }
-                Button("Claim") { onClaim() }
-                    .buttonStyle(PrimaryButtonStyle())
-                    .padding(.top, NeoTokyo.Spacing.sm)
+                Button(page != nil && !showingPage ? "Next" : "Claim") {
+                    if page != nil && !showingPage { withAnimation(.easeOut(duration: 0.25)) { showingPage = true } } else { onClaim() }
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                .padding(.top, NeoTokyo.Spacing.sm)
             }
             .padding(NeoTokyo.Spacing.xl)
             .frame(maxWidth: 340)
             .glass(tint: NeoTokyo.Surface.overlay)
             .padding(NeoTokyo.Spacing.xl)
+            .id(showingPage)
             .transition(.scale(scale: 0.92).combined(with: .opacity))
         }
     }

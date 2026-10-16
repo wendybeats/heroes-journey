@@ -15,8 +15,13 @@ public struct QuestReference: Hashable, Codable, Sendable {
     /// The reward chosen from the quest's own loot pool at resolution (doc 29). nil = the ruleset
     /// table's reward for that row. Recorded on the fact so the engine never has to choose.
     public let rewardID: RewardID?
-    public init(questID: QuestID, rewardIndex: Int, rewardID: RewardID? = nil) { self.questID = questID; self.rewardIndex = rewardIndex; self.rewardID = rewardID }
-    enum CodingKeys: String, CodingKey { case questID = "quest_id", rewardIndex = "reward_index", rewardID = "reward_id" }
+    /// A page found beside the gear (doc 33, owner QA 2026-10-16): the second, independent roll's pick. nil = none
+    /// this run. Older facts decode without it.
+    public let pageRewardID: RewardID?
+    public init(questID: QuestID, rewardIndex: Int, rewardID: RewardID? = nil, pageRewardID: RewardID? = nil) {
+        self.questID = questID; self.rewardIndex = rewardIndex; self.rewardID = rewardID; self.pageRewardID = pageRewardID
+    }
+    enum CodingKeys: String, CodingKey { case questID = "quest_id", rewardIndex = "reward_index", rewardID = "reward_id", pageRewardID = "page_reward_id" }
 }
 
 /// A quest's rewards for one tier (content). Pools are consulted in the order given.
@@ -90,9 +95,24 @@ public enum QuestResolver {
         return nil
     }
 
+    /// The page roll (doc 33, owner QA 2026-10-16): independent of the gear roll, deterministic per run, so a
+    /// replay finds the same page. False when the chance is nil or 0.
+    public static func rollsPage(runID: UUID, chance: Double?) -> Bool {
+        guard let chance, chance > 0 else { return false }
+        if chance >= 1 { return true }
+        var rng = SeededGenerator(seed: runID.uuidString.hashValueStable &+ 0x71A5)
+        return Double(rng.next() % 1_000_000) / 1_000_000 < chance
+    }
+
+    /// The page a return hands over: the lowest-numbered page in the quest's page pool the player does not own,
+    /// so a set reads in order (doc 33: the Room shows it in order, with gaps). nil = the pool is owned or absent.
+    public static func pickPage(pools: [LootPool], granted: Set<RewardID>) -> RewardID? {
+        pools.first { $0.tier == "page" }?.rewards.first { !granted.contains($0) }
+    }
+
     /// The return fact. Zero duration; the engine prices it from the ruleset table.
-    public static func makeEvent(for run: QuestRun, rewardIndex: Int, rewardID: RewardID? = nil, userID: UserID, familyFallback: FamilyID, at now: Date, id: ActivityEventID = ActivityEventID()) -> ActivityEvent {
+    public static func makeEvent(for run: QuestRun, rewardIndex: Int, rewardID: RewardID? = nil, pageRewardID: RewardID? = nil, userID: UserID, familyFallback: FamilyID, at now: Date, id: ActivityEventID = ActivityEventID()) -> ActivityEvent {
         ActivityEvent(id: id, userID: userID, activityTypeID: ActivityTypeID(run.questID.rawValue), familyID: familyFallback, startedAt: now, durationSeconds: 0,
-                      source: .quest, verification: .selfReported, quest: QuestReference(questID: run.questID, rewardIndex: rewardIndex, rewardID: rewardID), createdAt: now)
+                      source: .quest, verification: .selfReported, quest: QuestReference(questID: run.questID, rewardIndex: rewardIndex, rewardID: rewardID, pageRewardID: pageRewardID), createdAt: now)
     }
 }
