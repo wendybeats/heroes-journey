@@ -312,6 +312,10 @@ Doc 38 phases 1–3 in one pass, built from the values the owner approved in the
 
 Owner direction recorded in doc 38 §0b: Ascension may not modify the composite; effects are asymmetric and intermittent; I is the body emitting something, II is the shadow stopping obeying; II is about 30 % more intense at rest and twice as supernatural in motion.
 
+## Increment 53, 2026-10-16: Colossus is the hooded oni
+
+Owner reversal of the morning's choice: the hooded oni variant (base model, no tusks; the two tusk mocks in the package are not imported) replaces the human head everywhere. Imported pixel-for-pixel as `npc.colossus` rev3 (idle cropped to the 96×176 cell and verified identical to the saved oni master), `npc.colossus.combat` rev2 (idle, attack, buff, broken) and `portrait.colossus` rev3. Player masters in the package are byte-identical to the v2 set, so nothing changes there. No code change: every scene, the clash, the fight and dialogue resolve the highest revision. The human-head revisions stay in the repo as history.
+
 ## Planned (owner, 2026-10-12): challenges and between-beat content
 
 Doc 33 holds the design, the five-increment plan (40–44) and the content inventory (lines and art the owner writes separately). Order: beats wait for their quest (`requires_quest`), Challenges with Cairon then the lifter, repeat quest exchanges and found pages, story-aware goal lines and Row rumours. Each lands behind its content: a field with no lines renders nothing.

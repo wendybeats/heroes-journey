@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.16-6",
+  "content_version": "2026.10.16-7",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -2638,7 +2638,7 @@
       "display_name": "Colossus",
       "portrait_asset_set_id": "portrait.colossus",
       "side": "left",
-      "notes": "Antagonist of the Under City / Colossus Gym (doc 26 §9). Working title (owner 2026-10-05). Redesigned 2026-10-16 (human head, cybernetic body): sprite npc.colossus rev2, combat states npc.colossus.combat, dialogue portrait portrait.colossus rev2 on the 160 grid.",
+      "notes": "Antagonist of the Under City / Colossus Gym (doc 26 §9). Working title (owner 2026-10-05). Design settled 2026-10-16 on the hooded oni (base model, no tusks): sprite npc.colossus rev3, combat states npc.colossus.combat rev2, dialogue portrait portrait.colossus rev3 on the 160 grid. The human-head variant stays in the art packages as history.",
       "sprite_asset_set_id": "npc.colossus"
     },
     {

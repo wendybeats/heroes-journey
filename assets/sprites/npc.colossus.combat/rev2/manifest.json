@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "npc.colossus.combat",
+  "revision": 2,
+  "status": "review",
+  "kind": "body",
+  "canvas": {
+    "width": 160,
+    "height": 192
+  },
+  "pivot": {
+    "x": 80,
+    "y": 184
+  },
+  "layer_order": 0,
+  "max_palette_colors": 24,
+  "animations": {
+    "idle": {
+      "frames": [
+        "idle/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    },
+    "attack": {
+      "frames": [
+        "attack/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    },
+    "buff": {
+      "frames": [
+        "buff/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    },
+    "broken": {
+      "frames": [
+        "broken/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner 2026-10-16: the hooded oni's four combat states on the shared 160×192 combat cell, pivot (80,184), same world scale as the hero. Replaces rev1 (human head). Single stills; code moves them (doc 36 §18). Faces left. 21-colour oni palette; the tusk mocks are not imported.",
+  "world": "city",
+  "area": "colossus_gym",
+  "scene": "deep_floor",
+  "time": "night",
+  "mood": [
+    "iron",
+    "pressure"
+  ]
+}

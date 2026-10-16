@@ -732,11 +732,11 @@
       "scene": "deep_floor",
       "mood": [
         "iron",
-        "weary",
-        "calm"
+        "hooded",
+        "weary"
       ],
       "time": "night",
-      "current_revision": 2,
+      "current_revision": 3,
       "status": "review",
       "revisions": [
         {
@@ -762,9 +762,21 @@
             "width": 96,
             "height": 176
           }
+        },
+        {
+          "revision": 3,
+          "status": "review",
+          "path": "assets/sprites/npc.colossus/rev3",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 96,
+            "height": 176
+          }
         }
       ],
-      "source": "assets/sprites/npc.colossus/rev2/source"
+      "source": "assets/sprites/npc.colossus/rev3/source"
     },
     {
       "id": "npc.colossus.combat",
@@ -777,7 +789,7 @@
         "pressure"
       ],
       "time": "night",
-      "current_revision": 1,
+      "current_revision": 2,
       "status": "review",
       "revisions": [
         {
@@ -794,9 +806,24 @@
             "width": 160,
             "height": 192
           }
+        },
+        {
+          "revision": 2,
+          "status": "review",
+          "path": "assets/sprites/npc.colossus.combat/rev2",
+          "animations": [
+            "attack",
+            "broken",
+            "buff",
+            "idle"
+          ],
+          "canvas": {
+            "width": 160,
+            "height": 192
+          }
         }
       ],
-      "source": "assets/sprites/npc.colossus.combat/rev1/source"
+      "source": "assets/sprites/npc.colossus.combat/rev2/source"
     },
     {
       "id": "npc.guide_elder",
@@ -922,11 +949,11 @@
       "scene": "deep_floor",
       "mood": [
         "iron",
-        "weary",
-        "calm"
+        "hooded",
+        "weary"
       ],
       "time": "night",
-      "current_revision": 2,
+      "current_revision": 3,
       "status": "review",
       "revisions": [
         {
@@ -952,9 +979,21 @@
             "width": 160,
             "height": 160
           }
+        },
+        {
+          "revision": 3,
+          "status": "review",
+          "path": "assets/sprites/portrait.colossus/rev3",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 160,
+            "height": 160
+          }
         }
       ],
-      "source": "assets/sprites/portrait.colossus/rev2/source"
+      "source": "assets/sprites/portrait.colossus/rev3/source"
     },
     {
       "id": "portrait.guide_elder",
