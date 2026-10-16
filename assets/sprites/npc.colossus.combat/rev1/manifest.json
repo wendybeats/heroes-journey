@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "npc.colossus.combat",
+  "revision": 1,
+  "status": "review",
+  "kind": "body",
+  "canvas": {
+    "width": 160,
+    "height": 192
+  },
+  "pivot": {
+    "x": 80,
+    "y": 184
+  },
+  "layer_order": 0,
+  "max_palette_colors": 24,
+  "animations": {
+    "idle": {
+      "frames": [
+        "idle/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    },
+    "attack": {
+      "frames": [
+        "attack/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    },
+    "buff": {
+      "frames": [
+        "buff/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    },
+    "broken": {
+      "frames": [
+        "broken/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Doc 36 §21–22, owner handoff 2026-10-16: Colossus's four combat states on the shared 160×192 combat cell, pivot (80,184), same world scale as the hero (one logical pixel = one logical pixel). Single stills; code moves them (doc 36 §18). Idle is the exact npc.colossus rev2 pixels; Crush is the two-handed plate shove; MORE loads a second plate (accepted: the other states carry one); Broken is one knee down. Faces left. No glow, no attribute colour baked in.",
+  "world": "city",
+  "area": "colossus_gym",
+  "scene": "deep_floor",
+  "time": "night",
+  "mood": [
+    "iron",
+    "pressure"
+  ]
+}

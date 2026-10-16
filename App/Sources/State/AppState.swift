@@ -560,8 +560,9 @@ final class AppState {
     }
     /// Cairon's hint after the latest loss: the first line on the first loss, tightening, the last line repeating.
     func bossLossLine(_ boss: BossDefinition) -> String? { boss.lossLine(attempt: max(1, bossAttempts(boss) + 1)) }
-    /// Dev controls: Home opens the fight when this is set.
+    /// Dev controls: Home opens the fight when this is set; `devBossRehearsal` adds the boss-state buttons.
     var devBossRequest: BossDefinition?
+    var devBossRehearsal = false
     /// The line the goals card shows while the story is held: the area gate's progressive line, else the quest gate's.
     var heldBeatLine: String? {
         guard let beat = heldBeat else { return nil }

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "hero.combat.male",
+  "revision": 1,
+  "status": "review",
+  "kind": "body",
+  "canvas": {
+    "width": 160,
+    "height": 192
+  },
+  "pivot": {
+    "x": 80,
+    "y": 184
+  },
+  "layer_order": 0,
+  "max_palette_colors": 16,
+  "animations": {
+    "attack": {
+      "frames": [
+        "attack/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    },
+    "guard": {
+      "frames": [
+        "guard/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    },
+    "analyze": {
+      "frames": [
+        "analyze/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    },
+    "center": {
+      "frames": [
+        "center/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Doc 36 §17–18, owner handoff 2026-10-16: the male combat action masters on the shared 160×192 combat cell, pivot (80,184), canonical 111 px standing body, simplified suit, no hair or equipment (the glow hides them; the real customised idle plays before and after). Faces right. Until female masters exist, every character swaps to these (owner 2026-10-16: see how far it deviates).",
+  "world": "city",
+  "area": "colossus_gym",
+  "scene": "deep_floor",
+  "time": "night",
+  "mood": [
+    "focus"
+  ]
+}

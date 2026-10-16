@@ -136,7 +136,8 @@ struct HomeView: View {
             .onChange(of: state.devBossRequest?.id) { _, id in
                 guard id != nil, let boss = state.devBossRequest, let encounter = state.startBossEncounter(boss) else { return }
                 state.devBossRequest = nil
-                bossFight = BossFight(encounter: encounter, milestone: boss.milestoneID.flatMap { state.campaign.milestone($0) })
+                bossFight = BossFight(encounter: encounter, milestone: boss.milestoneID.flatMap { state.campaign.milestone($0) }, rehearsal: state.devBossRehearsal)
+                state.devBossRehearsal = false
             }
             #if DEBUG
             .sheet(isPresented: $showDev) { DevControlsView() }

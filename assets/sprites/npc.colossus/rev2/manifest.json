@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "npc.colossus",
+  "revision": 2,
+  "status": "review",
+  "kind": "body",
+  "canvas": {
+    "width": 96,
+    "height": 176
+  },
+  "pivot": {
+    "x": 48,
+    "y": 167
+  },
+  "layer_order": 0,
+  "max_palette_colors": 24,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner 2026-10-16: the Colossus redesign (human head, natural upper arms, cybernetic body; the hooded oni stays an alternate in the handoff). Same cell, pivot and 156 px standing height as rev1, so every scene and the clash pick it up unchanged. Combat states live in npc.colossus.combat. A new dialogue card follows from the owner; portrait.colossus is still the old face until then.",
+  "world": "city",
+  "area": "colossus_gym",
+  "scene": "deep_floor",
+  "time": "night",
+  "mood": [
+    "iron",
+    "weary",
+    "calm"
+  ]
+}

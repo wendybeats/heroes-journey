@@ -270,6 +270,37 @@
       "source": "assets/sprites/hero.body.ev1/rev2/source"
     },
     {
+      "id": "hero.combat.male",
+      "kind": "body",
+      "world": "city",
+      "area": "colossus_gym",
+      "scene": "deep_floor",
+      "mood": [
+        "focus"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/hero.combat.male/rev1",
+          "animations": [
+            "analyze",
+            "attack",
+            "center",
+            "guard"
+          ],
+          "canvas": {
+            "width": 160,
+            "height": 192
+          }
+        }
+      ],
+      "source": "assets/sprites/hero.combat.male/rev1/source"
+    },
+    {
       "id": "hero.walk.hooded",
       "kind": "body",
       "world": "city",
@@ -674,7 +705,7 @@
         "calm"
       ],
       "time": "night",
-      "current_revision": 1,
+      "current_revision": 2,
       "status": "review",
       "revisions": [
         {
@@ -688,9 +719,53 @@
             "width": 96,
             "height": 176
           }
+        },
+        {
+          "revision": 2,
+          "status": "review",
+          "path": "assets/sprites/npc.colossus/rev2",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 96,
+            "height": 176
+          }
         }
       ],
-      "source": "assets/sprites/npc.colossus/rev1/source"
+      "source": "assets/sprites/npc.colossus/rev2/source"
+    },
+    {
+      "id": "npc.colossus.combat",
+      "kind": "body",
+      "world": "city",
+      "area": "colossus_gym",
+      "scene": "deep_floor",
+      "mood": [
+        "iron",
+        "pressure"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/npc.colossus.combat/rev1",
+          "animations": [
+            "attack",
+            "broken",
+            "buff",
+            "idle"
+          ],
+          "canvas": {
+            "width": 160,
+            "height": 192
+          }
+        }
+      ],
+      "source": "assets/sprites/npc.colossus.combat/rev1/source"
     },
     {
       "id": "npc.guide_elder",
@@ -1024,8 +1099,10 @@
     "colossus_gym": [
       "backdrop.colossus_gym.exterior_01",
       "backdrop.colossus_gym.interior_01",
+      "hero.combat.male",
       "icon.item.page",
       "npc.colossus",
+      "npc.colossus.combat",
       "npc.gym.lifter_01",
       "npc.gym.lifter_02",
       "npc.gym.lifter_03",

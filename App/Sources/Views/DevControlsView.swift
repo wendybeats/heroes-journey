@@ -61,6 +61,8 @@ struct DevControlsView: View {
                         if let boss = state.bundle.bosses.first { row("Attempts", value: "\(state.bossAttempts(boss))") }
                         Button("Fight Colossus now") { state.devBossRequest = state.bundle.bosses.first; dismiss() }.buttonStyle(SecondaryButtonStyle())
                             .disabled(state.bundle.bosses.isEmpty || state.ruleset.bossCombat == nil)
+                        Button("Rehearse combat animations") { state.devBossRehearsal = true; state.devBossRequest = state.bundle.bosses.first; dismiss() }.buttonStyle(SecondaryButtonStyle())
+                            .disabled(state.bundle.bosses.isEmpty || state.ruleset.bossCombat == nil)
                         Text("Opens the fight with your real stats and today's training, ignoring the Level 10 and three-gym-runs gate. Winning plays the resolution beat only if that gate is met.")
                             .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
                     }
