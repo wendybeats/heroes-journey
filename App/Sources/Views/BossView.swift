@@ -61,7 +61,22 @@ struct BossView: View {
     @State private var hint: String? = nil
     @State private var shownHints: Set<String> = []
 
-    struct Pop: Identifiable { let id = UUID(); let text: String; let onBoss: Bool; let color: Color; let big: Bool }
+    /// Where a piece of feedback lands (owner brief 2026-10-16, P0-4): fixed anchors, clamped inside the stage.
+    enum PopAnchor { case bossTorso, heroTorso, playerStatus, bossCenter }
+    struct Pop: Identifiable {
+        let id = UUID(); let text: String; let anchor: PopAnchor; let color: Color; let big: Bool
+        var sub: String? = nil
+        init(text: String, onBoss: Bool, color: Color, big: Bool, sub: String? = nil) {
+            self.text = text; self.anchor = onBoss ? .bossTorso : .heroTorso; self.color = color; self.big = big; self.sub = sub
+        }
+        init(text: String, at anchor: PopAnchor, color: Color, big: Bool, sub: String? = nil) {
+            self.text = text; self.anchor = anchor; self.color = color; self.big = big; self.sub = sub
+        }
+    }
+    /// Break damage shows beside the Break meter, not on the stage (P0-4).
+    @State private var breakPop: String? = nil
+    /// A Guard waits for his hit: the brace is shown, the ripple plays on impact (P0-1, P0-2).
+    @State private var guardPending: Double? = nil
     struct Ring: Identifiable, Equatable { let id = UUID(); let color: Color; let inward: Bool }
 
     init(fight: BossFight, onFinish: @escaping (CombatResult) -> Void) {
@@ -122,8 +137,13 @@ struct BossView: View {
                         .scaleEffect(shatter && lit ? 1.9 : 1).opacity(shatter && lit ? 0 : 1)
                 }
                 if shownBroken { Text("BROKEN").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.primary).transition(.opacity) }
+                if let breakPop {
+                    Text(breakPop).font(HeroFont.captionNumber).foregroundStyle(NeoTokyo.Attribute.color(for: "knowledge"))
+                        .id(breakPop).transition(.move(edge: .bottom).combined(with: .opacity))
+                }
                 Spacer()
             }
+            .animation(.easeOut(duration: 0.2), value: breakPop)
             .animation(.easeOut(duration: 0.35), value: shatter)
             .animation(.easeOut(duration: 0.2), value: shownBroken)
         }
@@ -197,7 +217,8 @@ struct BossView: View {
                 placed(Color.white.mask { masterSprite }.opacity(masterVisible ? 0.96 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
                 placed(actionColor.mask { masterSprite }.opacity(heroPhase == .action ? 0.22 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
                 if heroPhase == .action, !reduceMotion {
-                    GlowBeads(color: actionColor).frame(width: 150, height: 240).position(x: heroAnchor.x + 10, y: floorY - 110).allowsHitTesting(false)
+                    // Center's energy contracts (P0-1): the beads drift inward instead of off the edge.
+                    GlowBeads(color: actionColor, inward: heroAction == .center).frame(width: 150, height: 240).position(x: heroAnchor.x + 10, y: floorY - 110).allowsHitTesting(false)
                 }
                 if heroPhase == .eyes || heroPhase == .whiteReal {
                     Capsule().fill(actionColor).frame(width: 8, height: 3).shadow(color: actionColor, radius: 5).shadow(color: .white, radius: 2)
@@ -207,13 +228,7 @@ struct BossView: View {
                 if let ring {
                     RingView(color: ring.color, inward: ring.inward).frame(width: 150, height: 150).position(x: heroAnchor.x, y: floorY - 70).id(ring.id)
                 }
-                if let pop {
-                    Text(pop.text).font(pop.big ? HeroFont.statXL : HeroFont.title).foregroundStyle(pop.color)
-                        .shadow(color: NeoTokyo.Surface.base.opacity(0.9), radius: 6)
-                        .position(x: pop.onBoss ? bossAnchor.x : heroAnchor.x, y: geo.size.height * 0.3)
-                        .id(pop.id)
-                        .transition(.scale(scale: 1.5).combined(with: .opacity))
-                }
+                if let pop { popView(pop, size: geo.size, heroAnchor: heroAnchor, bossAnchor: bossAnchor, floorY: floorY) }
                 // Telegraph and the dialogue banner, between the two.
                 VStack(spacing: 6) {
                     if let line {
@@ -221,7 +236,12 @@ struct BossView: View {
                             .padding(.horizontal, NeoTokyo.Spacing.md).padding(.vertical, NeoTokyo.Spacing.xs)
                             .glass(cornerRadius: NeoTokyo.Radius.md, tint: NeoTokyo.Surface.overlay).transition(.opacity)
                     }
-                    if let narration {
+                    if shownBroken, !busy, encounter.result == nil {
+                        Text("BROKEN · one free action").font(HeroFont.headline).foregroundStyle(NeoTokyo.Hierarchy.primary)
+                            .padding(.horizontal, NeoTokyo.Spacing.md).padding(.vertical, NeoTokyo.Spacing.xs)
+                            .glass(cornerRadius: NeoTokyo.Radius.md, tint: NeoTokyo.Surface.scrim)
+                            .transition(.scale(scale: 1.15).combined(with: .opacity))
+                    } else if let narration {
                         Text(narration).font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
                             .padding(.horizontal, NeoTokyo.Spacing.md).padding(.vertical, NeoTokyo.Spacing.xs)
                             .glass(cornerRadius: NeoTokyo.Radius.md, tint: NeoTokyo.Surface.scrim)
@@ -257,6 +277,28 @@ struct BossView: View {
             .animation(.easeOut(duration: 0.25), value: outline)
             .animation(.easeOut(duration: 0.2), value: pop?.id)
         }
+    }
+
+    /// Feedback at its anchor (brief P0-4), clamped inside the stage so nothing clips at the edges.
+    private func popView(_ pop: Pop, size: CGSize, heroAnchor: CGPoint, bossAnchor: CGPoint, floorY: CGFloat) -> some View {
+        let margin: CGFloat = pop.big ? 110 : 80
+        let raw: CGPoint
+        switch pop.anchor {
+        case .bossTorso: raw = CGPoint(x: bossAnchor.x - 24, y: floorY - 150)
+        case .heroTorso: raw = CGPoint(x: heroAnchor.x + 16, y: floorY - 120)
+        case .playerStatus: raw = CGPoint(x: heroAnchor.x + 40, y: size.height - 26)
+        case .bossCenter: raw = CGPoint(x: bossAnchor.x - 30, y: floorY - 105)
+        }
+        return VStack(spacing: 2) {
+            Text(pop.text).font(pop.big ? HeroFont.statXL : HeroFont.title).foregroundStyle(pop.color)
+            if let sub = pop.sub { Text(sub).font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.primary) }
+        }
+        .multilineTextAlignment(.center)
+        .shadow(color: NeoTokyo.Surface.base.opacity(0.9), radius: 6)
+        .frame(width: 2 * margin)
+        .position(x: min(max(raw.x, margin), size.width - margin), y: min(max(raw.y, 30), size.height - 16))
+        .id(pop.id)
+        .transition(.scale(scale: 1.5).combined(with: .opacity))
     }
 
     private var pressureVignette: some View {
@@ -298,6 +340,9 @@ struct BossView: View {
                         .frame(maxWidth: .infinity, minHeight: 44)
                     }
                     .buttonStyle(SecondaryButtonStyle(accent: NeoTokyo.Attribute.color(for: action.attributeID.rawValue)))
+                    .overlay(RoundedRectangle(cornerRadius: NeoTokyo.Radius.md, style: .continuous)
+                        .stroke(NeoTokyo.Hierarchy.primary.opacity(shownBroken && action == .attack && !busy ? 0.9 : 0), lineWidth: 1.5))
+                    .shadow(color: NeoTokyo.Hierarchy.primary.opacity(shownBroken && action == .attack && !busy ? 0.35 : 0), radius: 12)
                     .disabled(busy || encounter.result != nil)
                 }
             }
@@ -359,8 +404,16 @@ struct BossView: View {
         Task { @MainActor in
             await heroPowerUp(action)
             for event in playerEvents { await play(event) }
-            await heroPowerDown()
-            for event in bossEvents { await play(event) }
+            // Guard (brief P0-2): Colossus moves, the player absorbs or deflects; the brace holds until his hit lands.
+            if action == .`guard`, guardPending != nil, !bossEvents.isEmpty {
+                for event in bossEvents { await play(event) }
+                guardPending = nil
+                await heroPowerDown()
+            } else {
+                guardPending = nil
+                await heroPowerDown()
+                for event in bossEvents { await play(event) }
+            }
             await pause(150)
             pop = nil
             if let result = encounter.result { state.recordBossAttempt(boss, result: result); await pause(200) }
@@ -377,11 +430,12 @@ struct BossView: View {
         heroPhase = .action
         if !reduceMotion {
             afterX = heroLunge
+            // Owner brief 2026-10-16 (P0-1): only Attack moves toward him; Guard braces in place, Analyze and Center hold.
             switch action {
             case .attack: heroLunge = 72
-            case .center: heroLunge = -6
-            case .`guard`: heroLunge = -10
-            case .analyze: heroLunge = 8
+            case .center: heroLunge = 0
+            case .`guard`: heroLunge = -4
+            case .analyze: heroLunge = 0
             }
             if let profile = CharacterKitStore.ascensionProfile(tier: state.ascensionTier) {
                 afterAlpha = profile.afterimageAlpha
@@ -401,14 +455,15 @@ struct BossView: View {
     private func play(_ event: CombatEvent) async {
         switch event {
         case let .damage(v, critical):
-            bossLunge = reduceMotion ? 0 : 18
-            await hit(onBoss: true, text: critical ? "CRITICAL \(Int(v.rounded()))" : "\(Int(v.rounded()))", color: critical ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.primary, big: critical)
+            bossLunge = reduceMotion ? 0 : (critical ? 12 : 8)
+            await hit(onBoss: true, text: critical ? "CRITICAL \(Int(v.rounded()))" : "\(Int(v.rounded()))", color: critical ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.primary, big: critical, at: critical ? .bossCenter : .bossTorso)
             shownBoss = max(0, shownBoss - v); bossLunge = 0
             await pause(120)
         case let .guarded(reduction):
-            ring = Ring(color: NeoTokyo.Attribute.color(for: "endurance"), inward: false)
-            pop = Pop(text: "GUARD \(Int((reduction * 100).rounded()))%", onBoss: false, color: NeoTokyo.Attribute.color(for: "endurance"), big: false)
-            await pause(360)
+            // The brace is the whole animation; the ripple and the number wait for his hit (P0-1, P0-2).
+            guardPending = reduction
+            pop = Pop(text: "GUARD", onBoss: false, color: NeoTokyo.Attribute.color(for: "endurance"), big: false)
+            await pause(260)
         case let .analyzed(bd):
             if bd > 0 {
                 scan = 0; outline = 1
@@ -421,21 +476,26 @@ struct BossView: View {
             } else {
                 pop = Pop(text: "…", onBoss: true, color: NeoTokyo.Text.secondary, big: false); await pause(260)
             }
-        case let .breakDamage(_, left):
-            shownBreak = left; await pause(100)
+        case let .breakDamage(amount, left):
+            breakPop = "−\(String(format: amount == amount.rounded() ? "%.0f" : "%.1f", amount))"
+            shownBreak = left; await pause(320); breakPop = nil
         case .broken:
             shatter = true; shownBroken = true; bossAnim = "broken"; bossAuraColor = NeoTokyo.Hierarchy.primary; bossAura = 0.8
-            await hit(onBoss: true, text: "BROKEN", color: NeoTokyo.Hierarchy.primary, big: true)
-            shatter = false; bossAura = 0
+            await hit(onBoss: true, text: "BROKEN", color: NeoTokyo.Hierarchy.primary, big: true, at: .bossCenter)
+            shatter = false; bossAura = 0.3
             showHint("break")
         case let .centered(cleared, recovered):
             ring = Ring(color: NeoTokyo.Attribute.color(for: "mindfulness"), inward: true)
             await pause(200)
             shownPressure = max(0, shownPressure - cleared); shownPlayer = min(encounter.playerStaminaMax, shownPlayer + recovered)
-            pop = Pop(text: cleared > 0 ? "−\(cleared) PRESSURE" : "+\(Int(recovered.rounded()))", onBoss: false, color: NeoTokyo.Attribute.color(for: "mindfulness"), big: false)
+            if cleared > 0 {
+                pop = Pop(text: shownPressure == 0 ? "PRESSURE CLEARED" : "−\(cleared) PRESSURE", at: .playerStatus, color: NeoTokyo.Attribute.color(for: "mindfulness"), big: false)
+            } else {
+                pop = Pop(text: "+\(Int(recovered.rounded()))", onBoss: false, color: NeoTokyo.Attribute.color(for: "mindfulness"), big: false)
+            }
             await pause(320)
         case .bossRecovered:
-            shownBroken = false; shownBreak = encounter.breakMax; bossAnim = "idle"
+            shownBroken = false; shownBreak = encounter.breakMax; bossAnim = "idle"; bossAura = 0
             await pause(260)
         case let .bossAttack(name, _, taken, deflected):
             narration = boss.actions[name]?.telegraph
@@ -445,6 +505,11 @@ struct BossView: View {
             if deflected {
                 ring = Ring(color: NeoTokyo.Attribute.color(for: "endurance"), inward: false)
                 await hit(onBoss: false, text: "DEFLECT", color: NeoTokyo.Attribute.color(for: "endurance"), big: true)
+            } else if let reduction = guardPending {
+                // Impact absorption: the ripple and the reduction at the moment his hit lands on the brace.
+                ring = Ring(color: NeoTokyo.Attribute.color(for: "endurance"), inward: false)
+                pop = Pop(text: "GUARD \(Int((reduction * 100).rounded()))%", onBoss: false, color: NeoTokyo.Attribute.color(for: "endurance"), big: false)
+                await pause(220)
             }
             await hit(onBoss: false, text: "\(Int(taken.rounded()))", color: NeoTokyo.Text.primary, big: false)
             shownPlayer = max(0, shownPlayer - taken)
@@ -455,7 +520,7 @@ struct BossView: View {
         case let .bossLoad(m):
             narration = boss.actions["load"]?.telegraph
             bossAnim = "buff"; bossAuraColor = NeoTokyo.Text.secondary; bossAura = 0.7
-            pop = Pop(text: "LOADED ×\(String(format: "%.1f", m))", onBoss: true, color: NeoTokyo.Text.secondary, big: false)
+            pop = Pop(text: "LOADED ×\(String(format: "%.1f", m))", at: .bossTorso, color: NeoTokyo.Text.secondary, big: false)
             await pause(420); bossAura = 0; bossAnim = "idle"; narration = nil
         case let .pressure(stacks):
             narration = boss.actions["more"]?.telegraph
@@ -463,7 +528,7 @@ struct BossView: View {
             if !reduceMotion { stageShake = CGSize(width: 2, height: -1) }
             await pause(120); stageShake = .zero
             shownPressure = stacks
-            pop = Pop(text: "PRESSURE ×\(stacks)", onBoss: false, color: NeoTokyo.Attribute.color(for: "strength"), big: false)
+            pop = Pop(text: "PRESSURE ×\(stacks)", at: .playerStatus, color: NeoTokyo.Attribute.color(for: "strength"), big: false)
             await pause(380); bossAura = 0; bossAnim = "idle"; narration = nil
             showHint("pressure")
         case let .dialogue(key):
@@ -474,17 +539,22 @@ struct BossView: View {
     }
 
     /// Flash, shake, a white hit on the target, the number. Flash sensitivity: every hit also has a sprite state and text.
-    private func hit(onBoss: Bool, text: String, color: Color, big: Bool) async {
-        // Every landed hit, from either side, shakes the whole stage (owner 2026-10-16); the target also recoils.
-        if !reduceMotion { flash = big ? 0.35 : 0.2; shake = onBoss ? 7 : 0; stageShake = CGSize(width: big ? 7 : 4, height: big ? -3 : -2) }
+    private func hit(onBoss: Bool, text: String, color: Color, big: Bool, at anchor: PopAnchor? = nil) async {
+        // Every landed hit, from either side, shakes the whole stage (owner 2026-10-16); the target also recoils 3–6 px
+        // (6–12 pt at the stage scale) and the frame holds ~70 ms before anything else moves (brief P0-2).
+        if !reduceMotion {
+            flash = big ? 0.35 : 0.2; shake = onBoss ? 7 : 0; stageShake = CGSize(width: big ? 7 : 4, height: big ? -3 : -2)
+            if !onBoss { heroLunge -= 10 }
+        }
         if onBoss { bossHit = 1 } else { heroHit = 1 }
-        pop = Pop(text: text, onBoss: onBoss, color: color, big: big)
+        pop = Pop(text: text, at: anchor ?? (onBoss ? .bossTorso : .heroTorso), color: color, big: big)
         await pause(70)
         if !reduceMotion { stageShake = CGSize(width: big ? -5 : -3, height: 1) }
         withAnimation(.easeOut(duration: 0.2)) { flash = 0; shake = 0 }
         await pause(60)
         stageShake = .zero
         bossHit = 0; heroHit = 0
+        if !reduceMotion, !onBoss { heroLunge += 10 }
         await pause(big ? 400 : 280)
     }
 
@@ -514,6 +584,7 @@ struct BossView: View {
 /// action master, a few with a cross flare, short lives, drifting outward. Procedural; no texture.
 private struct GlowBeads: View {
     let color: Color
+    var inward = false
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30)) { context in
             let t = context.date.timeIntervalSinceReferenceDate
@@ -521,7 +592,8 @@ private struct GlowBeads: View {
                 let cx = size.width / 2, cy = size.height * 0.55
                 for i in 0..<22 {
                     let life = 0.45 + Double(i % 5) * 0.05
-                    let phase = ((t * 1.3 + Double(i) * 0.37) / life).truncatingRemainder(dividingBy: 1)
+                    let raw = ((t * 1.3 + Double(i) * 0.37) / life).truncatingRemainder(dividingBy: 1)
+                    let phase = inward ? 1 - raw : raw
                     let angle = Double(i) * 0.9 + sin(t * 0.7 + Double(i)) * 0.4
                     let rx = size.width * 0.28 + phase * 22, ry = size.height * 0.42 + phase * 10
                     let x = cx + cos(angle) * rx, y = cy + sin(angle) * ry - phase * 12
