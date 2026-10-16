@@ -125,6 +125,9 @@ final class ContentBundleTests: XCTestCase {
     func testAreasCoverTheCampaign() throws {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
         XCTAssertEqual(bundle.areas.count, 13)
+        // Owner 2026-10-16: Colossus is fought inside Area 1, so the gym nests in the Under City band and the rest moved up one.
+        XCTAssertEqual(bundle.area("colossus_gym")?.levels, [5, 10]); XCTAssertEqual(bundle.area("central_hill")?.levels, [11, 18])
+        XCTAssertEqual(bundle.area("ascension_boundary")?.levels, [82, 100])
         XCTAssertEqual(bundle.area(forLevel: 1)?.id, "under_city"); XCTAssertEqual(bundle.area(forLevel: 10)?.id, "under_city")
         XCTAssertEqual(bundle.area(forLevel: 11)?.id, "colossus_gym"); XCTAssertEqual(bundle.area(forLevel: 100)?.id, "ascension_boundary")
         XCTAssertEqual(bundle.area("grand_court")?.antagonist, "The Mirror")

@@ -420,10 +420,16 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         }
         if dailyQuotes.isEmpty { problems.append("no daily quotes") }
         unique(areas.map(\.id), "area")
+        // Bands are contiguous from Level 1. An area whose range sits inside an earlier area's range is a sub-area
+        // (doc 26 §10, owner 2026-10-16: Colossus Gym lives inside the Under City band) and stays out of the chain.
         var expected = 1
-        for area in areas.sorted(by: { $0.levelRange.lowerBound < $1.levelRange.lowerBound }) {
-            if area.levels.count != 2 || area.levelRange.lowerBound != expected { problems.append("area \(area.id) levels must start at \(expected)") }
+        var seen: [ClosedRange<Int>] = []
+        for area in areas.sorted(by: { ($0.levelRange.lowerBound, -$0.levelRange.upperBound) < ($1.levelRange.lowerBound, -$1.levelRange.upperBound) }) {
+            if area.levels.count != 2 { problems.append("area \(area.id) levels must be [low, high]"); continue }
+            if seen.contains(where: { $0.contains(area.levelRange.lowerBound) && $0.contains(area.levelRange.upperBound) }) { continue }
+            if area.levelRange.lowerBound != expected { problems.append("area \(area.id) levels must start at \(expected)") }
             expected = area.levelRange.upperBound + 1
+            seen.append(area.levelRange)
         }
         if !areas.isEmpty && expected <= 1 { problems.append("areas must cover a contiguous range from level 1") }
         // Campaign: ids unique, references resolve, levels inside the chapter, at most one completion per chapter.
