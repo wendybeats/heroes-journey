@@ -55,7 +55,6 @@ struct DevControlsView: View {
                         }
                         .pickerStyle(.segmented)
                     }
-                    }
                     section("Boss") {
                         let shares = state.combatShares
                         row("Shares S/E/K/M", value: String(format: "%.2f / %.2f / %.2f / %.2f", shares.strength, shares.endurance, shares.knowledge, shares.mindfulness))
