@@ -46,7 +46,7 @@ final class BossCombatTests: XCTestCase {
         let hit = e.step(.attack)
         guard case let .damage(d, critical) = hit[0] else { return XCTFail("\(hit)") }
         XCTAssertEqual(d, rules.attackBase, accuracy: 1e-9); XCTAssertFalse(critical)
-        XCTAssertEqual(e.step(.guard).first, .guarded(reduction: rules.guardBaseReduction))
+        XCTAssertEqual(e.step(.`guard`).first, .guarded(reduction: rules.guardBaseReduction))
         e = BossEncounter(boss: boss, rules: rules, shares: zero)
         guard case let .analyzed(bd) = e.step(.analyze)[0] else { return XCTFail() }
         XCTAssertEqual(bd, rules.analyzeBaseBreak, accuracy: 1e-9)
@@ -68,7 +68,7 @@ final class BossCombatTests: XCTestCase {
         let (boss, rules, _) = try load()
         var e = BossEncounter(boss: boss, rules: rules, shares: CombatShares(strength: 1, endurance: 1, knowledge: 3, mindfulness: 1))
         XCTAssertEqual(e.intent, "test")
-        e.step(.guard)                                   // test: no deflect (not deflectable)
+        e.step(.`guard`)                                   // test: no deflect (not deflectable)
         XCTAssertEqual(e.deflects, 0); XCTAssertEqual(e.intent, "load")
         e.step(.analyze); XCTAssertEqual(e.intent, "crush"); XCTAssertEqual(e.loaded, 1.5)
         let before = e.playerStamina
@@ -87,7 +87,7 @@ final class BossCombatTests: XCTestCase {
         let (boss, rules, _) = try load()
         func pressured(_ mind: Double) -> BossEncounter {
             var e = BossEncounter(boss: boss, rules: rules, shares: CombatShares(strength: 0, endurance: 0, knowledge: 0, mindfulness: mind))
-            for _ in 0..<12 { e.step(.guard) }   // three MOREs: pressure capped at 3
+            for _ in 0..<12 { e.step(.`guard`) }   // three MOREs: pressure capped at 3
             return e
         }
         var weak = pressured(0); XCTAssertEqual(weak.pressure, 3)
@@ -103,7 +103,7 @@ final class BossCombatTests: XCTestCase {
     func testNoStallAtAnyArchetype() throws {
         let (boss, rules, _) = try load()
         for shares in [CombatShares(strength: 0, endurance: 3, knowledge: 0, mindfulness: 0), CombatShares(strength: 0, endurance: 0, knowledge: 0, mindfulness: 3), CombatShares(strength: 1, endurance: 1, knowledge: 1, mindfulness: 1)] {
-            for action in [CombatAction.guard, .center] {
+            for action in [CombatAction.`guard`, .center] {
                 var e = BossEncounter(boss: boss, rules: rules, shares: shares)
                 while e.result == nil { e.step(action) }
                 XCTAssertEqual(e.result, .lost, "\(action) only must lose, got \(String(describing: e.result)) after \(e.turn) turns")

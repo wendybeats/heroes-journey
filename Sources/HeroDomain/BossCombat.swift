@@ -90,9 +90,9 @@ public struct BossDefinition: Codable, Sendable, Equatable {
 
 /// The four verbs, one per attribute (doc 36 §2).
 public enum CombatAction: String, Codable, Sendable, CaseIterable {
-    case attack, guard, analyze, center
+    case attack, `guard`, analyze, center
     public var attributeID: AttributeID {
-        switch self { case .attack: return "strength"; case .guard: return "endurance"; case .analyze: return "knowledge"; case .center: return "mindfulness" }
+        switch self { case .attack: return "strength"; case .`guard`: return "endurance"; case .analyze: return "knowledge"; case .center: return "mindfulness" }
     }
 }
 
@@ -123,7 +123,7 @@ public struct CombatShares: Hashable, Codable, Sendable {
         self.strength = max(0, strength); self.endurance = max(0, endurance); self.knowledge = max(0, knowledge); self.mindfulness = max(0, mindfulness)
     }
     public func share(for action: CombatAction) -> Double {
-        switch action { case .attack: return strength; case .guard: return endurance; case .analyze: return knowledge; case .center: return mindfulness }
+        switch action { case .attack: return strength; case .`guard`: return endurance; case .analyze: return knowledge; case .center: return mindfulness }
     }
 }
 
@@ -184,8 +184,8 @@ public struct BossEncounter: Sendable {
             if wasBroken { dmg *= rules.brokenMultiplier }
             dmg = vary(dmg); bossStamina -= dmg
             ev.append(.damage(dmg, critical: wasBroken))
-        case .guard:
-            guarding = min(rules.guardMaxReduction, rules.guardBaseReduction * mastery(.guard))
+        case .`guard`:
+            guarding = min(rules.guardMaxReduction, rules.guardBaseReduction * mastery(.`guard`))
             ev.append(.guarded(reduction: guarding))
         case .analyze:
             if wasBroken { ev.append(.analyzed(breakDamage: 0)) }
