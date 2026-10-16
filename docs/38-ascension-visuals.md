@@ -5,6 +5,18 @@ Owner-authored, logged condensed. The concept sheets (six stages, eyes, shadow, 
 ## 0 Levels (owner, 2026-10-16)
 Tier I at Level 8, II at 18, III at 30, IV at 46, V at 68 (bundle `evolutions`). The owner is considering an 80-level game instead of 100 because of XP creep; not changed yet. Consequence for doc 36: the Colossus fight at Level 10 is fought at **tier I**, so tier I is the first production target and tier II follows with Central Hill.
 
+## 0b Direction after the first preview (owner, 2026-10-16)
+The first cut read as a rarity glow: I and II differed mainly by outline brightness. Standing rule from here: **Ascension may not modify the underlying composite**; every visible difference lives on a separate layer. Effects are asymmetric and intermittent, never a full-body outline. The grammar for the first three tiers:
+
+| | Eyes | Edge | Fragments | Shadow | Ground | Motion |
+|---|---|---|---|---|---|---|
+| Base | normal | none | none | normal | none | normal |
+| I | blue | sparse, broken: light catches a shoulder, the outside of a leg, the hair, then lets go | 0–2 rare artifacts: a pixel detaches 2–4 px and vanishes | normal | almost none | tiny action glow |
+| II | cyan | stronger, still broken | 3–6 sparse, hovering by shoulders, hair, hands; appear and disappear | a dark cyan echo 3–5 px behind, faint, that lags and sometimes shifts on its own | one broken arc | one ~150 ms afterimage, fragments trail |
+| III | violet/white | fractured | orbiting | desynced | geometry | render splitting |
+
+I: your body emits something. II: your shadow stops obeying you. III: your body stops rendering correctly. IV: the world around you changes. V: you control all of it. At rest II is about 30 % more intense than I; moving, about twice as supernatural. The browser preview carries these values; the Swift renderer ports them once signed off.
+
 ## 1 Core fantasy
 Ascension is not a buff. The digital world gradually becomes incapable of rendering the player as an ordinary person. First something is different; then reality responds; at the top they are no longer fully contained by their rendered body.
 
