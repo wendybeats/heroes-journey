@@ -147,7 +147,7 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(bundle.evolution(forLevel: 8)?.ascensionChapter, "chapter.ascension_1", "owner 2026-10-16: tier I at Level 8")
         XCTAssertEqual(bundle.chapter("chapter.ascension_1")?.then, "return"); XCTAssertEqual(bundle.chapter("chapter.ascension_1")?.beats.first?.speaker, "guide.elder")
         XCTAssertNil(bundle.evolution(forLevel: 1)?.ascensionChapter)
-        XCTAssertEqual(bundle.evolution(forLevel: 18)?.ascensionChapter, "chapter.ascension_2"); XCTAssertNil(bundle.evolution(forLevel: 10)?.ascensionChapter, "Level 10 is still tier I")
+        XCTAssertEqual(bundle.evolution(forLevel: 18)?.ascensionChapter, "chapter.ascension_2"); XCTAssertEqual(bundle.evolution(forLevel: 10)?.ascensionChapter, "chapter.ascension_1", "Level 10 is still tier I")
         XCTAssertEqual(Set(bundle.evolutions.map { $0.outfit ?? "" }), ["suit"])
         let starter = bundle.starterEquipment
         XCTAssertEqual(Set(starter.keys), [.body, .legs, .feet]); XCTAssertEqual(starter[.body], "item.hoodie.starter")
