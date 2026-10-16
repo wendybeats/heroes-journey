@@ -124,6 +124,22 @@ for ch in b.get("challenges", []):
     if area and area.get("levels") and "available_from_level" in ch and not area["levels"][0] <= ch["available_from_level"] <= area["levels"][-1]:
         fail(f"challenge {ch['id']} is available from Level {ch['available_from_level']}, outside {area['id']}'s {area['levels']}")
 
+# 6. Bosses (doc 36): short copy, a real manual milestone, a pattern of defined actions
+LIMITS.update({"boss telegraph": 40, "boss dialogue": 60, "boss tutorial": 80, "boss loss line": 120})
+for boss in b.get("bosses", []):
+    m = order.get(boss.get("milestone_id"))
+    if boss.get("milestone_id") and m is None: fail(f"boss {boss['id']} → unknown milestone {boss['milestone_id']}")
+    if m is not None and milestones[m].get("trigger") != "manual": fail(f"boss {boss['id']} milestone must be manual")
+    for name in boss["pattern"]:
+        if name not in boss["actions"]: fail(f"boss {boss['id']} pattern names undefined action {name}")
+    for name, act in boss["actions"].items(): limit("boss telegraph", act["telegraph"], f"{boss['id']} {name}")
+    for k, v in boss.get("dialogue", {}).items(): limit("boss dialogue", v, f"{boss['id']} {k}")
+    for k, v in boss.get("tutorial", {}).items(): limit("boss tutorial", v, f"{boss['id']} {k}")
+    for v in boss.get("loss_lines", []): limit("boss loss line", v, boss["id"])
+    if not boss.get("loss_lines"): fail(f"boss {boss['id']} has no loss lines (doc 36 §37: a loss gets a hint)")
+for mm in milestones:
+    for l in (mm.get("requires_area_quests") or {}).get("held_lines", []): limit("held line", l, mm["id"])
+
 # Warnings
 unassigned = [r["id"] for r in b["rewards"] if r["trigger"]["type"] == "unassigned"]
 if unassigned: warnings.append(f"{len(unassigned)} rewards have no trigger yet (unassigned): {', '.join(unassigned)}")

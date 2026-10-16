@@ -11,8 +11,15 @@ public typealias MilestoneID = StableID<MilestoneTag>
 public struct AreaQuestGate: Hashable, Codable, Sendable {
     public let areaID: AreaID
     public let count: Int
-    public init(areaID: AreaID, count: Int) { self.areaID = areaID; self.count = count }
-    enum CodingKeys: String, CodingKey { case areaID = "area_id", count }
+    /// One line per completed run so far (index = runs, clamped to the last); the stall reads as the boss noticing you.
+    public let heldLines: [String]
+    public init(areaID: AreaID, count: Int, heldLines: [String] = []) { self.areaID = areaID; self.count = count; self.heldLines = heldLines }
+    enum CodingKeys: String, CodingKey { case areaID = "area_id", count, heldLines = "held_lines" }
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        areaID = try c.decode(AreaID.self, forKey: .areaID); count = try c.decode(Int.self, forKey: .count)
+        heldLines = try c.decodeIfPresent([String].self, forKey: .heldLines) ?? []
+    }
 }
 
 /// One beat of the campaign, bound to a level. Everything it does is declared as data; the app
@@ -47,6 +54,12 @@ public struct Milestone: Hashable, Codable, Sendable {
         self.id = id; self.level = level; self.trigger = trigger; self.triggerLabel = triggerLabel; self.storyChapter = storyChapter
         self.unlockBackdrop = unlockBackdrop; self.unlockQuest = unlockQuest; self.unlockFeature = unlockFeature; self.reward = reward
         self.completesChapter = completesChapter; self.teaseArea = teaseArea; self.requiresQuest = requiresQuest; self.requiresAreaQuests = requiresAreaQuests; self.heldLine = heldLine; self.notes = notes
+    }
+
+    /// The line the goals card shows while this beat is held: the area gate's line for the runs so far, else `heldLine`.
+    public func heldLine(areaRuns: Int) -> String? {
+        if let gate = requiresAreaQuests, !gate.heldLines.isEmpty, areaRuns < gate.count { return gate.heldLines[max(0, min(areaRuns, gate.heldLines.count - 1))] }
+        return heldLine
     }
 
     enum CodingKeys: String, CodingKey {

@@ -9,7 +9,7 @@ Legend for state: ✅ built · 🟡 partial · ⬜ not started · 🎨 waits on 
 ### 1.1 Area 1 (Under City + Colossus Gym) fully done
 | Item | State | What done means | Where |
 |---|---|---|---|
-| Define the boss battle | 🟡 | Owner spec logged as doc 36 (2026-10-16); Colossus gets a redesign. **Unlock rule:** Level 10 reached (so after the tier-2 Ascension) AND at least three gym-area quests completed. **After the fight:** one cutscene closes chapter one and introduces chapter two, area 1. Engine prep: the area-quest gate is built (`requires_area_quests`, doc 20 increment 49) and on the Level 10 beat; still to build: the Level 10 beat becoming the post-boss scene, and the boss as a special challenge on the clash base. Art: the redesigned Colossus (scene sprite, clash sprite, portrait). | doc 26 §6, §9; doc 33 §B |
+| Define the boss battle | 🟡 | Spec doc 36, decisions doc 37 (2026-10-16). Built: the engine, Colossus as data, the simulator and golden parity tests, the first playable screen, the unlock gate (Level 10 after tier-2 Ascension AND three gym runs) with in-world held lines, loss hints. Not built: the eight master action sprites, the VFX library with the tier-2 Ascension layers, Colossus's four states (redesign incoming), Phase 2 if needed, the post-fight cutscene that closes chapter one and opens chapter two. | doc 36, doc 37 |
 | Play-test pace and lock in | 🟡 | Target the owner set: first boss within ten days of play. Ruleset dev-5e (cap 120, cadence 2–4 challenges a week, L5 ≈ 575 XP, L10 ≈ 2056 XP) is the current candidate. Done when a logged ten-day test reaches the boss and the ruleset is promoted from `dev` to `active`. | doc 21, `Content/v1/ruleset.dev-5.json`, `Tools/simulate_progression.py` |
 | Fix the Ascension process | 🟡 | Tier 1 takeover and Cairon scene exist (`chapter.ascension_1`, Level 5). Needs the visual pass the owner asked for, the tier 2 scene finished (draft, Level 10) and tier 3 written. Done when all three tiers play with final art and the overlay is signed off. | doc 32, `AscensionOverlay.swift` |
 | Finalize sprites | 🎨 | 29 asset sets sit at `review` (hero body, NPCs, portraits, item stills, the page icon). Missing art: the courier and the old man challengers, a dry Protein Row backdrop, the boss encounter set. Done when every shipped asset is `approved` in its manifest and `validate_sprites.py` passes. | `assets/sprites/*/rev*/manifest.json`, doc 27 |
@@ -67,7 +67,7 @@ Legend for state: ✅ built · 🟡 partial · ⬜ not started · 🎨 waits on 
 Guilds, repeat playthroughs (New Game+ on the same ledger: rule 5 says new systems recognise historical effort), special events, classes/specialties, an Apple Watch app. 🔎 Also worth a line: Android or web is not on the map; say so explicitly so nobody builds for it by accident.
 
 ## Immediate queue (in order)
-1. Boss battle: owner's mechanics and the Colossus redesign in; then the area-quest-count gate, the fight on the clash base, the closing cutscene.
+1. Boss battle: play-test the first playable on device; Colossus redesign and the eight master sprites in; VFX library; closing cutscene.
 2. Ten-day pace test on dev-5e with the owner's log; promote or retune.
 3. Ascension visual pass; finish the tier 2 scene; write tier 3.
 4. Area kit (doc 35) written from the chapter-one build, then the Area 2 transition and glimpse as its first run.

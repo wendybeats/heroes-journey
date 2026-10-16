@@ -113,6 +113,52 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
         }
     }
 
+    /// Doc 36/37 boss combat tuning. Shares in, effects out; every number here is a balance knob.
+    public struct BossCombat: Codable, Sendable, Equatable {
+        public let masteryExponent: Double
+        public let playerStaminaBase: Double
+        public let staminaEnduranceBonus: Double
+        public let staminaEnduranceExponent: Double
+        public let attackBase: Double
+        public let guardBaseReduction: Double
+        public let guardMaxReduction: Double
+        public let deflectBonusReduction: Double
+        public let deflectBreakDamage: Double
+        public let analyzeBaseBreak: Double
+        public let centerBaseRecoveryShare: Double
+        public let centerStacks: Int
+        public let centerStrongShare: Double
+        public let centerStrongStacks: Int
+        public let pressurePerStack: Double
+        public let pressureCap: Int
+        public let brokenMultiplier: Double
+        public let maxTurns: Int
+        public let variance: Double
+        public init(masteryExponent: Double = 0.6, playerStaminaBase: Double = 100, staminaEnduranceBonus: Double = 0.11, staminaEnduranceExponent: Double = 0.75, attackBase: Double = 9, guardBaseReduction: Double = 0.35, guardMaxReduction: Double = 0.75, deflectBonusReduction: Double = 0.15, deflectBreakDamage: Double = 1, analyzeBaseBreak: Double = 0.85, centerBaseRecoveryShare: Double = 0.04, centerStacks: Int = 1, centerStrongShare: Double = 1.5, centerStrongStacks: Int = 2, pressurePerStack: Double = 0.15, pressureCap: Int = 3, brokenMultiplier: Double = 3, maxTurns: Int = 40, variance: Double = 0) {
+            self.masteryExponent = masteryExponent; self.playerStaminaBase = playerStaminaBase; self.staminaEnduranceBonus = staminaEnduranceBonus; self.staminaEnduranceExponent = staminaEnduranceExponent
+            self.attackBase = attackBase; self.guardBaseReduction = guardBaseReduction; self.guardMaxReduction = guardMaxReduction; self.deflectBonusReduction = deflectBonusReduction; self.deflectBreakDamage = deflectBreakDamage
+            self.analyzeBaseBreak = analyzeBaseBreak; self.centerBaseRecoveryShare = centerBaseRecoveryShare; self.centerStacks = centerStacks; self.centerStrongShare = centerStrongShare; self.centerStrongStacks = centerStrongStacks
+            self.pressurePerStack = pressurePerStack; self.pressureCap = pressureCap; self.brokenMultiplier = brokenMultiplier; self.maxTurns = maxTurns; self.variance = variance
+        }
+        enum CodingKeys: String, CodingKey {
+            case masteryExponent = "mastery_exponent", playerStaminaBase = "player_stamina_base", staminaEnduranceBonus = "stamina_endurance_bonus", staminaEnduranceExponent = "stamina_endurance_exponent"
+            case attackBase = "attack_base", guardBaseReduction = "guard_base_reduction", guardMaxReduction = "guard_max_reduction", deflectBonusReduction = "deflect_bonus_reduction", deflectBreakDamage = "deflect_break_damage"
+            case analyzeBaseBreak = "analyze_base_break", centerBaseRecoveryShare = "center_base_recovery_share", centerStacks = "center_stacks", centerStrongShare = "center_strong_share", centerStrongStacks = "center_strong_stacks"
+            case pressurePerStack = "pressure_per_stack", pressureCap = "pressure_cap", brokenMultiplier = "broken_multiplier", maxTurns = "max_turns", variance
+        }
+        public init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            masteryExponent = try c.decode(Double.self, forKey: .masteryExponent); playerStaminaBase = try c.decode(Double.self, forKey: .playerStaminaBase)
+            staminaEnduranceBonus = try c.decode(Double.self, forKey: .staminaEnduranceBonus); staminaEnduranceExponent = try c.decode(Double.self, forKey: .staminaEnduranceExponent)
+            attackBase = try c.decode(Double.self, forKey: .attackBase); guardBaseReduction = try c.decode(Double.self, forKey: .guardBaseReduction); guardMaxReduction = try c.decode(Double.self, forKey: .guardMaxReduction)
+            deflectBonusReduction = try c.decode(Double.self, forKey: .deflectBonusReduction); deflectBreakDamage = try c.decode(Double.self, forKey: .deflectBreakDamage)
+            analyzeBaseBreak = try c.decode(Double.self, forKey: .analyzeBaseBreak); centerBaseRecoveryShare = try c.decode(Double.self, forKey: .centerBaseRecoveryShare)
+            centerStacks = try c.decode(Int.self, forKey: .centerStacks); centerStrongShare = try c.decode(Double.self, forKey: .centerStrongShare); centerStrongStacks = try c.decode(Int.self, forKey: .centerStrongStacks)
+            pressurePerStack = try c.decode(Double.self, forKey: .pressurePerStack); pressureCap = try c.decode(Int.self, forKey: .pressureCap); brokenMultiplier = try c.decode(Double.self, forKey: .brokenMultiplier)
+            maxTurns = try c.decodeIfPresent(Int.self, forKey: .maxTurns) ?? 40; variance = try c.decodeIfPresent(Double.self, forKey: .variance) ?? 0
+        }
+    }
+
     public let id: RulesetID
     public let version: Int
     public let status: Status
@@ -142,6 +188,8 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
     public let challenges: Challenges?
     /// Doc 33: the chance a goal's story-aware line replaces its normal line once its flag is set (about 0.1).
     public let goalStoryLineChance: Double?
+    /// Doc 36/37 boss combat; absent = no boss can be fought.
+    public let bossCombat: BossCombat?
 
     enum CodingKeys: String, CodingKey {
         case id, version, status
@@ -153,16 +201,16 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
         case minimumDurationSeconds = "minimum_duration_seconds"
         case levelThresholdsTotalXP = "level_thresholds_total_xp"
         case structuredWorkout = "structured_workout"
-        case sessionBaseXP = "session_base_xp", healthHistoryWindowDays = "health_history_window_days", goalXP = "goal_xp", dailyQuest = "daily_quest", dailyActivityXPCap = "daily_activity_xp_cap", bondGrant = "bond_grant", challenges, goalStoryLineChance = "goal_story_line_chance"
+        case sessionBaseXP = "session_base_xp", healthHistoryWindowDays = "health_history_window_days", goalXP = "goal_xp", dailyQuest = "daily_quest", dailyActivityXPCap = "daily_activity_xp_cap", bondGrant = "bond_grant", challenges, goalStoryLineChance = "goal_story_line_chance", bossCombat = "boss_combat"
     }
 
-    public init(id: RulesetID, version: Int, status: Status, xpPerMinuteByFamily: [String: Double], attributeWeightsByFamily: [String: [String: Double]], attributePointsPerXP: Double, verificationMultiplier: [String: Double], dailyTaper: DailyTaper, minimumDurationSeconds: Int, levelThresholdsTotalXP: [Int], structuredWorkout: StructuredWorkout? = nil, sessionBaseXP: Int? = nil, healthHistoryWindowDays: Int? = nil, goalXP: [String: Int]? = nil, dailyQuest: DailyQuest? = nil, dailyActivityXPCap: Int? = nil, bondGrant: BondGrant? = nil, challenges: Challenges? = nil, goalStoryLineChance: Double? = nil) {
+    public init(id: RulesetID, version: Int, status: Status, xpPerMinuteByFamily: [String: Double], attributeWeightsByFamily: [String: [String: Double]], attributePointsPerXP: Double, verificationMultiplier: [String: Double], dailyTaper: DailyTaper, minimumDurationSeconds: Int, levelThresholdsTotalXP: [Int], structuredWorkout: StructuredWorkout? = nil, sessionBaseXP: Int? = nil, healthHistoryWindowDays: Int? = nil, goalXP: [String: Int]? = nil, dailyQuest: DailyQuest? = nil, dailyActivityXPCap: Int? = nil, bondGrant: BondGrant? = nil, challenges: Challenges? = nil, goalStoryLineChance: Double? = nil, bossCombat: BossCombat? = nil) {
         self.id = id; self.version = version; self.status = status
         self.xpPerMinuteByFamily = xpPerMinuteByFamily; self.attributeWeightsByFamily = attributeWeightsByFamily
         self.attributePointsPerXP = attributePointsPerXP; self.verificationMultiplier = verificationMultiplier
         self.dailyTaper = dailyTaper; self.minimumDurationSeconds = minimumDurationSeconds
         self.levelThresholdsTotalXP = levelThresholdsTotalXP; self.structuredWorkout = structuredWorkout
-        self.sessionBaseXP = sessionBaseXP; self.healthHistoryWindowDays = healthHistoryWindowDays; self.goalXP = goalXP; self.dailyQuest = dailyQuest; self.dailyActivityXPCap = dailyActivityXPCap; self.bondGrant = bondGrant; self.challenges = challenges; self.goalStoryLineChance = goalStoryLineChance
+        self.sessionBaseXP = sessionBaseXP; self.healthHistoryWindowDays = healthHistoryWindowDays; self.goalXP = goalXP; self.dailyQuest = dailyQuest; self.dailyActivityXPCap = dailyActivityXPCap; self.bondGrant = bondGrant; self.challenges = challenges; self.goalStoryLineChance = goalStoryLineChance; self.bossCombat = bossCombat
     }
 
     /// Minutes an event is credited for before the daily taper. Any session that records sets

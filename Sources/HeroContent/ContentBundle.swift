@@ -155,6 +155,11 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     }
     public let rumourList: [Rumour]?
     public var rumours: [Rumour] { rumourList ?? [] }
+    /// Doc 36/37 bosses. Optional in the file: an older bundle has none.
+    public let bossList: [BossDefinition]?
+    public var bosses: [BossDefinition] { bossList ?? [] }
+    public func boss(_ id: BossID) -> BossDefinition? { bosses.first { $0.id == id } }
+    public func boss(forMilestone id: MilestoneID) -> BossDefinition? { bosses.first { $0.milestoneID == id } }
     /// Doc 33 challenges. Optional in the file: an older bundle has none.
     public let challengeList: [Challenge]?
     public var challenges: [Challenge] { challengeList ?? [] }
@@ -316,7 +321,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         case schemaVersion = "schema_version", contentVersion = "content_version"
         case families, activityTypes = "activity_types", attributes, evolutions, items, rewards, backdrops
         case avatarOptions = "avatar_options", exerciseDefinitions = "exercise_definitions", healthWorkoutMapping = "health_workout_mapping"
-        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters", dailyQuotes = "daily_quotes", areas, campaign, challengeList = "challenges", rumourList = "rumours"
+        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters", dailyQuotes = "daily_quotes", areas, campaign, challengeList = "challenges", rumourList = "rumours", bossList = "bosses"
     }
 
     public static func decode(_ data: Data) throws -> ContentBundle {
@@ -482,10 +487,27 @@ public struct ContentBundle: Codable, Sendable, Equatable {
                 if !areaIDs.contains(gate.areaID) { problems.append("milestone \(m.id) → unknown requires_area_quests area \(gate.areaID)") }
                 if gate.count < 1 { problems.append("milestone \(m.id) requires_area_quests count must be at least 1") }
                 if !quests.contains(where: { $0.areaID == gate.areaID }) { problems.append("milestone \(m.id) requires quests in \(gate.areaID) but no quest is in that area") }
+                if !gate.heldLines.isEmpty && gate.heldLines.count != gate.count { problems.append("milestone \(m.id) requires_area_quests has \(gate.heldLines.count) held lines for \(gate.count) runs") }
             }
         }
         for q in quests { for x in q.repeatExchanges ?? [] { for beat in x where !characterIDs.contains(beat.speaker) { problems.append("quest \(q.id) repeat exchange → unknown speaker \(beat.speaker)") } } }
         for r in rumours where !milestoneIDs.contains(r.after) { problems.append("rumour → unknown milestone \(r.after)") }
+        // Doc 36/37: a boss names a real character, area and manual milestone; its pattern names defined actions.
+        unique(bosses.map(\.id), "boss")
+        for boss in bosses {
+            if !characterIDs.contains(boss.characterID) { problems.append("boss \(boss.id) → unknown character \(boss.characterID)") }
+            if let a = boss.areaID, !areaIDs.contains(a) { problems.append("boss \(boss.id) → unknown area \(a)") }
+            if let m = boss.milestoneID {
+                if let ms = campaign.milestone(m) { if ms.trigger != .manual { problems.append("boss \(boss.id) milestone \(m) must be manual") } }
+                else { problems.append("boss \(boss.id) → unknown milestone \(m)") }
+            }
+            if boss.stamina <= 0 || boss.breakMax <= 0 || boss.attack <= 0 { problems.append("boss \(boss.id) stamina, break and attack must be positive") }
+            if boss.pattern.isEmpty { problems.append("boss \(boss.id) has an empty pattern") }
+            for name in boss.pattern where boss.actions[name] == nil { problems.append("boss \(boss.id) pattern names undefined action \(name)") }
+            for key in boss.dialogue.keys where !["first_deflect", "escalate", "first_break"].contains(key) { problems.append("boss \(boss.id) dialogue key \(key) is not an event") }
+            for key in boss.tutorial.keys where !["attack", "guard", "break", "pressure", "analyze"].contains(key) { problems.append("boss \(boss.id) tutorial key \(key) is not a surface") }
+            for (state, asset) in boss.assets where asset.isEmpty { problems.append("boss \(boss.id) asset \(state) is empty") }
+        }
         // A story-aware goal line waits on a milestone or on `quest.<id>.rare` (the app raises that flag); anything else never fires.
         for t in goalTemplates { for sl in t.storyLines {
             let isQuestFlag = sl.after.hasPrefix("quest.") && sl.after.hasSuffix(".rare") && questIDs.contains(QuestID(String(sl.after.dropLast(5))))

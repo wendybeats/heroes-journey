@@ -45,7 +45,8 @@ for m in ms:
     if m.get("completes_chapter"): extras.append("completes the chapter")
     if m.get("tease_area"): extras.append(f"teases `{m['tease_area']}`")
     if m.get("requires_quest"): extras.append(f"waits until `{m['requires_quest']}` has been completed once; meanwhile the goals card says “{m.get('held_line', '')}”")
-    if m.get("requires_area_quests"): g = m["requires_area_quests"]; extras.append(f"also waits for {g['count']} completed quest runs in `{g['area_id']}`")
+    if m.get("requires_area_quests"):
+        g = m["requires_area_quests"]; extras.append(f"also waits for {g['count']} completed quest runs in `{g['area_id']}`" + (" (held lines by runs so far: " + " · ".join(f"“{l}”" for l in g["held_lines"]) + ")" if g.get("held_lines") else ""))
     chapter(m["story_chapter"], trig + (" · " + "; ".join(extras) if extras else ""))
 out.append("## Quest end scenes\nPlay after the cache from that quest is claimed.\n")
 for q in quests.values():
@@ -66,6 +67,14 @@ for g in b["goal_templates"]:
     for sl in g.get("story_lines") or []:
         for l in sl["lines"]: out.append(f"- **{g['title']} · after `{sl['after']}`:** {l}")
 out.append("")
+out.append("## Boss encounters\nDoc 36 §23, §34, doc 37. Telegraphs show above the stage before each boss action; dialogue fires once on its event; tutorial lines appear once each under the Stamina bar; Cairon's loss lines tighten with each attempt and the last repeats.\n")
+for boss in b.get("bosses", []):
+    out.append(f"### {boss['display_name']}  `{boss['id']}`\n**Trigger:** the manual milestone `{boss.get('milestone_id')}` (“Face Colossus”), after Level 10 and three gym runs · **pattern:** {' → '.join(boss['pattern'])} (cycles)\n")
+    for name, act in boss["actions"].items(): out.append(f"- **Telegraph ({name}):** {act['telegraph']}")
+    for key, text in boss.get("dialogue", {}).items(): out.append(f"- **{chars.get(boss['character_id'], boss['character_id'])} ({key.replace('_', ' ')}):** {text}")
+    for key, text in boss.get("tutorial", {}).items(): out.append(f"- **Tutorial ({key}):** {text}")
+    for n, text in enumerate(boss.get("loss_lines", []), 1): out.append(f"- **Cairon, after loss {n}:** {text}")
+    out.append("")
 out.append("## Quest lines\nSpoken by the hero on the quest card, departure screen, notification prompt and return.\n")
 for q in quests.values():
     out.append(f"### {q['display_name']}  `{q['id']}`\n**Available:** " + (f"after milestone `{q['unlocked_by_milestone']}`" if q.get("unlocked_by_milestone") else "from the start") + f" · **duration:** {q.get('duration_minutes', 240)} min\n")

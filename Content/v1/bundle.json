@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.16-1",
+  "content_version": "2026.10.16-2",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -3716,7 +3716,12 @@
             "held_line": "He's down there. Don't make him wait longer than you need to.",
             "requires_area_quests": {
               "area_id": "colossus_gym",
-              "count": 3
+              "count": 3,
+              "held_lines": [
+                "Not yet. You've seen the floor. Go deeper. Let him see you coming back.",
+                "Go back. Once isn't enough for him to notice.",
+                "One more. Then I think he'll come to you."
+              ]
             }
           }
         ]
@@ -4258,6 +4263,74 @@
     {
       "after": "under_city.7.deeper",
       "text": "People say Colossus hasn't left the building in a year. People also say the building's been getting bigger."
+    }
+  ],
+  "bosses": [
+    {
+      "id": "boss.colossus",
+      "display_name": "Colossus",
+      "character_id": "chad_colossus",
+      "area_id": "colossus_gym",
+      "milestone_id": "under_city.10.resolution",
+      "stamina": 110,
+      "break": 3,
+      "attack": 12,
+      "pattern": [
+        "test",
+        "load",
+        "crush",
+        "more"
+      ],
+      "actions": {
+        "test": {
+          "damage": 0.7,
+          "telegraph": "Colossus tests you.",
+          "intent": "Attack incoming"
+        },
+        "load": {
+          "damage": 0.0,
+          "loads": 1.5,
+          "telegraph": "Colossus adds another plate.",
+          "intent": "Loading"
+        },
+        "crush": {
+          "damage": 1.8,
+          "deflectable": true,
+          "telegraph": "HEAVY ATTACK INCOMING",
+          "intent": "Crush"
+        },
+        "more": {
+          "damage": 0.0,
+          "pressure": 1,
+          "escalate": 0.12,
+          "telegraph": "MORE",
+          "intent": "Escalating"
+        }
+      },
+      "dialogue": {
+        "first_deflect": "Good.",
+        "escalate": "More.",
+        "first_break": "…Again."
+      },
+      "tutorial": {
+        "attack": "ATTACK deals Stamina damage.",
+        "guard": "GUARD takes the hit. Deflect him when he swings big.",
+        "break": "Break his guard to create an opening.",
+        "pressure": "CENTER clears Pressure.",
+        "analyze": "ANALYZE exposes openings and damages Break."
+      },
+      "loss_lines": [
+        "You saw what he does now.",
+        "Watch him when he loads the weight.",
+        "He commits everything when he swings."
+      ],
+      "assets": {
+        "idle": "npc.colossus",
+        "attack": "npc.colossus",
+        "buff": "npc.colossus",
+        "broken": "npc.colossus"
+      },
+      "notes": "Doc 36 §7–9. One phase for the first playable; a second phase at 50 % Stamina only if the simulator or play shows the loop gets solved too fast."
     }
   ]
 }

@@ -539,6 +539,34 @@ final class AppState {
         return ChallengeOdds(stat: stat, bonus: bonus, target: target, probability: p, band: ChallengeMath.band(probability: p, ruleset: ruleset), helpingFamilies: helping)
     }
     func challengeRecord(_ id: ChallengeID) -> (won: Int, lost: Int) { ChallengeMath.record(challengeID: id, events: visibleEvents) }
+
+    // MARK: boss encounters (doc 36, doc 37)
+
+    /// The player's stats as shares of the balanced expected stat at their level, today's training included (doc 37 §1, §4).
+    var combatShares: CombatShares {
+        BossMath.shares(attributes: snapshot.attributes, level: snapshot.level, minutesByFamily: todayCreditedMinutesByFamily, ruleset: ruleset, attributeCount: max(1, bundle.attributes.count))
+    }
+    /// A fresh encounter against the boss behind a milestone; nil when the ruleset has no combat block.
+    func startBossEncounter(_ boss: BossDefinition) -> BossEncounter? {
+        guard let rules = ruleset.bossCombat else { return nil }
+        let seed = UInt64(truncatingIfNeeded: "\(userID.rawValue.uuidString)|\(boss.id.rawValue)|\(bossAttempts(boss))".hashValueStableApp)
+        return BossEncounter(boss: boss, rules: rules, shares: combatShares, seed: seed)
+    }
+    /// Attempts so far, telemetry only (owner 2026-10-16: never shown in the Room).
+    func bossAttempts(_ boss: BossDefinition) -> Int { UserDefaults.standard.integer(forKey: "boss.attempts.\(boss.id.rawValue)") }
+    func recordBossAttempt(_ boss: BossDefinition, result: CombatResult) {
+        UserDefaults.standard.set(bossAttempts(boss) + 1, forKey: "boss.attempts.\(boss.id.rawValue)")
+        if result == .won { UserDefaults.standard.set(true, forKey: "boss.won.\(boss.id.rawValue)") }
+    }
+    /// Cairon's hint after the latest loss: the first line on the first loss, tightening, the last line repeating.
+    func bossLossLine(_ boss: BossDefinition) -> String? { boss.lossLine(attempt: max(1, bossAttempts(boss) + 1)) }
+    /// Dev controls: Home opens the fight when this is set.
+    var devBossRequest: BossDefinition?
+    /// The line the goals card shows while the story is held: the area gate's progressive line, else the quest gate's.
+    var heldBeatLine: String? {
+        guard let beat = heldBeat else { return nil }
+        return beat.heldLine(areaRuns: beat.requiresAreaQuests.map { completedRunsByArea[$0.areaID] ?? 0 } ?? 0)
+    }
     func declineChallenge() {
         guard let i = challengeOffers.firstIndex(where: { $0.day == today && $0.isOpen }) else { return }
         challengeOffers[i].declined = true; save()

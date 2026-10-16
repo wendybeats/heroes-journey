@@ -41,7 +41,7 @@ struct GoalsCard: View {
                 }
             }
             // Doc 33 §A: the story is waiting on a quest; Cairon says so, so the stall reads as intent.
-            if let held = state.heldBeat?.heldLine {
+            if let held = state.heldBeatLine {
                 Text(held).font(HeroFont.caption).foregroundStyle(NeoTokyo.Hierarchy.primary)
                     .fixedSize(horizontal: false, vertical: true)
             }

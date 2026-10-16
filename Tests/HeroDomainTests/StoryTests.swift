@@ -62,6 +62,10 @@ final class StoryTests: XCTestCase {
         XCTAssertFalse(StoryDirector.isHeld(m("one.9", 9), completedQuests: [], areaQuestRuns: [:]), "no gate, never held")
         let back = try JSONDecoder().decode(Milestone.self, from: try JSONEncoder().encode(boss))
         XCTAssertEqual(back, boss); XCTAssertEqual(back.requiresAreaQuests?.count, 3)
+        // Owner 2026-10-16: the held line tightens with each run; past the gate the quest gate's own line shows.
+        let lined = Milestone(id: "one.10", level: 10, trigger: .manual, requiresQuest: "quest.gym_3", requiresAreaQuests: AreaQuestGate(areaID: "colossus_gym", count: 3, heldLines: ["Not yet.", "Go back.", "One more."]), heldLine: "He's waiting.")
+        XCTAssertEqual(lined.heldLine(areaRuns: 0), "Not yet."); XCTAssertEqual(lined.heldLine(areaRuns: 2), "One more."); XCTAssertEqual(lined.heldLine(areaRuns: 3), "He's waiting.")
+        XCTAssertEqual(try JSONDecoder().decode(AreaQuestGate.self, from: Data(#"{"area_id":"x","count":2}"#.utf8)).heldLines, [], "older content decodes with no lines")
     }
 
     func testManualMilestoneGatesTheStoryUntilThePlayerStartsIt() {

@@ -197,6 +197,22 @@ out.append(f"""<section id="rumours">
 for r in rumours:
     out.append(f"<tr><td class='where'>{e(r['after'])}</td><td class='copy'>{e(r['text'])}</td></tr>")
 out.append("</table></div></section>")
+# 5. Boss encounters
+bosses = b.get("bosses", [])
+out.append(f"""<section id="bosses">
+<h2>5 · Boss encounters <span class="count">{len(bosses)}</span></h2>
+<p class="lede">Doc 36. Telegraphs above the stage, one-line dialogue on its event, tutorial lines once each, Cairon's loss hints by attempt, and the goals-card lines while the fight is still gated.</p><div class='wrap'><table><tr><th>Boss</th><th>Surface</th><th>Copy</th></tr>""")
+for boss in bosses:
+    rows = [(f"telegraph · {k}", v["telegraph"]) for k, v in boss["actions"].items()]
+    rows += [(f"dialogue · {k}", v) for k, v in boss.get("dialogue", {}).items()]
+    rows += [(f"tutorial · {k}", v) for k, v in boss.get("tutorial", {}).items()]
+    rows += [(f"loss line {n}", v) for n, v in enumerate(boss.get("loss_lines", []), 1)]
+    gate = next((m.get("requires_area_quests") for c in b["campaign"]["chapters"] for m in c["milestones"] if m["id"] == boss.get("milestone_id")), None)
+    if gate: rows += [(f"held line · {n} runs", v) for n, v in enumerate(gate.get("held_lines", []))]
+    for k, (surface, copy) in enumerate(rows):
+        first = f"<strong>{e(boss['display_name'])}</strong><br><span class='meta'>{e(boss['id'])}</span>" if k == 0 else ""
+        out.append(f"<tr><td>{first}</td><td class='where'>{e(surface)}</td><td class='copy'>{e(copy)}</td></tr>")
+out.append("</table></div></section>")
 out.append("</section></main>")
 open(out_path, "w").write("\n".join(out))
 print(f"wrote {out_path}: {len(items)} items ({len(missing)} without description), {len(quests)} quests, {len(goals)} goals")

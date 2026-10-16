@@ -40,6 +40,7 @@ struct HomeView: View {
     @State private var chaining = false
     @State private var showRoom = false
     @State private var clash: AppState.ChallengeOutcome?
+    @State private var bossFight: BossFight?
     @State private var toast: ToastItem?
     /// Toasts wait until Home is quiet again (owner 2026-10-12: they were firing under the next scene).
     @State private var pendingToasts: [ToastItem] = []
@@ -123,6 +124,20 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showRoom) { RoomView() }
             .fullScreenCover(item: $clash) { outcome in ChallengeClashView(outcome: outcome) { clash = nil } }
+            .fullScreenCover(item: $bossFight) { fight in
+                BossView(fight: fight) { result in
+                    bossFight = nil
+                    // Won: the beat plays (its chapter closes the area). Lost: nothing is lost; the hint was on the result card.
+                    if result == .won, let milestone = fight.milestone {
+                        Task { @MainActor in try? await Task.sleep(for: .milliseconds(500)); playMilestone(milestone) }
+                    }
+                }
+            }
+            .onChange(of: state.devBossRequest?.id) { _, id in
+                guard id != nil, let boss = state.devBossRequest, let encounter = state.startBossEncounter(boss) else { return }
+                state.devBossRequest = nil
+                bossFight = BossFight(encounter: encounter, milestone: boss.milestoneID.flatMap { state.campaign.milestone($0) })
+            }
             #if DEBUG
             .sheet(isPresented: $showDev) { DevControlsView() }
             #endif
@@ -333,16 +348,25 @@ struct HomeView: View {
                 Text(milestone.triggerLabel ?? "Continue").font(HeroFont.headline).foregroundStyle(NeoTokyo.Text.primary)
                 Text("When you're ready. It waits for you.").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
                 Button(milestone.triggerLabel ?? "Continue") {
-                    if let id = milestone.storyChapter, let chapter = state.bundle.chapter(id) {
-                        storyScene = StoryScene(chapter: chapter, milestone: milestone)
+                    // Doc 36/37: a boss stands behind the beat; the scene plays only once he is down.
+                    if let boss = state.bundle.boss(forMilestone: milestone.id), let encounter = state.startBossEncounter(boss) {
+                        bossFight = BossFight(encounter: encounter, milestone: milestone)
                     } else {
-                        state.completeMilestone(milestone)
+                        playMilestone(milestone)
                     }
                 }
                 .buttonStyle(SecondaryButtonStyle())
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .card()
+        }
+    }
+
+    private func playMilestone(_ milestone: Milestone) {
+        if let id = milestone.storyChapter, let chapter = state.bundle.chapter(id) {
+            storyScene = StoryScene(chapter: chapter, milestone: milestone)
+        } else {
+            state.completeMilestone(milestone)
         }
     }
 

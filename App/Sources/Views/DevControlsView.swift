@@ -55,6 +55,16 @@ struct DevControlsView: View {
                         }
                         .pickerStyle(.segmented)
                     }
+                    }
+                    section("Boss") {
+                        let shares = state.combatShares
+                        row("Shares S/E/K/M", value: String(format: "%.2f / %.2f / %.2f / %.2f", shares.strength, shares.endurance, shares.knowledge, shares.mindfulness))
+                        if let boss = state.bundle.bosses.first { row("Attempts", value: "\(state.bossAttempts(boss))") }
+                        Button("Fight Colossus now") { state.devBossRequest = state.bundle.bosses.first; dismiss() }.buttonStyle(SecondaryButtonStyle())
+                            .disabled(state.bundle.bosses.isEmpty || state.ruleset.bossCombat == nil)
+                        Text("Opens the fight with your real stats and today's training, ignoring the Level 10 and three-gym-runs gate. Winning plays the resolution beat only if that gate is met.")
+                            .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
+                    }
                     section("Sprites") {
                         NavigationLink("Sprite lab") { SpriteLabView() }.font(HeroFont.bodyMedium).foregroundStyle(NeoTokyo.Hierarchy.fallback)
                     }
