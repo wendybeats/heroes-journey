@@ -82,12 +82,25 @@ final class BossCombatTests: XCTestCase {
         XCTAssertEqual(e.playerStamina, before, "the boss does not act while recovering"); XCTAssertEqual(e.intent, "more", "the cancelled action was skipped, not postponed")
     }
 
+    /// A Deflect that lands the last Break point cancels nothing (the hit already landed); the window follows and the next action is not skipped.
+    func testDeflectBreakKeepsTheNextAction() throws {
+        let (boss, rules, _) = try load()
+        var e = BossEncounter(boss: boss, rules: rules, shares: CombatShares(strength: 0, endurance: 3, knowledge: 0, mindfulness: 0))
+        for _ in 0..<10 { e.step(.`guard`) }
+        XCTAssertEqual(e.intent, "crush"); XCTAssertEqual(e.deflects, 2)
+        let ev = e.step(.`guard`)
+        XCTAssertTrue(ev.contains(.broken(cancelled: nil)), "\(ev)"); XCTAssertTrue(e.isBroken)
+        e.step(.attack)
+        XCTAssertEqual(e.intent, "more", "MORE still comes after the recovery")
+    }
+
     /// Doc 37 §7–8: Center clears one stack (two at strong Mindfulness), never all; and the boss still acts.
     func testCenterClearsStacksByShareAndTheBossStillActs() throws {
         let (boss, rules, _) = try load()
         func pressured(_ mind: Double) -> BossEncounter {
             var e = BossEncounter(boss: boss, rules: rules, shares: CombatShares(strength: 0, endurance: 0, knowledge: 0, mindfulness: mind))
-            for _ in 0..<12 { e.step(.`guard`) }   // three MOREs: pressure capped at 3
+            // 13 turns: the third Deflect breaks him on turn 11, turn 12 is his recovery, turn 13 is the third MORE.
+            for _ in 0..<13 { e.step(.`guard`) }
             return e
         }
         var weak = pressured(0); XCTAssertEqual(weak.pressure, 3)

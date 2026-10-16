@@ -39,17 +39,21 @@ At `broken_multiplier` 3.0, Level 10 shares from the owner's archetype table (÷
 
 | Build | Brute (Attack only) | Defensive (Guard the Crush) | Tactical (Guard · Analyze · Break · Attack) |
 |---|---|---|---|
-| STR specialist | won, 8 turns, 20 % left | won, 12, 42 % | won, 12, 44 %, 3 Breaks |
-| END specialist | won, 11, 17 % | **won, 13, 57 %** (safest) | won, 16, 43 %, 4 Breaks |
+| STR specialist | won, 8 turns, 20 % left | won, 12, 42 % | won, 15, 42 %, 3 Breaks |
+| END specialist | won, 11, 17 % | **won, 13, 57 %** | won, 20, 46 %, 4 Breaks |
 | KNOW specialist | won, 11, 10 % | won, 13, 39 % | won, 15, 49 %, **4 Breaks** |
-| MIND specialist | won, 11, 10 % | won, 12, 41 % | won, 16, 21 % |
-| Balanced | won, 9, 22 % | won, 12, 49 % | won, 12, 49 %, 3 Breaks |
+| MIND specialist | won, 11, 10 % | won, 12, 41 % | won, 19, 17 %, 4 Breaks |
+| Balanced | won, 9, 22 % | won, 12, 49 % | **won, 13, 64 %**, 3 Breaks |
 | Pure lifter | **won, 6, 50 %** (fastest) | won, 8, 48 % | won, 10, 51 % |
 | Day one | lost | lost | lost |
 
-Stall tests: Guard-only and Center-only lose for every build (17–31 turns). Random play: 0–5 wins in 50 for every build.
+Stall tests: Guard-only and Center-only lose for every build. Random play: 0–6 wins in 50 for every build.
 
-Reading: the lifter races him; Endurance is slowest and safest; Knowledge breaks him most; Balanced sits in the middle on both axes and is not secretly optimal; nobody with zero stats wins. Mindfulness is the weakest read so far: its tactical line ends low because the tactical rule only Centers at two stacks. That is a strategy-rule artefact as much as a balance one, and the first play-test should look at it before any number moves.
+Reading: the lifter races him; Knowledge breaks him most; nobody with zero stats wins; understanding beats button-mashing everywhere. Two findings for the first play-test rather than for tuning now:
+- **Balanced tactical is the safest line** (64 % left) and only the lifter's brute force is faster. That is the "Balanced secretly optimal" risk doc 36 §25 names, in the tactical column only. The lever, if play agrees, is `broken_multiplier` (lower favours specialists' own verbs) or a Pressure effect on Guard.
+- **Mindfulness reads weakest**: its tactical line ends at 17 % because the rule only Centers at two stacks and Colossus's Pressure comes slowly. A rule that Centers at one stack, or a boss that pressures faster, would show the build; neither is a number change.
+
+Semantics note: an Analyze-Break cancels and skips the telegraphed action; a Deflect-Break lands after the hit and cancels nothing, so MORE still follows the recovery. The first cut skipped it in both cases and made deflect lines quieter than intended.
 
 ## Not built yet
 Master action sprites (8), the VFX library, Colossus's four states (the still stands in for all four), Phase 2, variance, dialogue as spoken bubbles (lines show as a quoted banner), the Ascension VFX layers in the combat renderer, and Reduce Motion beyond dropping the lunges.

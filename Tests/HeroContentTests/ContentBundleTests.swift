@@ -228,7 +228,8 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(bundle.campaign.milestone("under_city.6.enter")?.requiresQuest, "quest.colossus_gym_01")
         XCTAssertEqual(bundle.campaign.milestone("under_city.8.reveal")?.requiresQuest, "quest.colossus_gym_02")
         XCTAssertEqual(bundle.campaign.milestone("under_city.10.resolution")?.requiresQuest, "quest.colossus_gym_03")
-        XCTAssertEqual(bundle.campaign.milestone("under_city.10.resolution")?.requiresAreaQuests, AreaQuestGate(areaID: "colossus_gym", count: 3), "doc 34: the boss waits for three gym runs")
+        let gate = bundle.campaign.milestone("under_city.10.resolution")?.requiresAreaQuests
+        XCTAssertEqual(gate?.areaID, "colossus_gym"); XCTAssertEqual(gate?.count, 3, "doc 34: the boss waits for three gym runs"); XCTAssertEqual(gate?.heldLines.count, 3)
         XCTAssertNotNil(bundle.campaign.milestone("under_city.6.enter")?.heldLine)
         XCTAssertNil(bundle.campaign.milestone("under_city.5.gym_unlock")?.requiresQuest)
         XCTAssertEqual(bundle.challenges.count, 7, "Cairon's four and the three lifters'")

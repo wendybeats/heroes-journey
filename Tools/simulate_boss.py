@@ -48,7 +48,7 @@ class Encounter:
         elif action == "analyze":
             if not was_broken:
                 bd = cfg["analyze_base_break"] * mastery(self.shares["knowledge"], cfg) * pressure_mult
-                self._break_damage(bd, ev)
+                self._break_damage(bd, ev, cancels_pending=True)
             else:
                 ev.append({"t": "analyze", "break": 0})
         elif action == "center":
@@ -76,7 +76,7 @@ class Encounter:
             if deflected:
                 self.stats["deflects"] += 1
                 if "first_deflect" not in self.flags: self.flags.add("first_deflect"); ev.append({"t": "dialogue", "key": "first_deflect"})
-                self._break_damage(cfg["deflect_break_damage"], ev)
+                self._break_damage(cfg["deflect_break_damage"], ev, cancels_pending=False)
         if spec.get("loads"): self.loaded = spec["loads"]; ev.append({"t": "boss_load", "mult": spec["loads"]})
         if spec.get("pressure"):
             before = self.pressure; self.pressure = min(cfg["pressure_cap"], self.pressure + spec["pressure"]); self.stats["pressure_gained"] += self.pressure - before
@@ -86,14 +86,18 @@ class Encounter:
         self.pattern_index += 1
         return self._finish(ev)
 
-    def _break_damage(self, amount, ev):
+    def _break_damage(self, amount, ev, cancels_pending):
+        """cancels_pending: the Break lands before the telegraphed action (Analyze), so that action is skipped, not
+        postponed. A Deflect-Break lands after the hit, so nothing is cancelled; the window simply follows."""
         if self.broken or amount <= 0: return
         self.break_now -= amount; self.stats["break_damage_dealt"] += amount
         ev.append({"t": "break_damage", "v": round(amount, 2), "left": round(max(0.0, self.break_now), 2)})
         if self.break_now <= 0:
             self.broken = True; self.stats["breaks"] += 1
-            cancelled = self.boss["pattern"][self.pattern_index % len(self.boss["pattern"])]
-            self.pattern_index += 1   # the cancelled action is skipped, not postponed
+            cancelled = None
+            if cancels_pending:
+                cancelled = self.boss["pattern"][self.pattern_index % len(self.boss["pattern"])]
+                self.pattern_index += 1
             ev.append({"t": "broken", "cancelled": cancelled})
             if "first_break" not in self.flags: self.flags.add("first_break"); ev.append({"t": "dialogue", "key": "first_break"})
 

@@ -102,7 +102,8 @@ public enum CombatEvent: Equatable, Sendable {
     case guarded(reduction: Double)
     case analyzed(breakDamage: Double)
     case breakDamage(Double, left: Double)
-    case broken(cancelled: String)
+    /// `cancelled` names the telegraphed action an Analyze-Break skipped; nil when a Deflect broke him after his hit landed.
+    case broken(cancelled: String?)
     case centered(cleared: Int, recovered: Double)
     case bossRecovered
     case bossAttack(name: String, incoming: Double, taken: Double, deflected: Bool)
@@ -191,7 +192,7 @@ public struct BossEncounter: Sendable {
             if wasBroken { ev.append(.analyzed(breakDamage: 0)) }
             else {
                 let bd = rules.analyzeBaseBreak * mastery(.analyze) * pressureMultiplier
-                ev.append(.analyzed(breakDamage: bd)); breakDamage(bd, &ev)
+                ev.append(.analyzed(breakDamage: bd)); breakDamage(bd, cancelsPending: true, &ev)
             }
         case .center:
             let cleared = min(pressure, centerStacks); pressure -= cleared
@@ -218,7 +219,7 @@ public struct BossEncounter: Sendable {
             if deflected {
                 deflects += 1
                 if flags.insert("first_deflect").inserted { ev.append(.dialogue(key: "first_deflect")) }
-                breakDamage(rules.deflectBreakDamage, &ev)
+                breakDamage(rules.deflectBreakDamage, cancelsPending: false, &ev)
             }
         }
         if let loads = spec.loads { loaded = loads; ev.append(.bossLoad(multiplier: loads)) }
@@ -232,14 +233,16 @@ public struct BossEncounter: Sendable {
         return finish(&ev)
     }
 
-    private mutating func breakDamage(_ amount: Double, _ ev: inout [CombatEvent]) {
+    /// `cancelsPending`: an Analyze-Break lands before the telegraphed action, which is then skipped, not postponed.
+    /// A Deflect-Break lands after the hit, so nothing is cancelled; the window simply follows.
+    private mutating func breakDamage(_ amount: Double, cancelsPending: Bool, _ ev: inout [CombatEvent]) {
         guard !isBroken, amount > 0 else { return }
         breakNow -= amount
         ev.append(.breakDamage(amount, left: max(0, breakNow)))
         if breakNow <= 0 {
             isBroken = true; breaks += 1
-            let cancelled = boss.pattern[patternIndex % boss.pattern.count]
-            patternIndex += 1   // the cancelled action is skipped, not postponed
+            var cancelled: String? = nil
+            if cancelsPending { cancelled = boss.pattern[patternIndex % boss.pattern.count]; patternIndex += 1 }
             ev.append(.broken(cancelled: cancelled))
             if flags.insert("first_break").inserted { ev.append(.dialogue(key: "first_break")) }
         }
