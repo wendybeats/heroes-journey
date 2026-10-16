@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.16-8",
+  "content_version": "2026.10.16-9",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -4290,7 +4290,7 @@
       "character_id": "chad_colossus",
       "area_id": "colossus_gym",
       "milestone_id": "under_city.10.resolution",
-      "stamina": 110,
+      "stamina": 240,
       "break": 3,
       "attack": 12,
       "pattern": [
@@ -4314,13 +4314,13 @@
         "crush": {
           "damage": 1.8,
           "deflectable": true,
-          "telegraph": "HEAVY ATTACK INCOMING",
+          "telegraph": "Colossus swings everything.",
           "intent": "Crush"
         },
         "more": {
           "damage": 0.0,
           "pressure": 1,
-          "escalate": 0.12,
+          "escalate": 0.08,
           "telegraph": "MORE",
           "intent": "Escalating"
         }
@@ -4350,7 +4350,7 @@
         "player.male": "hero.combat.male",
         "player.female": "hero.combat.female"
       },
-      "notes": "Doc 36 §7–9. One phase for the first playable; a second phase at 50 % Stamina only if the simulator or play shows the loop gets solved too fast. Owner 2026-10-16 handoff: the four states are animations of npc.colossus.combat; the player masters are hero.combat.male and hero.combat.female."
+      "notes": "Doc 36 §7–9. One phase for the first playable; a second phase at 50 % Stamina only if the simulator or play shows the loop gets solved too fast. Owner 2026-10-16 handoff: the four states are animations of npc.colossus.combat; the player masters are hero.combat.male and hero.combat.female. Owner QA 2026-10-16 (first showdown): too easy at Level 10 and his bar read lower than the player's. Stamina 240 (was 110), MORE escalates 8 % (was 12 %) so the long fight stays winnable; the player's attack_base and analyze_base_break moved with it (ruleset). Moves are no longer announced before they land: `telegraph` is narrated as the move resolves, and ANALYZE reads the next move once (`intent`). The lasting tell is the pattern: a plate loaded means the swing comes next."
     }
   ],
   "ascension_profiles": [

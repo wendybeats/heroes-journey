@@ -54,6 +54,10 @@ struct BossView: View {
     @State private var ring: Ring? = nil
     @State private var pop: Pop? = nil
     @State private var line: String? = nil
+    /// What Colossus just did, shown while he does it (owner QA 2026-10-16: no advance telegraph).
+    @State private var narration: String? = nil
+    /// Analyze read him: his next move shows until the player's next action. Otherwise the tell is the pattern.
+    @State private var readNext = false
     @State private var hint: String? = nil
     @State private var shownHints: Set<String> = []
 
@@ -77,6 +81,7 @@ struct BossView: View {
     private static let scale: CGFloat = HomeView.characterScale
     private static let heroCanvas = CGSize(width: 64, height: 128), heroPivot = CGPoint(x: 32, y: 122)
     private static let combatCanvas = CGSize(width: 160, height: 192), combatPivot = CGPoint(x: 80, y: 184)
+    private static let heroX: CGFloat = 0.22, bossX: CGFloat = 0.77
     private var actionColor: Color { NeoTokyo.Attribute.color(for: heroAction.attributeID.rawValue) }
 
     var body: some View {
@@ -95,6 +100,7 @@ struct BossView: View {
 
     // MARK: boss panel
 
+    /// Owner QA 2026-10-16: his bar sits left at 70 % width, yours right under your name; neither runs edge to edge.
     private var bossPanel: some View {
         VStack(alignment: .leading, spacing: NeoTokyo.Spacing.xs) {
             HStack(alignment: .firstTextBaseline) {
@@ -104,6 +110,8 @@ struct BossView: View {
                     .contentTransition(.numericText(value: shownBoss))
             }
             bar(value: shownBoss / encounter.bossStaminaMax, tint: NeoTokyo.Text.primary)
+                .containerRelativeFrame(.horizontal, count: 10, span: 7, spacing: 0)
+                .frame(maxWidth: .infinity, alignment: .leading)
             HStack(spacing: 6) {
                 Text("BREAK").font(HeroFont.label).foregroundStyle(NeoTokyo.Text.secondary)
                 ForEach(0..<Int(encounter.breakMax.rounded()), id: \.self) { i in
@@ -137,8 +145,9 @@ struct BossView: View {
     private var stage: some View {
         GeometryReader { geo in
             let floorY = geo.size.height * 0.86
-            let heroAnchor = CGPoint(x: geo.size.width * 0.27 + heroLunge, y: floorY)
-            let bossAnchor = CGPoint(x: geo.size.width * 0.73 + bossLunge + shake, y: floorY)
+            // Owner QA 2026-10-16: the two stand near the edges, not the middle.
+            let heroAnchor = CGPoint(x: geo.size.width * Self.heroX + heroLunge, y: floorY)
+            let bossAnchor = CGPoint(x: geo.size.width * Self.bossX + bossLunge + shake, y: floorY)
             ZStack {
                 BackdropImage(assetSetID: backdrop)
                 // Ascension field under the hero's feet (doc 36 §20: the tier modifies the presentation, not the animation).
@@ -175,7 +184,7 @@ struct BossView: View {
                 // Doc 38: at any tier the action leaves one short afterimage of the master in the tier colour, trailing the lunge.
                 if state.ascensionTier >= 1, afterAlpha > 0 {
                     placed(NeoTokyo.Ascension.color(forTier: state.ascensionTier).mask { SpritePlayer(assetSetID: heroMasters, animation: heroAction.rawValue, scale: Self.scale) }.opacity(afterAlpha),
-                           canvas: Self.combatCanvas, pivot: Self.combatPivot, at: CGPoint(x: geo.size.width * 0.27 + afterX, y: floorY))
+                           canvas: Self.combatCanvas, pivot: Self.combatPivot, at: CGPoint(x: geo.size.width * Self.heroX + afterX, y: floorY))
                 }
                 let masterVisible = heroPhase == .action || heroPhase == .whiteAction
                 // Owner notes 2026-10-16: through the action the master is a light silhouette, not a sprite: a diffuse
@@ -212,17 +221,28 @@ struct BossView: View {
                             .padding(.horizontal, NeoTokyo.Spacing.md).padding(.vertical, NeoTokyo.Spacing.xs)
                             .glass(cornerRadius: NeoTokyo.Radius.md, tint: NeoTokyo.Surface.overlay).transition(.opacity)
                     }
-                    if encounter.result == nil, !shownBroken, !busy, let action = encounter.intentAction {
-                        Text(action.telegraph).font(action.deflectable ? HeroFont.headline : HeroFont.captionMedium)
-                            .foregroundStyle(action.deflectable ? NeoTokyo.Attribute.color(for: "strength") : NeoTokyo.Text.secondary)
+                    if let narration {
+                        Text(narration).font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
                             .padding(.horizontal, NeoTokyo.Spacing.md).padding(.vertical, NeoTokyo.Spacing.xs)
                             .glass(cornerRadius: NeoTokyo.Radius.md, tint: NeoTokyo.Surface.scrim)
-                            .id(action.telegraph).transition(.scale(scale: 1.15).combined(with: .opacity))
+                            .id(narration).transition(.opacity)
+                    } else if readNext, encounter.result == nil, !shownBroken, !busy, let action = encounter.intentAction {
+                        // Owner QA 2026-10-16: the move is never announced; Analyze reads it once. The lasting tell is his pattern.
+                        HStack(spacing: 6) {
+                            Image(systemName: AttributeGlyph.symbol(for: "knowledge")).font(HeroFont.label)
+                            Text("READ · \(action.intent ?? action.telegraph)").font(action.deflectable ? HeroFont.headline : HeroFont.captionMedium)
+                        }
+                        .foregroundStyle(action.deflectable ? NeoTokyo.Attribute.color(for: "strength") : NeoTokyo.Attribute.color(for: "knowledge"))
+                        .padding(.horizontal, NeoTokyo.Spacing.md).padding(.vertical, NeoTokyo.Spacing.xs)
+                        .glass(cornerRadius: NeoTokyo.Radius.md, tint: NeoTokyo.Surface.scrim)
+                        .id(action.telegraph).transition(.scale(scale: 1.15).combined(with: .opacity))
                     }
                 }
                 .position(x: geo.size.width / 2, y: geo.size.height * 0.12)
                 .animation(.easeOut(duration: 0.2), value: busy)
                 .animation(.easeOut(duration: 0.2), value: line)
+            .animation(.easeOut(duration: 0.2), value: narration)
+            .animation(.easeOut(duration: 0.2), value: readNext)
             }
             .offset(stageShake)
             .frame(width: geo.size.width, height: geo.size.height)
@@ -249,16 +269,21 @@ struct BossView: View {
 
     private var playerPanel: some View {
         VStack(spacing: NeoTokyo.Spacing.sm) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("STAMINA").font(HeroFont.label).foregroundStyle(NeoTokyo.Text.secondary)
-                Spacer()
-                if shownPressure > 0 {
-                    Text("PRESSURE ×\(shownPressure)").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Attribute.color(for: "strength")).transition(.opacity)
+            VStack(alignment: .leading, spacing: NeoTokyo.Spacing.xs) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(state.recipe?.name ?? "You").font(HeroFont.headline).foregroundStyle(NeoTokyo.Text.primary)
+                    Text("STAMINA").font(HeroFont.label).foregroundStyle(NeoTokyo.Text.secondary)
+                    Spacer()
+                    if shownPressure > 0 {
+                        Text("PRESSURE ×\(shownPressure)").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Attribute.color(for: "strength")).transition(.opacity)
+                    }
+                    Text("\(max(0, Int(shownPlayer.rounded()))) / \(Int(encounter.playerStaminaMax.rounded()))").font(HeroFont.captionNumber).foregroundStyle(NeoTokyo.Text.primary)
+                        .contentTransition(.numericText(value: shownPlayer))
                 }
-                Text("\(max(0, Int(shownPlayer.rounded()))) / \(Int(encounter.playerStaminaMax.rounded()))").font(HeroFont.captionNumber).foregroundStyle(NeoTokyo.Text.primary)
-                    .contentTransition(.numericText(value: shownPlayer))
+                bar(value: shownPlayer / encounter.playerStaminaMax, tint: NeoTokyo.Hierarchy.primary)
             }
-            bar(value: shownPlayer / encounter.playerStaminaMax, tint: NeoTokyo.Hierarchy.primary)
+            .containerRelativeFrame(.horizontal, count: 10, span: 7, spacing: 0)
+            .frame(maxWidth: .infinity, alignment: .trailing)
             if let hint {
                 Text(hint).font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary).fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading).transition(.opacity)
@@ -327,6 +352,7 @@ struct BossView: View {
     private func perform(_ action: CombatAction) {
         guard !busy, encounter.result == nil else { return }
         busy = true
+        readNext = false
         let events = encounter.step(action)
         let split = events.firstIndex { if case .bossAttack = $0 { return true }; if case .bossLoad = $0 { return true }; if case .pressure = $0 { return true }; if case .bossRecovered = $0 { return true }; return false } ?? events.count
         let playerEvents = Array(events[..<split]), bossEvents = Array(events[split...])
@@ -391,6 +417,7 @@ struct BossView: View {
                 pop = Pop(text: "ANALYZE", onBoss: true, color: NeoTokyo.Attribute.color(for: "knowledge"), big: false)
                 await pause(220)
                 scan = nil; outline = 0
+                readNext = true
             } else {
                 pop = Pop(text: "…", onBoss: true, color: NeoTokyo.Text.secondary, big: false); await pause(260)
             }
@@ -410,7 +437,8 @@ struct BossView: View {
         case .bossRecovered:
             shownBroken = false; shownBreak = encounter.breakMax; bossAnim = "idle"
             await pause(260)
-        case let .bossAttack(_, _, taken, deflected):
+        case let .bossAttack(name, _, taken, deflected):
+            narration = boss.actions[name]?.telegraph
             bossAnim = "attack"; bossAuraColor = NeoTokyo.Attribute.color(for: "strength"); bossAura = 1; await pause(140)
             if !reduceMotion { bossLunge = -60 }
             await pause(160)
@@ -422,18 +450,21 @@ struct BossView: View {
             shownPlayer = max(0, shownPlayer - taken)
             bossLunge = 0; bossAura = 0; await pause(160)
             bossAnim = shownBroken ? "broken" : "idle"
+            narration = nil
             if taken > encounter.playerStaminaMax * 0.15 { showHint("guard") }
         case let .bossLoad(m):
+            narration = boss.actions["load"]?.telegraph
             bossAnim = "buff"; bossAuraColor = NeoTokyo.Text.secondary; bossAura = 0.7
             pop = Pop(text: "LOADED ×\(String(format: "%.1f", m))", onBoss: true, color: NeoTokyo.Text.secondary, big: false)
-            await pause(420); bossAura = 0; bossAnim = "idle"
+            await pause(420); bossAura = 0; bossAnim = "idle"; narration = nil
         case let .pressure(stacks):
+            narration = boss.actions["more"]?.telegraph
             bossAnim = "buff"; bossAuraColor = NeoTokyo.Attribute.color(for: "strength"); bossAura = 1
             if !reduceMotion { stageShake = CGSize(width: 2, height: -1) }
             await pause(120); stageShake = .zero
             shownPressure = stacks
             pop = Pop(text: "PRESSURE ×\(stacks)", onBoss: false, color: NeoTokyo.Attribute.color(for: "strength"), big: false)
-            await pause(380); bossAura = 0; bossAnim = "idle"
+            await pause(380); bossAura = 0; bossAnim = "idle"; narration = nil
             showHint("pressure")
         case let .dialogue(key):
             if let text = boss.dialogue[key] { line = text; await pause(650); line = nil }

@@ -332,6 +332,15 @@ Not changed, by earlier owner decisions: the gym quests run 8 h (doc 20 incremen
 
 The level curve was re-derived after the page row went to weight 0 (the simulator rolled its 12 XP on every quest before): thresholds moved by at most 3 XP (Level 10: 2056 → 2054). The boss golden fixture is unchanged.
 
+## Increment 55, 2026-10-16: the first showdown on device (owner notes)
+
+- **One sprite per fighter.** `SpritePlayer` loaded frames once per asset set and never again when `animation` changed, so the master stayed on "attack" and Colossus on "idle" however the engine moved. It now loads every animation of the revision at once and switches by name on the next frame. The departure walk and the clash stills are unaffected.
+- **Stage and bars.** The fighters stand at 22 % and 77 % of the stage width (27 / 73 before). His bar is 70 % wide on the left; yours is 70 % wide on the right under your name ("Wendell · STAMINA"), so it reads as yours.
+- **No advance telegraph.** The move's line is narrated as it lands; ANALYZE reads the next move once. Numbers and the sweep in doc 37 §"Second tuning".
+- **Retune.** Colossus 240 Stamina, 8 % escalation; `attack_base` 12, `analyze_base_break` 1.0, `max_turns` 50. Golden fixture regenerated (35 cases), the Swift replay test holds parity.
+- Queued (doc 34): the tutorial (owner builds it), story edits before and after the fight (owner).
+- Also in this push: `HomeView`'s offer slot is its own view; the inline branch for the boss card pushed the body past the type checker on CI.
+
 ## Planned (owner, 2026-10-12): challenges and between-beat content
 
 Doc 33 holds the design, the five-increment plan (40–44) and the content inventory (lines and art the owner writes separately). Order: beats wait for their quest (`requires_quest`), Challenges with Cairon then the lifter, repeat quest exchanges and found pages, story-aware goal lines and Row rumours. Each lands behind its content: a field with no lines renders nothing.

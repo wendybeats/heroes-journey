@@ -20,16 +20,16 @@ Companion to doc 36 (the owner's master spec). This records the eight decisions 
 |---|---|---|
 | mastery(s) | `(1 + s)^e` | e 0.6 → 1.00 / 1.52 / 2.30 at s 0 / 1 / 3 |
 | Player Stamina max | `base × (1 + b × END^x)` | 100, b 0.11, x 0.75 → 100 / 111 / 125 |
-| Attack damage | `attack_base × mastery(STR) × (1 − 0.15 × Pressure)` × `broken_multiplier` if Broken | 9 · ×3.0 Broken |
+| Attack damage | `attack_base × mastery(STR) × (1 − 0.15 × Pressure)` × `broken_multiplier` if Broken | 12 (was 9 before the 2026-10-16 retune) · ×3.0 Broken |
 | Guard reduction | `min(max, guard_base × mastery(END))` | 0.35 base, 0.75 max |
 | Deflect | Guard on a deflectable action: `+0.15` reduction (within the max), `1.0` Break damage, "Good." once | |
-| Analyze Break damage | `analyze_base × mastery(KNOW) × (1 − 0.15 × Pressure)` | 0.85 of 3 diamonds |
+| Analyze Break damage | `analyze_base × mastery(KNOW) × (1 − 0.15 × Pressure)` | 1.0 of 3 diamonds (was 0.85) |
 | Center | clears 1 stack (2 at MIND share ≥ 1.5); recovers `max × 0.04 × mastery(MIND)` | |
 | Pressure | 15 % per stack, cap 3; Attack and Analyze only | |
 | Variance | off (0); when on, ±v on damage, seeded | |
-| Stall guard | 40 turns → `stalled` (a loss for the player) | |
+| Stall guard | 50 turns → `stalled` (a loss for the player); 40 before the retune | |
 
-Colossus (bundle `bosses[0]`): Stamina 110, Break 3, attack 12, pattern TEST → LOAD → CRUSH → MORE. TEST ×0.7; LOAD ×1.5 on the next hit; CRUSH ×1.8, deflectable; MORE +1 Pressure and +12 % permanent escalation. Dialogue: first deflect "Good.", first MORE "More.", first Break "…Again."
+Colossus (bundle `bosses[0]`): Stamina 240 (110 at the first showdown), Break 3, attack 12, pattern TEST → LOAD → CRUSH → MORE. TEST ×0.7; LOAD ×1.5 on the next hit; CRUSH ×1.8, deflectable; MORE +1 Pressure and +8 % permanent escalation (12 % before). Dialogue: first deflect "Good.", first MORE "More.", first Break "…Again."
 
 ## Turn order (engine)
 1. Intent = pattern[index] (nil while Broken). 2. Player action resolves. 3. If the player was in the Broken window: Break resets, boss recovers, no boss action. 4. If the boss is down: won. 5. If a Break happened this turn: the telegraphed action is cancelled and skipped. 6. Else the boss action resolves against any Guard; LOAD/MORE apply; pattern advances. 7. Result check.
@@ -55,5 +55,26 @@ Reading: the lifter races him; Knowledge breaks him most; nobody with zero stats
 
 Semantics note: an Analyze-Break cancels and skips the telegraphed action; a Deflect-Break lands after the hit and cancels nothing, so MORE still follows the recovery. The first cut skipped it in both cases and made deflect lines quieter than intended.
 
+## Second tuning, 2026-10-16: the first showdown on device
+
+Owner: too easy at Level 10 (about 20 Stamina lost), his bar read lower than the player's, and the "HEAVY ATTACK INCOMING" banner made every deflect free. Owner's reminder: the hit after a Break is the big one, 35–40 on his build (0.7 Strength share: 9 × 1.37 × 3 = 37, which matches).
+
+Stamina 240 on its own lost for every build in the simulator: MORE's 12 % escalation outruns a 9-damage Attack over a long fight. The retune that keeps the shape (weak normal hits, a Break that lands hard, a fight that is lost by button-mashing): Stamina 240, escalation 8 %, `attack_base` 12, `analyze_base_break` 1.0, `max_turns` 50. The Broken hit on the owner's build is now about 49; a normal Attack about 16.
+
+| Build | Brute | Defensive | Tactical |
+|---|---|---|---|
+| STR specialist | lost | won, 17, 26 % | won, 23, 34 %, 5 Breaks |
+| END specialist | lost | won, 25, 18 % | won, 28, 39 %, 6 Breaks |
+| KNOW specialist | lost | lost | won, 24, 37 %, 6 Breaks |
+| MIND specialist | lost | won, 22, 1 % | won, 25, 13 %, 6 Breaks |
+| Balanced | lost | won, 21, 20 % | **won, 20, 44 %**, 5 Breaks |
+| Owner's build (STR 0.7, END 1.3, KNOW 0.85, MIND 0.55) | lost | won, 21, 20 % | won, 28, 36 % |
+| Pure lifter | won, 10, 5 % | won, 12, 24 % | lost |
+| Day one | lost | lost | lost |
+
+Stall tests still lose; random play wins 0–1 in 50. The Pure lifter's brute win (5 % left) is the one line that still races him, which doc 36 §25 accepts for a stat that extreme. Mindfulness stays the weakest tactical line (13 %), the same finding as the first sweep.
+
+Telegraphs: a move is no longer announced before it lands. The action's `telegraph` is narrated as it resolves ("Colossus adds another plate.", "Colossus swings everything."), and ANALYZE reads the next move once (`intent`, "READ · Crush") until the player's next action. The lasting tell is the pattern, which the loss lines already teach ("Watch him when he loads the weight."). The simulator's strategies still read the intent directly; with a fixed pattern that is the same information a player has after one cycle.
+
 ## Not built yet
- Phase 2, variance, dialogue as spoken bubbles (lines show as a quoted banner), a persistent second-plate prop after MORE (accepted as drawn for now), Tier-2 VFX polish (trails, afterimages), optional Defeat. Built 2026-10-16: the four Colossus states and four male masters in engine with the §18 glow sequence and the Tier-1 effects (doc 20 increment 51).
+ Tutorial (owner will build it; the hint line is a stand-in), the story before and after the fight (owner edits to come), Phase 2, variance, dialogue as spoken bubbles (lines show as a quoted banner), a persistent second-plate prop after MORE (accepted as drawn for now), Tier-2 VFX polish (trails, afterimages), optional Defeat. Built 2026-10-16: the four Colossus states and four male masters in engine with the §18 glow sequence and the Tier-1 effects (doc 20 increment 51).

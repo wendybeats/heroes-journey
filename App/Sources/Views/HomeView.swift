@@ -59,16 +59,7 @@ struct HomeView: View {
                     // companion world comes first, then today's goals, then progression, then utility.
                     sceneCard(snapshot)
                     VStack(spacing: NeoTokyo.Spacing.lg) {
-                        // Doc 33 (owner build notes 2026-10-12): today's challenge offer overlaps the foot of the scene and slides in.
-                        // Owner QA 2026-10-16: a boss offer takes that slot in the same shape; the challenge then sits below it.
-                        if let milestone = state.offeredMilestones.first, state.bundle.boss(forMilestone: milestone.id) != nil {
-                            BossCard(milestone: milestone) { startMilestone(milestone) }
-                                .padding(.top, -96)
-                            ChallengeCard { if let outcome = state.acceptChallenge() { clash = outcome } }
-                        } else {
-                            ChallengeCard { if let outcome = state.acceptChallenge() { clash = outcome } }
-                                .padding(.top, -96)
-                        }
+                        offerSlot
                         if let toast {
                             ToastBanner(item: toast)
                                 .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -348,6 +339,22 @@ struct HomeView: View {
             if toast?.id == item.id { withAnimation(.easeIn(duration: 0.3)) { toast = nil } }
             try? await Task.sleep(for: .milliseconds(400))
             flushToasts()
+        }
+    }
+
+    /// Doc 33 (owner build notes 2026-10-12): today's challenge offer overlaps the foot of the scene and slides in.
+    /// Owner QA 2026-10-16: a boss offer takes that slot in the same shape; the challenge then sits below it.
+    /// Its own view: inline, the branch pushed the body past what the type checker will take.
+    @ViewBuilder
+    private var offerSlot: some View {
+        let bossBeat = state.offeredMilestones.first { state.bundle.boss(forMilestone: $0.id) != nil }
+        if let milestone = bossBeat {
+            BossCard(milestone: milestone) { startMilestone(milestone) }
+                .padding(.top, -96)
+            ChallengeCard { if let outcome = state.acceptChallenge() { clash = outcome } }
+        } else {
+            ChallengeCard { if let outcome = state.acceptChallenge() { clash = outcome } }
+                .padding(.top, -96)
         }
     }
 
