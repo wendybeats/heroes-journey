@@ -50,34 +50,40 @@ struct HomeView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
 
-    var body: some View {
+    /// The screen's content. Its own view: the body with every presentation and hook inline is more than the type
+    /// checker will take (CI 2026-10-16, twice), so content, presentations and director hooks are three pieces.
+    private var scroll: some View {
         let snapshot = shown ?? state.snapshot
-        NavigationStack {
-            ScrollView {
+        return ScrollView {
+            VStack(spacing: NeoTokyo.Spacing.lg) {
+                // Home v2 (doc 24): the scene bleeds under the status bar and off the top edge; the
+                // companion world comes first, then today's goals, then progression, then utility.
+                sceneCard(snapshot)
                 VStack(spacing: NeoTokyo.Spacing.lg) {
-                    // Home v2 (doc 24): the scene bleeds under the status bar and off the top edge; the
-                    // companion world comes first, then today's goals, then progression, then utility.
-                    sceneCard(snapshot)
-                    VStack(spacing: NeoTokyo.Spacing.lg) {
-                        offerSlot
-                        if let toast {
-                            ToastBanner(item: toast)
-                                .transition(.move(edge: .bottom).combined(with: .opacity))
-                        }
-                        attributesRow(snapshot)
-                        GoalsCard()
-                        storyCard
-                        todayCard
-                        weekCard
+                    offerSlot
+                    if let toast {
+                        ToastBanner(item: toast)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
-                    .padding(.horizontal, NeoTokyo.Spacing.lg)
-                    .animation(.spring(duration: 0.55, bounce: 0.2), value: state.todayOffer?.challengeID)
-                    .animation(.spring(duration: 0.45, bounce: 0.25), value: toast?.id)
+                    attributesRow(snapshot)
+                    GoalsCard()
+                    storyCard
+                    todayCard
+                    weekCard
                 }
-                .padding(.bottom, 96)
+                .padding(.horizontal, NeoTokyo.Spacing.lg)
+                .animation(.spring(duration: 0.55, bounce: 0.2), value: state.todayOffer?.challengeID)
+                .animation(.spring(duration: 0.45, bounce: 0.25), value: toast?.id)
             }
-            .ignoresSafeArea(edges: .top)
-            .background(NeoTokyo.Surface.base)
+            .padding(.bottom, 96)
+        }
+        .ignoresSafeArea(edges: .top)
+        .background(NeoTokyo.Surface.base)
+    }
+
+    var body: some View {
+        NavigationStack {
+            scroll
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar(.hidden, for: .navigationBar)
@@ -151,10 +157,8 @@ struct HomeView: View {
                     }
                 }
             }
-            .overlay { if let receipt = state.lastReceipt { RewardMoment(receipt: receipt) } }
-            .overlay { if let welcome = state.healthWelcome { HealthWelcomeMoment(welcome: welcome) } }
-            .animation(.easeInOut(duration: 0.25), value: state.lastReceipt == nil)
-            .animation(.easeInOut(duration: 0.25), value: state.healthWelcome == nil)
+            .overlay { moments }
+            .animation(.easeInOut(duration: 0.25), value: momentKey)
         }
         // Day-one Health credit (owner QA 2026-10-16): the numbers hold at the pre-credit values until the welcome card is dismissed.
         .onAppear { if shown == nil { let s = state.healthWelcome?.before ?? state.snapshot; shown = s; barFill = levelProgress(s) }; scheduleStory() }
@@ -214,6 +218,14 @@ struct HomeView: View {
             }
         }
     }
+
+    /// The reward modal, or the day-one Health card (owner QA 2026-10-16); never both.
+    @ViewBuilder
+    private var moments: some View {
+        if let receipt = state.lastReceipt { RewardMoment(receipt: receipt) }
+        else if let welcome = state.healthWelcome { HealthWelcomeMoment(welcome: welcome) }
+    }
+    private var momentKey: Int { (state.lastReceipt == nil ? 0 : 1) + (state.healthWelcome == nil ? 0 : 2) }
 
     // MARK: story director (doc 28)
 
