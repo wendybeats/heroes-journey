@@ -142,21 +142,21 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(bundle.rewards.filter { $0.trigger.type == "unassigned" }.count, 9, "the former level rewards are kept for the chapter to assign; doc 33 gave the rain to Protein Row")
         XCTAssertEqual(bundle.evolution(forLevel: 1)?.id, "ev1_awakened")
         // Doc 32: evolutions are ascension tiers on one canonical body; the starter outfit is items.
-        XCTAssertEqual(bundle.evolutions.map { $0.ascensionTier ?? -1 }, [0, 1, 2, 3])
+        XCTAssertEqual(bundle.evolutions.map { $0.ascensionTier ?? -1 }, [0, 1, 2, 3, 4, 5], "doc 38: six states")
         // Owner 2026-10-06: the first Ascension is a cutscene; its scene is content on the evolution and must resolve.
-        XCTAssertEqual(bundle.evolution(forLevel: 5)?.ascensionChapter, "chapter.ascension_1")
+        XCTAssertEqual(bundle.evolution(forLevel: 8)?.ascensionChapter, "chapter.ascension_1", "owner 2026-10-16: tier I at Level 8")
         XCTAssertEqual(bundle.chapter("chapter.ascension_1")?.then, "return"); XCTAssertEqual(bundle.chapter("chapter.ascension_1")?.beats.first?.speaker, "guide.elder")
         XCTAssertNil(bundle.evolution(forLevel: 1)?.ascensionChapter)
-        XCTAssertEqual(bundle.evolution(forLevel: 10)?.ascensionChapter, "chapter.ascension_2")
+        XCTAssertEqual(bundle.evolution(forLevel: 18)?.ascensionChapter, "chapter.ascension_2"); XCTAssertNil(bundle.evolution(forLevel: 10)?.ascensionChapter, "Level 10 is still tier I")
         XCTAssertEqual(Set(bundle.evolutions.map { $0.outfit ?? "" }), ["suit"])
         let starter = bundle.starterEquipment
         XCTAssertEqual(Set(starter.keys), [.body, .legs, .feet]); XCTAssertEqual(starter[.body], "item.hoodie.starter")
         XCTAssertEqual(bundle.items.filter(\.isStarter).count, 3)
-        XCTAssertEqual(bundle.evolution(forLevel: 4)?.id, "ev1_awakened")
-        XCTAssertEqual(bundle.evolution(forLevel: 5)?.id, "ev2_evolution1")
-        XCTAssertEqual(bundle.evolution(forLevel: 12)?.id, "ev3_evolution2")
-        XCTAssertEqual(bundle.evolution(forLevel: 20)?.id, "ev4_evolution3")
-        XCTAssertEqual(bundle.evolution(forLevel: 99)?.id, "ev4_evolution3")
+        XCTAssertEqual(bundle.evolution(forLevel: 7)?.id, "ev1_awakened")
+        XCTAssertEqual(bundle.evolution(forLevel: 8)?.id, "ev2_evolution1")
+        XCTAssertEqual(bundle.evolution(forLevel: 18)?.id, "ev3_evolution2")
+        XCTAssertEqual(bundle.evolution(forLevel: 30)?.id, "ev4_evolution3"); XCTAssertEqual(bundle.evolution(forLevel: 46)?.id, "ev5_evolution4")
+        XCTAssertEqual(bundle.evolution(forLevel: 99)?.id, "ev6_evolution5")
         XCTAssertNotNil(bundle.defaultBackdrop)
     }
 

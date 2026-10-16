@@ -119,7 +119,7 @@ final class HoodieKitTests: XCTestCase {
     func testBundleEvolutionsMapOutfits() throws {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
         for level in [1, 4, 5, 10, 20] { XCTAssertEqual(bundle.evolution(forLevel: level)?.outfit, "suit", "level \(level)") }
-        XCTAssertEqual(bundle.evolution(forLevel: 1)?.ascensionTier, 0); XCTAssertEqual(bundle.evolution(forLevel: 5)?.ascensionTier, 1)
+        XCTAssertEqual(bundle.evolution(forLevel: 1)?.ascensionTier, 0); XCTAssertEqual(bundle.evolution(forLevel: 7)?.ascensionTier, 0); XCTAssertEqual(bundle.evolution(forLevel: 8)?.ascensionTier, 1, "doc 38: tier I at Level 8")
         XCTAssertEqual(bundle.starterEquipment[.body], "item.hoodie.starter")
     }
 

@@ -2,6 +2,9 @@
 
 Owner-authored, logged condensed. The concept sheets (six stages, eyes, shadow, action glow; male and female) are the visual reference; Claude's questions and the build log live in doc 39. Doc 32 (wearables and Ascension) stays the record for items and the takeover; this doc is the look of the ascended character.
 
+## 0 Levels (owner, 2026-10-16)
+Tier I at Level 8, II at 18, III at 30, IV at 46, V at 68 (bundle `evolutions`). The owner is considering an 80-level game instead of 100 because of XP creep; not changed yet. Consequence for doc 36: the Colossus fight at Level 10 is fought at **tier I**, so tier I is the first production target and tier II follows with Central Hill.
+
 ## 1 Core fantasy
 Ascension is not a buff. The digital world gradually becomes incapable of rendering the player as an ordinary person. First something is different; then reality responds; at the top they are no longer fully contained by their rendered body.
 

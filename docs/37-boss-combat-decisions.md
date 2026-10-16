@@ -12,7 +12,7 @@ Companion to doc 36 (the owner's master spec). This records the eight decisions 
 7. **Center.** Clears one Pressure stack, two at Mindfulness share ≥ 1.5, never all. Small recovery.
 8. **The boss acts after Center.** At baseline the recovery is less than an ordinary TEST hit, so Center → hit → Center loses ground.
 9. **Held copy** stays in-world: three lines by gym runs so far, then "Face Colossus".
-10. **Ascension tier 2 precedes the fight**, so the combat renderer must carry the tier-2 VFX layers (stronger field, sparse particles) from the first playable. Canvases: player 64×128, Colossus 96×176.
+10. **Ascension at the fight.** Owner 2026-10-16 (doc 38 levels): tier I at Level 8, II at 18, III at 30, IV at 46, V at 68. The player enters the Colossus fight at **tier I**, not II as doc 36 §20 assumed; the combat renderer carries the tier-I layers (eyes, faint field, rare fragments) from the first playable and tier II arrives with Central Hill. Canvases: player 64×128, Colossus 96×176.
 11. **Risks are not pre-solved.** One phase first; a Phase 2 at 50 % Stamina only if the loop gets solved too fast. The Balanced-optimal question is answered by the sweep below, not by design.
 
 ## Formulas (ruleset `boss_combat`, dev-5e)

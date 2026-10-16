@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.16-4",
+  "content_version": "2026.10.16-5",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -239,31 +239,49 @@
     {
       "id": "ev2_evolution1",
       "display_name": "Evolution I",
-      "min_level": 5,
+      "min_level": 8,
       "asset_set_id": "hero.kit.v2",
       "outfit": "suit",
       "ascension_tier": 1,
-      "notes": "Doc 32 (owner 2026-10-06): evolutions no longer change the body or outfit; they are ascension tiers rendered as effects around the canonical body.",
+      "notes": "Owner 2026-10-16 (doc 38): Ascension I at Level 8; the player enters the Colossus fight at this tier.",
       "ascension_chapter": "chapter.ascension_1"
     },
     {
       "id": "ev3_evolution2",
       "display_name": "Evolution II",
-      "min_level": 10,
+      "min_level": 18,
       "asset_set_id": "hero.body.ev3",
       "outfit": "suit",
-      "notes": "Evolution II art not produced yet; renders the suit until it exists. Doc 32 (owner 2026-10-06): evolutions no longer change the body or outfit; they are ascension tiers rendered as effects around the canonical body.",
+      "notes": "Owner 2026-10-16 (doc 38): Ascension II at Level 18 (Central Hill).",
       "ascension_tier": 2,
       "ascension_chapter": "chapter.ascension_2"
     },
     {
       "id": "ev4_evolution3",
       "display_name": "Evolution III",
-      "min_level": 20,
+      "min_level": 30,
       "asset_set_id": "hero.body.ev4",
       "outfit": "suit",
-      "notes": "Evolution III art not produced yet; renders the suit until it exists. Third ascension at the 2-3 month mark (owner, 2026-10-02). Doc 32 (owner 2026-10-06): evolutions no longer change the body or outfit; they are ascension tiers rendered as effects around the canonical body.",
+      "notes": "Owner 2026-10-16 (doc 38): Ascension III at Level 30.",
       "ascension_tier": 3
+    },
+    {
+      "id": "ev5_evolution4",
+      "display_name": "Evolution IV",
+      "min_level": 46,
+      "asset_set_id": "hero.body.ev4",
+      "outfit": "suit",
+      "notes": "Owner 2026-10-16 (doc 38): Ascension tier 4 at Level 46. Scene not written yet.",
+      "ascension_tier": 4
+    },
+    {
+      "id": "ev6_evolution5",
+      "display_name": "Evolution V",
+      "min_level": 68,
+      "asset_set_id": "hero.body.ev4",
+      "outfit": "suit",
+      "notes": "Owner 2026-10-16 (doc 38): Ascension tier 5 at Level 68. Scene not written yet.",
+      "ascension_tier": 5
     }
   ],
   "items": [
