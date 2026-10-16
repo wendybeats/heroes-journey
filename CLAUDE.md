@@ -1,7 +1,7 @@
 # Heroes Journey — working rules
 
 ## Read first
-Before changing product behavior, read the relevant file in `docs/`. Start with `docs/00`, `01`, `03`, `05`, `15`, `19`, `20`.
+Before changing product behavior, read the relevant file in `docs/`. Start with `docs/00`, `01`, `03`, `05`, `15`, `19`, `20`. `docs/34` is the primary build map; new work is queued there.
 
 ## Product thesis
 A fitness-first RPG whose progression is driven by real-life activity. The tracker must be useful without the game; the game must be desirable without the tracker.

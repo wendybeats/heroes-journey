@@ -41,6 +41,10 @@ The generated `.xcodeproj` is disposable; edit `project.yml`. HeroDomain and Her
 
 Read `assets/sprites/README.md`. Generate frames externally, drop them in a new `rev<N>` folder with a `manifest.json`, run the validator, review the contact sheet at 2–3× on a phone, set `status` to `accepted`. `hero.body.ev1/rev2` is the first authored character, a working placeholder until the final set lands, baked from the owner's authored sheet with `Tools/import_sprite_sheet.py`.
 
+## Roadmap
+
+`docs/34-roadmap.md` is the primary build map: stages, state of every item, and the immediate queue.
+
 ## Open decisions
 
 See `docs/20-rebuild-review.md` § "Still open" and the balance decision in `docs/21-balance-simulation.md`.
