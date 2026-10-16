@@ -163,12 +163,21 @@ struct BossView: View {
                            canvas: Self.heroCanvas, pivot: Self.heroPivot, at: heroAnchor)
                 }
                 let masterVisible = heroPhase == .action || heroPhase == .whiteAction
+                // Owner note 2026-10-16: the master stays a glowing avatar all the way through the action (doc 36 §18
+                // "heavily illuminated, near-silhouette"), never a plain bald sprite: a wide colour bloom behind, the
+                // master, a heavy white wash, and a thin colour wash on top.
+                placed(actionColor.mask { SpritePlayer(assetSetID: heroMasters, animation: heroAction.rawValue, scale: Self.scale) }
+                        .blur(radius: 9).opacity(masterVisible ? 0.95 : 0),
+                       canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
                 placed(SpritePlayer(assetSetID: heroMasters, animation: heroAction.rawValue, scale: Self.scale)
-                        .shadow(color: actionColor.opacity(0.95), radius: 26).shadow(color: actionColor.opacity(0.6), radius: 8)
+                        .shadow(color: actionColor.opacity(0.95), radius: 26).shadow(color: actionColor.opacity(0.7), radius: 8)
                         .opacity(masterVisible ? 1 : 0),
                        canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
                 placed(Color.white.mask { SpritePlayer(assetSetID: heroMasters, animation: heroAction.rawValue, scale: Self.scale) }
-                        .opacity(heroPhase == .whiteAction ? 1 : (heroPhase == .action ? 0.18 : 0)),
+                        .opacity(heroPhase == .whiteAction ? 1 : (heroPhase == .action ? 0.72 : 0)),
+                       canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
+                placed(actionColor.mask { SpritePlayer(assetSetID: heroMasters, animation: heroAction.rawValue, scale: Self.scale) }
+                        .opacity(heroPhase == .action ? 0.35 : 0),
                        canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
                 if heroPhase == .eyes || heroPhase == .whiteReal {
                     Capsule().fill(actionColor).frame(width: 8, height: 3).shadow(color: actionColor, radius: 5).shadow(color: .white, radius: 2)
