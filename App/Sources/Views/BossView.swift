@@ -45,6 +45,9 @@ struct BossView: View {
     // Shared effects
     @State private var flash = 0.0
     @State private var shake: CGFloat = 0
+    @State private var stageShake = CGSize.zero
+    @State private var bossAura = 0.0
+    @State private var bossAuraColor: Color = NeoTokyo.Attribute.color(for: "strength")
     @State private var shatter = false
     @State private var ring: Ring? = nil
     @State private var pop: Pop? = nil
@@ -143,7 +146,12 @@ struct BossView: View {
                         .position(x: heroAnchor.x, y: floorY - 2)
                     if state.ascensionTier >= 2 { AscensionParticles(color: NeoTokyo.Hierarchy.primary).frame(width: 90, height: 160).position(x: heroAnchor.x, y: floorY - 90) }
                 }
-                // Colossus: outline glow behind, the state sprite, a white hit flash over it.
+                // Colossus: his aura while he moves (owner 2026-10-16: an iron-and-pressure bloom on Crush, LOAD and MORE,
+                // gold on the Break), the Analyze outline, the state sprite, a white hit flash over it.
+                placed(bossAuraColor.mask { SpritePlayer(assetSetID: bossSet, animation: bossAnim, scale: Self.scale) }.blur(radius: 14).opacity(bossAura * 0.6),
+                       canvas: Self.combatCanvas, pivot: Self.combatPivot, at: bossAnchor)
+                placed(bossAuraColor.mask { SpritePlayer(assetSetID: bossSet, animation: bossAnim, scale: Self.scale) }.blur(radius: 4).opacity(bossAura * 0.8),
+                       canvas: Self.combatCanvas, pivot: Self.combatPivot, at: bossAnchor)
                 placed(NeoTokyo.Attribute.color(for: "knowledge").mask { SpritePlayer(assetSetID: bossSet, animation: bossAnim, scale: Self.scale) }.blur(radius: 4).opacity(outline),
                        canvas: Self.combatCanvas, pivot: Self.combatPivot, at: bossAnchor)
                 placed(SpritePlayer(assetSetID: bossSet, animation: bossAnim, scale: Self.scale), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: bossAnchor)
@@ -209,8 +217,11 @@ struct BossView: View {
                 .animation(.easeOut(duration: 0.2), value: busy)
                 .animation(.easeOut(duration: 0.2), value: line)
             }
+            .offset(stageShake)
             .frame(width: geo.size.width, height: geo.size.height)
             .clipped()
+            .animation(reduceMotion ? nil : .spring(duration: 0.12, bounce: 0.4), value: stageShake)
+            .animation(.easeOut(duration: 0.25), value: bossAura)
             .animation(reduceMotion ? nil : .spring(duration: 0.16, bounce: 0.15), value: heroLunge)
             .animation(reduceMotion ? nil : .spring(duration: 0.16, bounce: 0.15), value: bossLunge)
             .animation(.easeOut(duration: 0.12), value: heroPhase)
@@ -374,9 +385,9 @@ struct BossView: View {
         case let .breakDamage(_, left):
             shownBreak = left; await pause(100)
         case .broken:
-            shatter = true; shownBroken = true; bossAnim = "broken"
+            shatter = true; shownBroken = true; bossAnim = "broken"; bossAuraColor = NeoTokyo.Hierarchy.primary; bossAura = 0.8
             await hit(onBoss: true, text: "BROKEN", color: NeoTokyo.Hierarchy.primary, big: true)
-            shatter = false
+            shatter = false; bossAura = 0
             showHint("break")
         case let .centered(cleared, recovered):
             ring = Ring(color: NeoTokyo.Attribute.color(for: "mindfulness"), inward: true)
@@ -388,7 +399,7 @@ struct BossView: View {
             shownBroken = false; shownBreak = encounter.breakMax; bossAnim = "idle"
             await pause(260)
         case let .bossAttack(_, _, taken, deflected):
-            bossAnim = "attack"; await pause(140)
+            bossAnim = "attack"; bossAuraColor = NeoTokyo.Attribute.color(for: "strength"); bossAura = 1; await pause(140)
             if !reduceMotion { bossLunge = -60 }
             await pause(160)
             if deflected {
@@ -397,18 +408,20 @@ struct BossView: View {
             }
             await hit(onBoss: false, text: "\(Int(taken.rounded()))", color: NeoTokyo.Text.primary, big: false)
             shownPlayer = max(0, shownPlayer - taken)
-            bossLunge = 0; await pause(160)
+            bossLunge = 0; bossAura = 0; await pause(160)
             bossAnim = shownBroken ? "broken" : "idle"
             if taken > encounter.playerStaminaMax * 0.15 { showHint("guard") }
         case let .bossLoad(m):
-            bossAnim = "buff"
+            bossAnim = "buff"; bossAuraColor = NeoTokyo.Text.secondary; bossAura = 0.7
             pop = Pop(text: "LOADED ×\(String(format: "%.1f", m))", onBoss: true, color: NeoTokyo.Text.secondary, big: false)
-            await pause(420); bossAnim = "idle"
+            await pause(420); bossAura = 0; bossAnim = "idle"
         case let .pressure(stacks):
-            bossAnim = "buff"; await pause(120)
+            bossAnim = "buff"; bossAuraColor = NeoTokyo.Attribute.color(for: "strength"); bossAura = 1
+            if !reduceMotion { stageShake = CGSize(width: 2, height: -1) }
+            await pause(120); stageShake = .zero
             shownPressure = stacks
             pop = Pop(text: "PRESSURE ×\(stacks)", onBoss: false, color: NeoTokyo.Attribute.color(for: "strength"), big: false)
-            await pause(380); bossAnim = "idle"
+            await pause(380); bossAura = 0; bossAnim = "idle"
             showHint("pressure")
         case let .dialogue(key):
             if let text = boss.dialogue[key] { line = text; await pause(650); line = nil }
@@ -419,11 +432,15 @@ struct BossView: View {
 
     /// Flash, shake, a white hit on the target, the number. Flash sensitivity: every hit also has a sprite state and text.
     private func hit(onBoss: Bool, text: String, color: Color, big: Bool) async {
-        if !reduceMotion { flash = big ? 0.35 : 0.2; shake = onBoss ? 7 : 0 }
+        // Every landed hit, from either side, shakes the whole stage (owner 2026-10-16); the target also recoils.
+        if !reduceMotion { flash = big ? 0.35 : 0.2; shake = onBoss ? 7 : 0; stageShake = CGSize(width: big ? 7 : 4, height: big ? -3 : -2) }
         if onBoss { bossHit = 1 } else { heroHit = 1 }
         pop = Pop(text: text, onBoss: onBoss, color: color, big: big)
         await pause(70)
+        if !reduceMotion { stageShake = CGSize(width: big ? -5 : -3, height: 1) }
         withAnimation(.easeOut(duration: 0.2)) { flash = 0; shake = 0 }
+        await pause(60)
+        stageShake = .zero
         bossHit = 0; heroHit = 0
         await pause(big ? 400 : 280)
     }
