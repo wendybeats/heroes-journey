@@ -1,6 +1,6 @@
 # 35 — Area kit: how an area gets built
 
-The repeatable formula from doc 34 §1.4, written from the chapter-one build. Target pace once it runs clean: **one complete area designed every two weeks**. Area 2 (Central Hill) is the first run; the kit is done when Area 3 can be built from it with no new engine code.
+The repeatable formula from doc 34 §1.4, written from the chapter-one build. Target pace once it runs clean: **one complete area designed every two weeks**. Area 2 (Central Hill, Levels 11–18) is the first run; the kit is done when Area 3 can be built from it with no new engine code.
 
 Everything an area needs is data in `Content/v1/bundle.json` plus art in `assets/sprites/`. The engine, the story director, the quest resolver, challenges, goals and rewards are already general; an area that needs a code change is a kit bug, and the change goes into the kit, not into the area.
 
@@ -95,5 +95,5 @@ Then regenerate the reading copies: `python3 Tools/export_chapter_script.py` (do
 - Doc 31-style script regenerated; a QA list in doc 30's format written and walked on device with the dev clock.
 - Doc 20 increment entry; doc 34 state updated.
 
-## Open issue found while writing this
-`areas[].levels` in the bundle still carries the doc 26 hundred-level bands (Under City 1–10, Colossus Gym 11–18, Central Hill 19–25), while chapter one plays the gym at Levels 5–10. Decide which is canonical before Area 2 is ranged; the kit assumes the campaign chapter's range wins and the area bands are lore, not gates.
+## Area bands
+Resolved 2026-10-16: Colossus is introduced and fought inside Area 1, so the bands moved up one (doc 26 §10): Under City 1–10 with the gym from Level 5, Central Hill 11–18, Warrior's Dojo 19–25, and so on; the Ascension Boundary takes 82–100. `areas[].levels` in the bundle matches. The campaign chapter's range is the gate; the bands are lore and the challenge gate reads them.

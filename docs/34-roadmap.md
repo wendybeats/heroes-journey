@@ -20,7 +20,7 @@ Legend for state: ✅ built · 🟡 partial · ⬜ not started · 🎨 waits on 
 | Item | State | What done means | Where |
 |---|---|---|---|
 | Define the transition process | ⬜ | Owner 2026-10-16: the post-boss cutscene closes chapter one and introduces chapter two, area 1. Still to define: the scene itself, what carries over (gear, pages, record), what the Home scene becomes, and how the next chapter's first beat is offered. One `campaign.chapters[1]` entry with its own milestones. | doc 26 §8, §11; `Story.swift` director |
-| Look at backgrounds / the area | 🎨 | Central Hill is next in the lore order. Needs: three stage backdrops (lore target), one anchor NPC, the first quest's walk clip. Decide whether the glimpse is a tease only (a `tease_area` beat, already supported) or a playable first quest. | doc 26 §9 Central Hill, §12 |
+| Look at backgrounds / the area | 🎨 | Central Hill is next, Levels 11–18 (bands moved up one, doc 26 §10, owner 2026-10-16). Needs: three stage backdrops (lore target), one anchor NPC, the first quest's walk clip. Decide whether the glimpse is a tease only (a `tease_area` beat, already supported) or a playable first quest. | doc 26 §9 Central Hill, §12 |
 
 ### 1.3 Product fully working
 | Item | State | What done means | Where |
@@ -48,7 +48,7 @@ Legend for state: ✅ built · 🟡 partial · ⬜ not started · 🎨 waits on 
 ## Stage 2 — Areas 2, 3 and 4; the outside world
 | Item | State | Notes |
 |---|---|---|
-| Areas 2, 3, 4 | ⬜ | Lore order after Colossus Gym: Central Hill, Rooftop Gardens, Neon Heights (doc 26 §9). Each is one run of the area kit. The 100-level curve (doc 26 §10) sets the level bands; the ruleset's thresholds must extend past Level 10 first. |
+| Areas 2, 3, 4 | ⬜ | Lore order after Area 1: Central Hill 11–18, Warrior's Dojo 19–25, Neon Heights 26–32 (doc 26 §10, re-banded 2026-10-16). Each is one run of the area kit. The 100-level curve (doc 26 §10) sets the level bands; the ruleset's thresholds must extend past Level 10 first. |
 | Marketing lander | ⬜ | Outside the repo. The repo can supply the palette, fonts and approved stills. 🔎 Decide the domain and whether the lander collects a wait-list (ties to analytics and privacy policy). |
 | Discord community | ⬜ | Outside the repo. 🔎 Needs a moderation plan and a bug-report channel that feeds the QA docs. |
 | Socials | ⬜ | Outside the repo. |

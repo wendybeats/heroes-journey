@@ -206,23 +206,22 @@ Narrative meaning: Ascension is not domination or escape. It is integration and 
 
 ## 10. Working 100-Level Progression
 
-Provisional campaign order. Areas may overlap or contain side content.
+Provisional campaign order. Areas may overlap or contain side content. Owner 2026-10-16: Colossus is introduced and fought inside Area 1 (Levels 1–10), so every later area moves up one band from the original table; the Ascension Boundary absorbs the freed band (82–100). The campaign chapter's range is the gate; these bands are lore.
 
 | Levels | Primary arc |
 |---|---|
-| 1–10 | Under City / Awakening |
-| 11–18 | Colossus Gym |
-| 19–25 | Central Hill |
-| 26–32 | Warrior's Dojo |
-| 33–38 | Neon Heights |
-| 39–44 | Sub-Basement |
-| 45–51 | Rooftop Gardens |
-| 52–58 | Laboratory |
-| 59–65 | Upper Colony |
-| 66–73 | Grand Court |
-| 74–81 | Gothic Clock Tower |
-| 82–89 | The Bridge |
-| 90–100 | Ascension Boundary / Shadow Self |
+| 1–10 | Under City / Awakening, with Colossus Gym from Level 5 and the Colossus fight at 10 |
+| 11–18 | Central Hill |
+| 19–25 | Warrior's Dojo |
+| 26–32 | Neon Heights |
+| 33–38 | Sub-Basement |
+| 39–44 | Rooftop Gardens |
+| 45–51 | Laboratory |
+| 52–58 | Upper Colony |
+| 59–65 | Grand Court |
+| 66–73 | Gothic Clock Tower |
+| 74–81 | The Bridge |
+| 82–100 | Ascension Boundary / Shadow Self |
 
 ## 11. Area Content Model
 

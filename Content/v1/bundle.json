@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.15-1",
+  "content_version": "2026.10.16-1",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -3506,8 +3506,8 @@
       "band": 1,
       "theme": "Strength without proportion",
       "levels": [
-        11,
-        18
+        5,
+        10
       ],
       "antagonist": "The Colossus"
     },
@@ -3517,8 +3517,8 @@
       "band": 2,
       "theme": "Endurance without rest",
       "levels": [
-        19,
-        25
+        11,
+        18
       ],
       "antagonist": "The Runner"
     },
@@ -3528,8 +3528,8 @@
       "band": 2,
       "theme": "Discipline without humility",
       "levels": [
-        26,
-        32
+        19,
+        25
       ],
       "antagonist": "The Combat Master"
     },
@@ -3539,8 +3539,8 @@
       "band": 2,
       "theme": "Identity as performance",
       "levels": [
-        33,
-        38
+        26,
+        32
       ],
       "antagonist": null
     },
@@ -3550,8 +3550,8 @@
       "band": 1,
       "theme": "Buried truth",
       "levels": [
-        39,
-        44
+        33,
+        38
       ],
       "antagonist": null
     },
@@ -3561,8 +3561,8 @@
       "band": 3,
       "theme": "Peace without humanity",
       "levels": [
-        45,
-        51
+        39,
+        44
       ],
       "antagonist": "The Fallen Monk"
     },
@@ -3572,8 +3572,8 @@
       "band": 3,
       "theme": "Systems without soul",
       "levels": [
-        52,
-        58
+        45,
+        51
       ],
       "antagonist": null
     },
@@ -3583,8 +3583,8 @@
       "band": 3,
       "theme": "Optimization without struggle",
       "levels": [
-        59,
-        65
+        52,
+        58
       ],
       "antagonist": null
     },
@@ -3594,8 +3594,8 @@
       "band": 4,
       "theme": "Image without essence",
       "levels": [
-        66,
-        73
+        59,
+        65
       ],
       "antagonist": "The Mirror"
     },
@@ -3605,8 +3605,8 @@
       "band": 4,
       "theme": "Improvement without joy",
       "levels": [
-        74,
-        81
+        66,
+        73
       ],
       "antagonist": "The Perfected"
     },
@@ -3616,8 +3616,8 @@
       "band": 5,
       "theme": "Motion without destination",
       "levels": [
-        82,
-        89
+        74,
+        81
       ],
       "antagonist": "The Cyclist"
     },
@@ -3627,7 +3627,7 @@
       "band": 5,
       "theme": "Integration, truth, transcendence",
       "levels": [
-        90,
+        82,
         100
       ],
       "antagonist": "The Shadow Self"
