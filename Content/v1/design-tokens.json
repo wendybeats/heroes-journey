@@ -2,7 +2,7 @@
   "schema_version": 1,
   "content_version": "2026.09.29-1",
   "theme_id": "neo_tokyo_dark",
-  "notes": "Derived from assets/references/2026-09-28/neo-tokyo-color-board.webp via Tools/sample_reference_colors.py, then re-ranked on 2026-09-28 (owner decision): gold is the primary accent, blue and pink are fallbacks, green is tertiary for informational numbers, coral is Knowledge. Contrast is checked by Tools/check_token_contrast.py; do not edit colors without re-running it.",
+  "notes": "Derived from assets/references/2026-09-28/neo-tokyo-color-board.webp via Tools/sample_reference_colors.py, then re-ranked on 2026-09-28 (owner decision): gold is the primary accent, blue and pink are fallbacks, green is tertiary for informational numbers, coral is Knowledge. Contrast is checked by Tools/check_token_contrast.py; do not edit colors without re-running it. Ascension tier colours (doc 38) live in the renderer, never in sprites; the takeover stays gold because it is a progression event.",
   "hierarchy": {
     "primary": "gold",
     "fallback": [
@@ -185,5 +185,27 @@
     "base_ms": 200,
     "reward_ms": 2400,
     "idle_frame_ms": 140
+  },
+  "ascension": {
+    "i": {
+      "hex": "#5C8DFF",
+      "role": "Ascension I, Awakened: blue. Eyes and edge flares only; never a full outline (doc 38)."
+    },
+    "ii": {
+      "hex": "#3FD8F6",
+      "role": "Ascension II, Unstable: electric cyan. Eyes, broken flares, fragments, the echo, one arc."
+    },
+    "iii": {
+      "hex": "#A66BFF",
+      "role": "Ascension III, Fractured: violet. Reserved; tier not built."
+    },
+    "iv": {
+      "hex": "#F3E2A8",
+      "role": "Ascension IV, Transcendent: pale gold with residual violet. Reserved."
+    },
+    "v": {
+      "hex": "#FFF6DC",
+      "role": "Ascension V, Unbound: controlled white-gold. Reserved."
+    }
   }
 }

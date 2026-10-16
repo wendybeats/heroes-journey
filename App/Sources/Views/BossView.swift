@@ -46,6 +46,8 @@ struct BossView: View {
     @State private var flash = 0.0
     @State private var shake: CGFloat = 0
     @State private var stageShake = CGSize.zero
+    @State private var afterAlpha = 0.0
+    @State private var afterX: CGFloat = 0
     @State private var bossAura = 0.0
     @State private var bossAuraColor: Color = NeoTokyo.Attribute.color(for: "strength")
     @State private var shatter = false
@@ -165,10 +167,15 @@ struct BossView: View {
                 // Hero: the real sprite, its white-out, the action master and its white-out, the eyes.
                 if let recipe = state.recipe {
                     let realVisible = heroPhase == .idle || heroPhase == .eyes || heroPhase == .whiteReal
-                    placed(CharacterView(recipe: recipe, scale: Self.scale, ascension: state.ascensionTier).opacity(realVisible ? 1 : 0),
+                    placed(CharacterView(recipe: recipe, scale: Self.scale, ascension: state.ascensionTier, lag: CGSize(width: -heroLunge * 0.6, height: 0)).opacity(realVisible ? 1 : 0),
                            canvas: Self.heroCanvas, pivot: Self.heroPivot, at: heroAnchor)
                     placed(Color.white.mask { LayeredCharacterView(recipe: recipe, scale: Self.scale, ascension: 0) }.opacity(heroPhase == .whiteReal ? 1 : (realVisible ? heroHit : 0)),
                            canvas: Self.heroCanvas, pivot: Self.heroPivot, at: heroAnchor)
+                }
+                // Doc 38: at any tier the action leaves one short afterimage of the master in the tier colour, trailing the lunge.
+                if state.ascensionTier >= 1, afterAlpha > 0 {
+                    placed(NeoTokyo.Ascension.color(forTier: state.ascensionTier).mask { SpritePlayer(assetSetID: heroMasters, animation: heroAction.rawValue, scale: Self.scale) }.opacity(afterAlpha),
+                           canvas: Self.combatCanvas, pivot: Self.combatPivot, at: CGPoint(x: geo.size.width * 0.27 + afterX, y: floorY))
                 }
                 let masterVisible = heroPhase == .action || heroPhase == .whiteAction
                 // Owner notes 2026-10-16: through the action the master is a light silhouette, not a sprite: a diffuse
@@ -343,11 +350,16 @@ struct BossView: View {
         heroPhase = .whiteAction; await pause(90)
         heroPhase = .action
         if !reduceMotion {
+            afterX = heroLunge
             switch action {
             case .attack: heroLunge = 72
             case .center: heroLunge = -6
             case .`guard`: heroLunge = -10
             case .analyze: heroLunge = 8
+            }
+            if let profile = CharacterKitStore.ascensionProfile(tier: state.ascensionTier) {
+                afterAlpha = profile.afterimageAlpha
+                withAnimation(.easeOut(duration: 0.15 + 0.12 * Double(state.ascensionTier))) { afterAlpha = 0 }
             }
         }
         await pause(170)

@@ -126,13 +126,13 @@ struct CharacterView: View {
     var outfit: String? = nil
     var scale: CGFloat = 2
     var ascension = 0
+    /// The host's lagged position for the echo (doc 38: the shadow follows late); zero when standing still.
+    var lag: CGSize = .zero
     var body: some View {
-        ZStack {
-            if ascension >= 1 {
-                AscensionField(tier: ascension)
-                    .frame(width: CGFloat(CharacterKit.width) * scale * 1.6, height: CGFloat(CharacterKit.height) * scale * 0.9)
-                    .offset(y: CGFloat(CharacterKit.height) * scale * 0.05)
-            }
+        // Doc 38: a tier with a profile renders through the Ascension layers; the composite itself is never touched.
+        if ascension >= 1, let profile = CharacterKitStore.ascensionProfile(tier: ascension) {
+            AscendedCharacterView(recipe: recipe, scale: scale, tier: ascension, profile: profile, lag: lag)
+        } else {
             LayeredCharacterView(recipe: recipe, scale: scale, ascension: ascension)
         }
     }

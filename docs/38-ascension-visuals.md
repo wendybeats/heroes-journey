@@ -15,7 +15,7 @@ The first cut read as a rarity glow: I and II differed mainly by outline brightn
 | II | cyan | stronger, still broken | 3–6 sparse, hovering by shoulders, hair, hands; appear and disappear | a dark cyan echo 3–5 px behind, faint, that lags and sometimes shifts on its own | one broken arc | one ~150 ms afterimage, fragments trail |
 | III | violet/white | fractured | orbiting | desynced | geometry | render splitting |
 
-I: your body emits something. II: your shadow stops obeying you. III: your body stops rendering correctly. IV: the world around you changes. V: you control all of it. At rest II is about 30 % more intense than I; moving, about twice as supernatural. The browser preview carries these values; the Swift renderer ports them once signed off.
+I: your body emits something. II: your shadow stops obeying you. III: your body stops rendering correctly. IV: the world around you changes. V: you control all of it. At rest II is about 30 % more intense than I; moving, about twice as supernatural. Signed off 2026-10-16 and ported: `App/Sources/Rendering/AscensionRenderer.swift`, profiles in `Content/v1/bundle.json` (`ascension_profiles`), colours in `design-tokens.json` (`ascension`). Doc 20 increment 52.
 
 ## 1 Core fantasy
 Ascension is not a buff. The digital world gradually becomes incapable of rendering the player as an ordinary person. First something is different; then reality responds; at the top they are no longer fully contained by their rendered body.

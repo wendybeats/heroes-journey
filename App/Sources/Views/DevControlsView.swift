@@ -43,6 +43,12 @@ struct DevControlsView: View {
                         row("Ascension", value: state.pendingAscension.map { "waiting · tier \($0.fromTier) → \($0.toTier)" } ?? "none waiting")
                         Button("Replay the Ascension") { state.devReplayAscension(); dismiss() }.buttonStyle(SecondaryButtonStyle())
                             .disabled(state.ascensionTier == 0 && state.pendingAscension == nil)
+                        Picker("Tier", selection: Binding(get: { state.devAscensionTier ?? -1 }, set: { state.devAscensionTier = $0 < 0 ? nil : $0 })) {
+                            Text("Live").tag(-1); Text("Base").tag(0); Text("I").tag(1); Text("II").tag(2)
+                        }
+                        .pickerStyle(.segmented)
+                        Text("Doc 38: shows the chosen Ascension tier everywhere the character appears, without levelling. Live follows the ledger.")
+                            .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
                     }
                     section("Challenges") {
                         row("Today", value: state.todayOffer.map { "open · \($0.challengeID.rawValue)" } ?? "none open")

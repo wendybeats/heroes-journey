@@ -124,6 +124,19 @@ final class BossCombatTests: XCTestCase {
         }
     }
 
+    /// Doc 38: tier profiles are content; I and II exist, I is the quieter grammar, II adds the echo, fragments and the arc.
+    func testAscensionProfilesAreContent() throws {
+        let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
+        XCTAssertEqual(bundle.ascensionProfiles.map(\.tier), [1, 2], "doc 38: I and II built; III–V later")
+        let one = try XCTUnwrap(bundle.ascensionProfile(tier: 1)), two = try XCTUnwrap(bundle.ascensionProfile(tier: 2))
+        XCTAssertEqual(one.fragmentMax, 0); XCTAssertEqual(one.echoAlpha, 0); XCTAssertEqual(one.arcAlpha, 0, "I: eyes, broken edge, rare artifacts; no fragments, echo or ground")
+        XCTAssertEqual(two.fragmentMax, 5); XCTAssertEqual(two.echoOffset.x, 4); XCTAssertEqual(two.echoLagMs, 140); XCTAssertGreaterThan(two.arcAlpha, 0)
+        XCTAssertGreaterThan(two.flareAlpha, one.flareAlpha); XCTAssertLessThan(two.flareEveryMs.lowerBound, one.flareEveryMs.lowerBound, "II flares more often and brighter, still broken")
+        XCTAssertNil(bundle.ascensionProfile(tier: 3))
+        let back = try JSONDecoder().decode(ContentBundle.AscensionProfile.self, from: JSONEncoder().encode(two))
+        XCTAssertEqual(back, two); XCTAssertEqual(back.echoOffset.y, -1)
+    }
+
     func testBossContentResolves() throws {
         let (boss, _, bundle) = try load()
         XCTAssertEqual(bundle.bosses.count, 1)

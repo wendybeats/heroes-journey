@@ -42,6 +42,16 @@ lines += ["", "        /// Color for an attribute slug from the content bundle; 
           "            switch id {"]
 for k in t["attribute"]: lines.append(f"            case \"{k}\": return {swift_name(k)}")
 lines += ["            default: return NeoTokyo.Text.secondary", "            }", "        }", "    }", ""]
+lines += ["    /// Doc 38 Ascension tier colours: rendered around the character, never baked into sprites.", "    public enum Ascension {"]
+for k, v in t["ascension"].items(): lines.append(color_line(swift_name(k), v["hex"], v["hex"]))
+lines += ["", "        /// The tier's colour; 0 and unknown tiers fall back to the progression gold.", "        public static func color(forTier tier: Int) -> Color {", "            switch tier {"]
+for i, k in enumerate(t["ascension"], start=1): lines.append(f"            case {i}: return {swift_name(k)}")
+lines += ["            default: return NeoTokyo.Hierarchy.primary", "            }", "        }",
+          "        /// The same colour as 8-bit sRGB, for pixel painters (the kit's ascended eyes).", "        public static func rgb(forTier tier: Int) -> (UInt8, UInt8, UInt8) {", "            switch tier {"]
+for i, (k, v) in enumerate(t["ascension"].items(), start=1):
+    r, g, b = (int(v["hex"][j:j+2], 16) for j in (1, 3, 5)); lines.append(f"            case {i}: return ({r}, {g}, {b})")
+r, g, b = (int(t["accent"][t["hierarchy"]["primary"]]["hex"][j:j+2], 16) for j in (1, 3, 5))
+lines += [f"            default: return ({r}, {g}, {b})", "            }", "        }", "    }", ""]
 lines += ["    /// Which accent plays which role (doc 19). Views pick by role, not by hue.",
           "    public enum Hierarchy {",
           f"        public static let primary = Accent.{swift_name(t['hierarchy']['primary'])}",

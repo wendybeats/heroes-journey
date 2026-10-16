@@ -20,6 +20,10 @@ final class CharacterKitStore {
     private let layerLoader: CGHoodieLayerLoader?
     private var itemLayers: [String: [UInt32]] = [:]
 
+    /// Doc 38 tier profiles from the shipped bundle (content, not code); nil for a tier without one.
+    static var profiles: [ContentBundle.AscensionProfile] = []
+    static func ascensionProfile(tier: Int) -> ContentBundle.AscensionProfile? { profiles.first { $0.tier == tier } }
+
     private init() {
         let root = Bundle.main.resourceURL?.appendingPathComponent("sprites/hero.kit.v2")
         kit = root.flatMap { try? Data(contentsOf: $0.appendingPathComponent("kit.json")) }.flatMap { try? CharacterKit.decode($0) }
@@ -43,18 +47,56 @@ final class CharacterKitStore {
 
     /// Doc 32 Ascension I: the eyes change. Pupil and eye-white pixels (from the kit's blink patches) take the
     /// progression colour while the eyes are open. Palette indices: 5 = pupil, 9 = eye white.
-    private func paintAscendedEyes(_ bytes: inout [UInt8], grid: [UInt8], kit: CharacterKit, body: String, pose: CharacterPose) {
+    private func paintAscendedEyes(_ bytes: inout [UInt8], grid: [UInt8], kit: CharacterKit, body: String, pose: CharacterPose, tier: Int) {
         guard pose.blink == 0 else { return }
         let W = CharacterKit.width
         let eyes = body == "male" ? kit.male.eye : kit.female.eye
+        let (r, g, b) = NeoTokyo.Ascension.rgb(forTier: tier)   // doc 38: the tier's colour, never gold here
         for p in eyes.closed {
             let i = p.y * W + p.x
             switch grid[i] {
-            case 5: bytes[i * 4] = 0xF3; bytes[i * 4 + 1] = 0xC0; bytes[i * 4 + 2] = 0x4A   // pupil: gold
-            case 9: bytes[i * 4] = 0xFF; bytes[i * 4 + 1] = 0xEC; bytes[i * 4 + 2] = 0xB0   // white: pale gold
+            case 5: bytes[i * 4] = r; bytes[i * 4 + 1] = g; bytes[i * 4 + 2] = b                                              // pupil: tier colour
+            case 9: bytes[i * 4] = UInt8((Int(r) + 255) / 2); bytes[i * 4 + 1] = UInt8((Int(g) + 255) / 2); bytes[i * 4 + 2] = UInt8((Int(b) + 255) / 2)   // white: pale tint
             default: continue
             }
         }
+    }
+
+    /// Doc 38: an edge pixel of the rest-pose silhouette, with the outward step away from the body's centroid and
+    /// the pixel's own colour (an artifact is a piece of the body, not a tier-coloured spark).
+    struct EdgePixel { let x: Int, y: Int, ox: Int, oy: Int, color: Color }
+    private var edgeCache: [String: [EdgePixel]] = [:]
+    func edges(recipe: AvatarRecipe) -> [EdgePixel] {
+        guard let kit, let manifest else { return [] }
+        let body = recipe.baseBody.rawValue
+        let items = manifest.drawableItems(recipe.equipped.values.map(\.rawValue))
+        let styleKey = items.contains { manifest.items?[$0]?.slot == "head" } ? nil : manifest.styleKey(body: body, styleID: recipe.hairStyleID)
+        let key = "\(body)|\(styleKey ?? "-")|\(recipe.hairPaletteID)|\(recipe.skinPaletteID)"
+        if let hit = edgeCache[key] { return hit }
+        let W = CharacterKit.width, H = CharacterKit.height
+        let grid = PoseComposer.indexGrid(kit: kit, manifest: manifest, body: body, styleKey: styleKey, pose: .rest)
+        let pal = PoseComposer.palette(kit: kit, manifest: manifest, hairID: recipe.hairPaletteID, skinID: recipe.skinPaletteID)
+        func at(_ x: Int, _ y: Int) -> UInt8 { (x < 0 || y < 0 || x >= W || y >= H) ? 0 : grid[y * W + x] }
+        var sx = 0, sy = 0, n = 0, out: [EdgePixel] = []
+        for y in 0..<H { for x in 0..<W where at(x, y) != 0 { sx += x; sy += y; n += 1 } }
+        let cx = Double(sx) / Double(max(1, n)), cy = Double(sy) / Double(max(1, n))
+        for y in 0..<H {
+            for x in 0..<W {
+                let v = at(x, y); guard v != 0, at(x - 1, y) == 0 || at(x + 1, y) == 0 || at(x, y - 1) == 0 || at(x, y + 1) == 0 else { continue }
+                let dx = Double(x) - cx, dy = Double(y) - cy, l = max(1, hypot(dx, dy))
+                let c = Int(v) <= pal.count ? pal[Int(v) - 1] : (255, 255, 255)
+                out.append(EdgePixel(x: x, y: y, ox: Int((dx / l).rounded()), oy: Int((dy / l).rounded()), color: Color(.sRGB, red: Double(c.0) / 255, green: Double(c.1) / 255, blue: Double(c.2) / 255, opacity: 1)))
+            }
+        }
+        edgeCache[key] = out; return out
+    }
+    /// The pupil pixels of the rest pose, for the eye bloom.
+    func pupils(recipe: AvatarRecipe) -> [(Int, Int)] {
+        guard let kit, let manifest else { return [] }
+        let body = recipe.baseBody.rawValue
+        let grid = PoseComposer.indexGrid(kit: kit, manifest: manifest, body: body, styleKey: manifest.styleKey(body: body, styleID: recipe.hairStyleID), pose: .rest)
+        let eyes = body == "male" ? kit.male.eye : kit.female.eye
+        return eyes.closed.compactMap { grid[$0.y * CharacterKit.width + $0.x] == 5 ? ($0.x, $0.y) : nil }
     }
 
     /// Owner 2026-10-06: until sleeve families exist, a sleeved top or a hand item suppresses the male arm
@@ -87,7 +129,7 @@ final class CharacterKitStore {
             let c = pal[v - 1]
             bytes[i * 4] = c.0; bytes[i * 4 + 1] = c.1; bytes[i * 4 + 2] = c.2; bytes[i * 4 + 3] = 255
         }
-        if ascension >= 1 { paintAscendedEyes(&bytes, grid: grid, kit: kit, body: body, pose: pose) }
+        if ascension >= 1 { paintAscendedEyes(&bytes, grid: grid, kit: kit, body: body, pose: pose, tier: ascension) }
         // Items were drawn on the rest pose; the same row remap moves them with the breath and keeps the feet planted.
         // Head and face items ride the head band rigidly: no hair sway or tip lag, so a cap's crown never shears
         // against its brim (owner 2026-10-06).

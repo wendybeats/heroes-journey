@@ -59,5 +59,7 @@ for name, v in TOK["attribute"].items():
         fails += 1; print(f"FAIL  attribute.{name} {v['hex']} does not alias an accent")
     else:
         print(f"PASS  attribute.{name} aliases an accent")
+for name, v in TOK.get("ascension", {}).items():
+    check(f"ascension.{name} on surface.base", v["hex"], surfaces["base"], 3.0)
 print(f"\n{fails} failure(s)")
 sys.exit(1 if fails else 0)

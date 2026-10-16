@@ -160,7 +160,9 @@ final class AppState {
     var evolution: ContentBundle.Evolution? { bundle.evolution(forLevel: snapshot.level) }
     /// Doc 32: ascension is a tier of effects around the canonical body, from the level's evolution.
     /// The tier the character shows. While an Ascension waits to be played, every screen keeps the old tier so the takeover is the reveal.
-    var ascensionTier: Int { pendingAscension?.fromTier ?? evolution?.ascensionTier ?? 0 }
+    var ascensionTier: Int { devAscensionTier ?? pendingAscension?.fromTier ?? evolution?.ascensionTier ?? 0 }
+    /// Dev controls: look at any tier on device without levelling (doc 38 §35 prototype review).
+    var devAscensionTier: Int?
     var pendingCount: Int { outbox.pending.count }
     /// Facts minus invalidated ones (doc 15 §1: the timeline is a projection over corrections).
     var visibleEvents: [ActivityEvent] {
@@ -225,6 +227,7 @@ final class AppState {
 
     init(bundle: ContentBundle, ruleset: ProgressionRuleset, tokens: DesignTokens, archive: Archive?) {
         self.bundle = bundle; self.ruleset = ruleset; self.tokens = tokens
+        CharacterKitStore.profiles = bundle.ascensionProfiles   // doc 38: the renderer reads tier profiles from content
         let user = archive?.userID ?? UserID()
         let events = archive?.events ?? []
         let ledger = archive?.ledger ?? ProgressionLedger()

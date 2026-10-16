@@ -155,6 +155,49 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     }
     public let rumourList: [Rumour]?
     public var rumours: [Rumour] { rumourList ?? [] }
+    /// Doc 38 Ascension tier profiles: every number the renderer uses, by tier. Optional in the file.
+    public struct AscensionProfile: Codable, Sendable, Equatable {
+        public let tier: Int
+        public let eyeBloom: Double
+        public let flares: Int
+        public let flareRadius: Double
+        public let flareAlpha: Double
+        public let flareEveryMs: ClosedRange<Double>
+        public let artifactEveryMs: ClosedRange<Double>
+        public let fragmentMax: Int
+        public let echoAlpha: Double
+        public let echoOffset: (x: Int, y: Int)
+        public let echoLagMs: Double
+        public let arcAlpha: Double
+        public let afterimageAlpha: Double
+        public let notes: String?
+        enum CodingKeys: String, CodingKey {
+            case tier, eyeBloom = "eye_bloom", flares, flareRadius = "flare_radius", flareAlpha = "flare_alpha", flareEveryMs = "flare_every_ms", artifactEveryMs = "artifact_every_ms"
+            case fragmentMax = "fragment_max", echoAlpha = "echo_alpha", echoOffset = "echo_offset", echoLagMs = "echo_lag_ms", arcAlpha = "arc_alpha", afterimageAlpha = "afterimage_alpha", notes
+        }
+        public init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            tier = try c.decode(Int.self, forKey: .tier); eyeBloom = try c.decode(Double.self, forKey: .eyeBloom); flares = try c.decode(Int.self, forKey: .flares)
+            flareRadius = try c.decode(Double.self, forKey: .flareRadius); flareAlpha = try c.decode(Double.self, forKey: .flareAlpha)
+            let fe = try c.decode([Double].self, forKey: .flareEveryMs); flareEveryMs = (fe.first ?? 1000)...max(fe.first ?? 1000, fe.last ?? 1000)
+            let ae = try c.decode([Double].self, forKey: .artifactEveryMs); artifactEveryMs = (ae.first ?? 3000)...max(ae.first ?? 3000, ae.last ?? 3000)
+            fragmentMax = try c.decode(Int.self, forKey: .fragmentMax); echoAlpha = try c.decode(Double.self, forKey: .echoAlpha)
+            let eo = try c.decode([Int].self, forKey: .echoOffset); echoOffset = (eo.first ?? 0, eo.count > 1 ? eo[1] : 0)
+            echoLagMs = try c.decode(Double.self, forKey: .echoLagMs); arcAlpha = try c.decode(Double.self, forKey: .arcAlpha); afterimageAlpha = try c.decode(Double.self, forKey: .afterimageAlpha)
+            notes = try c.decodeIfPresent(String.self, forKey: .notes)
+        }
+        public func encode(to encoder: Encoder) throws {
+            var c = encoder.container(keyedBy: CodingKeys.self)
+            try c.encode(tier, forKey: .tier); try c.encode(eyeBloom, forKey: .eyeBloom); try c.encode(flares, forKey: .flares); try c.encode(flareRadius, forKey: .flareRadius); try c.encode(flareAlpha, forKey: .flareAlpha)
+            try c.encode([flareEveryMs.lowerBound, flareEveryMs.upperBound], forKey: .flareEveryMs); try c.encode([artifactEveryMs.lowerBound, artifactEveryMs.upperBound], forKey: .artifactEveryMs)
+            try c.encode(fragmentMax, forKey: .fragmentMax); try c.encode(echoAlpha, forKey: .echoAlpha); try c.encode([echoOffset.x, echoOffset.y], forKey: .echoOffset)
+            try c.encode(echoLagMs, forKey: .echoLagMs); try c.encode(arcAlpha, forKey: .arcAlpha); try c.encode(afterimageAlpha, forKey: .afterimageAlpha); try c.encodeIfPresent(notes, forKey: .notes)
+        }
+        public static func == (a: AscensionProfile, b: AscensionProfile) -> Bool { a.tier == b.tier && a.eyeBloom == b.eyeBloom && a.flares == b.flares && a.fragmentMax == b.fragmentMax && a.echoAlpha == b.echoAlpha && a.arcAlpha == b.arcAlpha }
+    }
+    public let ascensionProfileList: [AscensionProfile]?
+    public var ascensionProfiles: [AscensionProfile] { ascensionProfileList ?? [] }
+    public func ascensionProfile(tier: Int) -> AscensionProfile? { ascensionProfiles.first { $0.tier == tier } }
     /// Doc 36/37 bosses. Optional in the file: an older bundle has none.
     public let bossList: [BossDefinition]?
     public var bosses: [BossDefinition] { bossList ?? [] }
@@ -321,7 +364,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         case schemaVersion = "schema_version", contentVersion = "content_version"
         case families, activityTypes = "activity_types", attributes, evolutions, items, rewards, backdrops
         case avatarOptions = "avatar_options", exerciseDefinitions = "exercise_definitions", healthWorkoutMapping = "health_workout_mapping"
-        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters", dailyQuotes = "daily_quotes", areas, campaign, challengeList = "challenges", rumourList = "rumours", bossList = "bosses"
+        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters", dailyQuotes = "daily_quotes", areas, campaign, challengeList = "challenges", rumourList = "rumours", bossList = "bosses", ascensionProfileList = "ascension_profiles"
     }
 
     public static func decode(_ data: Data) throws -> ContentBundle {
@@ -492,6 +535,13 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         }
         for q in quests { for x in q.repeatExchanges ?? [] { for beat in x where !characterIDs.contains(beat.speaker) { problems.append("quest \(q.id) repeat exchange → unknown speaker \(beat.speaker)") } } }
         for r in rumours where !milestoneIDs.contains(r.after) { problems.append("rumour → unknown milestone \(r.after)") }
+        // Doc 38: one profile per tier, tiers positive and unique, every number in range.
+        unique(ascensionProfiles.map { "tier.\($0.tier)" }, "ascension profile")
+        for pr in ascensionProfiles {
+            if pr.tier < 1 { problems.append("ascension profile tier \(pr.tier) must be 1 or more") }
+            for (name, v) in [("eye_bloom", pr.eyeBloom), ("flare_alpha", pr.flareAlpha), ("echo_alpha", pr.echoAlpha), ("arc_alpha", pr.arcAlpha), ("afterimage_alpha", pr.afterimageAlpha)] where v < 0 || v > 1 { problems.append("ascension profile tier \(pr.tier) \(name) \(v) is outside 0…1") }
+            if pr.flares < 0 || pr.fragmentMax < 0 || pr.flareRadius <= 0 { problems.append("ascension profile tier \(pr.tier) counts must be non-negative and the flare radius positive") }
+        }
         // Doc 36/37: a boss names a real character, area and manual milestone; its pattern names defined actions.
         unique(bosses.map(\.id), "boss")
         for boss in bosses {
