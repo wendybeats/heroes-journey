@@ -270,6 +270,37 @@
       "source": "assets/sprites/hero.body.ev1/rev2/source"
     },
     {
+      "id": "hero.combat.female",
+      "kind": "body",
+      "world": "city",
+      "area": "colossus_gym",
+      "scene": "deep_floor",
+      "mood": [
+        "focus"
+      ],
+      "time": "night",
+      "current_revision": 1,
+      "status": "review",
+      "revisions": [
+        {
+          "revision": 1,
+          "status": "review",
+          "path": "assets/sprites/hero.combat.female/rev1",
+          "animations": [
+            "analyze",
+            "attack",
+            "center",
+            "guard"
+          ],
+          "canvas": {
+            "width": 160,
+            "height": 192
+          }
+        }
+      ],
+      "source": "assets/sprites/hero.combat.female/rev1/source"
+    },
+    {
       "id": "hero.combat.male",
       "kind": "body",
       "world": "city",
@@ -895,7 +926,7 @@
         "calm"
       ],
       "time": "night",
-      "current_revision": 1,
+      "current_revision": 2,
       "status": "review",
       "revisions": [
         {
@@ -909,9 +940,21 @@
             "width": 1254,
             "height": 1254
           }
+        },
+        {
+          "revision": 2,
+          "status": "review",
+          "path": "assets/sprites/portrait.colossus/rev2",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 160,
+            "height": 160
+          }
         }
       ],
-      "source": "assets/sprites/portrait.colossus/rev1/source"
+      "source": "assets/sprites/portrait.colossus/rev2/source"
     },
     {
       "id": "portrait.guide_elder",
@@ -1099,6 +1142,7 @@
     "colossus_gym": [
       "backdrop.colossus_gym.exterior_01",
       "backdrop.colossus_gym.interior_01",
+      "hero.combat.female",
       "hero.combat.male",
       "icon.item.page",
       "npc.colossus",
