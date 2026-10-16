@@ -163,22 +163,18 @@ struct BossView: View {
                            canvas: Self.heroCanvas, pivot: Self.heroPivot, at: heroAnchor)
                 }
                 let masterVisible = heroPhase == .action || heroPhase == .whiteAction
-                // Owner note 2026-10-16: the master stays a glowing avatar all the way through the action (doc 36 §18
-                // "heavily illuminated, near-silhouette"), never a plain bald sprite: a wide colour bloom behind, the
-                // master, a heavy white wash, and a thin colour wash on top.
-                placed(actionColor.mask { SpritePlayer(assetSetID: heroMasters, animation: heroAction.rawValue, scale: Self.scale) }
-                        .blur(radius: 9).opacity(masterVisible ? 0.95 : 0),
-                       canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
-                placed(SpritePlayer(assetSetID: heroMasters, animation: heroAction.rawValue, scale: Self.scale)
-                        .shadow(color: actionColor.opacity(0.95), radius: 26).shadow(color: actionColor.opacity(0.7), radius: 8)
-                        .opacity(masterVisible ? 1 : 0),
-                       canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
-                placed(Color.white.mask { SpritePlayer(assetSetID: heroMasters, animation: heroAction.rawValue, scale: Self.scale) }
-                        .opacity(heroPhase == .whiteAction ? 1 : (heroPhase == .action ? 0.72 : 0)),
-                       canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
-                placed(actionColor.mask { SpritePlayer(assetSetID: heroMasters, animation: heroAction.rawValue, scale: Self.scale) }
-                        .opacity(heroPhase == .action ? 0.35 : 0),
-                       canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
+                // Owner notes 2026-10-16: through the action the master is a light silhouette, not a sprite: a diffuse
+                // anime bloom in widening passes behind it, a white-hot core with a wash of the verb's colour, and
+                // beads of light drifting off the edge. The master's pixels are never shown on their own.
+                let masterSprite = SpritePlayer(assetSetID: heroMasters, animation: heroAction.rawValue, scale: Self.scale)
+                placed(actionColor.mask { masterSprite }.blur(radius: 22).opacity(masterVisible ? 0.55 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
+                placed(actionColor.mask { masterSprite }.blur(radius: 10).opacity(masterVisible ? 0.75 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
+                placed(actionColor.mask { masterSprite }.blur(radius: 3).opacity(masterVisible ? 0.95 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
+                placed(Color.white.mask { masterSprite }.opacity(masterVisible ? 0.96 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
+                placed(actionColor.mask { masterSprite }.opacity(heroPhase == .action ? 0.22 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
+                if heroPhase == .action, !reduceMotion {
+                    GlowBeads(color: actionColor).frame(width: 150, height: 240).position(x: heroAnchor.x + 10, y: floorY - 110).allowsHitTesting(false)
+                }
                 if heroPhase == .eyes || heroPhase == .whiteReal {
                     Capsule().fill(actionColor).frame(width: 8, height: 3).shadow(color: actionColor, radius: 5).shadow(color: .white, radius: 2)
                         .position(x: heroAnchor.x + 5, y: floorY - 97 * Self.scale)
@@ -452,6 +448,36 @@ struct BossView: View {
         if key == "attack" { Task { @MainActor in await pause(4000); if hint == text { hint = boss.tutorial["analyze"] } } }
     }
     private func pause(_ ms: Int) async { try? await Task.sleep(for: .milliseconds(ms)) }
+}
+
+/// Beads of light drifting off a glowing silhouette (owner note 2026-10-16): small dots on an ellipse around the
+/// action master, a few with a cross flare, short lives, drifting outward. Procedural; no texture.
+private struct GlowBeads: View {
+    let color: Color
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 1.0 / 30)) { context in
+            let t = context.date.timeIntervalSinceReferenceDate
+            Canvas { ctx, size in
+                let cx = size.width / 2, cy = size.height * 0.55
+                for i in 0..<22 {
+                    let life = 0.45 + Double(i % 5) * 0.05
+                    let phase = ((t * 1.3 + Double(i) * 0.37) / life).truncatingRemainder(dividingBy: 1)
+                    let angle = Double(i) * 0.9 + sin(t * 0.7 + Double(i)) * 0.4
+                    let rx = size.width * 0.28 + phase * 22, ry = size.height * 0.42 + phase * 10
+                    let x = cx + cos(angle) * rx, y = cy + sin(angle) * ry - phase * 12
+                    let alpha = phase < 0.2 ? phase / 0.2 : 1 - (phase - 0.2) / 0.8
+                    let big = i % 3 == 0
+                    let dot = CGRect(x: x - (big ? 2 : 1), y: y - (big ? 2 : 1), width: big ? 4 : 2, height: big ? 4 : 2)
+                    ctx.fill(Path(ellipseIn: dot.insetBy(dx: -2, dy: -2)), with: .color(color.opacity(0.35 * alpha)))
+                    ctx.fill(Path(ellipseIn: dot), with: .color((i % 2 == 0 ? Color.white : color).opacity(alpha)))
+                    if i % 4 == 0 {
+                        ctx.fill(Path(CGRect(x: x - 4, y: y - 0.5, width: 8, height: 1)), with: .color(Color.white.opacity(0.7 * alpha)))
+                        ctx.fill(Path(CGRect(x: x - 0.5, y: y - 4, width: 1, height: 8)), with: .color(Color.white.opacity(0.7 * alpha)))
+                    }
+                }
+            }
+        }
+    }
 }
 
 /// Guard ripple (outward) and Center pulse (inward): one stroked ring that scales and fades, then removes itself.
