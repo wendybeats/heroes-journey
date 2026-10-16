@@ -75,6 +75,17 @@ struct BossView: View {
     }
     /// Break damage shows beside the Break meter, not on the stage (P0-4).
     @State private var breakPop: String? = nil
+    /// P1-6: the room darkens for a moment on MORE; `moreCount` keeps a faint strength aura on him that grows with each one.
+    @State private var dim = 0.0
+    @State private var moreCount = 0
+    /// P1-7: the one escalation beat, at `boss.phaseAt` of his Stamina; `phaseBanner` is its title while it plays.
+    @State private var phaseShown = false
+    @State private var phaseBanner: String? = nil
+    /// P1-5: Pressure is explained in full the first time it lands and the first time it clears, compact after.
+    @State private var pressureExplained = false
+    @State private var clearExplained = false
+    /// P1-8: after the last hit he stays down and the room goes quiet before the card.
+    @State private var defeated = false
     /// A Guard waits for his hit: the brace is shown, the ripple plays on impact (P0-1, P0-2).
     @State private var guardPending: Double? = nil
     struct Ring: Identifiable, Equatable { let id = UUID(); let color: Color; let inward: Bool }
@@ -170,6 +181,9 @@ struct BossView: View {
             let bossAnchor = CGPoint(x: geo.size.width * Self.bossX + bossLunge + shake, y: floorY)
             ZStack {
                 BackdropImage(assetSetID: backdrop)
+                // P2-10: the environment keeps its identity but sits a shade under the characters and the feedback;
+                // P1-6: MORE and the phase beat darken it further for a moment; P1-8: the room goes quiet when he is down.
+                NeoTokyo.Surface.scrim.opacity(0.22 + dim).allowsHitTesting(false)
                 // Ascension field under the hero's feet (doc 36 §20: the tier modifies the presentation, not the animation).
                 if state.ascensionTier >= 1 {
                     Ellipse().fill(NeoTokyo.Hierarchy.primary.opacity(state.ascensionTier >= 2 ? 0.22 : 0.12))
@@ -179,52 +193,8 @@ struct BossView: View {
                 }
                 // Colossus: his aura while he moves (owner 2026-10-16: an iron-and-pressure bloom on Crush, LOAD and MORE,
                 // gold on the Break), the Analyze outline, the state sprite, a white hit flash over it.
-                placed(bossAuraColor.mask { SpritePlayer(assetSetID: bossSet, animation: bossAnim, scale: Self.scale) }.blur(radius: 14).opacity(bossAura * 0.6),
-                       canvas: Self.combatCanvas, pivot: Self.combatPivot, at: bossAnchor)
-                placed(bossAuraColor.mask { SpritePlayer(assetSetID: bossSet, animation: bossAnim, scale: Self.scale) }.blur(radius: 4).opacity(bossAura * 0.8),
-                       canvas: Self.combatCanvas, pivot: Self.combatPivot, at: bossAnchor)
-                placed(NeoTokyo.Attribute.color(for: "knowledge").mask { SpritePlayer(assetSetID: bossSet, animation: bossAnim, scale: Self.scale) }.blur(radius: 4).opacity(outline),
-                       canvas: Self.combatCanvas, pivot: Self.combatPivot, at: bossAnchor)
-                placed(SpritePlayer(assetSetID: bossSet, animation: bossAnim, scale: Self.scale), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: bossAnchor)
-                placed(Color.white.mask { SpritePlayer(assetSetID: bossSet, animation: bossAnim, scale: Self.scale) }.opacity(bossHit), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: bossAnchor)
-                if let scan {
-                    Rectangle().fill(NeoTokyo.Attribute.color(for: "knowledge")).frame(width: 2, height: 160 * Self.scale)
-                        .shadow(color: NeoTokyo.Attribute.color(for: "knowledge"), radius: 6)
-                        .position(x: bossAnchor.x - 60 + scan * 120, y: floorY - 80 * Self.scale)
-                        .allowsHitTesting(false)
-                }
-                // Hero: the real sprite, its white-out, the action master and its white-out, the eyes.
-                if let recipe = state.recipe {
-                    let realVisible = heroPhase == .idle || heroPhase == .eyes || heroPhase == .whiteReal
-                    placed(CharacterView(recipe: recipe, scale: Self.scale, ascension: state.ascensionTier, lag: CGSize(width: -heroLunge * 0.6, height: 0)).opacity(realVisible ? 1 : 0),
-                           canvas: Self.heroCanvas, pivot: Self.heroPivot, at: heroAnchor)
-                    placed(Color.white.mask { LayeredCharacterView(recipe: recipe, scale: Self.scale, ascension: 0) }.opacity(heroPhase == .whiteReal ? 1 : (realVisible ? heroHit : 0)),
-                           canvas: Self.heroCanvas, pivot: Self.heroPivot, at: heroAnchor)
-                }
-                // Doc 38: at any tier the action leaves one short afterimage of the master in the tier colour, trailing the lunge.
-                if state.ascensionTier >= 1, afterAlpha > 0 {
-                    placed(NeoTokyo.Ascension.color(forTier: state.ascensionTier).mask { SpritePlayer(assetSetID: heroMasters, animation: heroAction.rawValue, scale: Self.scale) }.opacity(afterAlpha),
-                           canvas: Self.combatCanvas, pivot: Self.combatPivot, at: CGPoint(x: geo.size.width * Self.heroX + afterX, y: floorY))
-                }
-                let masterVisible = heroPhase == .action || heroPhase == .whiteAction
-                // Owner notes 2026-10-16: through the action the master is a light silhouette, not a sprite: a diffuse
-                // anime bloom in widening passes behind it, a white-hot core with a wash of the verb's colour, and
-                // beads of light drifting off the edge. The master's pixels are never shown on their own.
-                let masterSprite = SpritePlayer(assetSetID: heroMasters, animation: heroAction.rawValue, scale: Self.scale)
-                placed(actionColor.mask { masterSprite }.blur(radius: 22).opacity(masterVisible ? 0.55 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
-                placed(actionColor.mask { masterSprite }.blur(radius: 10).opacity(masterVisible ? 0.75 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
-                placed(actionColor.mask { masterSprite }.blur(radius: 3).opacity(masterVisible ? 0.95 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
-                placed(Color.white.mask { masterSprite }.opacity(masterVisible ? 0.96 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
-                placed(actionColor.mask { masterSprite }.opacity(heroPhase == .action ? 0.22 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
-                if heroPhase == .action, !reduceMotion {
-                    // Center's energy contracts (P0-1): the beads drift inward instead of off the edge.
-                    GlowBeads(color: actionColor, inward: heroAction == .center).frame(width: 150, height: 240).position(x: heroAnchor.x + 10, y: floorY - 110).allowsHitTesting(false)
-                }
-                if heroPhase == .eyes || heroPhase == .whiteReal {
-                    Capsule().fill(actionColor).frame(width: 8, height: 3).shadow(color: actionColor, radius: 5).shadow(color: .white, radius: 2)
-                        .position(x: heroAnchor.x + 5, y: floorY - 97 * Self.scale)
-                        .transition(.opacity)
-                }
+                bossLayers(bossAnchor: bossAnchor, floorY: floorY, size: geo.size)
+                heroLayers(heroAnchor: heroAnchor, floorY: floorY, size: geo.size)
                 if let ring {
                     RingView(color: ring.color, inward: ring.inward).frame(width: 150, height: 150).position(x: heroAnchor.x, y: floorY - 70).id(ring.id)
                 }
@@ -236,7 +206,12 @@ struct BossView: View {
                             .padding(.horizontal, NeoTokyo.Spacing.md).padding(.vertical, NeoTokyo.Spacing.xs)
                             .glass(cornerRadius: NeoTokyo.Radius.md, tint: NeoTokyo.Surface.overlay).transition(.opacity)
                     }
-                    if shownBroken, !busy, encounter.result == nil {
+                    if let phaseBanner {
+                        Text(phaseBanner).font(HeroFont.title).foregroundStyle(NeoTokyo.Hierarchy.primary)
+                            .padding(.horizontal, NeoTokyo.Spacing.lg).padding(.vertical, NeoTokyo.Spacing.sm)
+                            .glass(cornerRadius: NeoTokyo.Radius.md, tint: NeoTokyo.Surface.scrim)
+                            .transition(.scale(scale: 1.2).combined(with: .opacity))
+                    } else if shownBroken, !busy, encounter.result == nil {
                         Text("BROKEN · one free action").font(HeroFont.headline).foregroundStyle(NeoTokyo.Hierarchy.primary)
                             .padding(.horizontal, NeoTokyo.Spacing.md).padding(.vertical, NeoTokyo.Spacing.xs)
                             .glass(cornerRadius: NeoTokyo.Radius.md, tint: NeoTokyo.Surface.scrim)
@@ -263,7 +238,9 @@ struct BossView: View {
                 .animation(.easeOut(duration: 0.2), value: line)
             .animation(.easeOut(duration: 0.2), value: narration)
             .animation(.easeOut(duration: 0.2), value: readNext)
+            .animation(.easeOut(duration: 0.3), value: phaseBanner)
             }
+            .animation(.easeOut(duration: 0.35), value: dim)
             .offset(stageShake)
             .frame(width: geo.size.width, height: geo.size.height)
             .clipped()
@@ -299,6 +276,70 @@ struct BossView: View {
         .position(x: min(max(raw.x, margin), size.width - margin), y: min(max(raw.y, 30), size.height - 16))
         .id(pop.id)
         .transition(.scale(scale: 1.5).combined(with: .opacity))
+    }
+
+    /// Colossus's layers (his persistent intensity, the aura while he moves, the Analyze outline, the state sprite, the hit
+    /// flash, the scan). Its own function: the stage body was past what the type checker takes.
+    private func bossLayers(bossAnchor: CGPoint, floorY: CGFloat, size: CGSize) -> some View {
+        ZStack {
+            // P1-6: a persistent intensity that grows with every MORE (never his size).
+            placed(NeoTokyo.Attribute.color(for: "strength").mask { SpritePlayer(assetSetID: bossSet, animation: bossAnim, scale: Self.scale) }.blur(radius: 8).opacity(min(0.5, 0.16 * Double(moreCount))),
+                   canvas: Self.combatCanvas, pivot: Self.combatPivot, at: bossAnchor)
+            placed(bossAuraColor.mask { SpritePlayer(assetSetID: bossSet, animation: bossAnim, scale: Self.scale) }.blur(radius: 14).opacity(bossAura * 0.6),
+                   canvas: Self.combatCanvas, pivot: Self.combatPivot, at: bossAnchor)
+            placed(bossAuraColor.mask { SpritePlayer(assetSetID: bossSet, animation: bossAnim, scale: Self.scale) }.blur(radius: 4).opacity(bossAura * 0.8),
+                   canvas: Self.combatCanvas, pivot: Self.combatPivot, at: bossAnchor)
+            placed(NeoTokyo.Attribute.color(for: "knowledge").mask { SpritePlayer(assetSetID: bossSet, animation: bossAnim, scale: Self.scale) }.blur(radius: 4).opacity(outline),
+                   canvas: Self.combatCanvas, pivot: Self.combatPivot, at: bossAnchor)
+            placed(SpritePlayer(assetSetID: bossSet, animation: bossAnim, scale: Self.scale), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: bossAnchor)
+            placed(Color.white.mask { SpritePlayer(assetSetID: bossSet, animation: bossAnim, scale: Self.scale) }.opacity(bossHit), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: bossAnchor)
+            if let scan {
+                Rectangle().fill(NeoTokyo.Attribute.color(for: "knowledge")).frame(width: 2, height: 160 * Self.scale)
+                    .shadow(color: NeoTokyo.Attribute.color(for: "knowledge"), radius: 6)
+                    .position(x: bossAnchor.x - 60 + scan * 120, y: floorY - 80 * Self.scale)
+                    .allowsHitTesting(false)
+            }
+        }
+        .frame(width: size.width, height: size.height)
+    }
+
+    /// The hero's layers: the real sprite and its white-out, the afterimage, the master as a light silhouette, the beads, the eyes.
+    private func heroLayers(heroAnchor: CGPoint, floorY: CGFloat, size: CGSize) -> some View {
+        ZStack {
+            // Hero: the real sprite, its white-out, the action master and its white-out, the eyes.
+            if let recipe = state.recipe {
+                let realVisible = heroPhase == .idle || heroPhase == .eyes || heroPhase == .whiteReal
+                placed(CharacterView(recipe: recipe, scale: Self.scale, ascension: state.ascensionTier, lag: CGSize(width: -heroLunge * 0.6, height: 0)).opacity(realVisible ? 1 : 0),
+                       canvas: Self.heroCanvas, pivot: Self.heroPivot, at: heroAnchor)
+                placed(Color.white.mask { LayeredCharacterView(recipe: recipe, scale: Self.scale, ascension: 0) }.opacity(heroPhase == .whiteReal ? 1 : (realVisible ? heroHit : 0)),
+                       canvas: Self.heroCanvas, pivot: Self.heroPivot, at: heroAnchor)
+            }
+            // Doc 38: at any tier the action leaves one short afterimage of the master in the tier colour, trailing the lunge.
+            if state.ascensionTier >= 1, afterAlpha > 0 {
+                placed(NeoTokyo.Ascension.color(forTier: state.ascensionTier).mask { SpritePlayer(assetSetID: heroMasters, animation: heroAction.rawValue, scale: Self.scale) }.opacity(afterAlpha),
+                       canvas: Self.combatCanvas, pivot: Self.combatPivot, at: CGPoint(x: size.width * Self.heroX + afterX, y: floorY))
+            }
+            let masterVisible = heroPhase == .action || heroPhase == .whiteAction
+            // Owner notes 2026-10-16: through the action the master is a light silhouette, not a sprite: a diffuse
+            // anime bloom in widening passes behind it, a white-hot core with a wash of the verb's colour, and
+            // beads of light drifting off the edge. The master's pixels are never shown on their own.
+            let masterSprite = SpritePlayer(assetSetID: heroMasters, animation: heroAction.rawValue, scale: Self.scale)
+            placed(actionColor.mask { masterSprite }.blur(radius: 22).opacity(masterVisible ? 0.55 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
+            placed(actionColor.mask { masterSprite }.blur(radius: 10).opacity(masterVisible ? 0.75 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
+            placed(actionColor.mask { masterSprite }.blur(radius: 3).opacity(masterVisible ? 0.95 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
+            placed(Color.white.mask { masterSprite }.opacity(masterVisible ? 0.96 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
+            placed(actionColor.mask { masterSprite }.opacity(heroPhase == .action ? 0.22 : 0), canvas: Self.combatCanvas, pivot: Self.combatPivot, at: heroAnchor)
+            if heroPhase == .action, !reduceMotion {
+                // Center's energy contracts (P0-1): the beads drift inward instead of off the edge.
+                GlowBeads(color: actionColor, inward: heroAction == .center).frame(width: 150, height: 240).position(x: heroAnchor.x + 10, y: floorY - 110).allowsHitTesting(false)
+            }
+            if heroPhase == .eyes || heroPhase == .whiteReal {
+                Capsule().fill(actionColor).frame(width: 8, height: 3).shadow(color: actionColor, radius: 5).shadow(color: .white, radius: 2)
+                    .position(x: heroAnchor.x + 5, y: floorY - 97 * Self.scale)
+                    .transition(.opacity)
+            }
+        }
+        .frame(width: size.width, height: size.height)
     }
 
     private var pressureVignette: some View {
@@ -380,8 +421,8 @@ struct BossView: View {
 
     private func resultCard(_ result: CombatResult) -> some View {
         VStack(spacing: NeoTokyo.Spacing.md) {
-            Eyebrow(text: result == .won ? "Colossus is down" : "Not this time")
-            Text(result == .won ? "\(encounter.turn) turns. He felt every one." : (state.bossLossLine(boss) ?? "He is still standing."))
+            Eyebrow(text: result == .won ? (boss.dialogue["defeated_title"] ?? "\(boss.displayName) defeated") : "Not this time")
+            Text(result == .won ? (boss.dialogue["defeated_line"] ?? "\(encounter.turn) turns. He felt every one.") : (state.bossLossLine(boss) ?? "He is still standing."))
                 .font(HeroFont.headline).foregroundStyle(NeoTokyo.Text.primary).multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
             if result != .won { Text("Cairon").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary) }
@@ -405,7 +446,9 @@ struct BossView: View {
             await heroPowerUp(action)
             for event in playerEvents { await play(event) }
             // Guard (brief P0-2): Colossus moves, the player absorbs or deflects; the brace holds until his hit lands.
-            if action == .`guard`, guardPending != nil, !bossEvents.isEmpty {
+            if encounter.result == .won {
+                guardPending = nil   // the pose holds while he goes down (P1-8); `victory()` brings you back
+            } else if action == .`guard`, guardPending != nil, !bossEvents.isEmpty {
                 for event in bossEvents { await play(event) }
                 guardPending = nil
                 await heroPowerDown()
@@ -416,9 +459,38 @@ struct BossView: View {
             }
             await pause(150)
             pop = nil
+            if encounter.result == .won { await victory() }
+            else if encounter.result == nil, !phaseShown, let at = boss.phaseAt, shownBoss <= encounter.bossStaminaMax * at { await phaseBeat() }
             if let result = encounter.result { state.recordBossAttempt(boss, result: result); await pause(200) }
             busy = false
         }
+    }
+
+    /// P1-7: once, at the phase share. He stops, finishes nothing, looks at you, says it; the aura climbs; the title; on.
+    private func phaseBeat() async {
+        phaseShown = true
+        bossAnim = "idle"; await pause(350)
+        line = boss.dialogue["phase_two"]; await pause(500)
+        bossAuraColor = NeoTokyo.Attribute.color(for: "strength"); bossAura = 1; dim = 0.3
+        if !reduceMotion { stageShake = CGSize(width: 3, height: -2); await pause(90); stageShake = .zero }
+        phaseBanner = boss.dialogue["phase_two_title"] ?? "PHASE II"
+        moreCount = max(moreCount, 1)
+        await pause(1400)
+        phaseBanner = nil; line = nil; bossAura = 0; dim = 0
+        await pause(250)
+    }
+
+    /// P1-8: the last hit has landed and the recoil played. He goes to his exhausted pose, the room goes quiet, you
+    /// return to idle, then the card (about two seconds from the hit).
+    private func victory() async {
+        defeated = true
+        await pause(250)
+        bossAnim = "broken"; bossAura = 0; moreCount = 0
+        await pause(500)
+        dim = 0.3; narration = nil; line = nil
+        await pause(500)
+        await heroPowerDown()
+        await pause(300)
     }
 
     /// Real idle → eyes → white real → white master → the master in its glow, moved into its action.
@@ -489,7 +561,9 @@ struct BossView: View {
             await pause(200)
             shownPressure = max(0, shownPressure - cleared); shownPlayer = min(encounter.playerStaminaMax, shownPlayer + recovered)
             if cleared > 0 {
-                pop = Pop(text: shownPressure == 0 ? "PRESSURE CLEARED" : "−\(cleared) PRESSURE", at: .playerStatus, color: NeoTokyo.Attribute.color(for: "mindfulness"), big: false)
+                let sub = shownPressure == 0 && !clearExplained ? boss.tutorial["pressure_cleared"] : nil
+                if sub != nil { clearExplained = true }
+                pop = Pop(text: shownPressure == 0 ? "PRESSURE CLEARED" : "−\(cleared) PRESSURE", at: .playerStatus, color: NeoTokyo.Attribute.color(for: "mindfulness"), big: false, sub: sub)
             } else {
                 pop = Pop(text: "+\(Int(recovered.rounded()))", onBoss: false, color: NeoTokyo.Attribute.color(for: "mindfulness"), big: false)
             }
@@ -523,13 +597,18 @@ struct BossView: View {
             pop = Pop(text: "LOADED ×\(String(format: "%.1f", m))", at: .bossTorso, color: NeoTokyo.Text.secondary, big: false)
             await pause(420); bossAura = 0; bossAnim = "idle"; narration = nil
         case let .pressure(stacks):
+            // P1-6: the buff pose, the room darkens, his outline flares, MORE, then the Pressure lands on you.
             narration = boss.actions["more"]?.telegraph
-            bossAnim = "buff"; bossAuraColor = NeoTokyo.Attribute.color(for: "strength"); bossAura = 1
+            bossAnim = "buff"; bossAuraColor = NeoTokyo.Attribute.color(for: "strength"); bossAura = 1; dim = 0.3
             if !reduceMotion { stageShake = CGSize(width: 2, height: -1) }
             await pause(120); stageShake = .zero
-            shownPressure = stacks
-            pop = Pop(text: "PRESSURE ×\(stacks)", at: .playerStatus, color: NeoTokyo.Attribute.color(for: "strength"), big: false)
-            await pause(380); bossAura = 0; bossAnim = "idle"; narration = nil
+            pop = Pop(text: "MORE", at: .bossCenter, color: NeoTokyo.Attribute.color(for: "strength"), big: true)
+            await pause(420)
+            moreCount += 1; shownPressure = stacks
+            let sub = pressureExplained ? nil : boss.tutorial["pressure_first"]
+            pressureExplained = true
+            pop = Pop(text: "PRESSURE ×\(stacks)", at: .playerStatus, color: NeoTokyo.Attribute.color(for: "strength"), big: false, sub: sub)
+            await pause(sub == nil ? 380 : 700); bossAura = 0; dim = 0; bossAnim = "idle"; narration = nil
             showHint("pressure")
         case let .dialogue(key):
             if let text = boss.dialogue[key] { line = text; await pause(650); line = nil }

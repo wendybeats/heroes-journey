@@ -167,25 +167,23 @@ struct HomeView: View {
         }
     }
 
+    /// Everything the director waits on, as one key: any change is a chance to play the next beat (doc 28). One
+    /// `onChange` instead of eleven; the chain of them was more than the type checker takes (CI 2026-10-16).
+    private var directorKey: String {
+        "\(state.lastReceipt == nil)|\(state.healthWelcome == nil)|\(levelUpStart == nil)|\(ascension == nil)|\(state.needsStage)|"
+            + "\(state.pendingReturnScene?.id ?? "")|\(state.pendingAscension?.toTier ?? -1)|\(storyScene == nil)|\(departure == nil)|\(clash == nil)|"
+            + "\(state.unclaimedQuest?.id.uuidString ?? "")"
+    }
+
     /// The director's and the ledger's hooks on the screen, split from `presented` so each type-checks on its own.
     private func hooks<V: View>(_ view: V) -> some View {
         view
         // Day-one Health credit (owner QA 2026-10-16): the numbers hold at the pre-credit values until the welcome card is dismissed.
         .onAppear { if shown == nil { let s = state.healthWelcome?.before ?? state.snapshot; shown = s; barFill = levelProgress(s) }; scheduleStory() }
-        .onChange(of: state.healthWelcome == nil) { _, _ in scheduleStory() }
         // The director waits for a quiet screen: no reward modal, no level-up or ascension, no stage,
         // nothing presented. Each of these settling is a chance to play the next beat.
-        .onChange(of: state.lastReceipt == nil) { _, _ in scheduleStory() }
-        .onChange(of: levelUpStart == nil) { _, _ in scheduleStory() }
-        .onChange(of: ascension == nil) { _, _ in scheduleStory() }
-        .onChange(of: state.needsStage) { _, _ in scheduleStory() }
-        .onChange(of: state.pendingReturnScene?.id) { _, _ in scheduleStory() }
+        .onChange(of: directorKey) { _, _ in scheduleStory() }
         .onChange(of: state.lastWorldReaction) { _, name in if let name { state.lastWorldReaction = nil; showToast(ToastItem(text: name, symbol: "cloud.sun.fill")) } }
-        .onChange(of: state.pendingAscension) { _, _ in scheduleStory() }
-        .onChange(of: storyScene == nil) { _, _ in scheduleStory() }
-        .onChange(of: departure == nil) { _, _ in scheduleStory() }
-        .onChange(of: clash == nil) { _, _ in scheduleStory() }
-        .onChange(of: state.unclaimedQuest?.id) { _, _ in scheduleStory() }
         .onChange(of: scenePhase) { _, phase in if phase == .active { state.ensureTodayPlan(); state.resolveQuestIfDue(); Task { await state.syncHealth() } } }
         .onChange(of: state.showDeparture) { _, show in
             if show, let run = state.activeQuest ?? state.unclaimedQuest { departure = run; state.showDeparture = false }

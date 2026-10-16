@@ -59,14 +59,17 @@ public struct BossDefinition: Codable, Sendable, Equatable {
     /// Semantic state → asset set id: `idle`, `attack`, `buff`, `broken`, `defeat` (doc 36 §30).
     public let assets: [String: String]
     public let notes: String?
+    /// Owner brief 2026-10-16 (P1-7): a presentation beat when his Stamina first drops to this share (0–1). Mechanics
+    /// unchanged; the engine never reads it. nil = no beat.
+    public let phaseAt: Double?
 
-    public init(id: BossID, displayName: String, characterID: CharacterID, areaID: AreaID? = nil, milestoneID: MilestoneID? = nil, stamina: Double, breakMax: Double, attack: Double, pattern: [String], actions: [String: Action], dialogue: [String: String] = [:], tutorial: [String: String] = [:], lossLines: [String] = [], assets: [String: String] = [:], notes: String? = nil) {
+    public init(id: BossID, displayName: String, characterID: CharacterID, areaID: AreaID? = nil, milestoneID: MilestoneID? = nil, stamina: Double, breakMax: Double, attack: Double, pattern: [String], actions: [String: Action], dialogue: [String: String] = [:], tutorial: [String: String] = [:], lossLines: [String] = [], assets: [String: String] = [:], notes: String? = nil, phaseAt: Double? = nil) {
         self.id = id; self.displayName = displayName; self.characterID = characterID; self.areaID = areaID; self.milestoneID = milestoneID
         self.stamina = stamina; self.breakMax = breakMax; self.attack = attack; self.pattern = pattern; self.actions = actions
-        self.dialogue = dialogue; self.tutorial = tutorial; self.lossLines = lossLines; self.assets = assets; self.notes = notes
+        self.dialogue = dialogue; self.tutorial = tutorial; self.lossLines = lossLines; self.assets = assets; self.notes = notes; self.phaseAt = phaseAt
     }
     enum CodingKeys: String, CodingKey {
-        case id, displayName = "display_name", characterID = "character_id", areaID = "area_id", milestoneID = "milestone_id", stamina, breakMax = "break", attack, pattern, actions, dialogue, tutorial, lossLines = "loss_lines", assets, notes
+        case id, displayName = "display_name", characterID = "character_id", areaID = "area_id", milestoneID = "milestone_id", stamina, breakMax = "break", attack, pattern, actions, dialogue, tutorial, lossLines = "loss_lines", assets, notes, phaseAt = "phase_at"
     }
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -80,6 +83,7 @@ public struct BossDefinition: Codable, Sendable, Equatable {
         lossLines = try c.decodeIfPresent([String].self, forKey: .lossLines) ?? []
         assets = try c.decodeIfPresent([String: String].self, forKey: .assets) ?? [:]
         notes = try c.decodeIfPresent(String.self, forKey: .notes)
+        phaseAt = try c.decodeIfPresent(Double.self, forKey: .phaseAt)
     }
     /// The hint after the n-th loss (1-based); the last line repeats.
     public func lossLine(attempt: Int) -> String? {
