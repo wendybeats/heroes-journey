@@ -6,7 +6,8 @@ import HeroContent
 /// backdrop; lines appear one per tap in full-width bubbles with large type so they read at a
 /// glance (owner: "stupid simple to read, like Pokémon or Fire Emblem"). Which side a speaker stands on is
 /// content (`characters[].side`): the hero is always on the left (owner, 2026-10-16), everyone else on the
-/// right; a speaker's bubbles sit on the opposite side from their portrait.
+/// right. Owner brief 2026-10-16 (P2-9): the bubble sits on the speaker's side under their name, the portrait is
+/// larger and framed, speakers cross-fade, and the tap affordance pulses.
 struct StoryView: View {
     @Environment(AppState.self) private var state
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -34,14 +35,20 @@ struct StoryView: View {
             stage
             // Owner rule (2026-10-02): at most two bubbles on screen, no scrolling. The newest enters
             // from below; the one before it stays; anything older slides up and fades out.
-            VStack(alignment: speakerOnRight ? .leading : .trailing, spacing: NeoTokyo.Spacing.sm) {
+            VStack(alignment: speakerOnRight ? .trailing : .leading, spacing: NeoTokyo.Spacing.sm) {
+                if let speaker {
+                    Text(speaker.id == "hero" ? (heroRecipe?.name ?? state.recipe?.name ?? speaker.displayName) : speaker.displayName)
+                        .font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.primary)
+                        .padding(.horizontal, NeoTokyo.Spacing.sm)
+                        .id("name.\(speaker.id.rawValue)").transition(.opacity)
+                }
                 ForEach(Array(visibleLines.enumerated()), id: \.element.offset) { pair in
-                    Bubble(text: pair.element.line.resolved(worldName: state.bundle.worldName), trailing: !speakerOnRight)
+                    Bubble(text: pair.element.line.resolved(worldName: state.bundle.worldName), trailing: speakerOnRight)
                         .opacity(pair.offset == 0 && visibleLines.count == 2 ? 0.55 : 1)
                         .transition(reduceMotion ? .opacity : .asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity), removal: .move(edge: .top).combined(with: .opacity)))
                 }
             }
-            .frame(maxWidth: .infinity, alignment: speakerOnRight ? .leading : .trailing)
+            .frame(maxWidth: .infinity, alignment: speakerOnRight ? .trailing : .leading)
             .padding(.horizontal, NeoTokyo.Spacing.lg)
             .padding(.top, NeoTokyo.Spacing.md)
             .frame(maxHeight: .infinity, alignment: .top)
@@ -52,6 +59,7 @@ struct StoryView: View {
         .contentShape(Rectangle())
         .onTapGesture { advance() }
         .animation(.easeOut(duration: 0.22), value: token)
+        .animation(.easeOut(duration: 0.3), value: beat.speaker)
     }
 
     /// `BackdropImage` resolves by asset set id (typed as a backdrop id for historical reasons).
@@ -64,13 +72,15 @@ struct StoryView: View {
         ZStack(alignment: speakerOnRight ? .bottomTrailing : .bottomLeading) {
             BackdropImage(assetSetID: stageBackdrop)
             if let speaker {
-                SpeakerPortrait(character: speaker, recipe: heroRecipe, size: 170)
+                SpeakerPortrait(character: speaker, recipe: heroRecipe, size: 200)
+                    .padding(NeoTokyo.Spacing.xs)
+                    .background(NeoTokyo.Surface.scrim.opacity(0.35), in: RoundedRectangle(cornerRadius: NeoTokyo.Radius.lg, style: .continuous))
                     .padding(.horizontal, NeoTokyo.Spacing.md)
                     .id(speaker.id)
-                    .transition(.opacity)
+                    .transition(.opacity.combined(with: .scale(scale: 0.97)))
             }
         }
-        .frame(height: 320)
+        .frame(height: 340)
         .ignoresSafeArea(edges: .top)
         .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.88), .init(color: .clear, location: 1)], startPoint: .top, endPoint: .bottom))
     }
@@ -78,7 +88,7 @@ struct StoryView: View {
     private var footer: some View {
         HStack {
             if !isLastLine {
-                Text("Tap to continue").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
+                TapAffordance()
                 Spacer()
             } else {
                 Button(chapter.then == "home" ? "Begin" : "Continue") { onFinish() }
@@ -112,5 +122,19 @@ struct Bubble: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .glass(cornerRadius: NeoTokyo.Radius.lg, tint: NeoTokyo.Surface.overlay)
             .padding(trailing ? .leading : .trailing, NeoTokyo.Spacing.xl)
+    }
+}
+
+/// "Tap to continue", pulsing with a chevron (owner brief 2026-10-16, P2-9). Still under Reduce Motion.
+struct TapAffordance: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var on = false
+    var body: some View {
+        HStack(spacing: 6) {
+            Text("Tap to continue").font(HeroFont.captionMedium)
+            Image(systemName: "chevron.down").font(HeroFont.label).offset(y: on ? 2 : 0)
+        }
+        .foregroundStyle(NeoTokyo.Text.secondary.opacity(on ? 1 : 0.55))
+        .onAppear { guard !reduceMotion else { on = true; return }; withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) { on = true } }
     }
 }

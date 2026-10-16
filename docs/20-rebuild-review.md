@@ -341,6 +341,18 @@ The level curve was re-derived after the page row went to weight 0 (the simulato
 - Queued (doc 34): the tutorial (owner builds it), story edits before and after the fight (owner).
 - Also in this push: `HomeView`'s offer slot is its own view; the inline branch for the boss card pushed the body past the type checker on CI.
 
+## Increment 56, 2026-10-16: Colossus V2 presentation (owner brief, three checkpoints)
+
+The owner's implementation brief: polish the existing fight's presentation, no new mechanics. Where it overlapped the earlier device notes, the notes won (so "Telegraphs: keep" means the narrated-on-landing form from increment 55, not the advance banner). Three commits, one per checkpoint, all in `BossView` plus content.
+
+**Checkpoint 1, combat clarity (P0 1–4).** Only Attack moves toward him; Guard braces in place (−4 pt) and holds the brace through his hit, with the ripple and the reduction at the moment of impact; Analyze and Center hold position; Center's beads converge instead of drifting off. Hits recoil 3–6 px (6–12 pt) with the 70 ms hold. Broken: the diamonds shatter, the big hit, his Broken pose, "BROKEN · one free action" on the stage, a faint gold aura until he recovers, and the Attack button lit with a gold stroke (never auto-selected). Feedback anchors: his upper torso, your upper torso, the status area at the foot of the stage (Pressure applied and cleared), centred on him (full Break, criticals), clamped inside the stage; Break damage shows beside the meter.
+
+**Checkpoint 2, combat drama (P1 5–8).** Pressure says "Your attacks are less effective." the first time and "Attack effectiveness restored." the first time it clears (content `tutorial.pressure_first/_cleared`), compact after; the panel keeps "PRESSURE ×n" while it lasts. MORE: buff pose, the room darkens for a moment, his outline flares, MORE, then the Pressure; a strength aura stays on him and grows with each MORE (never his size). One escalation beat at half his Stamina (`bosses[].phase_at`, presentation only, the engine never reads it): he stops, "More.", the aura climbs, "PHASE II — NO LIMIT", on. Victory: last hit, recoil, his exhausted pose at 0.5 s, the room goes quiet at 1.0 s, you return to idle at 1.5 s, the card at about 2 s: "Colossus defeated · For the first time in eleven years, he stops." (content `dialogue.defeated_title/_line`; eleven years matches the log pages). The room sits a shade darker under the characters and the feedback (P2-10) without losing the signage.
+
+**Checkpoint 3, narrative and polish (P2 9–11).** The dialogue screen: portraits at 200 pt in a quiet frame, the bubble on the speaker's side under their name (the hero's real name), a cross-fade between speakers, a pulsing "Tap to continue". Copy untouched. Each verb says once, on its first use, what the player's training did to it from the normalised share ("ATTACK · Strength advantage. Your training made this stronger." / on par / behind); no permanent stat labels on the buttons.
+
+Not changed: every system in the brief's keep list, and the tutorial (the owner builds it; the hint line stands in).
+
 ## Planned (owner, 2026-10-12): challenges and between-beat content
 
 Doc 33 holds the design, the five-increment plan (40–44) and the content inventory (lines and art the owner writes separately). Order: beats wait for their quest (`requires_quest`), Challenges with Cairon then the lifter, repeat quest exchanges and found pages, story-aware goal lines and Row rumours. Each lands behind its content: a field with no lines renders nothing.

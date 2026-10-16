@@ -60,6 +60,8 @@ struct BossView: View {
     @State private var readNext = false
     @State private var hint: String? = nil
     @State private var shownHints: Set<String> = []
+    /// P2-11: each verb says once, on first use, what the player's training did to it (normalised share, doc 37 §1).
+    @State private var explainedActions: Set<CombatAction> = []
 
     /// Where a piece of feedback lands (owner brief 2026-10-16, P0-4): fixed anchors, clamped inside the stage.
     enum PopAnchor { case bossTorso, heroTorso, playerStatus, bossCenter }
@@ -439,6 +441,7 @@ struct BossView: View {
         guard !busy, encounter.result == nil else { return }
         busy = true
         readNext = false
+        if !explainedActions.contains(action) { explainedActions.insert(action); hint = buildLine(for: action) }
         let events = encounter.step(action)
         let split = events.firstIndex { if case .bossAttack = $0 { return true }; if case .bossLoad = $0 { return true }; if case .pressure = $0 { return true }; if case .bossRecovered = $0 { return true }; return false } ?? events.count
         let playerEvents = Array(events[..<split]), bossEvents = Array(events[split...])
@@ -649,6 +652,17 @@ struct BossView: View {
             }
             await pause(150); pop = nil; busy = false
         }
+    }
+
+    /// "ATTACK · Strength advantage. Your training made this stronger." Shares ≥ 1.2 are an advantage, ≤ 0.8 behind,
+    /// else on par; today's training is already inside the share (doc 37 §4).
+    private func buildLine(for action: CombatAction) -> String {
+        let share = encounter.shares.share(for: action)
+        let attribute = state.bundle.attributes.first { $0.id == action.attributeID }?.displayName ?? action.attributeID.rawValue
+        let verb = action.rawValue.uppercased()
+        if share >= 1.2 { return "\(verb) · \(attribute) advantage. Your training made this stronger." }
+        if share <= 0.8 { return "\(verb) · \(attribute) behind. More \(attribute.lowercased()) work would sharpen it." }
+        return "\(verb) · \(attribute) on par for your level."
     }
 
     private func showHint(_ key: String) {

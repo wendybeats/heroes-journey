@@ -76,5 +76,8 @@ Stall tests still lose; random play wins 0–1 in 50. The Pure lifter's brute wi
 
 Telegraphs: a move is no longer announced before it lands. The action's `telegraph` is narrated as it resolves ("Colossus adds another plate.", "Colossus swings everything."), and ANALYZE reads the next move once (`intent`, "READ · Crush") until the player's next action. The lasting tell is the pattern, which the loss lines already teach ("Watch him when he loads the weight."). The simulator's strategies still read the intent directly; with a fixed pattern that is the same information a player has after one cycle.
 
+## Presentation V2 (owner brief 2026-10-16)
+Built as doc 20 increment 56: distinct verbs (only Attack closes distance), physical hits with hit-stop and recoil, Broken as a state the stage says out loud, anchored feedback, Pressure explained once, MORE as a scene with a persistent intensity, one phase beat at `phase_at` (presentation only), the victory sequence and card, a darker room, the dialogue layout, and a first-use build line per verb. The keep list in the brief is intact; the only divergence is the telegraph, which follows the owner's device note (narrated on landing, read by Analyze) rather than the advance banner.
+
 ## Not built yet
  Tutorial (owner will build it; the hint line is a stand-in), the story before and after the fight (owner edits to come), Phase 2, variance, dialogue as spoken bubbles (lines show as a quoted banner), a persistent second-plate prop after MORE (accepted as drawn for now), Tier-2 VFX polish (trails, afterimages), optional Defeat. Built 2026-10-16: the four Colossus states and four male masters in engine with the §18 glow sequence and the Tier-1 effects (doc 20 increment 51).
