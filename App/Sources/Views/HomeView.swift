@@ -82,6 +82,11 @@ struct HomeView: View {
     }
 
     var body: some View {
+        hooks(presented)
+    }
+
+    /// The navigation stack with every sheet, cover and overlay. Hooks are applied separately (`hooks`).
+    private var presented: some View {
         NavigationStack {
             scroll
             .navigationBarTitleDisplayMode(.inline)
@@ -160,6 +165,11 @@ struct HomeView: View {
             .overlay { moments }
             .animation(.easeInOut(duration: 0.25), value: momentKey)
         }
+    }
+
+    /// The director's and the ledger's hooks on the screen, split from `presented` so each type-checks on its own.
+    private func hooks<V: View>(_ view: V) -> some View {
+        view
         // Day-one Health credit (owner QA 2026-10-16): the numbers hold at the pre-credit values until the welcome card is dismissed.
         .onAppear { if shown == nil { let s = state.healthWelcome?.before ?? state.snapshot; shown = s; barFill = levelProgress(s) }; scheduleStory() }
         .onChange(of: state.healthWelcome == nil) { _, _ in scheduleStory() }
@@ -191,7 +201,12 @@ struct HomeView: View {
             // While an Ascension waits, the badge and bar hold the old level: the takeover is the reveal.
             if state.lastReceipt == nil && state.pendingAscension == nil && state.healthWelcome == nil { shown = new; barFill = levelProgress(new) }
         }
-        .onChange(of: state.rewardToken) { _, _ in
+        .onChange(of: state.rewardToken) { _, _ in rewardDismissed() }
+    }
+
+    /// After a reward modal (or the day-one Health card) closes: the numbers animate to the real snapshot, with the
+    /// level-up sequence when the level rose (doc 02).
+    private func rewardDismissed() {
             let new = state.snapshot
             let old = shown ?? new
             xpDelta = new.totalXP - old.totalXP
@@ -216,7 +231,6 @@ struct HomeView: View {
             } else {
                 withAnimation(.easeOut(duration: 1.2)) { shown = new; barFill = levelProgress(new) }
             }
-        }
     }
 
     /// The reward modal, or the day-one Health card (owner QA 2026-10-16); never both.
