@@ -10,7 +10,8 @@ struct HistoryView: View {
         // Steps facts are deltas (owner 2026-10-17); the timeline shows them as one row a day, so they are kept out here.
         let byDay = Dictionary(grouping: state.visibleEvents.filter { $0.steps == nil }) { Calendar.current.startOfDay(for: $0.startedAt) }
         let stepDays = Set(state.visibleEvents.filter { $0.steps != nil }.map { Calendar.current.startOfDay(for: $0.startedAt) })
-        return byDay.keys.union(stepDays).sorted(by: >).map { ($0, (byDay[$0] ?? []).sorted { $0.startedAt > $1.startedAt }) }
+        let days = Set(byDay.keys).union(stepDays)
+        return days.sorted(by: >).map { ($0, (byDay[$0] ?? []).sorted { $0.startedAt > $1.startedAt }) }
     }
     /// The day's steps and what they earned, summed over its facts.
     private func stepsRow(_ day: Date) -> (steps: Int, xp: Int)? {
@@ -32,6 +33,39 @@ struct HistoryView: View {
         return "\(time) · \(w.exercises.count) exercises · \(w.validSetCount) sets" + (prs > 0 ? " · \(prs) PR" : "")
     }
 
+    private func stepsRowView(_ s: (steps: Int, xp: Int)) -> some View {
+        HStack {
+            VStack(alignment: .leading) {
+                HStack(spacing: 6) {
+                    Text("Steps").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
+                    ImportBadge(disposition: .imported)
+                }
+                Text("Apple Health").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
+            }
+            Spacer()
+            Text(s.steps.formatted()).font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Text.secondary)
+            Text("+\(s.xp)").font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Hierarchy.primary)
+        }
+        .listRowBackground(NeoTokyo.Surface.raised)
+    }
+
+    private func eventRow(_ event: ActivityEvent) -> some View {
+        let amount = event.goal != nil ? "goal" : (event.bond != nil ? "bond" : (event.challenge.map { $0.won ? "won" : "lost" } ?? "\(event.durationSeconds / 60) min"))
+        return HStack {
+            VStack(alignment: .leading) {
+                HStack(spacing: 6) {
+                    Text(state.displayName(for: event)).font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
+                    ImportBadge(disposition: state.importDisposition(for: event))
+                }
+                Text(subtitle(event)).font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
+            }
+            Spacer()
+            Text(amount).font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Text.secondary)
+            Text("+\(xp(for: event))").font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Hierarchy.primary)
+        }
+        .listRowBackground(NeoTokyo.Surface.raised)
+    }
+
     private func xp(for event: ActivityEvent) -> Int {
         state.ledger.xp.filter { $0.activityEventID == event.id }.reduce(0) { $0 + $1.amount }
     }
@@ -44,38 +78,8 @@ struct HistoryView: View {
                 }
                 ForEach(grouped, id: \.0) { day, events in
                     Section(day.formatted(date: .abbreviated, time: .omitted)) {
-                        if let s = stepsRow(day) {
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    HStack(spacing: 6) {
-                                        Text("Steps").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
-                                        ImportBadge(disposition: .imported)
-                                    }
-                                    Text("Apple Health").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
-                                }
-                                Spacer()
-                                Text(s.steps.formatted()).font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Text.secondary)
-                                Text("+\(s.xp)").font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Hierarchy.primary)
-                            }
-                            .listRowBackground(NeoTokyo.Surface.raised)
-                        }
-                        ForEach(events, id: \.id) { event in
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    HStack(spacing: 6) {
-                                        Text(state.displayName(for: event))
-                                            .font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
-                                        ImportBadge(disposition: state.importDisposition(for: event))
-                                    }
-                                    Text(subtitle(event))
-                                        .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
-                                }
-                                Spacer()
-                                Text(event.goal != nil ? "goal" : (event.bond != nil ? "bond" : (event.challenge.map { $0.won ? "won" : "lost" } ?? "\(event.durationSeconds / 60) min"))).font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Text.secondary)
-                                Text("+\(xp(for: event))").font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Hierarchy.primary)
-                            }
-                        }
-                        .listRowBackground(NeoTokyo.Surface.raised)
+                        if let s = stepsRow(day) { stepsRowView(s) }
+                        ForEach(events, id: \.id) { event in eventRow(event) }
                     }
                 }
             }
