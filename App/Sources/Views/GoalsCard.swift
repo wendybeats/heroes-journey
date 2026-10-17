@@ -176,11 +176,27 @@ struct GoalRow: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Log activity")
-                .sheet(isPresented: $showLog) { LogSheet() }
+                .sheet(isPresented: $showLog) { LogSheet(preselect: suggestedActivity) }
             }
         }
         .padding(.vertical, NeoTokyo.Spacing.xs)
         .animation(.easeOut(duration: 0.3), value: done)
+    }
+
+    /// Doc 40 #4: the activity the goal asks for. One family: its first activity type. Any-family: the player's
+    /// primary family if the goal accepts it, else the first family listed. Manual and steps goals have none.
+    private var suggestedActivity: ContentBundle.ActivityType? {
+        guard let rule = state.template(for: goal)?.rule else { return nil }
+        let family: FamilyID
+        switch rule {
+        case let .activityFamily(f, _): family = f
+        case let .anyFamily(families, _):
+            guard let first = families.first else { return nil }
+            family = families.contains(state.goalPreferences.primaryFamily) ? state.goalPreferences.primaryFamily : first
+        default: return nil
+        }
+        let recent = state.events.sorted { $0.startedAt > $1.startedAt }.compactMap { state.bundle.activityType($0.activityTypeID) }.first { $0.familyID == family }
+        return recent ?? state.bundle.activityTypes.first { $0.familyID == family }
     }
 }
 

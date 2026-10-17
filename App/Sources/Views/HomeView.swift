@@ -54,11 +54,11 @@ struct HomeView: View {
     /// checker will take (CI 2026-10-16, twice), so content, presentations and director hooks are three pieces.
     private var scroll: some View {
         let snapshot = shown ?? state.snapshot
-        return ScrollView {
+        return ScrollViewReader { proxy in ScrollView {
             VStack(spacing: NeoTokyo.Spacing.lg) {
                 // Home v2 (doc 24): the scene bleeds under the status bar and off the top edge; the
                 // companion world comes first, then today's goals, then progression, then utility.
-                sceneCard(snapshot)
+                sceneCard(snapshot).id("home.top")
                 VStack(spacing: NeoTokyo.Spacing.lg) {
                     offerSlot
                     if let toast {
@@ -76,6 +76,9 @@ struct HomeView: View {
                 .animation(.spring(duration: 0.45, bounce: 0.25), value: toast?.id)
             }
             .padding(.bottom, 96)
+        }
+        // Owner QA 2026-10-17 (doc 40 #5): a receipt means something was just logged; be at the top so the level bar is in view when it moves.
+        .onChange(of: state.lastReceipt == nil) { _, isNil in if !isNil { withAnimation(.easeOut(duration: 0.35)) { proxy.scrollTo("home.top", anchor: .top) } } }
         }
         .ignoresSafeArea(edges: .top)
         .background(NeoTokyo.Surface.base)
@@ -105,7 +108,7 @@ struct HomeView: View {
             .fullScreenCover(item: $departure) { run in DepartureView(run: run) }
             .fullScreenCover(isPresented: Binding(get: { state.needsStage }, set: { if !$0 { state.dismissStage() } })) { StageView() }
             .fullScreenCover(item: $storyScene) { scene in
-                StoryView(chapter: scene.chapter, heroRecipe: state.recipe) {
+                StoryView(chapter: scene.chapter, heroRecipe: state.recipe, banner: scene.banner) {
                     storyScene = nil
                     // A chained chapter plays next on its own backdrop; the milestone completes after the chain.
                     if let nextID = scene.chapter.nextChapter, let next = state.bundle.chapter(nextID) {
@@ -266,7 +269,7 @@ struct HomeView: View {
         }
         guard let milestone = state.nextStoryBeat else { flushToasts(); return }
         if let id = milestone.storyChapter, let chapter = state.bundle.chapter(id) {
-            storyScene = StoryScene(chapter: chapter, milestone: milestone)
+            storyScene = StoryScene(chapter: chapter, milestone: milestone, banner: unlockBanner(for: milestone))
         } else {
             state.completeMilestone(milestone)   // a beat without a scene: apply its unlocks silently
         }
@@ -407,9 +410,17 @@ struct HomeView: View {
         }
     }
 
+    /// Doc 40 #8: what the beat opens, said on the scene itself so the player knows why it is playing.
+    private func unlockBanner(for milestone: Milestone) -> String? {
+        if let q = milestone.unlockQuest, let quest = state.bundle.quest(q) { return "New area · \(quest.displayName)" }
+        if let b = milestone.unlockBackdrop, let backdrop = state.bundle.backdrop(b), backdrop.role != "home_room" { return "New scene · \(backdrop.displayName)" }
+        if milestone.unlockFeature == "home_room" { return "Your room is open" }
+        return nil
+    }
+
     private func playMilestone(_ milestone: Milestone) {
         if let id = milestone.storyChapter, let chapter = state.bundle.chapter(id) {
-            storyScene = StoryScene(chapter: chapter, milestone: milestone)
+            storyScene = StoryScene(chapter: chapter, milestone: milestone, banner: unlockBanner(for: milestone))
         } else {
             state.completeMilestone(milestone)
         }
@@ -434,7 +445,8 @@ struct HomeView: View {
             // Character stands on the road: bottom-centre, 20% smaller than the 2x sprite scale.
             if let recipe = state.recipe {
                 // Outfit follows the *displayed* level so the swap lands with the counter during the level-up sequence.
-                CharacterView(recipe: recipe, scale: HomeView.characterScale, ascension: state.bundle.evolution(forLevel: snapshot.level)?.ascensionTier ?? 0)
+                // Doc 40 bug 1: the dev picker applies here too; otherwise the tier follows the *displayed* level so the swap lands with the counter.
+                CharacterView(recipe: recipe, scale: HomeView.characterScale, ascension: state.devAscensionTier ?? (state.bundle.evolution(forLevel: snapshot.level)?.ascensionTier ?? 0))
                     .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 16)  // the character's own glow
                     .padding(.bottom, NeoTokyo.Spacing.xl)
                     .opacity(state.characterAway ? 0 : 1)   // out on the quest: the scene stays, the character is gone
@@ -722,5 +734,7 @@ struct StoryScene: Identifiable {
     let milestone: Milestone?
     /// The scene that follows an Ascension takeover; dismissing it clears the pending Ascension.
     var completesAscension = false
+    /// Doc 40 #8: "New area · Colossus Gym" over the first beat, so the scene says why it is playing.
+    var banner: String? = nil
     var id: String { chapter.id }
 }

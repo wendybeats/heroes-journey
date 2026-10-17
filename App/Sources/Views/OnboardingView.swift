@@ -124,9 +124,13 @@ struct OnboardingView: View {
         case .body:
             ChoiceRows(options: AvatarRecipe.BaseBody.allCases.map { ($0.rawValue, $0.rawValue.capitalized) }, selection: Binding(get: { draft.baseBody.rawValue }, set: { raw in
                 guard let body = AvatarRecipe.BaseBody(rawValue: raw) else { return }
+                // Doc 40 bug 2: the two bodies share no hair ids, so the pick carries over by position (wolf cut → ponytail), colour kept.
+                let from = options.hairStyles(for: draft.baseBody.rawValue), to = options.hairStyles(for: raw)
                 draft.baseBody = body
-                let styles = options.hairStyles(for: raw)
-                if !styles.contains(draft.hairStyleID) { draft.hairStyleID = styles.dropFirst().first ?? styles.first ?? draft.hairStyleID }
+                if !to.contains(draft.hairStyleID) {
+                    if let i = from.firstIndex(of: draft.hairStyleID), i < to.count { draft.hairStyleID = to[i] }
+                    else { draft.hairStyleID = to.last ?? draft.hairStyleID }
+                }
             }))
         case .skin:
             ChoiceRows(options: options.skinPalettes.map { ($0, options.displayName($0)) }, selection: $draft.skinPaletteID)
@@ -138,13 +142,12 @@ struct OnboardingView: View {
                 ChoiceChips(options: options.hairPalettes.map { ($0, options.displayName($0)) }, selection: $draft.hairPaletteID)
             }
         case .primary:
-            // Physical: the fist and the foot in the colours of the two physical attributes.
-            AttributeGlyphs(pairs: [("strength", "hand.raised.fingers.spread.fill"), ("endurance", "shoeprints.fill")])
+            // Owner QA 2026-10-17 (doc 40 #3): each option carries the attributes its family feeds, from the ruleset's weights.
             ChoiceRows(options: [("strength", "Strength training"), ("cardio", "Cardio sports"), ("combat", "Combat sports"), ("mobility", "Mobility / recovery")],
-                       selection: Binding(get: { prefs.primaryFamily.rawValue }, set: { prefs.primaryFamily = FamilyID($0) }))
+                       selection: Binding(get: { prefs.primaryFamily.rawValue }, set: { prefs.primaryFamily = FamilyID($0) }), glyphs: familyGlyphs)
         case .secondary:
-            AttributeGlyphs(pairs: [("knowledge", "brain.head.profile"), ("mindfulness", "leaf.fill")])
-            ChoiceRows(options: [("learning", "Learning · reading, studying"), ("mindfulness", "Mindfulness · breathwork, stillness, daylight"), ("creativity", "Creativity · art, music, journaling")], selection: $prefs.secondaryInterest)
+            ChoiceRows(options: [("learning", "Learning · reading, studying"), ("mindfulness", "Mindfulness · breathwork, stillness, daylight"), ("creativity", "Creativity · art, music, journaling")],
+                       selection: $prefs.secondaryInterest, glyphs: familyGlyphs)
         case .frequency:
             // Bands map to the generator's weekday pattern: 2, 4, 6 and 7 training days.
             ChoiceRows(options: [("2", "1–3 days"), ("4", "3–5 days"), ("6", "5–7 days"), ("7", "Every day or more")],
@@ -167,6 +170,15 @@ struct OnboardingView: View {
         case .feedback:
             feedback
         }
+    }
+
+    /// The attributes a family feeds at a third or more of its weight, as (attribute, symbol) pairs, keyed by family id.
+    private var familyGlyphs: [String: [(String, String)]] {
+        var out: [String: [(String, String)]] = [:]
+        for (family, weights) in state.ruleset.attributeWeightsByFamily {
+            out[family] = weights.filter { $0.value >= 0.3 }.sorted { $0.value > $1.value }.map { ($0.key, AttributeGlyph.symbol(for: $0.key)) }
+        }
+        return out
     }
 
     /// What sealing the bond grants (owner, 2026-10-02): real numbers, not a preview. The bond event
@@ -315,6 +327,8 @@ struct ChoiceChips: View {
 struct ChoiceRows: View {
     let options: [(String, String)]
     @Binding var selection: String
+    /// Doc 40 #3: per-option (attribute, symbol) glyphs, drawn in the attribute colour at the trailing edge.
+    var glyphs: [String: [(String, String)]] = [:]
     var body: some View {
         VStack(spacing: NeoTokyo.Spacing.sm) {
             ForEach(options, id: \.0) { option in
@@ -324,6 +338,9 @@ struct ChoiceRows: View {
                     HStack {
                         Text(label).font(HeroFont.bodyMedium).foregroundStyle(on ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.primary)
                         Spacer()
+                        ForEach(glyphs[id] ?? [], id: \.0) { pair in
+                            Image(systemName: pair.1).font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Attribute.color(for: pair.0))
+                        }
                         if on { Image(systemName: "checkmark").font(HeroFont.headline).foregroundStyle(NeoTokyo.Hierarchy.primary) }
                     }
                     .padding(NeoTokyo.Spacing.md)

@@ -14,7 +14,10 @@ struct StoryView: View {
     let chapter: ContentBundle.StoryChapter
     /// Draft recipe while onboarding (hero portrait becomes the live sprite once it exists).
     var heroRecipe: AvatarRecipe?
+    /// Doc 40 #8: what this scene opens ("New area · Colossus Gym"), shown over the stage for the first beats.
+    var banner: String? = nil
     let onFinish: () -> Void
+    @State private var bannerShown = true
 
     @State private var beatIndex = 0
     @State private var lineCount = 1          // lines of the current beat revealed so far
@@ -72,7 +75,7 @@ struct StoryView: View {
         ZStack(alignment: speakerOnRight ? .bottomTrailing : .bottomLeading) {
             BackdropImage(assetSetID: stageBackdrop)
             if let speaker {
-                SpeakerPortrait(character: speaker, recipe: heroRecipe, size: 200)
+                SpeakerPortrait(character: speaker, recipe: heroRecipe, size: 160)   // owner QA 2026-10-17: 200 was too big
                     .padding(NeoTokyo.Spacing.xs)
                     .background(NeoTokyo.Surface.scrim.opacity(0.35), in: RoundedRectangle(cornerRadius: NeoTokyo.Radius.lg, style: .continuous))
                     .padding(.horizontal, NeoTokyo.Spacing.md)
@@ -80,7 +83,21 @@ struct StoryView: View {
                     .transition(.opacity.combined(with: .scale(scale: 0.97)))
             }
         }
-        .frame(height: 340)
+        .frame(height: 320)
+        .overlay(alignment: .top) {
+            if let banner, bannerShown {
+                HStack(spacing: 6) {
+                    Image(systemName: "sparkles").font(HeroFont.label)
+                    Text(banner).font(HeroFont.captionMedium)
+                }
+                .foregroundStyle(NeoTokyo.Hierarchy.primary)
+                .padding(.horizontal, NeoTokyo.Spacing.md).padding(.vertical, NeoTokyo.Spacing.xs)
+                .glass(cornerRadius: NeoTokyo.Radius.md, tint: NeoTokyo.Surface.scrim)
+                .padding(.top, 60)
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .task { try? await Task.sleep(for: .milliseconds(3000)); withAnimation(.easeIn(duration: 0.3)) { bannerShown = false } }
+            }
+        }
         .ignoresSafeArea(edges: .top)
         .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.88), .init(color: .clear, location: 1)], startPoint: .top, endPoint: .bottom))
     }

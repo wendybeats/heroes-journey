@@ -11,6 +11,8 @@ struct LogSheet: View {
     @Environment(\.dismiss) private var dismiss
     /// Hands off to the live strength tracker (the sheet closes, Home opens the tracker).
     var onTrackWorkout: (() -> Void)? = nil
+    /// Doc 40 #4: open straight on this activity's duration step (a goal tap); "Change" still goes back to the list.
+    var preselect: ContentBundle.ActivityType? = nil
     @State private var query = ""
     @State private var tab: AttributeID?
     @State private var selected: ContentBundle.ActivityType?
@@ -43,6 +45,12 @@ struct LogSheet: View {
         NavigationStack {
             Group {
                 if let selected { duration(for: selected) } else { picker }
+            }
+            .onAppear {
+                if selected == nil, let preselect {
+                    minutes = max(5, (preselect.defaultDurationSeconds ?? 1800) / 60); sets = 0; distanceHalfKm = 0; rounds = 0
+                    selected = preselect
+                }
             }
             .background(NeoTokyo.Surface.base)
             .navigationTitle("Log")

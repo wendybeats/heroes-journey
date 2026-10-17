@@ -57,7 +57,7 @@ struct RewardMoment: View {
                     Text("Unlocked: \(receipt.rewardsGranted.map { state.rewardDisplayName($0) }.joined(separator: ", "))")
                         .font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.primary)
                 }
-                if receipt.xp == 0 && !isGoal && questRun == nil {
+                if receipt.xp == 0 && isActivity {
                     Text(state.ruleset.dailyActivityStrain != nil
                          ? "Enough for one day. This session still counts for goals, history and records."
                          : state.ruleset.dailyActivityXPCap != nil
@@ -82,6 +82,11 @@ struct RewardMoment: View {
     }
 
     private var questRun: QuestRun? { state.questRun(for: receipt.activityEventID) }
+    /// A real session (logged or imported), not a goal, quest, challenge, story or bond fact.
+    private var isActivity: Bool {
+        guard let e = state.events.first(where: { $0.id == receipt.activityEventID }) else { return false }
+        return e.goal == nil && e.quest == nil && e.challenge == nil && e.story == nil && e.bond == nil
+    }
     private var isGoal: Bool { state.goalCompletions.contains { $0.activityEventID == receipt.activityEventID } }
 
     private func goalTitle(_ r: ProgressionReceipt) -> String {

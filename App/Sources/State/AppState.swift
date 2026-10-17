@@ -154,6 +154,13 @@ final class AppState {
     var storyHeldForHealth: Bool { healthGraceDay == today }
     /// Day one, or still in onboarding: Health credit is told once, not as receipts.
     private var isWokeDay: Bool { startedOn.map { $0 == today } ?? true }
+    /// Doc 40 #15: the day-one hold ends on the first thing the player does by hand (a logged session, a finished
+    /// workout, a tapped goal), so a player who imported Level 3 meets the home scene after their first action like
+    /// everyone else, not the next day. The welcome card stays until dismissed.
+    private func releaseHealthGrace() {
+        guard healthGraceDay == today else { return }
+        healthGraceDay = nil
+    }
     func dismissHealthWelcome() {
         guard healthWelcome != nil else { return }
         healthWelcome = nil
@@ -318,7 +325,7 @@ final class AppState {
         guard let type = bundle.activityType(activityTypeID) else { return }
         let event = ActivityEvent(userID: userID, activityTypeID: type.id, familyID: type.familyID, startedAt: startedAt ?? now, durationSeconds: minutes * 60, source: .manual, verification: .selfReported,
                                   structuredSetCount: sets.flatMap { $0 > 0 ? $0 : nil }, distanceMeters: distanceMeters.flatMap { $0 > 0 ? $0 : nil }, rounds: rounds.flatMap { $0 > 0 ? $0 : nil })
-        events.append(event)
+        releaseHealthGrace(); events.append(event)
         let submission = ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now)
         outbox.enqueue(submission)
         evaluateGoals(now: now)
@@ -438,7 +445,7 @@ final class AppState {
         w.activityEventID = event.id
         workouts.append(w)
         activeWorkout = nil
-        events.append(event)
+        releaseHealthGrace(); events.append(event)
         outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
         evaluateGoals(now: now)
         lastPersonalRecords = w.personalRecords
@@ -797,7 +804,7 @@ final class AppState {
     func completeGoal(_ goal: DailyGoal) {
         // Only manual goals can be self-reported; the rest complete from facts (dev-4, docs/21).
         guard !isCompleted(goal), template(for: goal)?.rule.isManual == true else { return }
-        record(goal, source: .manual, now: now)
+        releaseHealthGrace(); record(goal, source: .manual, now: now)
         save()
         Task { await drain(showReward: true) }
     }

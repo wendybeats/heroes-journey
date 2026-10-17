@@ -14,6 +14,8 @@ struct DepartureView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let run: QuestRun
     @State private var showClaim = false
+    /// Doc 40 #6: once notifications are allowed, the character says so while away.
+    @State private var notifies = false
 
     /// The run's own quest (the story may have moved on since departure).
     private var quest: ContentBundle.Quest? { state.questDefinition(run.questID) ?? state.quest }
@@ -76,7 +78,12 @@ struct DepartureView: View {
                     Text(subtext).font(HeroFont.callout).foregroundStyle(NeoTokyo.Text.secondary).multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                if !isBack { Countdown(until: run.returnsAt) }
+                if !isBack {
+                    Countdown(until: run.returnsAt)
+                    if notifies {
+                        Text("I'll let you know when I'm back.").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted).transition(.opacity)
+                    }
+                }
             }
             .padding(NeoTokyo.Spacing.xl)
             Spacer()
@@ -87,6 +94,7 @@ struct DepartureView: View {
         }
         .background(NeoTokyo.Surface.base.ignoresSafeArea())
         .overlay { if showClaim { ClaimMoment(run: run) { state.claimQuest(run); showClaim = false; dismiss() } } }
+        .task { notifies = await QuestNotifications.isAuthorized() }
         .animation(.easeInOut(duration: 0.25), value: showClaim)
     }
 }
