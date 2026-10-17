@@ -94,7 +94,7 @@ final class ContentBundleTests: XCTestCase {
         let bundle = try ContentBundle.decode(RepoFiles.data("Content/v1/bundle.json"))
         XCTAssertEqual(bundle.characters.map(\.id), ["guide.elder", "hero", "chad_colossus", "npc.gym.lifter_01", "npc.gym.lifter_02", "npc.gym.lifter_03"])
         XCTAssertEqual(Array(bundle.storyChapters.map(\.id).prefix(2)), ["chapter.awakening", "chapter.first_training"])
-        XCTAssertEqual(bundle.storyChapters.count, 17)
+        XCTAssertEqual(bundle.storyChapters.count, 18, "doc 40 #13 added the scene before the Face Colossus card")
         let awakening = try XCTUnwrap(bundle.chapter("chapter.awakening"))
         XCTAssertEqual(awakening.then, "create_character"); XCTAssertEqual(awakening.beats.count, 10)
         XCTAssertEqual(awakening.beats.first?.speaker, "hero"); XCTAssertEqual(awakening.beats.last?.lines.last?.text, "First things first. Do you remember who you are?")
