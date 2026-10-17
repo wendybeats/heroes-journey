@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.17-2",
+  "content_version": "2026.10.17-3",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -1235,7 +1235,8 @@
             "Thirty minutes. Then something else."
           ]
         }
-      ]
+      ],
+      "category": "body"
     },
     {
       "id": "goal.train.strength.sets",
@@ -1264,7 +1265,8 @@
         "combat",
         "mobility"
       ],
-      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays."
+      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays.",
+      "category": "body"
     },
     {
       "id": "goal.train.cardio",
@@ -1293,7 +1295,8 @@
         "combat",
         "mobility"
       ],
-      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays."
+      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays.",
+      "category": "body"
     },
     {
       "id": "goal.train.cardio.long",
@@ -1322,7 +1325,8 @@
         "combat",
         "mobility"
       ],
-      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays."
+      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays.",
+      "category": "body"
     },
     {
       "id": "goal.train.mobility",
@@ -1351,7 +1355,8 @@
         "combat",
         "mobility"
       ],
-      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays."
+      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays.",
+      "category": "body"
     },
     {
       "id": "goal.train.learning",
@@ -1370,7 +1375,8 @@
       "tags": [
         "training",
         "learning"
-      ]
+      ],
+      "category": "mind"
     },
     {
       "id": "goal.train.mindfulness",
@@ -1389,7 +1395,8 @@
       "tags": [
         "training",
         "mindfulness"
-      ]
+      ],
+      "category": "calm"
     },
     {
       "id": "goal.rest.walk",
@@ -1422,7 +1429,8 @@
             "Twenty minutes. If the door's there, don't open it. Just tell me."
           ]
         }
-      ]
+      ],
+      "category": "body"
     },
     {
       "id": "goal.rest.mobility",
@@ -1446,7 +1454,8 @@
       "tags": [
         "rest"
       ],
-      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays."
+      "notes": "Owner 2026-10-12: daily goals reward consistency; the activity log decides attributes. The attribute credited is the one the completing activity's family pays.",
+      "category": "body"
     },
     {
       "id": "goal.rest.steps",
@@ -1465,7 +1474,8 @@
       "tags": [
         "rest",
         "steps"
-      ]
+      ],
+      "category": "body"
     },
     {
       "id": "goal.learn.read10",
@@ -1483,7 +1493,8 @@
       },
       "tags": [
         "learning"
-      ]
+      ],
+      "category": "mind"
     },
     {
       "id": "goal.learn.study20",
@@ -1501,7 +1512,8 @@
       },
       "tags": [
         "learning"
-      ]
+      ],
+      "category": "mind"
     },
     {
       "id": "goal.learn.oneidea",
@@ -1517,7 +1529,8 @@
       },
       "tags": [
         "learning"
-      ]
+      ],
+      "category": "mind"
     },
     {
       "id": "goal.learn.podcast",
@@ -1533,7 +1546,8 @@
       },
       "tags": [
         "learning"
-      ]
+      ],
+      "category": "mind"
     },
     {
       "id": "goal.learn.language",
@@ -1549,7 +1563,8 @@
       },
       "tags": [
         "learning"
-      ]
+      ],
+      "category": "mind"
     },
     {
       "id": "goal.learn.noscroll",
@@ -1565,7 +1580,8 @@
       },
       "tags": [
         "learning"
-      ]
+      ],
+      "category": "mind"
     },
     {
       "id": "goal.learn.teach",
@@ -1582,7 +1598,8 @@
       "tags": [
         "learning",
         "rare"
-      ]
+      ],
+      "category": "mind"
     },
     {
       "id": "goal.learn.review",
@@ -1598,7 +1615,8 @@
       },
       "tags": [
         "learning"
-      ]
+      ],
+      "category": "mind"
     },
     {
       "id": "goal.mind.sit5",
@@ -1617,7 +1635,8 @@
       "tags": [
         "mindfulness",
         "calm"
-      ]
+      ],
+      "category": "calm"
     },
     {
       "id": "goal.mind.breath",
@@ -1634,7 +1653,8 @@
       "tags": [
         "mindfulness",
         "calm"
-      ]
+      ],
+      "category": "calm"
     },
     {
       "id": "goal.mind.walk",
@@ -1651,7 +1671,8 @@
       "tags": [
         "mindfulness",
         "calm"
-      ]
+      ],
+      "category": "calm"
     },
     {
       "id": "goal.mind.journal",
@@ -1668,7 +1689,8 @@
       "tags": [
         "balance",
         "mindfulness"
-      ]
+      ],
+      "category": "calm"
     },
     {
       "id": "goal.mind.gratitude",
@@ -1685,7 +1707,8 @@
       "tags": [
         "mindfulness",
         "calm"
-      ]
+      ],
+      "category": "calm"
     },
     {
       "id": "goal.mind.sunlight",
@@ -1702,7 +1725,8 @@
       "tags": [
         "mindfulness",
         "energy"
-      ]
+      ],
+      "category": "calm"
     },
     {
       "id": "goal.mind.screenfree",
@@ -1719,7 +1743,8 @@
       "tags": [
         "mindfulness",
         "calm"
-      ]
+      ],
+      "category": "calm"
     },
     {
       "id": "goal.mind.bodyscan",
@@ -1736,7 +1761,8 @@
       "tags": [
         "mindfulness",
         "rare"
-      ]
+      ],
+      "category": "calm"
     },
     {
       "id": "goal.win.water",
@@ -1752,7 +1778,8 @@
       },
       "tags": [
         "energy"
-      ]
+      ],
+      "category": "order"
     },
     {
       "id": "goal.win.stretch2",
@@ -1768,7 +1795,8 @@
       },
       "tags": [
         "calm"
-      ]
+      ],
+      "category": "body"
     },
     {
       "id": "goal.win.walk10",
@@ -1784,7 +1812,8 @@
       },
       "tags": [
         "energy"
-      ]
+      ],
+      "category": "body"
     },
     {
       "id": "goal.win.stairs",
@@ -1800,7 +1829,8 @@
       },
       "tags": [
         "energy"
-      ]
+      ],
+      "category": "body"
     },
     {
       "id": "goal.win.pushups",
@@ -1816,7 +1846,8 @@
       },
       "tags": [
         "strength_goal"
-      ]
+      ],
+      "category": "body"
     },
     {
       "id": "goal.win.squats",
@@ -1832,7 +1863,8 @@
       },
       "tags": [
         "strength_goal"
-      ]
+      ],
+      "category": "body"
     },
     {
       "id": "goal.win.plank",
@@ -1848,7 +1880,8 @@
       },
       "tags": [
         "strength_goal"
-      ]
+      ],
+      "category": "body"
     },
     {
       "id": "goal.win.posture",
@@ -1864,7 +1897,8 @@
       },
       "tags": [
         "calm"
-      ]
+      ],
+      "category": "body"
     },
     {
       "id": "goal.win.breath3",
@@ -1880,7 +1914,8 @@
       },
       "tags": [
         "calm"
-      ]
+      ],
+      "category": "calm"
     },
     {
       "id": "goal.win.vegetable",
@@ -1896,7 +1931,8 @@
       },
       "tags": [
         "energy"
-      ]
+      ],
+      "category": "order"
     },
     {
       "id": "goal.win.bedtime",
@@ -1913,7 +1949,8 @@
       "tags": [
         "balance",
         "discipline"
-      ]
+      ],
+      "category": "order"
     },
     {
       "id": "goal.win.tidy",
@@ -1930,7 +1967,8 @@
       "tags": [
         "balance",
         "discipline"
-      ]
+      ],
+      "category": "order"
     },
     {
       "id": "goal.win.sun",
@@ -1946,7 +1984,8 @@
       },
       "tags": [
         "energy"
-      ]
+      ],
+      "category": "calm"
     },
     {
       "id": "goal.win.message",
@@ -1962,7 +2001,8 @@
       },
       "tags": [
         "discipline"
-      ]
+      ],
+      "category": "order"
     },
     {
       "id": "goal.win.plan",
@@ -1979,7 +2019,8 @@
       "tags": [
         "balance",
         "discipline"
-      ]
+      ],
+      "category": "order"
     },
     {
       "id": "goal.win.nosugar",
@@ -1995,7 +2036,8 @@
       },
       "tags": [
         "discipline"
-      ]
+      ],
+      "category": "order"
     },
     {
       "id": "goal.win.coldwater",
@@ -2012,7 +2054,8 @@
       "tags": [
         "rare",
         "discipline"
-      ]
+      ],
+      "category": "calm"
     },
     {
       "id": "goal.win.handgrip",
@@ -2029,7 +2072,8 @@
       "tags": [
         "rare",
         "strength_goal"
-      ]
+      ],
+      "category": "body"
     },
     {
       "id": "goal.win.nophone",
@@ -2046,7 +2090,8 @@
       "tags": [
         "rare",
         "calm"
-      ]
+      ],
+      "category": "calm"
     },
     {
       "id": "goal.win.stand",
@@ -2062,7 +2107,8 @@
       },
       "tags": [
         "energy"
-      ]
+      ],
+      "category": "body"
     },
     {
       "id": "goal.win.balance",
@@ -2078,7 +2124,8 @@
       },
       "tags": [
         "strength_goal"
-      ]
+      ],
+      "category": "body"
     },
     {
       "id": "goal.win.music",
@@ -2095,7 +2142,8 @@
       "tags": [
         "calm",
         "rare"
-      ]
+      ],
+      "category": "calm"
     },
     {
       "id": "goal.train.creativity",
@@ -2114,7 +2162,8 @@
       "tags": [
         "training",
         "creativity"
-      ]
+      ],
+      "category": "make"
     },
     {
       "id": "goal.create.sketch",
@@ -2132,7 +2181,8 @@
       },
       "tags": [
         "creativity"
-      ]
+      ],
+      "category": "make"
     },
     {
       "id": "goal.create.music",
@@ -2150,7 +2200,9 @@
       },
       "tags": [
         "creativity"
-      ]
+      ],
+      "category": "make",
+      "needs": "an instrument"
     },
     {
       "id": "goal.create.journal",
@@ -2169,7 +2221,8 @@
       "tags": [
         "creativity",
         "balance"
-      ]
+      ],
+      "category": "make"
     },
     {
       "id": "goal.create.photo",
@@ -2185,7 +2238,9 @@
       },
       "tags": [
         "creativity"
-      ]
+      ],
+      "category": "make",
+      "needs": "a camera"
     },
     {
       "id": "goal.create.idea",
@@ -2201,7 +2256,8 @@
       },
       "tags": [
         "creativity"
-      ]
+      ],
+      "category": "make"
     },
     {
       "id": "goal.create.finish",
@@ -2218,7 +2274,8 @@
       "tags": [
         "creativity",
         "rare"
-      ]
+      ],
+      "category": "make"
     }
   ],
   "quests": [
@@ -4437,6 +4494,33 @@
       "arc_alpha": 0.45,
       "afterimage_alpha": 0.7,
       "notes": "Doc 38 II, Unstable: the shadow stops obeying. Cyan eyes, brighter broken flares, 3–6 fragments by shoulders, hair and hands, a dark echo behind that lags and shifts, one broken arc."
+    }
+  ],
+  "goal_categories": [
+    {
+      "id": "body",
+      "display_name": "Body",
+      "line": "Training, moving, the small physical wins."
+    },
+    {
+      "id": "mind",
+      "display_name": "Mind",
+      "line": "Reading, studying, learning a skill."
+    },
+    {
+      "id": "calm",
+      "display_name": "Calm",
+      "line": "Stillness, breath, daylight, less screen."
+    },
+    {
+      "id": "make",
+      "display_name": "Make",
+      "line": "Drawing, music, writing, photos."
+    },
+    {
+      "id": "order",
+      "display_name": "Order",
+      "line": "Sleep, planning, tidying, eating well."
     }
   ]
 }

@@ -143,6 +143,15 @@ public struct ContentBundle: Codable, Sendable, Equatable {
     public let worldName: String?
     public let characters: [Character]
     public let storyChapters: [StoryChapter]
+    /// Owner 2026-10-17 (doc 40 #17): the five categories the onboarding questions offer; every goal template names one.
+    public struct GoalCategory: Codable, Sendable, Equatable {
+        public let id: String
+        public let displayName: String
+        public let line: String
+        enum CodingKeys: String, CodingKey { case id, displayName = "display_name", line }
+    }
+    public let goalCategoryList: [GoalCategory]?
+    public var goalCategories: [GoalCategory] { goalCategoryList ?? [] }
     /// One per day on the stage screen, chosen by day number (owner QA 2026-10-02).
     public let dailyQuotes: [Quote]
     /// The campaign's areas (doc 26 §8–10): data only until area content exists.
@@ -365,7 +374,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         case schemaVersion = "schema_version", contentVersion = "content_version"
         case families, activityTypes = "activity_types", attributes, evolutions, items, rewards, backdrops
         case avatarOptions = "avatar_options", exerciseDefinitions = "exercise_definitions", healthWorkoutMapping = "health_workout_mapping"
-        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters", dailyQuotes = "daily_quotes", areas, campaign, challengeList = "challenges", rumourList = "rumours", bossList = "bosses", ascensionProfileList = "ascension_profiles"
+        case goalTemplates = "goal_templates", quests, worldName = "world_name", characters, storyChapters = "story_chapters", dailyQuotes = "daily_quotes", areas, campaign, challengeList = "challenges", rumourList = "rumours", bossList = "bosses", ascensionProfileList = "ascension_profiles", goalCategoryList = "goal_categories"
     }
 
     public static func decode(_ data: Data) throws -> ContentBundle {
@@ -547,6 +556,11 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         }
         // Doc 36/37: a boss names a real character, area and manual milestone; its pattern names defined actions.
         unique(bosses.map(\.id), "boss")
+        // Doc 40 #17: every goal template names one of the five categories.
+        let categoryIDs = Set(goalCategories.map(\.id))
+        if !goalCategories.isEmpty {
+            for t in goalTemplates where t.category.map({ !categoryIDs.contains($0) }) ?? true { problems.append("goal template \(t.id) has no category in goal_categories") }
+        }
         for boss in bosses {
             if !characterIDs.contains(boss.characterID) { problems.append("boss \(boss.id) → unknown character \(boss.characterID)") }
             if let a = boss.areaID, !areaIDs.contains(a) { problems.append("boss \(boss.id) → unknown area \(a)") }

@@ -81,11 +81,17 @@ public struct GoalTemplate: Hashable, Codable, Sendable {
         public init(after: String, lines: [String]) { self.after = after; self.lines = lines }
     }
     public let storyLines: [StoryLines]
+    /// Owner 2026-10-17 (doc 40 #17): one of the bundle's `goal_categories` (body, mind, calm, make, order). The player's
+    /// picks raise a category's frequency; nothing is ever excluded.
+    public let category: String?
+    /// A thing the goal needs that most people may not have ("an instrument"); offered rarely unless its category was picked.
+    public let needs: String?
 
-    enum CodingKeys: String, CodingKey { case id, slot, title, lines, attributeID = "attribute_id", rule, tags, storyLines = "story_lines" }
+    enum CodingKeys: String, CodingKey { case id, slot, title, lines, attributeID = "attribute_id", rule, tags, storyLines = "story_lines", category, needs }
 
-    public init(id: GoalTemplateID, slot: GoalSlot, title: String, lines: [String], attributeID: AttributeID, rule: GoalCompletionRule, tags: [String], storyLines: [StoryLines] = []) {
+    public init(id: GoalTemplateID, slot: GoalSlot, title: String, lines: [String], attributeID: AttributeID, rule: GoalCompletionRule, tags: [String], storyLines: [StoryLines] = [], category: String? = nil, needs: String? = nil) {
         self.id = id; self.slot = slot; self.title = title; self.lines = lines; self.attributeID = attributeID; self.rule = rule; self.tags = tags; self.storyLines = storyLines
+        self.category = category; self.needs = needs
     }
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -93,6 +99,7 @@ public struct GoalTemplate: Hashable, Codable, Sendable {
         lines = try c.decode([String].self, forKey: .lines); attributeID = try c.decode(AttributeID.self, forKey: .attributeID)
         rule = try c.decode(GoalCompletionRule.self, forKey: .rule); tags = try c.decodeIfPresent([String].self, forKey: .tags) ?? []
         storyLines = try c.decodeIfPresent([StoryLines].self, forKey: .storyLines) ?? []
+        category = try c.decodeIfPresent(String.self, forKey: .category); needs = try c.decodeIfPresent(String.self, forKey: .needs)
     }
 }
 
@@ -104,10 +111,21 @@ public struct GoalPreferences: Hashable, Codable, Sendable {
     public var secondaryInterest: String
     public var trainingDaysPerWeek: Int
     public var motivation: String?
+    /// Owner 2026-10-17 (doc 40 #17): categories the player wants more of, and finds hard. Frequency only, never a gate.
+    public var wantMore: Set<String>
+    public var findHard: Set<String>
 
-    public init(primaryFamily: FamilyID = "strength", secondaryInterest: String = "mindfulness", trainingDaysPerWeek: Int = 4, motivation: String? = nil) {
+    public init(primaryFamily: FamilyID = "strength", secondaryInterest: String = "mindfulness", trainingDaysPerWeek: Int = 4, motivation: String? = nil, wantMore: Set<String> = [], findHard: Set<String> = []) {
         self.primaryFamily = primaryFamily; self.secondaryInterest = secondaryInterest
         self.trainingDaysPerWeek = min(7, max(0, trainingDaysPerWeek)); self.motivation = motivation
+        self.wantMore = wantMore; self.findHard = findHard
+    }
+    enum CodingKeys: String, CodingKey { case primaryFamily, secondaryInterest, trainingDaysPerWeek, motivation, wantMore, findHard }
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        primaryFamily = try c.decode(FamilyID.self, forKey: .primaryFamily); secondaryInterest = try c.decode(String.self, forKey: .secondaryInterest)
+        trainingDaysPerWeek = try c.decode(Int.self, forKey: .trainingDaysPerWeek); motivation = try c.decodeIfPresent(String.self, forKey: .motivation)
+        wantMore = try c.decodeIfPresent(Set<String>.self, forKey: .wantMore) ?? []; findHard = try c.decodeIfPresent(Set<String>.self, forKey: .findHard) ?? []
     }
 
     /// Fixed weekday pattern per frequency (1 = Sunday … 7 = Saturday, Foundation's convention).
@@ -316,11 +334,20 @@ public enum GoalGenerator {
         let recentPlans = inputs.history.filter { inputs.day.daysSince($0.day, calendar: inputs.calendar) <= historyWindowDays && $0.day < inputs.day }
         let offered = Set(recentPlans.flatMap(\.goals).map(\.templateID))
         let done = Set(inputs.completions.filter { inputs.day.daysSince($0.day, calendar: inputs.calendar) <= historyWindowDays }.map(\.templateID))
+        // Owner 2026-10-17 (doc 40 #17): a picked category comes up more often, never exclusively. "More of" ×3; "hard"
+        // ×2, ×3 on a rest day; a goal that needs a thing (an instrument) ×0.3 unless its category was picked. The
+        // primary slot follows the training pattern and the family, not the categories.
         let weighted: [(GoalTemplate, Double)] = pool.map { t in
             var w = 1.0
             if let m = p.motivation, t.tags.contains(m) { w *= 2 }
             if t.tags.contains("rare") { w *= 0.3 }
             if done.contains(t.id) { w *= 1.5 } else if offered.contains(t.id) { w *= 0.7 }
+            if slot != .primary, let category = t.category {
+                let picked = p.wantMore.contains(category) || p.findHard.contains(category)
+                if p.wantMore.contains(category) { w *= 3 }
+                if p.findHard.contains(category) { w *= trainingDay ? 2 : 3 }
+                if t.needs != nil, !picked { w *= 0.3 }
+            }
             return (t, w)
         }
         let total = weighted.reduce(0) { $0 + $1.1 }

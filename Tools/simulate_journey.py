@@ -40,7 +40,7 @@ BOSS_MILESTONE = next(m for m in MILESTONES if m.get("trigger") == "manual")
 PERSONAS = {
     "Heavy balanced": dict(
         desc="Logs everything: six training days, reads most days, meditates daily, draws on weekends. Opens the app every day.",
-        open_rate=0.97, training_days=6, primary="strength", secondary="mindfulness", motivation="balance", manual_rate=0.95, steps=(9000, 12500),
+        open_rate=0.97, training_days=6, primary="strength", secondary="mindfulness", motivation="balance", manual_rate=0.95, steps=(9000, 12500), more=("mind", "calm", "make"), hard=("order",),
         week={1: [("strength", 60, 16, 0.95), ("learning", 25, None, 0.9), ("mindfulness", 15, None, 0.95)],
               2: [("cardio", 40, None, 0.95), ("learning", 25, None, 0.9), ("mindfulness", 15, None, 0.95)],
               3: [("strength", 60, 16, 0.95), ("learning", 25, None, 0.9), ("mindfulness", 15, None, 0.95)],
@@ -50,18 +50,18 @@ PERSONAS = {
               0: [("mobility", 20, None, 0.8), ("creativity", 20, None, 0.8), ("mindfulness", 15, None, 0.95)]}),
     "Heavy exercise": dict(
         desc="Six hard training days and recovery work; almost nothing else logged. Opens the app most days.",
-        open_rate=0.9, training_days=6, primary="strength", secondary="mindfulness", motivation="strength_goal", manual_rate=0.7, steps=(10000, 14000),
+        open_rate=0.9, training_days=6, primary="strength", secondary="mindfulness", motivation="strength_goal", manual_rate=0.7, steps=(10000, 14000), more=("body",), hard=("calm",),
         week={1: [("strength", 60, 18, 0.95)], 2: [("cardio", 45, None, 0.9), ("mobility", 20, None, 0.7)], 3: [("strength", 60, 18, 0.95)],
               4: [("combat", 60, None, 0.85), ("mindfulness", 10, None, 0.15)], 5: [("strength", 60, 18, 0.95), ("mobility", 20, None, 0.7)],
               6: [("cardio", 45, None, 0.85), ("learning", 15, None, 0.15)], 0: [("mobility", 25, None, 0.7)]}),
     "Light balanced": dict(
         desc="Several kinds of logging but misses days: three sessions a week on a good week, reads and meditates some days. Opens the app about two days in three.",
-        open_rate=0.65, training_days=4, primary="strength", secondary="learning", motivation="balance", manual_rate=0.6, steps=(5500, 9000),
+        open_rate=0.65, training_days=4, primary="strength", secondary="learning", motivation="balance", manual_rate=0.6, steps=(5500, 9000), more=("mind", "calm"), hard=("body",),
         week={1: [("strength", 35, 10, 0.7), ("learning", 20, None, 0.6)], 2: [("mindfulness", 10, None, 0.5)], 3: [("cardio", 30, None, 0.7), ("learning", 20, None, 0.6)],
               4: [("mindfulness", 10, None, 0.5)], 5: [("cardio", 30, None, 0.65), ("learning", 20, None, 0.5)], 6: [("mindfulness", 10, None, 0.5), ("mobility", 15, None, 0.4)], 0: []}),
     "Newbie": dict(
         desc="Checks in two to five times a week at random. A workout or a walk when it happens, little else. Casual.",
-        open_rate=0.45, training_days=4, primary="strength", secondary="learning", motivation="energy", manual_rate=0.4, steps=(4500, 8000),
+        open_rate=0.45, training_days=4, primary="strength", secondary="learning", motivation="energy", manual_rate=0.4, steps=(4500, 8000), more=("body",), hard=("order",),
         week={1: [("strength", 40, 10, 0.6)], 2: [], 3: [("cardio", 30, None, 0.6)], 4: [("learning", 10, None, 0.3)], 5: [("strength", 40, 10, 0.5)], 6: [("cardio", 30, None, 0.5)], 0: []}),
 }
 TRAINING_WEEKDAYS = {1: {4}, 2: {3, 5}, 3: {2, 4, 6}, 4: {2, 3, 5, 6}, 5: {2, 3, 4, 5, 6}, 6: {2, 3, 4, 5, 6, 7}, 7: {1, 2, 3, 4, 5, 6, 7}}
@@ -179,6 +179,11 @@ class Player:
                 if "rare" in t["tags"]: w *= 0.3
                 if t["id"] in done: w *= 1.5
                 elif t["id"] in offered: w *= 0.7
+                if slot != "primary" and t.get("category"):   # doc 40 #17: picked categories come up more often, never exclusively
+                    c = t["category"]; picked = c in p.get("more", ()) or c in p.get("hard", ())
+                    if c in p.get("more", ()): w *= 3
+                    if c in p.get("hard", ()): w *= 2 if training else 3
+                    if t.get("needs") and not picked: w *= 0.3
                 weighted.append((t, w))
             roll = self.rng.random() * sum(w for _, w in weighted); pick = weighted[-1][0]
             for t, w in weighted:

@@ -84,6 +84,33 @@ final class GoalTests: XCTestCase {
         XCTAssertEqual(secondaries.count, 4)
     }
 
+    /// Doc 40 #17 (owner 2026-10-17): a picked category comes up more often, never exclusively; a goal that needs a thing is rare unless picked.
+    func testPickedCategoriesComeUpMoreOftenButNeverExclusively() {
+        let t = { (id: String, cat: String, needs: String?) in
+            GoalTemplate(id: GoalTemplateID(id), slot: .smallWin, title: id, lines: ["x"], attributeID: "mindfulness", rule: .manual, tags: [], category: cat, needs: needs)
+        }
+        let templates = [t("a.body", "body", nil), t("b.order", "order", nil), t("c.make.music", "make", "an instrument"), t("d.calm", "calm", nil)]
+        func count(_ prefs: GoalPreferences) -> [String: Int] {
+            var out: [String: Int] = [:]
+            for seed in 0..<600 {
+                let inputs = GoalGenerator.Inputs(day: DayKey(year: 2026, month: 10, day: 17), templates: templates, preferences: prefs, level: 3, history: [], completions: [], seed: UInt64(seed), calendar: .current)
+                let id = GoalGenerator.plan(inputs, now: Date()).goals.first!.templateID.rawValue
+                out[id, default: 0] += 1
+            }
+            return out
+        }
+        let plain = count(GoalPreferences())
+        XCTAssertLessThan(plain["c.make.music"] ?? 0, plain["a.body"] ?? 0, "needs an instrument: rare by default")
+        let picked = count(GoalPreferences(wantMore: ["order"], findHard: ["make"]))
+        XCTAssertGreaterThan(picked["b.order"] ?? 0, 2 * (picked["a.body"] ?? 0), "wanted more: about three times as often")
+        XCTAssertGreaterThan(picked["c.make.music"] ?? 0, plain["c.make.music"] ?? 0, "picking its category lifts the instrument goal")
+        XCTAssertGreaterThan(picked["a.body"] ?? 0, 0, "nothing is ever excluded")
+        // Older preferences decode without the picks.
+        let data = try! JSONEncoder().encode(GoalPreferences())
+        var dict = try! JSONSerialization.jsonObject(with: data) as! [String: Any]; dict.removeValue(forKey: "wantMore"); dict.removeValue(forKey: "findHard")
+        XCTAssertEqual(try! JSONDecoder().decode(GoalPreferences.self, from: JSONSerialization.data(withJSONObject: dict)).wantMore, [])
+    }
+
     func testMotivationMatchIsFavoured() {
         var hits = 0
         for seed in 1...200 where GoalGenerator.plan(inputs(day: monday, prefs: GoalPreferences(motivation: "energy"), seed: UInt64(seed)), now: now).goals[2].templateID == "w.4" { hits += 1 }

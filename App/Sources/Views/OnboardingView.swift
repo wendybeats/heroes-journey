@@ -13,7 +13,8 @@ struct OnboardingView: View {
 
     /// `awaken` and `bond` are content chapters (doc 25); the rest are the guide's questions.
     /// Order per owner QA 2026-10-02: skin right after body (higher-tier customisation), hair style and colour on one screen.
-    enum Step: Int, CaseIterable { case awaken, name, body, skin, hair, primary, secondary, frequency, motivation, health, feedback, bond }
+    /// Doc 40 #17 (owner 2026-10-17): two category questions after the motivation, `more` and `hard`.
+    enum Step: Int, CaseIterable { case awaken, name, body, skin, hair, primary, secondary, frequency, motivation, more, hard, health, feedback, bond }
 
     @State private var step: Step = .awaken
     @State private var name = ""
@@ -120,6 +121,8 @@ struct OnboardingView: View {
         case .secondary: return "And outside the body? What do they work on?"
         case .frequency: return "How often do they usually train?"
         case .motivation: return "One harder question. Why did they start?"
+        case .more: return "What does your human want more of? Pick any."
+        case .hard: return "And what do they find hard to keep up?"
         case .health: return "All right. Let's see if the bond reaches all the way through."
         case .feedback: return "There you are. Let's make the connection permanent."
         }
@@ -173,6 +176,10 @@ struct OnboardingView: View {
         case .motivation:
             ChoiceRows(options: [("strength_goal", "Get more fit"), ("energy", "Have more energy"), ("calm", "Be more calm"), ("balance", "Become a more balanced person")],
                        selection: Binding(get: { prefs.motivation ?? "" }, set: { prefs.motivation = $0 }))
+        case .more:
+            MultiChoiceRows(options: state.bundle.goalCategories.map { ($0.id, $0.displayName, $0.line) }, selection: $prefs.wantMore)
+        case .hard:
+            MultiChoiceRows(options: state.bundle.goalCategories.map { ($0.id, $0.displayName, $0.line) }, selection: $prefs.findHard)
         case .health:
             VStack(alignment: .leading, spacing: NeoTokyo.Spacing.sm) {
                 if state.healthAvailable && !healthAsked {
@@ -346,6 +353,34 @@ struct ChoiceChips: View {
                         .padding(.horizontal, NeoTokyo.Spacing.md).padding(.vertical, NeoTokyo.Spacing.sm)
                         .glass(cornerRadius: NeoTokyo.Radius.md, tint: on ? NeoTokyo.Surface.overlay : NeoTokyo.Surface.raised)
                 }
+            }
+        }
+    }
+}
+
+/// Large tappable rows, any number selected (doc 40 #17): a title, a line under it, a check when picked.
+struct MultiChoiceRows: View {
+    let options: [(String, String, String)]
+    @Binding var selection: Set<String>
+    var body: some View {
+        VStack(spacing: NeoTokyo.Spacing.sm) {
+            ForEach(options, id: \.0) { option in
+                let (id, label, line) = option
+                let on = selection.contains(id)
+                Button { if on { selection.remove(id) } else { selection.insert(id) } } label: {
+                    HStack(spacing: NeoTokyo.Spacing.md) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(label).font(HeroFont.bodyMedium).foregroundStyle(on ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.primary)
+                            Text(line).font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
+                        }
+                        Spacer()
+                        Image(systemName: on ? "checkmark.circle.fill" : "circle").font(HeroFont.headline).foregroundStyle(on ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.muted)
+                    }
+                    .padding(NeoTokyo.Spacing.md)
+                    .frame(maxWidth: .infinity)
+                    .glass(cornerRadius: NeoTokyo.Radius.md, tint: on ? NeoTokyo.Surface.overlay : NeoTokyo.Surface.raised)
+                }
+                .buttonStyle(.plain)
             }
         }
     }

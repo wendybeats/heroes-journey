@@ -59,3 +59,7 @@ Formulated from docs 22–23 and the owner's answers of 2026-10-02. This is the 
 - Goal copy and template list (first pass will be mine; expect edits).
 - Reward table contents beyond XP (items exist in content; story fragments do not yet).
 - Walk clip authoring for both outfits when ready.
+
+## Personalisation v1 (2026-10-17, doc 40 #17)
+
+Five categories as content (`goal_categories`), one on every template, picked in two onboarding questions ("more of", "hard"). Frequency only: wanted ×3, hard ×2 (×3 on rest days), goals with a `needs` ×0.3 unless picked. The primary slot still follows the training-day pattern and the primary family. Next: the learned training-day model (doc 40 #19), then user-authored goals.
