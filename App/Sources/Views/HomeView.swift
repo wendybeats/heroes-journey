@@ -638,15 +638,19 @@ struct HomeView: View {
                 HStack(alignment: .firstTextBaseline, spacing: NeoTokyo.Spacing.xs) {
                     StatNumber(value: steps, unit: "steps")
                     Spacer()
+                    // Owner 2026-10-17: steps earn, up to the day's step cap; the row says what they have earned so far.
+                    if state.ruleset.steps != nil {
+                        Text("+\(state.todayStepsXP) xp").font(HeroFont.captionNumber).foregroundStyle(NeoTokyo.Hierarchy.primary)
+                    }
                 }
             }
-            if state.todayEvents.isEmpty {
+            if state.todayEvents.allSatisfy({ $0.steps != nil }) {
                 Text("Nothing logged yet.").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.muted)
             } else {
                 if state.pendingCount > 0 {
                     Text("\(state.pendingCount) waiting to sync").font(HeroFont.caption).foregroundStyle(NeoTokyo.Hierarchy.fallback)
                 }
-                ForEach(state.todayEvents, id: \.id) { event in
+                ForEach(state.todayEvents.filter { $0.steps == nil }, id: \.id) { event in
                     HStack {
                         Text(state.bundle.activityType(event.activityTypeID)?.displayName ?? event.activityTypeID.rawValue)
                             .font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)

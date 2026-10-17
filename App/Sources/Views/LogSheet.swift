@@ -34,7 +34,7 @@ struct LogSheet: View {
     private var currentTab: AttributeID { tab ?? attribute(for: state.goalPreferences.primaryFamily) }
 
     private var listed: [ContentBundle.ActivityType] {
-        let all = state.bundle.activityTypes
+        let all = state.bundle.activityTypes.filter { $0.loggingMode != .automatic }   // steps come from Health, never by hand
         if !query.isEmpty { return all.filter { $0.displayName.localizedCaseInsensitiveContains(query) } }
         let inTab = all.filter { attribute(for: $0.familyID) == currentTab }
         let recent = recentIDs.compactMap { state.bundle.activityType($0) }.filter { attribute(for: $0.familyID) == currentTab }

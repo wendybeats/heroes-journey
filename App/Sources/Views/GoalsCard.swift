@@ -1,5 +1,6 @@
 import SwiftUI
 import HeroDomain
+import HeroContent
 
 /// Doc 24: today's 2–3 goals and the quest row that counts them. One large check per row,
 /// a line from the character under each title. Completion goes through `AppState.completeGoal`

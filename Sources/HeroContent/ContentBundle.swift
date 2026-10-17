@@ -10,7 +10,8 @@ public struct ContentBundle: Codable, Sendable, Equatable {
         enum CodingKeys: String, CodingKey { case id, displayName = "display_name" }
     }
     public struct ActivityType: Codable, Sendable, Equatable {
-        public enum LoggingMode: String, Codable, Sendable { case simple, detailed }
+        /// `automatic` (2026-10-17): written by a source such as Health, never offered in the log sheet (steps).
+        public enum LoggingMode: String, Codable, Sendable { case simple, detailed, automatic }
         public let id: ActivityTypeID
         public let familyID: FamilyID
         public let displayName: String

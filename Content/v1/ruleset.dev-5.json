@@ -226,6 +226,12 @@
       }
     ]
   },
+  "steps": {
+    "notes": "Owner 2026-10-17: steps earn, carefully. Credited in Health syncs as facts of at least min_delta steps; xp_per_1000 up to daily_cap_xp a day (10,000 steps = 40). Outside strain, which is for sessions. Later: scale so frequent walkers earn normally and a rare walker's 10k day is a moment.",
+    "xp_per_1000": 4,
+    "daily_cap_xp": 40,
+    "min_delta": 500
+  },
   "level_curve": {
     "derived_from": "light persona",
     "light_goal_rate": 0.75,

@@ -87,12 +87,15 @@ public struct ProgressionLedger: Sendable, Equatable, Codable {
         let prior = processing.filter { $0.purpose == .original && sameDayIDs.contains($0.activityEventID) }.reduce(0.0) { $0 + $1.eligibleMinutes }
         // Cross-family: XP already granted today to real activity (goal and quest facts excluded).
         let sameDayActivityIDs = Set(events.filter {
-            $0.id != event.id && $0.goal == nil && $0.quest == nil && $0.challenge == nil && $0.story == nil && $0.bond == nil && calendar.isDate($0.startedAt, inSameDayAs: event.startedAt)
+            $0.id != event.id && $0.goal == nil && $0.quest == nil && $0.challenge == nil && $0.story == nil && $0.bond == nil && $0.steps == nil && calendar.isDate($0.startedAt, inSameDayAs: event.startedAt)
         }.map(\.id))
+        // Steps (2026-10-17): the day's steps already credited, so the step cap holds across syncs.
+        let processedIDs = Set(processing.filter { $0.purpose == .original }.map(\.activityEventID))
+        let priorSteps = events.filter { $0.id != event.id && $0.steps != nil && processedIDs.contains($0.id) && calendar.isDate($0.startedAt, inSameDayAs: event.startedAt) }.reduce(0) { $0 + ($1.steps ?? 0) }
         // Strain (2026-10-17) places the next event by the day's raw XP; records from before strain carry none and their grant stands in.
         let grantedByEvent = Dictionary(xp.filter { $0.reason == .activity }.compactMap { tx in tx.activityEventID.map { ($0, tx.amount) } }, uniquingKeysWith: +)
         let priorXP = processing.filter { $0.purpose == .original && sameDayActivityIDs.contains($0.activityEventID) }
             .reduce(0) { $0 + ($1.unstrainedXP ?? grantedByEvent[$1.activityEventID] ?? 0) }
-        return EvaluationContext(priorEligibleMinutesToday: prior, priorTotalXP: snapshot.totalXP, grantedRewardIDs: snapshot.grantedRewards, levelRewards: levelRewards, priorActivityXPToday: priorXP)
+        return EvaluationContext(priorEligibleMinutesToday: prior, priorTotalXP: snapshot.totalXP, grantedRewardIDs: snapshot.grantedRewards, levelRewards: levelRewards, priorActivityXPToday: priorXP, priorStepsToday: priorSteps)
     }
 }

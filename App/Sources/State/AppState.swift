@@ -211,12 +211,12 @@ final class AppState {
     var todayEvents: [ActivityEvent] { activityEvents.filter { Calendar.current.isDate($0.startedAt, inSameDayAs: now) }.sorted { $0.startedAt > $1.startedAt } }
     /// XP granted today to real activity (what the dev-5 daily cap counts).
     var todayActivityXP: Int {
-        let ids = Set(todayEvents.map(\.id))
+        let ids = Set(todayEvents.filter { $0.steps == nil }.map(\.id))
         return ledger.xp.filter { $0.reason == .activity && $0.activityEventID.map(ids.contains) == true }.reduce(0) { $0 + $1.amount }
     }
     /// Today's activity XP before strain (owner 2026-10-17): where the day sits in the bands.
     var todayUnstrainedXP: Int {
-        let ids = Set(todayEvents.map(\.id))
+        let ids = Set(todayEvents.filter { $0.steps == nil }.map(\.id))
         let granted = Dictionary(ledger.xp.filter { $0.reason == .activity }.compactMap { tx in tx.activityEventID.map { ($0, tx.amount) } }, uniquingKeysWith: +)
         return ledger.processing.filter { $0.purpose == .original && ids.contains($0.activityEventID) }.reduce(0) { $0 + ($1.unstrainedXP ?? granted[$1.activityEventID] ?? 0) }
     }
@@ -523,14 +523,43 @@ final class AppState {
         }
     }
 
-    /// Today's step total → `todaySteps`, then goal evaluation. A read failure leaves the last value.
+    /// Today's step total → `todaySteps`, a steps fact for the new steps (owner 2026-10-17), then goal evaluation.
+    /// A read failure leaves the last value.
     func refreshSteps() async {
         guard healthSync.authorization == .requested else { return }
         guard let steps = try? await importer.fetchSteps(on: Date()) else { return }   // Health reads the real calendar
-        let before = outbox.pending.count
         todaySteps = steps
-        evaluateGoals(now: now)
-        if outbox.pending.count > before { save(); await drainHealth(imported: 0) }
+        let before = outbox.pending.count
+        recordStepsFact(total: steps)
+        let stepsPending = outbox.pending.count - before
+        let hits = evaluateGoals(now: now)
+        if outbox.pending.count > before {
+            save()
+            // A steps fact on its own is quiet (the Today row shows it); a goal it completes still gets its receipt.
+            if hits.isEmpty && !isWokeDay && healthWelcome == nil { await drain(showReward: false) } else { await drainHealth(imported: 0) }
+        }
+        _ = stepsPending
+    }
+
+    /// One fact per `min_delta` new steps, keyed by the day and the running total so a repeated sync never writes twice
+    /// (rule 1: the day's steps are a sequence of immutable deltas, never an edited count).
+    private func recordStepsFact(total: Int) {
+        guard let rule = ruleset.steps, let type = bundle.activityType("steps") else { return }
+        let now = self.now
+        let credited = events.filter { $0.steps != nil && Calendar.current.isDate($0.startedAt, inSameDayAs: now) }.reduce(0) { $0 + ($1.steps ?? 0) }
+        let delta = total - credited
+        guard delta >= rule.minDelta else { return }
+        let externalID = "steps.\(today.rawValue).\(total)"
+        guard !events.contains(where: { $0.sourceExternalID == externalID }) else { return }
+        let event = ActivityEvent(userID: userID, activityTypeID: type.id, familyID: type.familyID, startedAt: now, durationSeconds: 0, source: .healthImport, verification: .verified,
+                                  sourceExternalID: externalID, steps: delta, createdAt: now)
+        events.append(event)
+        outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
+    }
+    /// XP the day's steps have earned so far, for the Today row.
+    var todayStepsXP: Int {
+        let ids = Set(todayEvents.filter { $0.steps != nil }.map(\.id))
+        return ledger.xp.filter { $0.activityEventID.map(ids.contains) == true }.reduce(0) { $0 + $1.amount }
     }
 
     /// Health credit: receipts as usual, except on the woke day, where it folds into the welcome card (see `HealthWelcome`).

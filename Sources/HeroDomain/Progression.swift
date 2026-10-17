@@ -14,10 +14,13 @@ public struct EvaluationContext: Sendable, Equatable {
     public let grantedRewardIDs: Set<RewardID>
     /// Level -> rewards that unlock on reaching it, from the content bundle.
     public let levelRewards: [Int: [RewardID]]
+    /// Steps already credited today by earlier steps facts (owner 2026-10-17), so the daily step cap holds across syncs.
+    public let priorStepsToday: Int
 
-    public init(priorEligibleMinutesToday: Double, priorTotalXP: Int, grantedRewardIDs: Set<RewardID>, levelRewards: [Int: [RewardID]], priorActivityXPToday: Int = 0) {
+    public init(priorEligibleMinutesToday: Double, priorTotalXP: Int, grantedRewardIDs: Set<RewardID>, levelRewards: [Int: [RewardID]], priorActivityXPToday: Int = 0, priorStepsToday: Int = 0) {
         self.priorEligibleMinutesToday = priorEligibleMinutesToday
         self.priorActivityXPToday = priorActivityXPToday
+        self.priorStepsToday = priorStepsToday
         self.priorTotalXP = priorTotalXP
         self.grantedRewardIDs = grantedRewardIDs
         self.levelRewards = levelRewards
@@ -86,6 +89,15 @@ public enum ProgressionEngine {
             // Story milestone: no XP (the ruleset may price it later); its reward is granted once.
             xp = 0
             if let reward = story.rewardID, !context.grantedRewardIDs.contains(reward) { questRewards.append(reward) }
+        } else if let steps = event.steps {
+            // Steps (owner 2026-10-17): a delta of the day's count, priced against the day's prior steps up to the cap;
+            // outside strain; the family's weights (cardio → Endurance) carry the points.
+            guard let rule = ruleset.steps else { return empty() }
+            xp = max(0, rule.credit(steps: steps, priorSteps: context.priorStepsToday))
+            for (attributeKey, weight) in ruleset.attributeWeightsByFamily[event.familyID.rawValue] ?? [:] {
+                let points = Int((Double(xp) * ruleset.attributePointsPerXP * weight).rounded(.down))
+                if points > 0 { attributes[AttributeID(attributeKey)] = points }
+            }
         } else if let quest = event.quest {
             // Quest return: the rolled table entry's XP, plus its content reward if never granted.
             guard let table = ruleset.dailyQuest?.rewardTable, table.indices.contains(quest.rewardIndex) else { return empty() }

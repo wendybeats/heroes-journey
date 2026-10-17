@@ -12,7 +12,7 @@ struct RewardMoment: View {
             NeoTokyo.Surface.scrim.opacity(0.7).ignoresSafeArea()
                 .onTapGesture { state.dismissReward() }
             VStack(spacing: NeoTokyo.Spacing.md) {
-                Eyebrow(text: receipt.leveledUp ? "Level up" : (questRun != nil ? "Back from the quest" : (isGoal ? "Goal complete" : "Logged")))
+                Eyebrow(text: receipt.leveledUp ? "Level up" : (questRun != nil ? "Back from the quest" : (isGoal ? "Goal complete" : (isSteps ? "Steps counted" : "Logged"))))
                 Text(receipt.leveledUp ? "Level \(receipt.levelAfter)" : "+\(receipt.xp) XP")
                     .font(HeroFont.statXL)
                     .foregroundStyle(NeoTokyo.Hierarchy.primary)
@@ -88,6 +88,7 @@ struct RewardMoment: View {
         return e.goal == nil && e.quest == nil && e.challenge == nil && e.story == nil && e.bond == nil
     }
     private var isGoal: Bool { state.goalCompletions.contains { $0.activityEventID == receipt.activityEventID } }
+    private var isSteps: Bool { state.events.first { $0.id == receipt.activityEventID }?.steps != nil }
 
     private func goalTitle(_ r: ProgressionReceipt) -> String {
         guard let c = state.goalCompletions.first(where: { $0.activityEventID == r.activityEventID }),

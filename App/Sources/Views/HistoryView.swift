@@ -7,8 +7,16 @@ struct HistoryView: View {
     @Environment(\.dismiss) private var dismiss
 
     private var grouped: [(Date, [ActivityEvent])] {
-        let byDay = Dictionary(grouping: state.visibleEvents) { Calendar.current.startOfDay(for: $0.startedAt) }
-        return byDay.keys.sorted(by: >).map { ($0, byDay[$0]!.sorted { $0.startedAt > $1.startedAt }) }
+        // Steps facts are deltas (owner 2026-10-17); the timeline shows them as one row a day, so they are kept out here.
+        let byDay = Dictionary(grouping: state.visibleEvents.filter { $0.steps == nil }) { Calendar.current.startOfDay(for: $0.startedAt) }
+        let stepDays = Set(state.visibleEvents.filter { $0.steps != nil }.map { Calendar.current.startOfDay(for: $0.startedAt) })
+        return byDay.keys.union(stepDays).sorted(by: >).map { ($0, (byDay[$0] ?? []).sorted { $0.startedAt > $1.startedAt }) }
+    }
+    /// The day's steps and what they earned, summed over its facts.
+    private func stepsRow(_ day: Date) -> (steps: Int, xp: Int)? {
+        let facts = state.visibleEvents.filter { $0.steps != nil && Calendar.current.isDate($0.startedAt, inSameDayAs: day) }
+        guard !facts.isEmpty else { return nil }
+        return (facts.reduce(0) { $0 + ($1.steps ?? 0) }, facts.reduce(0) { $0 + xp(for: $1) })
     }
 
     private func subtitle(_ event: ActivityEvent) -> String {
@@ -36,6 +44,21 @@ struct HistoryView: View {
                 }
                 ForEach(grouped, id: \.0) { day, events in
                     Section(day.formatted(date: .abbreviated, time: .omitted)) {
+                        if let s = stepsRow(day) {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    HStack(spacing: 6) {
+                                        Text("Steps").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
+                                        ImportBadge(disposition: .imported)
+                                    }
+                                    Text("Apple Health").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
+                                }
+                                Spacer()
+                                Text(s.steps.formatted()).font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Text.secondary)
+                                Text("+\(s.xp)").font(HeroFont.bodyNumber).foregroundStyle(NeoTokyo.Hierarchy.primary)
+                            }
+                            .listRowBackground(NeoTokyo.Surface.raised)
+                        }
                         ForEach(events, id: \.id) { event in
                             HStack {
                                 VStack(alignment: .leading) {

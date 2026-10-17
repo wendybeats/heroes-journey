@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.16-10",
+  "content_version": "2026.10.17-1",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -202,6 +202,14 @@
       "display_name": "Journaling",
       "default_duration_seconds": 900,
       "logging_mode": "simple"
+    },
+    {
+      "id": "steps",
+      "family_id": "cardio",
+      "display_name": "Steps",
+      "default_duration_seconds": 0,
+      "logging_mode": "automatic",
+      "notes": "Owner 2026-10-17 (doc 40 answer 4): steps are a fact of their own, read from Health and credited by the ruleset's `steps` block, never logged by hand."
     }
   ],
   "attributes": [

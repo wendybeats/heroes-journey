@@ -250,6 +250,46 @@ final class StrainTests: XCTestCase {
     }
 }
 
+final class StepsCreditTests: XCTestCase {
+    let user = UserID()
+    let day = Date(timeIntervalSince1970: 1_800_000_000)
+    let calendar = Calendar(identifier: .gregorian)
+    var ruleset: ProgressionRuleset {
+        ProgressionRuleset(id: "ruleset.steps", version: 1, status: .dev, xpPerMinuteByFamily: ["cardio": 2.0], attributeWeightsByFamily: ["cardio": ["endurance": 1.0]],
+                           attributePointsPerXP: 0.1, verificationMultiplier: [:], dailyTaper: .init(fullCreditMinutes: 30, taperRate: 0.2, hardCapMinutes: 90), minimumDurationSeconds: 60,
+                           levelThresholdsTotalXP: [0, 100_000], dailyActivityStrain: .init(fullCreditXP: 120, bands: [.init(upTo: 200, rate: 0.5)]), steps: .init(xpPerThousand: 4, dailyCapXP: 40))
+    }
+    func fact(_ steps: Int, at: Date? = nil) -> ActivityEvent {
+        ActivityEvent(userID: user, activityTypeID: "steps", familyID: "cardio", startedAt: at ?? day, durationSeconds: 0, source: .healthImport, verification: .verified, sourceExternalID: "steps.\(steps)", steps: steps, createdAt: day)
+    }
+
+    /// Owner 2026-10-17: 4 XP per thousand up to 40 a day; a day's facts are deltas priced against the prior steps.
+    func testStepsEarnUpToTheDailyCap() {
+        let s = ruleset.steps!
+        XCTAssertEqual(s.credit(steps: 2500, priorSteps: 0), 10); XCTAssertEqual(s.credit(steps: 2500, priorSteps: 2500), 10)
+        XCTAssertEqual(s.credit(steps: 6000, priorSteps: 6000), 16, "the cap: 40 − 24"); XCTAssertEqual(s.credit(steps: 3000, priorSteps: 12_000), 0)
+        let ctx = EvaluationContext(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:], priorStepsToday: 6000)
+        let p = ProgressionEngine.evaluate(event: fact(6000), ruleset: ruleset, context: ctx)
+        XCTAssertEqual(p.xp, 16); XCTAssertEqual(p.attributes["endurance"], 1, "cardio's weight carries the points"); XCTAssertEqual(p.eligibleMinutes, 0)
+    }
+
+    /// The ledger supplies the day's prior steps; steps sit outside strain's raw XP; tomorrow starts at zero.
+    func testLedgerCountsPriorStepsAndKeepsThemOutOfStrain() {
+        var ledger = ProgressionLedger()
+        let a = fact(8000), b = fact(4000, at: day.addingTimeInterval(3600))
+        ledger.commit(ProgressionEngine.evaluate(event: a, ruleset: ruleset, context: ledger.context(for: a, ruleset: ruleset, events: [a], levelRewards: [:], calendar: calendar)), for: a, at: day)
+        let ctxB = ledger.context(for: b, ruleset: ruleset, events: [a, b], levelRewards: [:], calendar: calendar)
+        XCTAssertEqual(ctxB.priorStepsToday, 8000); XCTAssertEqual(ctxB.priorActivityXPToday, 0, "steps are not session XP")
+        XCTAssertEqual(ProgressionEngine.evaluate(event: b, ruleset: ruleset, context: ctxB).xp, 8, "40 − 32")
+        let tomorrow = fact(3000, at: day.addingTimeInterval(86_400 * 2))
+        XCTAssertEqual(ledger.context(for: tomorrow, ruleset: ruleset, events: [a, b, tomorrow], levelRewards: [:], calendar: calendar).priorStepsToday, 0)
+        // Older archives have no steps field.
+        let data = try! JSONEncoder().encode(a)
+        var dict = try! JSONSerialization.jsonObject(with: data) as! [String: Any]; dict.removeValue(forKey: "steps")
+        XCTAssertNil(try! JSONDecoder().decode(ActivityEvent.self, from: JSONSerialization.data(withJSONObject: dict)).steps)
+    }
+}
+
 final class BalanceLeverTests: XCTestCase {
     let user = UserID()
     let day = Date(timeIntervalSince1970: 1_800_000_000)

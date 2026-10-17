@@ -38,6 +38,8 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(strain.bands.map(\.upTo), [200, 400]); XCTAssertEqual(strain.bands.map(\.rate), [0.5, 0.25])
         XCTAssertEqual(strain.credited(upToRaw: 400), 210, "a day tops out at 120 + 40 + 50"); XCTAssertEqual(strain.credited(upToRaw: 1000), 210)
         XCTAssertEqual(ruleset.bondGrant, .init(xp: 12, primaryPoints: 6, secondaryPoints: 4))
+        XCTAssertEqual(ruleset.steps, .init(xpPerThousand: 4, dailyCapXP: 40, minDelta: 500), "owner 2026-10-17: steps earn, 10k = 40 a day")
+        XCTAssertEqual(bundle.activityType("steps")?.loggingMode, .automatic, "steps come from Health, never by hand")
         XCTAssertEqual(ruleset.levelThresholdsTotalXP.first, 0)
         XCTAssertEqual(ruleset.levelThresholdsTotalXP, ruleset.levelThresholdsTotalXP.sorted(), "monotonic")
         XCTAssertEqual(ruleset.structuredWorkout?.defaultMinutes, 45)

@@ -57,6 +57,9 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
     public let story: StoryReference?
     /// Set when this fact is a resolved challenge (doc 33). Absent on every archive written before it.
     public let challenge: ChallengeReference?
+    /// Owner 2026-10-17: a steps fact. The steps this fact adds to the day (a delta, so a day is several facts as the
+    /// count grows); priced by the ruleset's `steps` block against the day's prior steps. Absent on older archives.
+    public let steps: Int?
     public let schemaVersion: Int
     public let createdAt: Date
 
@@ -78,6 +81,7 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
         bond: BondReference? = nil,
         story: StoryReference? = nil,
         challenge: ChallengeReference? = nil,
+        steps: Int? = nil,
         createdAt: Date = Date()
     ) {
         self.id = id
@@ -97,6 +101,7 @@ public struct ActivityEvent: Hashable, Codable, Sendable {
         self.bond = bond
         self.story = story
         self.challenge = challenge
+        self.steps = steps
         self.schemaVersion = Self.schemaVersion
         self.createdAt = createdAt
     }

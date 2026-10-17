@@ -363,6 +363,10 @@ Build A1: Home's scene honours the Ascension dev picker (bug 1); the hair pick c
 
 Build A3: the day-one hold (`healthGraceDay`) ends on the first hand action of the day, a logged session, a finished workout or a tapped goal, instead of at the next day's stage. The welcome card stays until dismissed.
 
+## Increment 59, 2026-10-17: steps earn (doc 40 answer 4)
+
+Steps are a fact of their own. A Health sync writes a steps fact for every `min_delta` (500) new steps, keyed by the day and the running total so a repeated sync never writes twice; each fact carries its delta and the engine prices it against the day's prior steps (`EvaluationContext.priorStepsToday`, from the ledger) at `steps.xp_per_1000` (4) up to `daily_cap_xp` (40): 10,000 steps is a 40 XP day, the points go where the cardio family's weights say (Endurance). Steps sit outside strain. The activity type `steps` is `logging_mode: automatic`, never offered in the log sheet. Today's row shows the steps and what they have earned; History shows one Steps row a day; a steps fact never opens the receipt on its own (a goal it completes still does). The curve derivation does not model steps (the light persona earns none there), so thresholds are unchanged; the journey simulator does, and the heavy and light personas reach Level 10 one to two days sooner than in doc 39. Two engine tests. Build A1's CI failure (a missing import in the goals card) is fixed in the same push.
+
 ## Planned (owner, 2026-10-12): challenges and between-beat content
 
 Doc 33 holds the design, the five-increment plan (40–44) and the content inventory (lines and art the owner writes separately). Order: beats wait for their quest (`requires_quest`), Challenges with Cairon then the lifter, repeat quest exchanges and found pages, story-aware goal lines and Row rumours. Each lands behind its content: a field with no lines renders nothing.
