@@ -161,7 +161,9 @@ struct HomeView: View {
                         LevelUpOverlay(start: start, characterCenter: CGPoint(x: cr.midX, y: cr.midY), badgeCenter: CGPoint(x: br.midX, y: br.midY))
                     }
                     if let a = ascension, let recipe = state.recipe, let c = anchors["character"] {
-                        AscensionOverlay(start: a.start, recipe: recipe, fromTier: a.from, toTier: a.to, evolutionName: a.name, sceneFrame: geo[c])
+                        AscensionOverlay(start: a.start, recipe: recipe, fromTier: a.from, toTier: a.to, evolutionName: a.name, sceneFrame: geo[c]) {
+                            if let pending = state.pendingAscension { ascensionContinued(pending) } else { ascension = nil }
+                        }
                     }
                 }
             }
@@ -267,6 +269,12 @@ struct HomeView: View {
             storyScene = StoryScene(chapter: chapter, milestone: nil)
             return
         }
+        // Doc 40 #13: the first time a boss beat is offered, Cairon speaks before the card appears.
+        if let offered = state.offeredMilestones.first, let chapter = state.offerScenePending(for: offered) {
+            state.markOfferScenePlayed(offered)
+            storyScene = StoryScene(chapter: chapter, milestone: nil)
+            return
+        }
         guard let milestone = state.nextStoryBeat else { flushToasts(); return }
         if let id = milestone.storyChapter, let chapter = state.bundle.chapter(id) {
             storyScene = StoryScene(chapter: chapter, milestone: milestone, banner: unlockBanner(for: milestone))
@@ -279,20 +287,24 @@ struct HomeView: View {
     /// then the evolution's scene. Reduce Motion skips the overlay and goes straight to the scene.
     private func playAscension(_ pending: AppState.PendingAscension) {
         let new = state.snapshot
-        guard state.recipe != nil, !reduceMotion else {
-            shown = new; barFill = levelProgress(new); afterAscension(pending); return
-        }
+        guard state.recipe != nil else { shown = new; barFill = levelProgress(new); afterAscension(pending); return }
+        // Doc 40 #12: the long form plays on its own and holds on the ascended character until the player taps Continue;
+        // the counter and bar catch up at the reveal; the scene follows the tap. Reduce Motion goes straight to the hold.
         ascension = (Date(), pending.fromTier, pending.toTier, pending.evolutionName)
         Task {
-            try? await Task.sleep(for: .milliseconds(Int(AscensionOverlay.revealAt * 1000)))
+            try? await Task.sleep(for: .milliseconds(reduceMotion ? 300 : Int(AscensionOverlay.revealAt * 1000)))
             levelFlash = true
             shown = new
             await wrapBar(to: levelProgress(new))
-            try? await Task.sleep(for: .milliseconds(Int((AscensionOverlay.duration - AscensionOverlay.revealAt) * 1000) - 1300))
+            try? await Task.sleep(for: .milliseconds(400))
             withAnimation(.easeOut(duration: 0.6)) { levelFlash = false }
-            afterAscension(pending)   // the scene is presented before the overlay clears, so the director cannot replay it
-            ascension = nil
         }
+    }
+
+    /// The player tapped Continue on the Ascension hold and the figure has settled back into the scene.
+    private func ascensionContinued(_ pending: AppState.PendingAscension) {
+        afterAscension(pending)   // the scene is presented before the overlay clears, so the director cannot replay it
+        ascension = nil
     }
 
     private func afterAscension(_ pending: AppState.PendingAscension) {

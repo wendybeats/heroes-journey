@@ -21,6 +21,9 @@ struct OnboardingView: View {
     @State private var dressed = false
     @State private var prefs = GoalPreferences()
     @State private var healthAsked = false
+    /// Doc 40 #11: the bond is a sequence, not a card. 0 nothing, 1 the glow, 2 the first attribute, 3 the second, 4 the seal.
+    @State private var bondStage = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Group {
@@ -33,6 +36,18 @@ struct OnboardingView: View {
             }
         }
         .animation(.easeOut(duration: 0.25), value: step)
+        .onChange(of: step) { _, new in
+            guard new == .feedback else { bondStage = 0; return }
+            if reduceMotion { bondStage = 4; return }
+            bondStage = 0
+            Task { @MainActor in
+                for (stage, ms) in [(1, 250), (2, 1400), (3, 1300), (4, 900)] {
+                    try? await Task.sleep(for: .milliseconds(ms))
+                    guard step == .feedback else { return }
+                    withAnimation(.easeOut(duration: 0.5)) { bondStage = stage }
+                }
+            }
+        }
     }
 
     private var questions: some View {
@@ -69,9 +84,12 @@ struct OnboardingView: View {
                 PortraitView(assetSetID: set, size: 170)
                     .padding(.bottom, NeoTokyo.Spacing.sm)
             } else {
+                // The bond glows up on the feedback step (stage 1) and stays lit while the attributes land.
                 CharacterView(recipe: draft, scale: HomeView.characterScale)
-                    .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.35), radius: 18)
+                    .shadow(color: NeoTokyo.Hierarchy.primary.opacity(bondStage >= 1 ? 0.85 : 0.35), radius: bondStage >= 1 ? 40 : 18)
+                    .shadow(color: NeoTokyo.Hierarchy.primary.opacity(bondStage >= 1 ? 0.5 : 0), radius: 14)
                     .padding(.bottom, NeoTokyo.Spacing.sm)
+                    .animation(.easeOut(duration: 1.1), value: bondStage >= 1)
             }
             HStack(spacing: 4) {
                 ForEach(Step.allCases, id: \.rawValue) { s in
@@ -181,33 +199,43 @@ struct OnboardingView: View {
         return out
     }
 
-    /// What sealing the bond grants (owner, 2026-10-02): real numbers, not a preview. The bond event
-    /// is created on "Seal the bond"; these are the same points the engine will credit.
+    /// What sealing the bond grants (owner, 2026-10-02): real numbers, not a preview. The bond event is created on
+    /// "Seal the bond"; these are the same points the engine will credit. Doc 40 #11 / answer 5: only the two attributes
+    /// that move, landing one at a time with the reason each ("+6 Endurance · from your cardio"), then the seal.
     private var feedback: some View {
-        var deltas: [AttributeID: Int] = [:]
-        if let grant = state.ruleset.bondGrant {
-            let primary = BondReference.attribute(forFamily: prefs.primaryFamily.rawValue, ruleset: state.ruleset, fallback: "strength")
-            let secondary = BondReference.attribute(forFamily: prefs.secondaryInterest, ruleset: state.ruleset, fallback: "mindfulness")
-            deltas[primary, default: 0] += grant.primaryPoints
-            deltas[secondary, default: 0] += grant.secondaryPoints
-        }
+        let grant = state.ruleset.bondGrant
+        let primary = BondReference.attribute(forFamily: prefs.primaryFamily.rawValue, ruleset: state.ruleset, fallback: "strength")
+        let secondary = BondReference.attribute(forFamily: prefs.secondaryInterest, ruleset: state.ruleset, fallback: "mindfulness")
+        let familyName = state.bundle.family(prefs.primaryFamily)?.displayName.lowercased() ?? prefs.primaryFamily.rawValue
+        let interestName = state.bundle.family(FamilyID(prefs.secondaryInterest))?.displayName.lowercased() ?? prefs.secondaryInterest
+        var rows: [(AttributeID, Int, String, Int)] = [(primary, grant?.primaryPoints ?? 0, "from your \(familyName)", 2)]
+        if secondary == primary { rows[0] = (primary, rows[0].1 + (grant?.secondaryPoints ?? 0), "from your \(familyName) and your interest in \(interestName)", 2) }
+        else { rows.append((secondary, grant?.secondaryPoints ?? 0, "from your interest in \(interestName)", 3)) }
         return VStack(alignment: .leading, spacing: NeoTokyo.Spacing.md) {
-            HStack {
-                ForEach(state.bundle.attributes, id: \.id) { attribute in
-                    VStack(spacing: 2) {
-                        // Owner QA 2026-10-05: the numbers themselves, not zeros with a badge; the badge still fires.
-                        CountingText(value: Double(deltas[attribute.id] ?? 0), font: HeroFont.statSM, color: NeoTokyo.Attribute.color(for: attribute.id.rawValue))
-                        Text(attribute.displayName).font(HeroFont.label).foregroundStyle(NeoTokyo.Text.secondary)
+            ForEach(rows, id: \.0) { row in
+                let (attribute, points, reason, stage) = row
+                let name = state.bundle.attributes.first { $0.id == attribute }?.displayName ?? attribute.rawValue
+                HStack(spacing: NeoTokyo.Spacing.md) {
+                    Image(systemName: AttributeGlyph.symbol(for: attribute)).font(HeroFont.headline)
+                        .foregroundStyle(NeoTokyo.Attribute.color(for: attribute.rawValue)).frame(width: 28)
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            Text("+").font(HeroFont.statSM).foregroundStyle(NeoTokyo.Attribute.color(for: attribute.rawValue))
+                            CountingText(value: bondStage >= stage ? Double(points) : 0, font: HeroFont.statSM, color: NeoTokyo.Attribute.color(for: attribute.rawValue))
+                            Text(name).font(HeroFont.bodyMedium).foregroundStyle(NeoTokyo.Text.primary)
+                        }
+                        Text(reason).font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
                     }
-                    .overlay(alignment: .top) {
-                        DeltaBadge(delta: deltas[attribute.id] ?? 0, token: 1, color: NeoTokyo.Attribute.color(for: attribute.id.rawValue)).offset(y: -16)
-                    }
-                    .frame(maxWidth: .infinity)
+                    Spacer()
                 }
+                .opacity(bondStage >= stage ? 1 : 0)
+                .offset(y: bondStage >= stage ? 0 : 10)
+                .animation(.easeOut(duration: 0.9), value: bondStage >= stage)
             }
-            .padding(.top, NeoTokyo.Spacing.md)
             Text("The bond gives you this to start. Training moves it far more.")
                 .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
+                .opacity(bondStage >= 4 ? 1 : 0)
+                .animation(.easeOut(duration: 0.5), value: bondStage >= 4)
         }
         .card()
     }
@@ -223,7 +251,7 @@ struct OnboardingView: View {
             }
             Button(nextLabel) { advance() }
                 .buttonStyle(PrimaryButtonStyle())
-                .disabled(step == .name && name.trimmingCharacters(in: .whitespaces).isEmpty)
+                .disabled((step == .name && name.trimmingCharacters(in: .whitespaces).isEmpty) || (step == .feedback && bondStage < 4))
         }
         .padding(.horizontal, NeoTokyo.Spacing.lg)
         .padding(.bottom, NeoTokyo.Spacing.md)

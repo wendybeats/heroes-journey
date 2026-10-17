@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "content_version": "2026.10.17-1",
+  "content_version": "2026.10.17-2",
   "notes": "Versioned content bundle. Every object has a stable slug id. Never rename a slug; add a new one and deprecate the old. Balance numbers live in ruleset files, not here.",
   "families": [
     {
@@ -3433,6 +3433,24 @@
           ]
         }
       ]
+    },
+    {
+      "id": "chapter.colossus_offer",
+      "title": "Before the stairs",
+      "backdrop_id": "backdrop.colossus_gym.exterior_01",
+      "then": "home",
+      "area_id": "under_city",
+      "beats": [
+        {
+          "speaker": "guide.elder",
+          "lines": [
+            "That's him, at the bottom of the stairs. He's known you were coming since the first time you walked his floor.",
+            "I won't ask if you're ready. Nobody is.",
+            "I'm asking if you're done waiting."
+          ]
+        }
+      ],
+      "notes": "Doc 40 #13 (owner 2026-10-17): plays once, the first time the Face Colossus card is offered, before the card. Placeholder voice; the owner's script pass rewrites it."
     }
   ],
   "daily_quotes": [
@@ -3748,7 +3766,8 @@
                 "Go back. Once isn't enough for him to notice.",
                 "One more. Then I think he'll come to you."
               ]
-            }
+            },
+            "offer_chapter": "chapter.colossus_offer"
           }
         ]
       }

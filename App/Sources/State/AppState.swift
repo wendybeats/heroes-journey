@@ -906,6 +906,13 @@ final class AppState {
     func hasFeature(_ feature: String) -> Bool { storyProgress.hasFeature(feature) }
     var currentChapter: CampaignChapter? { campaign.chapters.first { !storyProgress.completedChapters.contains($0.id) && $0.levelRange.contains(snapshot.level) } ?? campaign.chapters.last }
 
+    /// Doc 40 #13: the scene before a manual beat's card plays once per milestone.
+    func offerScenePending(for milestone: Milestone) -> ContentBundle.StoryChapter? {
+        guard let id = milestone.offerChapter, !UserDefaults.standard.bool(forKey: "offer.played.\(milestone.id.rawValue)") else { return nil }
+        return bundle.chapter(id)
+    }
+    func markOfferScenePlayed(_ milestone: Milestone) { UserDefaults.standard.set(true, forKey: "offer.played.\(milestone.id.rawValue)") }
+
     /// Record a beat as experienced, apply its unlocks, and route its reward through the engine (once).
     func completeMilestone(_ milestone: Milestone) {
         guard !storyProgress.isComplete(milestone.id) else { return }

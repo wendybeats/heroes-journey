@@ -490,6 +490,8 @@ public struct ContentBundle: Codable, Sendable, Equatable {
             for m in ch.milestones {
                 if !ch.levelRange.contains(m.level) { problems.append("milestone \(m.id) level \(m.level) outside chapter \(ch.id)") }
                 if let s = m.storyChapter, !chapterIDs.contains(s) { problems.append("milestone \(m.id) → unknown story chapter \(s)") }
+                if let o = m.offerChapter, !chapterIDs.contains(o) { problems.append("milestone \(m.id) → unknown offer chapter \(o)") }
+                if m.offerChapter != nil, m.trigger != .manual { problems.append("milestone \(m.id) has an offer chapter but is not manual") }
                 if let b = m.unlockBackdrop, !backdropIDs.contains(b) { problems.append("milestone \(m.id) → unknown backdrop \(b)") }
                 if let q = m.unlockQuest, !questIDs.contains(q) { problems.append("milestone \(m.id) → unknown quest \(q)") }
                 if let r = m.reward, !rewardIDsAll.contains(r) { problems.append("milestone \(m.id) → unknown reward \(r)") }

@@ -53,6 +53,9 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(ruleset.dailyQuest?.rewardTable.last?.weight, 0); XCTAssertEqual(ruleset.dailyQuest?.pageChance, 0.5)
         XCTAssertEqual(ruleset.dailyQuest?.pityRareAfter, 7); XCTAssertEqual(ruleset.dailyQuest?.tradeInXP?["rare"], 25, "doc 29")
         XCTAssertEqual(bundle.quests.count, 5, "the first walk, Protein Row and three gym quests (doc 28)")
+        // Doc 40 #13: Cairon speaks once before the Face Colossus card; the scene is content on the manual beat.
+        let boss = try XCTUnwrap(bundle.campaign.milestones.first { $0.trigger == .manual })
+        XCTAssertEqual(boss.offerChapter, "chapter.colossus_offer"); XCTAssertNotNil(bundle.chapter("chapter.colossus_offer"))
         // Owner 2026-10-16: the hero is always on the left; every other speaker stands on the right.
         for c in bundle.characters { XCTAssertEqual(c.side, c.id == "hero" ? "left" : "right", c.id.rawValue) }
         XCTAssertEqual(bundle.defaultQuest?.returnLines.keys.sorted(), ["common", "rare", "uncommon"])

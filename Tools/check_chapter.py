@@ -47,6 +47,7 @@ for c in b["campaign"]["chapters"]:
 reached = set(code_ids)
 for m in milestones:
     if m.get("story_chapter"): reached.add(m["story_chapter"])
+    if m.get("offer_chapter"): reached.add(m["offer_chapter"])   # doc 40 #13: the scene before a manual beat's card
 for q in quests.values():
     for k in ("on_return_chapter", "on_depart_chapter"):
         if q.get(k): reached.add(q[k])

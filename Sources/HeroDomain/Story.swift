@@ -33,6 +33,8 @@ public struct Milestone: Hashable, Codable, Sendable {
     /// Shown on the manual trigger's button.
     public let triggerLabel: String?
     public let storyChapter: String?
+    /// Doc 40 #13: a scene that plays once, the first time a manual beat is offered, before its card.
+    public let offerChapter: String?
     public let unlockBackdrop: BackdropID?
     public let unlockQuest: QuestID?
     /// App features gated by story: `home_room`, …
@@ -51,7 +53,7 @@ public struct Milestone: Hashable, Codable, Sendable {
     public let notes: String?
 
     public init(id: MilestoneID, level: Int, trigger: Trigger = .auto, triggerLabel: String? = nil, storyChapter: String? = nil, unlockBackdrop: BackdropID? = nil, unlockQuest: QuestID? = nil, unlockFeature: String? = nil, reward: RewardID? = nil, completesChapter: Bool = false, teaseArea: AreaID? = nil, requiresQuest: QuestID? = nil, requiresAreaQuests: AreaQuestGate? = nil, heldLine: String? = nil, notes: String? = nil) {
-        self.id = id; self.level = level; self.trigger = trigger; self.triggerLabel = triggerLabel; self.storyChapter = storyChapter
+        self.id = id; self.level = level; self.trigger = trigger; self.triggerLabel = triggerLabel; self.storyChapter = storyChapter; self.offerChapter = nil
         self.unlockBackdrop = unlockBackdrop; self.unlockQuest = unlockQuest; self.unlockFeature = unlockFeature; self.reward = reward
         self.completesChapter = completesChapter; self.teaseArea = teaseArea; self.requiresQuest = requiresQuest; self.requiresAreaQuests = requiresAreaQuests; self.heldLine = heldLine; self.notes = notes
     }
@@ -63,7 +65,7 @@ public struct Milestone: Hashable, Codable, Sendable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, level, trigger, triggerLabel = "trigger_label", storyChapter = "story_chapter", unlockBackdrop = "unlock_backdrop"
+        case id, level, trigger, triggerLabel = "trigger_label", storyChapter = "story_chapter", offerChapter = "offer_chapter", unlockBackdrop = "unlock_backdrop"
         case unlockQuest = "unlock_quest", unlockFeature = "unlock_feature", reward, completesChapter = "completes_chapter", teaseArea = "tease_area"
         case requiresQuest = "requires_quest", requiresAreaQuests = "requires_area_quests", heldLine = "held_line", notes
     }
@@ -73,6 +75,7 @@ public struct Milestone: Hashable, Codable, Sendable {
         trigger = try c.decodeIfPresent(Trigger.self, forKey: .trigger) ?? .auto
         triggerLabel = try c.decodeIfPresent(String.self, forKey: .triggerLabel)
         storyChapter = try c.decodeIfPresent(String.self, forKey: .storyChapter)
+        offerChapter = try c.decodeIfPresent(String.self, forKey: .offerChapter)
         unlockBackdrop = try c.decodeIfPresent(BackdropID.self, forKey: .unlockBackdrop)
         unlockQuest = try c.decodeIfPresent(QuestID.self, forKey: .unlockQuest)
         unlockFeature = try c.decodeIfPresent(String.self, forKey: .unlockFeature)
