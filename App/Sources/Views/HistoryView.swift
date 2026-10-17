@@ -38,7 +38,8 @@ struct HistoryView: View {
             VStack(alignment: .leading) {
                 HStack(spacing: 6) {
                     Text("Steps").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
-                    ImportBadge(disposition: .imported)
+                    Text("Health").font(HeroFont.label).tracking(0.6).textCase(.uppercase).foregroundStyle(NeoTokyo.Hierarchy.fallback)
+                        .padding(.horizontal, 6).padding(.vertical, 2).background(NeoTokyo.Hierarchy.fallback.opacity(0.14), in: Capsule())
                 }
                 Text("Apple Health").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
             }
