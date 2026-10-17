@@ -77,3 +77,9 @@ Three of the notes are confirmed bugs in the code as it stands, not impressions:
 - Already queued in doc 34 and confirmed by a note: accounts and sign-in (Stage 1.3), copy reviewed in the inventory (item 7), the fight tutorial and the story around it (queue item 1), analytics and notifications (Stage 1.3).
 - New to the map: goal personalisation (17), the training-day model (19), the habit push (the "biggest win" line), the trigger audit as a gate (21), the long Ascension and the bond ceremony (11, 12), Cairon's pre-boss beat (13). Added to the doc 34 queue.
 - Doc 39's finding stands beside these notes: the quest chain, not XP, paces the chapter, and the quest unlock rule is still the owner's call.
+
+## Owner answers (2026-10-17)
+1. Gym at Level 7: in the script pass. The two-day jump is an edge for players with a lot of Health history.
+2. Goal personalisation: two questions are enough. The answers must be general categories, not activities: "staying organised" spawns cleaning, writing, planning; "going to bed earlier" spawns reduced screen time, bedtime. Three to five categories, multi-select, and a picked category makes its group of tasks appear *more often*, never exclusively: a player who did not pick organisation can still get "make your bed this morning" at a reduced likelihood. Strategy to be worked out before building.
+3. Ascension: the whole sequence (rise, lightning, eyes, whiteout, flash, the reveal) plays on its own; the tap at the end only means "seen it, continue".
+4. Steps earn XP, carefully: MVP caps step credit at about 40 XP a day. Later it scales so frequent walkers earn normally and a rare walker's 10k-step day is a big moment.
