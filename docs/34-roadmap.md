@@ -67,7 +67,8 @@ Legend for state: ✅ built · 🟡 partial · ⬜ not started · 🎨 waits on 
 Guilds, repeat playthroughs (New Game+ on the same ledger: rule 5 says new systems recognise historical effort), special events, classes/specialties, an Apple Watch app. 🔎 Also worth a line: Android or web is not on the map; say so explicitly so nobody builds for it by accident.
 
 ## Immediate queue (in order)
-1. Boss battle: first device play-test done 2026-10-16 (doc 20 increments 54–55). Open: the fight tutorial (owner builds it), story edits before and after the fight (owner), VFX library, closing cutscene.
+1. Boss battle: first device play-test done 2026-10-16 (doc 20 increments 54–55, V2 presentation increment 56). Open: the fight tutorial (owner builds it), story edits before and after the fight (owner), the start of the encounter, VFX library, closing cutscene.
+1a. Play-through triage (doc 40, 2026-10-17): the script overview and trigger audit (owner) → Build A1 bugs and small UI → the home tour after the first action → the ceremonies (bond, Cairon before the boss card, the long Ascension) → goal personalisation v1 and the plain-language goal copy → the training-day model → the habit push.
 2. Ten-day pace test on dev-5e with the owner's log; promote or retune.
 3. Ascension visual pass; finish the tier 2 scene; write tier 3.
 4. Area kit (doc 35) written from the chapter-one build, then the Area 2 transition and glimpse as its first run.
