@@ -192,6 +192,64 @@ final class ProgressionEngineTests: XCTestCase {
     }
 }
 
+final class StrainTests: XCTestCase {
+    let user = UserID()
+    let day = Date(timeIntervalSince1970: 1_800_000_000)
+    let calendar = Calendar(identifier: .gregorian)
+    var strained: ProgressionRuleset {
+        ProgressionRuleset(id: "ruleset.strain", version: 1, status: .dev, xpPerMinuteByFamily: ["strength": 2.0, "learning": 1.0, "cardio": 2.0],
+                           attributeWeightsByFamily: ["strength": ["strength": 1.0]], attributePointsPerXP: 0.5, verificationMultiplier: [:],
+                           dailyTaper: .init(fullCreditMinutes: 90, taperRate: 0.25, hardCapMinutes: 240), minimumDurationSeconds: 60, levelThresholdsTotalXP: [0, 100_000],
+                           dailyActivityStrain: .init(fullCreditXP: 120, bands: [.init(upTo: 200, rate: 0.5), .init(upTo: 400, rate: 0.25)]))
+    }
+    func event(minutes: Int, family: FamilyID = "strength", at: Date? = nil) -> ActivityEvent {
+        ActivityEvent(userID: user, activityTypeID: ActivityTypeID(family.rawValue), familyID: family, startedAt: at ?? day, durationSeconds: minutes * 60, source: .manual, verification: .selfReported, createdAt: day)
+    }
+    func ctx(priorRaw: Int) -> EvaluationContext { EvaluationContext(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:], priorActivityXPToday: priorRaw) }
+
+    /// Owner 2026-10-17: full to 120, half to 200, a quarter to 400, nothing after; a day tops out at 210.
+    func testBandsArePiecewiseOverTheDaysRawXP() {
+        let s = strained.dailyActivityStrain!
+        XCTAssertEqual(s.credited(upToRaw: 0), 0); XCTAssertEqual(s.credited(upToRaw: 120), 120); XCTAssertEqual(s.credited(upToRaw: 200), 160)
+        XCTAssertEqual(s.credited(upToRaw: 400), 210); XCTAssertEqual(s.credited(upToRaw: 900), 210)
+        XCTAssertEqual(s.credit(raw: 60, priorRaw: 0), 60, "inside the full band")
+        XCTAssertEqual(s.credit(raw: 60, priorRaw: 90), 45, "30 full + 30 at half")
+        XCTAssertEqual(s.credit(raw: 100, priorRaw: 150), 37, "50 at half + 50 at a quarter, floored")
+        XCTAssertEqual(s.credit(raw: 80, priorRaw: 400), 0, "past the last band")
+    }
+
+    /// The engine strains real activity; the proposal keeps the raw XP; attributes follow the credited XP.
+    func testEngineStrainsAndKeepsTheRawXP() {
+        let first = ProgressionEngine.evaluate(event: event(minutes: 60), ruleset: strained, context: ctx(priorRaw: 0))    // 120 raw
+        XCTAssertEqual(first.xp, 120); XCTAssertEqual(first.unstrainedXP, 120)
+        let second = ProgressionEngine.evaluate(event: event(minutes: 60, family: "cardio"), ruleset: strained, context: ctx(priorRaw: 120))   // 120 raw: 80 at half + 40 at a quarter
+        XCTAssertEqual(second.xp, 50); XCTAssertEqual(second.unstrainedXP, 120)
+        XCTAssertEqual(second.eligibleMinutes, 60, "minutes still count for the taper")
+        let third = ProgressionEngine.evaluate(event: event(minutes: 60, family: "learning"), ruleset: strained, context: ctx(priorRaw: 240))   // 60 raw, all at a quarter
+        XCTAssertEqual(third.xp, 15)
+        XCTAssertEqual(ProgressionEngine.evaluate(event: event(minutes: 30), ruleset: strained, context: ctx(priorRaw: 400)).xp, 0)
+        let goal = ActivityEvent(userID: user, activityTypeID: "goal.x", familyID: "strength", startedAt: day, durationSeconds: 0, source: .goal, verification: .selfReported,
+                                 goal: GoalReference(templateID: "goal.x", slot: .primary, attributeID: "strength"), createdAt: day)
+        let withGoals = ProgressionRuleset(id: "r", version: 1, status: .dev, xpPerMinuteByFamily: [:], attributeWeightsByFamily: [:], attributePointsPerXP: 0.5, verificationMultiplier: [:],
+                                           dailyTaper: strained.dailyTaper, minimumDurationSeconds: 60, levelThresholdsTotalXP: [0], goalXP: ["primary": 30], dailyActivityStrain: strained.dailyActivityStrain)
+        XCTAssertEqual(ProgressionEngine.evaluate(event: goal, ruleset: withGoals, context: ctx(priorRaw: 500)).xp, 30, "goals sit outside strain")
+    }
+
+    /// The ledger places the next event by the day's raw XP, not the strained grant; records without it fall back to the grant.
+    func testLedgerContextUsesRawXPForTheBands() {
+        var ledger = ProgressionLedger()
+        let a = event(minutes: 60), b = event(minutes: 60, family: "cardio", at: day.addingTimeInterval(3600)), c = event(minutes: 30, family: "learning", at: day.addingTimeInterval(7200))
+        ledger.commit(ProgressionEngine.evaluate(event: a, ruleset: strained, context: ledger.context(for: a, ruleset: strained, events: [a], levelRewards: [:], calendar: calendar)), for: a, at: day)
+        ledger.commit(ProgressionEngine.evaluate(event: b, ruleset: strained, context: ledger.context(for: b, ruleset: strained, events: [a, b], levelRewards: [:], calendar: calendar)), for: b, at: day)
+        XCTAssertEqual(ledger.snapshot(ruleset: strained).totalXP, 170, "120 + 50")
+        let ctx = ledger.context(for: c, ruleset: strained, events: [a, b, c], levelRewards: [:], calendar: calendar)
+        XCTAssertEqual(ctx.priorActivityXPToday, 240, "raw, not the 170 granted")
+        XCTAssertEqual(ProgressionEngine.evaluate(event: c, ruleset: strained, context: ctx).xp, 7, "30 raw at a quarter")
+        let tomorrow = event(minutes: 30, at: day.addingTimeInterval(86_400 * 2))
+        XCTAssertEqual(ledger.context(for: tomorrow, ruleset: strained, events: [a, b, c, tomorrow], levelRewards: [:], calendar: calendar).priorActivityXPToday, 0)
+    }
+}
+
 final class BalanceLeverTests: XCTestCase {
     let user = UserID()
     let day = Date(timeIntervalSince1970: 1_800_000_000)

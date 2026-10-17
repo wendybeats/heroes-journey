@@ -58,7 +58,9 @@ struct RewardMoment: View {
                         .font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.primary)
                 }
                 if receipt.xp == 0 && !isGoal && questRun == nil {
-                    Text(state.ruleset.dailyActivityXPCap != nil
+                    Text(state.ruleset.dailyActivityStrain != nil
+                         ? "Enough for one day. This session still counts for goals, history and records."
+                         : state.ruleset.dailyActivityXPCap != nil
                          ? "Today's activity XP is already at the cap. This session still counts for goals, history and records."
                          : "Daily credit for this family is used up. It still counts in your history.")
                         .font(HeroFont.caption).multilineTextAlignment(.center).foregroundStyle(NeoTokyo.Text.secondary)

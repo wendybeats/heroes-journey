@@ -120,11 +120,19 @@ class Player:
             credited = max(0, min(end, t["full_credit_minutes"]) - start) + max(0, min(end, t["hard_cap_minutes"]) - max(start, t["full_credit_minutes"])) * t["taper_rate"]
             prior[fam] = end
             xp = math.floor(credited * R["xp_per_minute_by_family"][fam]) + (R["session_base_xp"] if credited > 0 else 0)
+            raw = xp
             if self.cap is not None:
-                room = max(0, self.cap - day_xp)
-                if xp > room: self.stats["_capped_today"] = True
-                xp = min(xp, room)
-            day_xp += xp
+                if isinstance(self.cap, dict):   # strain bands (owner 2026-10-17), mirrors Ruleset.DailyActivityStrain
+                    st = self.cap
+                    def credited_at(r):
+                        total = min(r, st["full_credit_xp"]); floor = st["full_credit_xp"]
+                        for b in st["bands"]: total += max(0, min(r, b["up_to"]) - floor) * b["rate"]; floor = max(floor, b["up_to"])
+                        return total
+                    xp = max(0, math.floor(credited_at(day_xp + raw) - credited_at(day_xp)))
+                else:
+                    xp = max(0, min(xp, self.cap - day_xp))
+                if xp < raw: self.stats["_capped_today"] = True
+            day_xp += raw
             self.grant(xp, {k: math.floor(xp * PPX * w) for k, w in WEIGHTS[fam].items()})
             minutes_by_family[fam] = minutes_by_family.get(fam, 0) + credited
             events.append((fam, mins, sets))
@@ -290,13 +298,13 @@ results = []
 for persona, p in PERSONAS.items():
     for i in range(a.players):
         seed = a.seed * 1000 + list(PERSONAS).index(persona) * 100 + i
-        capped = run_player(persona, p, seed, R.get("daily_activity_xp_cap")); uncapped = run_player(persona, p, seed, None)
+        capped = run_player(persona, p, seed, R.get("daily_activity_strain") or R.get("daily_activity_xp_cap")); uncapped = run_player(persona, p, seed, None)
         capped["uncapped_finish_day"] = uncapped["finish_day"]; capped["uncapped_outcome"] = uncapped["outcome"]; capped["uncapped_level10_day"] = uncapped["level10_day"]
         results.append(dict(persona=persona, player=i + 1, seed=seed, **capped))
 
 def fmt(v): return "—" if v is None else str(v)
 if not a.quiet:
-    print(f"ruleset {R['id']}  cap {R.get('daily_activity_xp_cap')}  players {a.players} per persona  max {a.max_days} days  quest after {a.goals_needed} goals\n")
+    print(f"ruleset {R['id']}  strain {R.get('daily_activity_strain', {}).get('full_credit_xp', R.get('daily_activity_xp_cap'))}  players {a.players} per persona  max {a.max_days} days  quest after {a.goals_needed} goals\n")
     print(f"{'persona':16s} {'#':>2} {'outcome':10s} {'days':>4} {'nocap':>5} {'L2':>3} {'asc':>4} {'L10':>4} {'L10nc':>5} {'chal':>4} {'won':>3} {'qst':>3} {'cap':>3} {'lvl':>3} {'xp':>5}  STR END KNO MIN  boss")
     for r in results:
         at = r["attributes"]
@@ -310,4 +318,4 @@ if not a.quiet:
         print(f"{persona:16s} won {len(won)}/{len(rows)}  defeated {sum(1 for r in rows if r['outcome']=='defeated')}  unfinished {sum(1 for r in rows if r['outcome']=='unfinished')}  "
               f"days {mean('finish_day', won)} (no cap {mean('uncapped_finish_day', won)})  L2 {mean('first_level_day')}  ascension {mean('ascension_day')}  L10 {mean('level10_day')} (no cap {mean('uncapped_level10_day')})  "
               f"challenges {mean('challenges')}  quests {mean('quests')}  cap days {mean('cap_days')}  attempts {mean('boss_attempts')}")
-if a.json: json.dump(dict(ruleset=R["id"], cap=R.get("daily_activity_xp_cap"), players=a.players, goals_needed=a.goals_needed, personas={k: v["desc"] for k, v in PERSONAS.items()}, results=results), open(a.json, "w"), indent=1)
+if a.json: json.dump(dict(ruleset=R["id"], cap=R.get("daily_activity_strain") or R.get("daily_activity_xp_cap"), players=a.players, goals_needed=a.goals_needed, personas={k: v["desc"] for k, v in PERSONAS.items()}, results=results), open(a.json, "w"), indent=1)

@@ -207,6 +207,20 @@ final class AppState {
         let ids = Set(todayEvents.map(\.id))
         return ledger.xp.filter { $0.reason == .activity && $0.activityEventID.map(ids.contains) == true }.reduce(0) { $0 + $1.amount }
     }
+    /// Today's activity XP before strain (owner 2026-10-17): where the day sits in the bands.
+    var todayUnstrainedXP: Int {
+        let ids = Set(todayEvents.map(\.id))
+        let granted = Dictionary(ledger.xp.filter { $0.reason == .activity }.compactMap { tx in tx.activityEventID.map { ($0, tx.amount) } }, uniquingKeysWith: +)
+        return ledger.processing.filter { $0.purpose == .original && ids.contains($0.activityEventID) }.reduce(0) { $0 + ($1.unstrainedXP ?? granted[$1.activityEventID] ?? 0) }
+    }
+    /// The strain band today's next session would land in: nil = full credit, else the band's rate (0 = past the last band).
+    var strainRateNow: Double? {
+        guard let strain = ruleset.dailyActivityStrain else { return nil }
+        let raw = todayUnstrainedXP
+        if raw < strain.fullCreditXP { return nil }
+        for band in strain.bands where raw < band.upTo { return band.rate }
+        return 0
+    }
     /// Row label for any fact, goal completions included.
     func displayName(for event: ActivityEvent) -> String {
         if let goal = event.goal { return bundle.goalTemplate(goal.templateID)?.title.replacingOccurrences(of: "{target}", with: "") ?? goal.templateID.rawValue }
@@ -668,7 +682,7 @@ final class AppState {
         set { UserDefaults.standard.set(newValue, forKey: "dev.dayOffset"); devToken += 1 }
     }
     private(set) var devToken = 0
-    var devDailyCapOff: Bool { ruleset.dailyActivityXPCap == nil && baseRuleset.dailyActivityXPCap != nil }
+    var devDailyCapOff: Bool { ruleset.dailyActivityStrain == nil && ruleset.dailyActivityXPCap == nil && (baseRuleset.dailyActivityStrain != nil || baseRuleset.dailyActivityXPCap != nil) }
 
     /// Pull the active quest's return to now and resolve it.
     func devFinishQuest() {
@@ -681,11 +695,11 @@ final class AppState {
         guard let ev = evolution, let tier = ev.ascensionTier, tier > 0 else { return }
         pendingAscension = PendingAscension(fromTier: 0, toTier: tier, evolutionName: ev.displayName, chapterID: ev.ascensionChapter)
     }
-    /// Swap the ruleset for a copy without the daily activity cap (or back). The service is rebuilt on the same ledger.
+    /// Swap the ruleset for a copy without strain or the daily cap (or back). The service is rebuilt on the same ledger.
     func devSetDailyCap(off: Bool) {
         var variant = baseRuleset
         if off, var json = try? JSONSerialization.jsonObject(with: JSONEncoder().encode(baseRuleset)) as? [String: Any] {
-            json.removeValue(forKey: "daily_activity_xp_cap")
+            json.removeValue(forKey: "daily_activity_xp_cap"); json.removeValue(forKey: "daily_activity_strain")
             if let data = try? JSONSerialization.data(withJSONObject: json), let r = try? ProgressionRuleset.decode(data) { variant = r }
         }
         ruleset = variant

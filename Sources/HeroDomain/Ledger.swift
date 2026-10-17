@@ -69,9 +69,12 @@ public struct ProcessingRecord: Hashable, Codable, Sendable {
     /// Credit-weighted minutes this event consumed of its family's daily allowance, so later
     /// events on the same day taper exactly (doc 15 §2: retain enough context to explain a grant).
     public let eligibleMinutes: Double
+    /// Activity XP before strain (owner 2026-10-17), so the day's later events land in the right band. nil on records
+    /// written before strain existed: the granted XP stands in (the two were equal under the old cap).
+    public let unstrainedXP: Int?
 
-    public init(activityEventID: ActivityEventID, purpose: Purpose, rulesetID: RulesetID, processedAt: Date, eligibleMinutes: Double = 0) {
+    public init(activityEventID: ActivityEventID, purpose: Purpose, rulesetID: RulesetID, processedAt: Date, eligibleMinutes: Double = 0, unstrainedXP: Int? = nil) {
         self.activityEventID = activityEventID; self.purpose = purpose; self.rulesetID = rulesetID; self.processedAt = processedAt
-        self.eligibleMinutes = eligibleMinutes
+        self.eligibleMinutes = eligibleMinutes; self.unstrainedXP = unstrainedXP
     }
 }

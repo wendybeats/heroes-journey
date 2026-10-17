@@ -27,8 +27,9 @@ struct DevControlsView: View {
                             .buttonStyle(SecondaryButtonStyle()).disabled(state.activeQuest == nil)
                     }
                     section("XP") {
-                        row("Daily activity cap", value: state.ruleset.dailyActivityXPCap.map { "\($0)" } ?? "off")
-                        Toggle("Remove the daily cap", isOn: Binding(get: { state.devDailyCapOff }, set: { state.devSetDailyCap(off: $0) }))
+                        row("Strain", value: state.ruleset.dailyActivityStrain.map { s in "\(s.fullCreditXP) full · " + s.bands.map { "\(Int($0.rate * 100))% to \($0.upTo)" }.joined(separator: " · ") } ?? (state.ruleset.dailyActivityXPCap.map { "cap \($0)" } ?? "off"))
+                        row("Activity XP today, raw", value: "\(state.todayUnstrainedXP)")
+                        Toggle("Remove strain", isOn: Binding(get: { state.devDailyCapOff }, set: { state.devSetDailyCap(off: $0) }))
                             .font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary).tint(NeoTokyo.Hierarchy.primary)
                         row("Activity XP today", value: "\(state.todayActivityXP)")
                     }

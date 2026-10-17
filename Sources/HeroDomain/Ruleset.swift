@@ -185,7 +185,36 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
     public let goalXP: [String: Int]?
     public let dailyQuest: DailyQuest?
     /// Cross-family cap on activity XP per local day (dev-5). Goals and quests are outside it. Nil = no cap.
+    /// Superseded by `dailyActivityStrain` when both are present.
     public let dailyActivityXPCap: Int?
+    /// Owner 2026-10-17: strain. A day's real activity earns full credit up to `fullCreditXP`, then each band's rate on
+    /// the raw XP inside it, and nothing past the last band. Goals, quests, challenges and the bond are outside it.
+    public struct DailyActivityStrain: Codable, Sendable, Equatable {
+        public struct Band: Codable, Sendable, Equatable {
+            public let upTo: Int
+            public let rate: Double
+            public init(upTo: Int, rate: Double) { self.upTo = upTo; self.rate = rate }
+            enum CodingKeys: String, CodingKey { case upTo = "up_to", rate }
+        }
+        public let fullCreditXP: Int
+        public let bands: [Band]
+        public init(fullCreditXP: Int, bands: [Band]) { self.fullCreditXP = fullCreditXP; self.bands = bands }
+        enum CodingKeys: String, CodingKey { case fullCreditXP = "full_credit_xp", bands }
+        /// Credited XP for raw activity XP from 0 to `raw` in one day (piecewise linear, non-decreasing).
+        public func credited(upToRaw raw: Int) -> Double {
+            var total = Double(min(raw, fullCreditXP)); var floor = fullCreditXP
+            for band in bands {
+                let inside = max(0, min(raw, band.upTo) - floor)
+                total += Double(inside) * band.rate; floor = max(floor, band.upTo)
+            }
+            return total
+        }
+        /// What an event worth `raw` XP credits after `priorRaw` raw XP already earned today. Floors to whole XP.
+        public func credit(raw: Int, priorRaw: Int) -> Int {
+            Int((credited(upToRaw: priorRaw + raw) - credited(upToRaw: priorRaw)).rounded(.down))
+        }
+    }
+    public let dailyActivityStrain: DailyActivityStrain?
     public let bondGrant: BondGrant?
     /// Doc 33 challenges; absent = no challenges are offered.
     public let challenges: Challenges?
@@ -204,16 +233,16 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
         case minimumDurationSeconds = "minimum_duration_seconds"
         case levelThresholdsTotalXP = "level_thresholds_total_xp"
         case structuredWorkout = "structured_workout"
-        case sessionBaseXP = "session_base_xp", healthHistoryWindowDays = "health_history_window_days", goalXP = "goal_xp", dailyQuest = "daily_quest", dailyActivityXPCap = "daily_activity_xp_cap", bondGrant = "bond_grant", challenges, goalStoryLineChance = "goal_story_line_chance", bossCombat = "boss_combat"
+        case sessionBaseXP = "session_base_xp", healthHistoryWindowDays = "health_history_window_days", goalXP = "goal_xp", dailyQuest = "daily_quest", dailyActivityXPCap = "daily_activity_xp_cap", dailyActivityStrain = "daily_activity_strain", bondGrant = "bond_grant", challenges, goalStoryLineChance = "goal_story_line_chance", bossCombat = "boss_combat"
     }
 
-    public init(id: RulesetID, version: Int, status: Status, xpPerMinuteByFamily: [String: Double], attributeWeightsByFamily: [String: [String: Double]], attributePointsPerXP: Double, verificationMultiplier: [String: Double], dailyTaper: DailyTaper, minimumDurationSeconds: Int, levelThresholdsTotalXP: [Int], structuredWorkout: StructuredWorkout? = nil, sessionBaseXP: Int? = nil, healthHistoryWindowDays: Int? = nil, goalXP: [String: Int]? = nil, dailyQuest: DailyQuest? = nil, dailyActivityXPCap: Int? = nil, bondGrant: BondGrant? = nil, challenges: Challenges? = nil, goalStoryLineChance: Double? = nil, bossCombat: BossCombat? = nil) {
+    public init(id: RulesetID, version: Int, status: Status, xpPerMinuteByFamily: [String: Double], attributeWeightsByFamily: [String: [String: Double]], attributePointsPerXP: Double, verificationMultiplier: [String: Double], dailyTaper: DailyTaper, minimumDurationSeconds: Int, levelThresholdsTotalXP: [Int], structuredWorkout: StructuredWorkout? = nil, sessionBaseXP: Int? = nil, healthHistoryWindowDays: Int? = nil, goalXP: [String: Int]? = nil, dailyQuest: DailyQuest? = nil, dailyActivityXPCap: Int? = nil, bondGrant: BondGrant? = nil, challenges: Challenges? = nil, goalStoryLineChance: Double? = nil, bossCombat: BossCombat? = nil, dailyActivityStrain: DailyActivityStrain? = nil) {
         self.id = id; self.version = version; self.status = status
         self.xpPerMinuteByFamily = xpPerMinuteByFamily; self.attributeWeightsByFamily = attributeWeightsByFamily
         self.attributePointsPerXP = attributePointsPerXP; self.verificationMultiplier = verificationMultiplier
         self.dailyTaper = dailyTaper; self.minimumDurationSeconds = minimumDurationSeconds
         self.levelThresholdsTotalXP = levelThresholdsTotalXP; self.structuredWorkout = structuredWorkout
-        self.sessionBaseXP = sessionBaseXP; self.healthHistoryWindowDays = healthHistoryWindowDays; self.goalXP = goalXP; self.dailyQuest = dailyQuest; self.dailyActivityXPCap = dailyActivityXPCap; self.bondGrant = bondGrant; self.challenges = challenges; self.goalStoryLineChance = goalStoryLineChance; self.bossCombat = bossCombat
+        self.sessionBaseXP = sessionBaseXP; self.healthHistoryWindowDays = healthHistoryWindowDays; self.goalXP = goalXP; self.dailyQuest = dailyQuest; self.dailyActivityXPCap = dailyActivityXPCap; self.dailyActivityStrain = dailyActivityStrain; self.bondGrant = bondGrant; self.challenges = challenges; self.goalStoryLineChance = goalStoryLineChance; self.bossCombat = bossCombat
     }
 
     /// Minutes an event is credited for before the daily taper. Any session that records sets

@@ -5,7 +5,8 @@ import Foundation
 public struct EvaluationContext: Sendable, Equatable {
     /// Minutes already credited today, in the same family, before this event.
     public let priorEligibleMinutesToday: Double
-    /// Activity XP already earned today across every family, before this event (dev-5 cap).
+    /// Activity XP already earned today across every family, before this event. With strain (2026-10-17) this is the
+    /// day's *raw* XP, before the bands, so the next event lands in the right band; with the old cap it is the XP granted.
     public let priorActivityXPToday: Int
     /// Total XP before this event, used to detect level crossings.
     public let priorTotalXP: Int
@@ -35,10 +36,13 @@ public struct ProgressionProposal: Sendable, Equatable {
     public let rewardsUnlocked: [RewardID]
     /// Minutes that counted at full or tapered credit; for the caller to roll into tomorrow's context.
     public let eligibleMinutes: Double
+    /// Activity XP before strain (owner 2026-10-17), so the ledger can place the day's next event in its band. Equal to `xp` when nothing was strained.
+    public let unstrainedXP: Int
 
-    public init(activityEventID: ActivityEventID, rulesetID: RulesetID, xp: Int, attributes: [AttributeID: Int], levelBefore: Int, levelAfter: Int, rewardsUnlocked: [RewardID], eligibleMinutes: Double) {
+    public init(activityEventID: ActivityEventID, rulesetID: RulesetID, xp: Int, attributes: [AttributeID: Int], levelBefore: Int, levelAfter: Int, rewardsUnlocked: [RewardID], eligibleMinutes: Double, unstrainedXP: Int? = nil) {
         self.activityEventID = activityEventID; self.rulesetID = rulesetID; self.xp = xp; self.attributes = attributes
         self.levelBefore = levelBefore; self.levelAfter = levelAfter; self.rewardsUnlocked = rewardsUnlocked; self.eligibleMinutes = eligibleMinutes
+        self.unstrainedXP = unstrainedXP ?? xp
     }
 
     public var leveledUp: Bool { levelAfter > levelBefore }
@@ -55,6 +59,7 @@ public enum ProgressionEngine {
         var xp: Int
         var attributes: [AttributeID: Int] = [:]
         var credited = 0.0
+        var unstrained: Int? = nil
         var questRewards: [RewardID] = []
         if let goal = event.goal {
             // Goal completion: flat, untapered, credited to the template's attribute (doc 24).
@@ -98,7 +103,7 @@ public enum ProgressionEngine {
             }
         } else {
             guard let priced = activityXP(event: event, ruleset: ruleset, context: context) else { return empty() }
-            xp = priced.xp; attributes = priced.attributes; credited = priced.credited
+            xp = priced.xp; attributes = priced.attributes; credited = priced.credited; unstrained = priced.raw
         }
 
         let levelAfter = ruleset.level(forTotalXP: context.priorTotalXP + xp)
@@ -110,11 +115,11 @@ public enum ProgressionEngine {
                 }
             }
         }
-        return ProgressionProposal(activityEventID: event.id, rulesetID: ruleset.id, xp: xp, attributes: attributes, levelBefore: levelBefore, levelAfter: levelAfter, rewardsUnlocked: rewards, eligibleMinutes: credited)
+        return ProgressionProposal(activityEventID: event.id, rulesetID: ruleset.id, xp: xp, attributes: attributes, levelBefore: levelBefore, levelAfter: levelAfter, rewardsUnlocked: rewards, eligibleMinutes: credited, unstrainedXP: unstrained)
     }
 
     /// Minute-based pricing for real activity. Nil when the event earns nothing.
-    private static func activityXP(event: ActivityEvent, ruleset: ProgressionRuleset, context: EvaluationContext) -> (xp: Int, attributes: [AttributeID: Int], credited: Double)? {
+    private static func activityXP(event: ActivityEvent, ruleset: ProgressionRuleset, context: EvaluationContext) -> (xp: Int, attributes: [AttributeID: Int], credited: Double, raw: Int)? {
         guard event.durationSeconds >= ruleset.minimumDurationSeconds else { return nil }
         guard let xpPerMinute = ruleset.xpPerMinuteByFamily[event.familyID.rawValue] else { return nil }
 
@@ -123,9 +128,14 @@ public enum ProgressionEngine {
         let multiplier = ruleset.verificationMultiplier[event.verification.rawValue] ?? 1.0
         let base = credited > 0 ? (ruleset.sessionBaseXP ?? 0) : 0
         var xp = Int((credited * xpPerMinute * multiplier).rounded(.down)) + base
-        // dev-5 (docs/21): a day of activity is worth at most the cap, whatever the mix of families.
-        // Consistency sets the pace; volume past the cap is history, not progression.
-        if let cap = ruleset.dailyActivityXPCap { xp = max(0, min(xp, cap - context.priorActivityXPToday)) }
+        let raw = xp
+        if let strain = ruleset.dailyActivityStrain {
+            // Owner 2026-10-17: strain, not a wall. Full credit up to the band, then half, then a quarter, then nothing.
+            xp = max(0, strain.credit(raw: raw, priorRaw: context.priorActivityXPToday))
+        } else if let cap = ruleset.dailyActivityXPCap {
+            // dev-5 (docs/21): a day of activity is worth at most the cap, whatever the mix of families.
+            xp = max(0, min(xp, cap - context.priorActivityXPToday))
+        }
 
         var attributes: [AttributeID: Int] = [:]
         let weights = ruleset.attributeWeightsByFamily[event.familyID.rawValue] ?? [:]
@@ -133,7 +143,7 @@ public enum ProgressionEngine {
             let points = Int((Double(xp) * ruleset.attributePointsPerXP * weight).rounded(.down))
             if points > 0 { attributes[AttributeID(attributeKey)] = points }
         }
-        return (xp, attributes, credited)
+        return (xp, attributes, credited, raw)
     }
 
     /// Diminishing returns, not punishment (doc 05). Returns *credit-weighted* minutes.

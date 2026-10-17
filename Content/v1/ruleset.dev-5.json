@@ -212,7 +212,20 @@
     },
     "page_chance": 0.5
   },
-  "daily_activity_xp_cap": 120,
+  "daily_activity_strain": {
+    "notes": "Owner 2026-10-17: strain replaces the hard cap. A day's real activity earns full credit up to full_credit_xp, then each band's rate on the raw XP inside it, and nothing past the last band. 120 full, 121–200 at 50 %, 201–400 at 25 %, 400+ nothing: a day tops out at 210 credited XP. Goals, quests, challenges and the bond sit outside it. Background mechanic: the player can only hold so much growth in a day; the receipt shows the smaller number without a lecture.",
+    "full_credit_xp": 120,
+    "bands": [
+      {
+        "up_to": 200,
+        "rate": 0.5
+      },
+      {
+        "up_to": 400,
+        "rate": 0.25
+      }
+    ]
+  },
   "level_curve": {
     "derived_from": "light persona",
     "light_goal_rate": 0.75,

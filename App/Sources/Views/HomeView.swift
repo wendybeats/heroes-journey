@@ -605,7 +605,17 @@ struct HomeView: View {
                 Spacer()
                 healthStatus
             }
-            if let cap = state.ruleset.dailyActivityXPCap {
+            if let strain = state.ruleset.dailyActivityStrain {
+                // Owner 2026-10-17: strain is a background mechanic; the row says where the day is, nothing more.
+                HStack(spacing: NeoTokyo.Spacing.xs) {
+                    Text("Activity XP today").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
+                    Spacer()
+                    if let rate = state.strainRateNow {
+                        Text(rate > 0 ? "Strained · \(Int(rate * 100))%" : "Rested tomorrow").font(HeroFont.label).foregroundStyle(NeoTokyo.Text.muted)
+                    }
+                    Text("\(state.todayActivityXP)").font(HeroFont.captionNumber).foregroundStyle(state.todayUnstrainedXP >= strain.fullCreditXP ? NeoTokyo.Hierarchy.primary : NeoTokyo.Text.primary)
+                }
+            } else if let cap = state.ruleset.dailyActivityXPCap {
                 HStack(spacing: NeoTokyo.Spacing.xs) {
                     Text("Activity XP today").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
                     Spacer()

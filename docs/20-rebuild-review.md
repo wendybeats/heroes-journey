@@ -353,6 +353,10 @@ The owner's implementation brief: polish the existing fight's presentation, no n
 
 Not changed: every system in the brief's keep list, and the tutorial (the owner builds it; the hint line stands in).
 
+## Increment 57, 2026-10-17: strain bands instead of the daily cap
+
+Owner decision after the forty-player run (doc 39): the hard cap becomes strain. Ruleset block `daily_activity_strain` (120 full, 50 % to 200, 25 % to 400, nothing after); `ProgressionRuleset.DailyActivityStrain` with `credited(upToRaw:)` and `credit(raw:priorRaw:)`; the engine applies it to real activity only and the proposal carries `unstrainedXP`; `ProcessingRecord.unstrainedXP` lets the ledger context place the day's next event by raw XP (older records fall back to the grant); the context now also leaves challenge, story and bond facts out of the day's activity XP, which the old cap had been counting. Home's today row and the dev panel read the bands; the dev toggle removes strain. Both Python simulators mirror the bands; the curve check still passes. Three strain tests (bands, engine, ledger context). Details and pace numbers in doc 21 dev-5f.
+
 ## Planned (owner, 2026-10-12): challenges and between-beat content
 
 Doc 33 holds the design, the five-increment plan (40–44) and the content inventory (lines and art the owner writes separately). Order: beats wait for their quest (`requires_quest`), Challenges with Cairon then the lifter, repeat quest exchanges and found pages, story-aware goal lines and Row rumours. Each lands behind its content: a field with no lines renders nothing.

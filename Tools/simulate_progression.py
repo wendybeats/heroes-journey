@@ -76,9 +76,17 @@ def simulate(plan, rate):
             m = credited(fam, mins * random.uniform(0.85, 1.15), sets)
             cm = taper(m, prior.get(fam, 0)); prior[fam] = prior.get(fam, 0) + cm
             earned = math.floor(cm * R["xp_per_minute_by_family"][fam] * R["verification_multiplier"].get("self_reported", 1)) + (R.get("session_base_xp", 0) if cm > 0 else 0)
-            cap = R.get("daily_activity_xp_cap")   # cross-family (dev-5): a day of activity is worth at most this
-            if cap is not None: earned = max(0, min(earned, cap - day_activity_xp))
-            day_activity_xp += earned; xp += earned
+            raw = earned
+            if (st := R.get("daily_activity_strain")):   # owner 2026-10-17: strain bands over the day's raw XP, mirrors Ruleset.DailyActivityStrain
+                def strained_at(r):
+                    total = min(r, st["full_credit_xp"]); floor = st["full_credit_xp"]
+                    for b in st["bands"]: total += max(0, min(r, b["up_to"]) - floor) * b["rate"]; floor = max(floor, b["up_to"])
+                    return total
+                earned = max(0, math.floor(strained_at(day_activity_xp + raw) - strained_at(day_activity_xp)))
+            else:
+                cap = R.get("daily_activity_xp_cap")   # cross-family (dev-5): a day of activity is worth at most this
+                if cap is not None: earned = max(0, min(earned, cap - day_activity_xp))
+            day_activity_xp += raw; xp += earned
         xp += goal_and_quest_xp(rate)
         days.append(xp)
     return days
