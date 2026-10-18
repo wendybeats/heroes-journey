@@ -657,7 +657,8 @@ struct HomeView: View {
                 }
             }
             if state.todayEvents.allSatisfy({ $0.steps != nil }) {
-                Text("Nothing logged yet.").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.muted)
+                // Owner QA 2026-10-18: steps are logged too; say so instead of "nothing".
+                Text((state.todaySteps ?? 0) > 0 ? "No sessions yet. Steps are counting." : "Nothing logged yet.").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.muted)
             } else {
                 if state.pendingCount > 0 {
                     Text("\(state.pendingCount) waiting to sync").font(HeroFont.caption).foregroundStyle(NeoTokyo.Hierarchy.fallback)
@@ -685,7 +686,10 @@ struct HomeView: View {
                 .font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.fallback)
         case .requested:
             if let at = state.healthSync.lastSyncAt {
-                Text("Health · \(at.formatted(.relative(presentation: .named)))").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
+                // Owner QA 2026-10-18: this read "Health · next week" because the sync time carries the dev day offset
+                // and was formatted against the wall clock. Relative to the app's own clock, and plainer.
+                let formatter = RelativeDateTimeFormatter()
+                Text("Health · synced \(formatter.localizedString(for: at, relativeTo: state.now))").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
             } else if let err = state.healthSync.lastError {
                 Text("Health · \(err.prefix(40))").font(HeroFont.caption).foregroundStyle(NeoTokyo.Hierarchy.destructive)
             }
