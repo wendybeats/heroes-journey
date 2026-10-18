@@ -53,3 +53,46 @@ Build: branch `claude/tender-hamilton-d57cv9`, commit in the increment 28 entry 
 - Items do not show on the departure walk (baked strip).
 - Only Clean Trainers has a wearable layer, and it is a placeholder.
 - Level 10 reward is still TBD; legendary cache unused; Colossus portrait, loot-box open state, and the hood-up idle are pending art.
+
+## QA for build 89b3d0f (2026-10-18): play-through queue, strain, steps, personalisation
+
+Fresh install unless a line says otherwise.
+
+**Onboarding**
+1. Hair: pick wolf cut, switch body to female → ponytail, colour kept; switch back → wolf cut.
+2. Chips (style, colour) show no inner capsule on iOS 26.
+3. Physical and secondary options carry attribute glyphs at the trailing edge in the attribute colours.
+4. Two new steps after the motivation question: "What does your human want more of? Pick any." and "And what do they find hard to keep up?", five rows each (Body, Mind, Calm, Make, Order) with a line under each, any number selectable, Next always enabled.
+5. Health step: after Connect, the "Apple Health · Connected" card; the sentence is gone.
+6. Bond step: the character glows up, "+6 <attribute> · from your <family>" lands, then "+4 <attribute> · from your interest in <interest>", then the closing line; Seal the bond is disabled until then. Reduce Motion shows it all at once.
+
+**Day one with Health**
+7. Home opens with the Health welcome card (your line, step count, workouts, XP); the numbers hold at the pre-credit values until Good, then one level-up plays.
+8. The home scene and any challenge wait until the first thing you do by hand (log a session, tap a goal), then play.
+
+**Home**
+9. Today card: "4,091 steps · +16 xp" style row; the day's raw XP row with "Strained · 50 %" once past 120; "No sessions yet. Steps are counting." when only steps; "Health · synced 2 minutes ago" on the right.
+10. Tapping "Read for 10 min" opens the log sheet on Reading; "Change" returns to the list. A manual goal still completes by tap.
+11. After any log, Home is at the top when the bar moves.
+12. Dev panel: the Ascension tier picker changes the idle on Home; the Strain row shows the bands and the raw XP; "Remove strain" turns it off.
+13. A second 60-minute session in a day credits about half; the receipt shows the smaller number without a lecture; past 400 raw XP the receipt says "Enough for one day."
+
+**Story**
+14. A cutscene that opens an area shows "New area · Colossus Gym" (or "New scene · …", "Your room is open") over the stage for three seconds.
+15. Dialogue portraits are 160 pt in a frame; the bubble sits on the speaker's side under their name; hero always on the left; "Tap to continue" pulses.
+16. The first time Face Colossus is offered, Cairon's "That's him, at the bottom of the stairs…" plays before the glowing boss card.
+17. The boss card: "Boss · Under City", the portrait, one filled button, a slow gold pulse; a challenge the same day sits below it.
+
+**Ascension (Level 8, or the dev replay)**
+18. Slow rise with the glow building, four gold strikes with the room flashing, the eyes light, whiteout, the final flash, then the ascended character held with "Ascension is here" and its name; nothing advances until Continue; then the settle and the scene.
+
+**Quests and pages**
+19. A gym quest's cache: the gear card, then "There was something else in it." → Next → the page card with the log line and the hero's remark → Claim. Pages arrive in order.
+20. Departure screen: "I'll let you know when I'm back." under the countdown once notifications are allowed.
+
+**Fight**
+21. Sprites switch states; fighters near the edges; his bar left, yours right under your name; no advance telegraph; ANALYZE shows "READ · Crush" once; Guard braces and ripples on his hit; Center's beads converge; "BROKEN · one free action" with the Attack button lit; Pressure explained once; MORE darkens the room; PHASE II at half his Stamina; the victory sequence and "Colossus defeated · For the first time in eleven years, he stops."
+22. Each verb's first use shows its build line ("ATTACK · Strength advantage…").
+
+**History**
+23. One Steps row a day with a Health tag; Health imports carry the Health badge.
