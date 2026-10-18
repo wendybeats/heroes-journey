@@ -111,6 +111,8 @@ public enum CombatEvent: Equatable, Sendable {
     case centered(cleared: Int, recovered: Double)
     case bossRecovered
     case bossAttack(name: String, incoming: Double, taken: Double, deflected: Bool)
+    /// Owner 2026-10-18 (doc 37 C): the hit just reported took everything; an unguarded deflectable hit at the lethal stacks.
+    case lethal(name: String)
     case bossLoad(multiplier: Double)
     case pressure(stacks: Int)
     case dialogue(key: String)
@@ -214,12 +216,18 @@ public struct BossEncounter: Sendable {
         // A Break this turn cancelled the telegraphed action.
         guard !isBroken, let name = intentName, let spec else { return finish(&ev) }
         if spec.damage > 0 {
-            let incoming = boss.attack * spec.damage * loaded * (1.0 + escalation)
+            // Doc 37 fourth tuning (E): Pressure cuts both ways; each stack arms his hit as well as softening yours.
+            let incoming = boss.attack * spec.damage * loaded * (1.0 + escalation) * (1.0 + rules.pressureBossDamagePerStack * Double(pressure))
             loaded = 1.0
             let deflected = guarding > 0 && spec.deflectable
             let reduction = min(rules.guardMaxReduction, guarding + (deflected ? rules.deflectBonusReduction : 0))
-            let taken = vary(incoming * (1.0 - reduction)); playerStamina -= taken
+            // Doc 37 fourth tuning (C): an unguarded Crush at the lethal stacks takes everything that is left.
+            let lethal = rules.lethalPressureStacks > 0 && spec.deflectable && guarding == 0 && pressure >= rules.lethalPressureStacks
+            var taken = vary(incoming * (1.0 - reduction))
+            if lethal { taken = max(taken, playerStamina) }
+            playerStamina -= taken
             ev.append(.bossAttack(name: name, incoming: incoming, taken: taken, deflected: deflected))
+            if lethal { ev.append(.lethal(name: name)) }
             if deflected {
                 deflects += 1
                 if flags.insert("first_deflect").inserted { ev.append(.dialogue(key: "first_deflect")) }

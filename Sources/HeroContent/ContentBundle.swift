@@ -574,7 +574,7 @@ public struct ContentBundle: Codable, Sendable, Equatable {
             // Events (doc 36 §23) plus the V2 presentation keys (owner brief 2026-10-16): the phase beat and the victory card.
             for key in boss.dialogue.keys where !["first_deflect", "escalate", "first_break", "phase_two", "phase_two_title", "defeated_title", "defeated_line"].contains(key) { problems.append("boss \(boss.id) dialogue key \(key) is not an event") }
             // Surfaces (doc 36 §34) plus the one-time Pressure explanations (brief P1-5).
-            for key in boss.tutorial.keys where !["attack", "guard", "break", "pressure", "analyze", "pressure_first", "pressure_cleared"].contains(key) { problems.append("boss \(boss.id) tutorial key \(key) is not a surface") }
+            for key in boss.tutorial.keys where !["attack", "guard", "break", "pressure", "analyze", "pressure_first", "pressure_cleared", "lethal"].contains(key) { problems.append("boss \(boss.id) tutorial key \(key) is not a surface") }
             if let at = boss.phaseAt, !(0 < at && at < 1) { problems.append("boss \(boss.id) phase_at must be between 0 and 1") }
             for (state, asset) in boss.assets where asset.isEmpty { problems.append("boss \(boss.id) asset \(state) is empty") }
         }

@@ -293,7 +293,7 @@
   },
   "goal_story_line_chance": 0.1,
   "boss_combat": {
-    "notes": "Doc 36/37 boss combat tuning. Stats enter as shares of the balanced expected stat at the player's level (ChallengeMath.share); every verb has a base effect at share 0 and mastery = (1 + share)^mastery_exponent multiplies it. Owner 2026-10-16: no random misses, zero variance to start, Break interrupts, Center never clears everything. 2026-10-16 retune with Colossus at 240 Stamina (owner QA): attack_base 12 (was 9), analyze_base_break 1.0 (was 0.85), max_turns 50 (was 40). Sweep in doc 37 §7: Balanced tactical wins in ~20 turns with ~44 % left, brute and Day One lose, the Broken hit on a 0.7 Strength share is ~49.",
+    "notes": "Doc 36/37 boss combat tuning. Stats enter as shares of the balanced expected stat at the player's level (ChallengeMath.share); every verb has a base effect at share 0 and mastery = (1 + share)^mastery_exponent multiplies it. Owner 2026-10-16: no random misses, zero variance to start, Break interrupts, Center never clears everything. 2026-10-16 retune with Colossus at 240 Stamina (owner QA): attack_base 12 (was 9), analyze_base_break 1.0 (was 0.85), max_turns 50 (was 40). Sweep in doc 37 §7: Balanced tactical wins in ~20 turns with ~44 % left, brute and Day One lose, the Broken hit on a 0.7 Strength share is ~49. 2026-10-18 fourth tuning (owner pick after finishing with 70 % stamina): pressure_boss_damage_per_stack 0.15 (each MORE stack arms his hits as well as softening yours) and lethal_pressure_stacks 2 (an unguarded Crush at two or more stacks takes everything left). Escalation stays 0.08.",
     "mastery_exponent": 0.6,
     "player_stamina_base": 100,
     "stamina_endurance_bonus": 0.11,
@@ -312,6 +312,8 @@
     "pressure_cap": 3,
     "broken_multiplier": 3.0,
     "max_turns": 50,
-    "variance": 0.0
+    "variance": 0.0,
+    "pressure_boss_damage_per_stack": 0.15,
+    "lethal_pressure_stacks": 2
   }
 }

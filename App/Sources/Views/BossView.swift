@@ -594,6 +594,14 @@ struct BossView: View {
             bossAnim = shownBroken ? "broken" : "idle"
             narration = nil
             if taken > encounter.playerStaminaMax * 0.15 { showHint("guard") }
+        case .lethal:
+            // Doc 37 fourth tuning (C): the hit above took everything; say why, once, where the number landed.
+            if !reduceMotion { stageShake = CGSize(width: 9, height: -4) }
+            flash = 0.45
+            pop = Pop(text: "KO", at: .heroTorso, color: NeoTokyo.Attribute.color(for: "strength"), big: true, sub: boss.tutorial["lethal"])
+            await pause(120); stageShake = .zero
+            withAnimation(.easeOut(duration: 0.3)) { flash = 0 }
+            await pause(1400)
         case let .bossLoad(m):
             narration = boss.actions["load"]?.telegraph
             bossAnim = "buff"; bossAuraColor = NeoTokyo.Text.secondary; bossAura = 0.7

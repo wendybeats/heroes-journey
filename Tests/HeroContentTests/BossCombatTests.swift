@@ -112,6 +112,36 @@ final class BossCombatTests: XCTestCase {
         XCTAssertEqual(pressured(0).centerStacks, 1); XCTAssertEqual(pressured(2).centerStacks, 2)
     }
 
+    /// Doc 37 fourth tuning (owner 2026-10-18): Pressure arms his hits (E), and an unguarded Crush at two stacks is a KO (C).
+    func testPressureArmsHimAndAnUnguardedCrushAtTwoStacksIsAKO() throws {
+        let (boss, rules, _) = try load()
+        XCTAssertEqual(rules.pressureBossDamagePerStack, 0.15); XCTAssertEqual(rules.lethalPressureStacks, 2)
+        func incoming(_ ev: [CombatEvent]) throws -> (incoming: Double, taken: Double) {
+            for e in ev { if case let .bossAttack(_, incoming, taken, _) = e { return (incoming, taken) } }
+            throw XCTSkip("no boss attack in \(ev)")
+        }
+        var e = BossEncounter(boss: boss, rules: rules, shares: CombatShares(strength: 0, endurance: 3, knowledge: 0, mindfulness: 0))
+        for _ in 0..<13 { e.step(.`guard`) }                 // three MOREs landed (doc 37 §8 test); his next move is TEST
+        XCTAssertEqual(e.pressure, 3); XCTAssertEqual(e.intent, "test")
+        let armed = e
+        // E: the TEST under three stacks carries +45 % on top of the three escalations.
+        let test = try incoming(e.step(.attack))
+        XCTAssertEqual(test.incoming, boss.attack * 0.7 * (1 + 3 * 0.08) * (1 + 0.15 * 3), accuracy: 1e-9)
+        XCTAssertEqual(e.intent, "load"); e.step(.attack); XCTAssertEqual(e.intent, "crush"); XCTAssertEqual(e.pressure, 3)
+        // C: guarded, the Crush is a Deflect as before; unguarded at two or more stacks it takes everything.
+        var guarded = e; guarded.step(.`guard`); XCTAssertNil(guarded.result); XCTAssertEqual(guarded.deflects, 4)
+        var ko = e; let before = ko.playerStamina; XCTAssertGreaterThan(before, 0)
+        let ev = ko.step(.attack); let crush = try incoming(ev)
+        XCTAssertTrue(ev.contains(.lethal(name: "crush")), "\(ev)")
+        XCTAssertEqual(ko.result, .lost); XCTAssertLessThanOrEqual(ko.playerStamina, 0)
+        XCTAssertLessThan(crush.incoming, before, "the number alone would not have ended it; the rule did"); XCTAssertEqual(crush.taken, before, accuracy: 1e-9)
+        // Below the lethal stacks the same Crush is only a hit: two Centers bring the stacks to one first.
+        var low = armed; low.step(.center); low.step(.center)
+        XCTAssertEqual(low.pressure, 1); XCTAssertEqual(low.intent, "crush")
+        let hit = low.step(.attack)
+        XCTAssertNil(low.result); XCTAssertFalse(hit.contains(.lethal(name: "crush")))
+    }
+
     /// Doc 36 §25: neither Guard nor Center can stall him out, at any build.
     func testNoStallAtAnyArchetype() throws {
         let (boss, rules, _) = try load()

@@ -120,3 +120,12 @@ Fresh install for 1–3; the rest on an existing save.
 
 **Fight**
 10. Unchanged on purpose: the Colossus still ends near where you left him (options in doc 37, awaiting a pick).
+
+## QA for the Colossus fourth tuning (2026-10-18, same branch)
+
+**Fight**
+1. First MORE: the Pressure pop reads "Your attacks land softer. His land harder."
+2. At two or more Pressure, let the Crush land without guarding: KO in red over the hero with "Two plates of Pressure and you stood there. Guard the swing.", then the loss card. Guarding the same Crush is a normal Deflect.
+3. At one Pressure an unguarded Crush is a hit, not a KO.
+4. His TEST and Crush numbers climb with the stacks (about +15 % per stack); Center brings them back down.
+5. Expectation for your build: a tactical fight ends with roughly half your bar, down from 70 %.

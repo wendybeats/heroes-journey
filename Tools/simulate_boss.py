@@ -67,12 +67,19 @@ class Encounter:
         if self.broken or spec is None: return self._finish(ev)
         # Boss action resolves (a Break this turn already cancelled it: `_break_damage` set self.broken and we returned above).
         if spec.get("damage", 0) > 0:
-            dmg = boss["attack"] * spec["damage"] * self.loaded * (1.0 + self.escalation)
+            # Doc 37 fourth tuning (E): each Pressure stack also arms his hit.
+            dmg = boss["attack"] * spec["damage"] * self.loaded * (1.0 + self.escalation) * (1.0 + cfg.get("pressure_boss_damage_per_stack", 0.0) * self.pressure)
             self.loaded = 1.0
             deflected = guarding > 0 and spec.get("deflectable", False)
             reduction = min(cfg["guard_max_reduction"], guarding + (cfg["deflect_bonus_reduction"] if deflected else 0.0))
-            taken = self._vary(dmg * (1.0 - reduction)); self.player -= taken
+            # Doc 37 fourth tuning (C): an unguarded deflectable hit at the lethal stacks takes everything left.
+            lethal_at = cfg.get("lethal_pressure_stacks", 0)
+            lethal = lethal_at > 0 and spec.get("deflectable", False) and guarding == 0 and self.pressure >= lethal_at
+            taken = self._vary(dmg * (1.0 - reduction))
+            if lethal: taken = max(taken, self.player)
+            self.player -= taken
             ev.append({"t": "boss_attack", "name": intent, "incoming": round(dmg, 2), "taken": round(taken, 2), "deflected": deflected})
+            if lethal: ev.append({"t": "lethal", "name": intent})
             if deflected:
                 self.stats["deflects"] += 1
                 if "first_deflect" not in self.flags: self.flags.add("first_deflect"); ev.append({"t": "dialogue", "key": "first_deflect"})

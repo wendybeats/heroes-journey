@@ -94,6 +94,28 @@ The 70 % the owner kept is above the simulator's 35 % for the owner-like tactica
 
 Recommendation: **G plus a middle escalation (about 12 %)**: E makes MORE a trade rather than a free ramp, C adds the readable lethal rule the owner proposed (and a loss line can teach it: "He loads two plates and you stood there."), and 12 % narrows the long fights without D's collapse. Expected simulated owner-like tactical near 20–25 %, defensive lines lose for the END and owner-like builds (which doc 36 accepts: guarding alone was never meant to win). Not implemented; the owner picks. Implementing is engine (`BossCombat`: stack multiplier on boss damage, lethal rule), the Python simulator, the golden fixture and tests, then one device fight.
 
+## Fourth tuning, 2026-10-18: C and E adopted (owner pick)
+
+The owner chose C and E from the table above; escalation stays 8 %. Both are ruleset levers in `boss_combat`, read by the engine and the simulator alike:
+
+- `pressure_boss_damage_per_stack: 0.15` (E). His hit is `attack × action × loaded × (1 + escalation) × (1 + 0.15 × Pressure)`. Pressure now cuts both ways: each MORE softens the player's verbs by 15 % and arms his by 15 %, so a stack is a decision, not a ramp to wait out. The stacks count at the moment he hits; the MORE that adds one lands after.
+- `lethal_pressure_stacks: 2` (C). An unguarded deflectable hit (the Crush) at two or more stacks takes all remaining Stamina, whatever the number. Guarding it is a Deflect as before. The engine reports the hit, then a `lethal` event; the stage shows KO with `tutorial.lethal` once ("Two plates of Pressure and you stood there. Guard the swing."). `tutorial.pressure_first` now reads "Your attacks land softer. His land harder."
+
+Simulator after the change (`python3 Tools/simulate_boss.py`), tactical line, stamina left; defensive where it changed:
+
+| Build | Brute | Defensive | Tactical |
+|---|---|---|---|
+| STR specialist | lost | won, 17 % | won, 24 % |
+| END specialist | lost | won, 5 % | won, 29 % |
+| KNOW specialist | lost | lost | won, 28 % |
+| MIND specialist | lost | lost | won, 5 % |
+| Balanced | lost | won, 8 % | won, 20 turns, 37 % |
+| Owner-like (estimate, see above) | lost | lost | won, 28 turns, 24 % |
+| Pure lifter | **lost** (won with 5 % before) | won, 16 % | lost |
+| Day one | lost | lost | lost |
+
+Reading: the one line that raced him, the Pure lifter's brute win, is gone, because his armed hits outpace a fight that never guards. Mindfulness tactical is at 5 %, the thinnest win on the board and the same weakest line as every sweep; it is still a win. Random play wins 0–1 in 50, Guard-only and Center-only lose everywhere. The owner's real fight should land near 50 % by the gap measured in the third tuning; one device fight decides. The golden fixture was regenerated (35 cases) and the Swift engine replays it.
+
 ## Presentation V2 (owner brief 2026-10-16)
 Built as doc 20 increment 56: distinct verbs (only Attack closes distance), physical hits with hit-stop and recoil, Broken as a state the stage says out loud, anchored feedback, Pressure explained once, MORE as a scene with a persistent intensity, one phase beat at `phase_at` (presentation only), the victory sequence and card, a darker room, the dialogue layout, and a first-use build line per verb. The keep list in the brief is intact; the only divergence is the telegraph, which follows the owner's device note (narrated on landing, read by Analyze) rather than the advance banner.
 

@@ -137,17 +137,23 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
         public let brokenMultiplier: Double
         public let maxTurns: Int
         public let variance: Double
-        public init(masteryExponent: Double = 0.6, playerStaminaBase: Double = 100, staminaEnduranceBonus: Double = 0.11, staminaEnduranceExponent: Double = 0.75, attackBase: Double = 9, guardBaseReduction: Double = 0.35, guardMaxReduction: Double = 0.75, deflectBonusReduction: Double = 0.15, deflectBreakDamage: Double = 1, analyzeBaseBreak: Double = 0.85, centerBaseRecoveryShare: Double = 0.04, centerStacks: Int = 1, centerStrongShare: Double = 1.5, centerStrongStacks: Int = 2, pressurePerStack: Double = 0.15, pressureCap: Int = 3, brokenMultiplier: Double = 3, maxTurns: Int = 40, variance: Double = 0) {
+        /// Owner 2026-10-18 (doc 37, fourth tuning): each Pressure stack also adds this share to the boss's hits (E); 0 = off.
+        public let pressureBossDamagePerStack: Double
+        /// Owner 2026-10-18: an unguarded deflectable hit at this many stacks or more takes all remaining Stamina (C); 0 = off.
+        public let lethalPressureStacks: Int
+        public init(masteryExponent: Double = 0.6, playerStaminaBase: Double = 100, staminaEnduranceBonus: Double = 0.11, staminaEnduranceExponent: Double = 0.75, attackBase: Double = 9, guardBaseReduction: Double = 0.35, guardMaxReduction: Double = 0.75, deflectBonusReduction: Double = 0.15, deflectBreakDamage: Double = 1, analyzeBaseBreak: Double = 0.85, centerBaseRecoveryShare: Double = 0.04, centerStacks: Int = 1, centerStrongShare: Double = 1.5, centerStrongStacks: Int = 2, pressurePerStack: Double = 0.15, pressureCap: Int = 3, brokenMultiplier: Double = 3, maxTurns: Int = 40, variance: Double = 0, pressureBossDamagePerStack: Double = 0, lethalPressureStacks: Int = 0) {
             self.masteryExponent = masteryExponent; self.playerStaminaBase = playerStaminaBase; self.staminaEnduranceBonus = staminaEnduranceBonus; self.staminaEnduranceExponent = staminaEnduranceExponent
             self.attackBase = attackBase; self.guardBaseReduction = guardBaseReduction; self.guardMaxReduction = guardMaxReduction; self.deflectBonusReduction = deflectBonusReduction; self.deflectBreakDamage = deflectBreakDamage
             self.analyzeBaseBreak = analyzeBaseBreak; self.centerBaseRecoveryShare = centerBaseRecoveryShare; self.centerStacks = centerStacks; self.centerStrongShare = centerStrongShare; self.centerStrongStacks = centerStrongStacks
             self.pressurePerStack = pressurePerStack; self.pressureCap = pressureCap; self.brokenMultiplier = brokenMultiplier; self.maxTurns = maxTurns; self.variance = variance
+            self.pressureBossDamagePerStack = pressureBossDamagePerStack; self.lethalPressureStacks = lethalPressureStacks
         }
         enum CodingKeys: String, CodingKey {
             case masteryExponent = "mastery_exponent", playerStaminaBase = "player_stamina_base", staminaEnduranceBonus = "stamina_endurance_bonus", staminaEnduranceExponent = "stamina_endurance_exponent"
             case attackBase = "attack_base", guardBaseReduction = "guard_base_reduction", guardMaxReduction = "guard_max_reduction", deflectBonusReduction = "deflect_bonus_reduction", deflectBreakDamage = "deflect_break_damage"
             case analyzeBaseBreak = "analyze_base_break", centerBaseRecoveryShare = "center_base_recovery_share", centerStacks = "center_stacks", centerStrongShare = "center_strong_share", centerStrongStacks = "center_strong_stacks"
             case pressurePerStack = "pressure_per_stack", pressureCap = "pressure_cap", brokenMultiplier = "broken_multiplier", maxTurns = "max_turns", variance
+            case pressureBossDamagePerStack = "pressure_boss_damage_per_stack", lethalPressureStacks = "lethal_pressure_stacks"
         }
         public init(from decoder: Decoder) throws {
             let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -159,6 +165,8 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
             centerStacks = try c.decode(Int.self, forKey: .centerStacks); centerStrongShare = try c.decode(Double.self, forKey: .centerStrongShare); centerStrongStacks = try c.decode(Int.self, forKey: .centerStrongStacks)
             pressurePerStack = try c.decode(Double.self, forKey: .pressurePerStack); pressureCap = try c.decode(Int.self, forKey: .pressureCap); brokenMultiplier = try c.decode(Double.self, forKey: .brokenMultiplier)
             maxTurns = try c.decodeIfPresent(Int.self, forKey: .maxTurns) ?? 40; variance = try c.decodeIfPresent(Double.self, forKey: .variance) ?? 0
+            pressureBossDamagePerStack = try c.decodeIfPresent(Double.self, forKey: .pressureBossDamagePerStack) ?? 0
+            lethalPressureStacks = try c.decodeIfPresent(Int.self, forKey: .lethalPressureStacks) ?? 0
         }
     }
 
