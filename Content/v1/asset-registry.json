@@ -865,7 +865,7 @@
         "grit"
       ],
       "time": "night",
-      "current_revision": 1,
+      "current_revision": 2,
       "status": "review",
       "revisions": [
         {
@@ -879,9 +879,21 @@
             "width": 64,
             "height": 128
           }
+        },
+        {
+          "revision": 2,
+          "status": "review",
+          "path": "assets/sprites/npc.gym.lifter_01/rev2",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 64,
+            "height": 128
+          }
         }
       ],
-      "source": "assets/sprites/npc.gym.lifter_01/rev1/source"
+      "source": "assets/sprites/npc.gym.lifter_01/rev2/source"
     },
     {
       "id": "npc.gym.lifter_02",
@@ -894,7 +906,7 @@
         "grit"
       ],
       "time": "night",
-      "current_revision": 1,
+      "current_revision": 2,
       "status": "review",
       "revisions": [
         {
@@ -908,9 +920,21 @@
             "width": 64,
             "height": 128
           }
+        },
+        {
+          "revision": 2,
+          "status": "review",
+          "path": "assets/sprites/npc.gym.lifter_02/rev2",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 64,
+            "height": 128
+          }
         }
       ],
-      "source": "assets/sprites/npc.gym.lifter_02/rev1/source"
+      "source": "assets/sprites/npc.gym.lifter_02/rev2/source"
     },
     {
       "id": "npc.gym.lifter_03",
@@ -923,7 +947,7 @@
         "grit"
       ],
       "time": "night",
-      "current_revision": 1,
+      "current_revision": 2,
       "status": "review",
       "revisions": [
         {
@@ -937,9 +961,21 @@
             "width": 64,
             "height": 128
           }
+        },
+        {
+          "revision": 2,
+          "status": "review",
+          "path": "assets/sprites/npc.gym.lifter_03/rev2",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 64,
+            "height": 128
+          }
         }
       ],
-      "source": "assets/sprites/npc.gym.lifter_03/rev1/source"
+      "source": "assets/sprites/npc.gym.lifter_03/rev2/source"
     },
     {
       "id": "portrait.colossus",
@@ -1029,7 +1065,7 @@
       "scene": null,
       "mood": [],
       "time": null,
-      "current_revision": 1,
+      "current_revision": 2,
       "status": "review",
       "revisions": [
         {
@@ -1043,9 +1079,21 @@
             "width": 1254,
             "height": 1254
           }
+        },
+        {
+          "revision": 2,
+          "status": "review",
+          "path": "assets/sprites/portrait.guide_elder.left/rev2",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 1254,
+            "height": 1254
+          }
         }
       ],
-      "source": "assets/sprites/portrait.guide_elder.left/rev1/source"
+      "source": "assets/sprites/portrait.guide_elder.left/rev2/source"
     },
     {
       "id": "portrait.gym.lifter_01",
@@ -1055,7 +1103,7 @@
       "scene": null,
       "mood": [],
       "time": null,
-      "current_revision": 1,
+      "current_revision": 2,
       "status": "review",
       "revisions": [
         {
@@ -1069,9 +1117,21 @@
             "width": 160,
             "height": 160
           }
+        },
+        {
+          "revision": 2,
+          "status": "review",
+          "path": "assets/sprites/portrait.gym.lifter_01/rev2",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 160,
+            "height": 160
+          }
         }
       ],
-      "source": "assets/sprites/portrait.gym.lifter_01/rev1/source"
+      "source": "assets/sprites/portrait.gym.lifter_01/rev2/source"
     },
     {
       "id": "portrait.gym.lifter_02",
@@ -1081,7 +1141,7 @@
       "scene": null,
       "mood": [],
       "time": null,
-      "current_revision": 1,
+      "current_revision": 2,
       "status": "review",
       "revisions": [
         {
@@ -1095,9 +1155,21 @@
             "width": 160,
             "height": 160
           }
+        },
+        {
+          "revision": 2,
+          "status": "review",
+          "path": "assets/sprites/portrait.gym.lifter_02/rev2",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 160,
+            "height": 160
+          }
         }
       ],
-      "source": "assets/sprites/portrait.gym.lifter_02/rev1/source"
+      "source": "assets/sprites/portrait.gym.lifter_02/rev2/source"
     },
     {
       "id": "portrait.gym.lifter_03",
@@ -1107,7 +1179,7 @@
       "scene": null,
       "mood": [],
       "time": null,
-      "current_revision": 1,
+      "current_revision": 2,
       "status": "review",
       "revisions": [
         {
@@ -1121,9 +1193,21 @@
             "width": 160,
             "height": 160
           }
+        },
+        {
+          "revision": 2,
+          "status": "review",
+          "path": "assets/sprites/portrait.gym.lifter_03/rev2",
+          "animations": [
+            "still"
+          ],
+          "canvas": {
+            "width": 160,
+            "height": 160
+          }
         }
       ],
-      "source": "assets/sprites/portrait.gym.lifter_03/rev1/source"
+      "source": "assets/sprites/portrait.gym.lifter_03/rev2/source"
     },
     {
       "id": "portrait.hero_hooded",

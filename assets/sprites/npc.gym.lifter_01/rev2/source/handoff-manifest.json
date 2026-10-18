@@ -1,0 +1,689 @@
+{
+  "schemaVersion": 2,
+  "artSet": "under_city_npcs_v4",
+  "created": "2026-10-18",
+  "status": "three_cybernetic_npc_redesigns_for_review",
+  "scope": "Three workout NPC sprites and matching dialogue portraits. Cairon and Colossus unchanged.",
+  "spriteContract": {
+    "logicalCell": [
+      64,
+      128
+    ],
+    "exportCell": [
+      512,
+      1024
+    ],
+    "integerScale": 8,
+    "headTopRow": 12,
+    "soleRow": 122,
+    "anchor": [
+      32,
+      123
+    ],
+    "standingHeight": 111,
+    "alpha": "binary",
+    "render": "nearest-neighbor; same screen size per logical pixel as protagonist and Colossus"
+  },
+  "portraitContract": {
+    "logicalCell": [
+      160,
+      160
+    ],
+    "exportCell": [
+      1280,
+      1280
+    ],
+    "integerScale": 8,
+    "alpha": "binary",
+    "palette": "Matching NPC gameplay palette,18\u201322 colors maximum"
+  },
+  "characters": [
+    {
+      "id": "bodybuilder-01",
+      "label": "Mouth mask",
+      "summary": "Ash crop \u00b7 dark red sweats \u00b7 kettlebell",
+      "skinTone": "light tan",
+      "facing": "left",
+      "sprite": "bodybuilder-01-sprite.png",
+      "portrait": "bodybuilder-01-portrait.png",
+      "logical": "logical/bodybuilder-01-sprite.png",
+      "logicalPortrait": "logical/portraits/bodybuilder-01-portrait.png",
+      "appearance": "Retain light weathered tan skin, short ash-brown cropped hair, masculine broad brow. Face partly OBSCURED by a dark cybernetic ONI LOWER-FACE MASK covering mouth/chin ONLY, nose/eyes/forehead exposed. Two short lower-jaw metal fangs and angular cheek attachments like the Colossus reference but only below the nose. Both arms are mostly CYBERNETIC from below deltoids: bulky dark mechanical biceps/forearms/hands, exposed neck collar implant and two loose thick cable loops at elbow. Small remaining organic deltoid caps. Worn baggy nearly-black tank with stretched armholes and frayed hem, baggy DARK MUTED BURGUNDY/RED sweatpants, worn charcoal trainers. Anatomical right hand (screen-left) hangs down and firmly GRIPS THE HANDLE OF ONE IRON KETTLEBELL beside thigh. Show its closed loop handle and round bell silhouette with space from leg. Other arm relaxed with hand near hip. Heavy calm stance, gritty basement gym veteran.",
+      "palette": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#373B49",
+        "#4D5365",
+        "#697287",
+        "#9FACC8",
+        "#E4E9F4",
+        "#6FA9DC",
+        "#DDB087",
+        "#C18B66",
+        "#96664F",
+        "#67473E",
+        "#41333A",
+        "#302A2A",
+        "#58473D",
+        "#897567",
+        "#2B1822",
+        "#492532",
+        "#683443",
+        "#874858"
+      ],
+      "status": "redesign_for_review"
+    },
+    {
+      "id": "bodybuilder-02",
+      "label": "Cybernetic goggles",
+      "summary": "Dark curls \u00b7 hoodie and shorts \u00b7 belt with chain",
+      "skinTone": "medium brown",
+      "facing": "left",
+      "sprite": "bodybuilder-02-sprite.png",
+      "portrait": "bodybuilder-02-portrait.png",
+      "logical": "logical/bodybuilder-02-sprite.png",
+      "logicalPortrait": "logical/portraits/bodybuilder-02-portrait.png",
+      "appearance": "Retain medium-brown skin and short dark CURLY hair. Opaque cybernetic GOGGLES cover BOTH EYES completely: dark wide rectangular lens unit wrapping temples, dim desaturated blue small strip, no visible eyes. Nose/mouth exposed with a weathered cocky smirk and square jaw. Neck largely mechanical, both forearms/hands mechanical, BOTH LEGS FULLY CYBERNETIC from knees to feet with heavy joints and pistons, not human calves. A few thick loose dark wires loop behind knees and at wrists, no spaghetti. Worn oversized charcoal HOODIE with hood DOWN, sleeves pushed up to elbows, frayed cuffs; roomy black knee-length SHORTS expose unmistakably mechanical shins/feet. One lowered hand (screen-left) holds a brown leather WEIGHT/DIP BELT by one end, with a heavy SILVER CHAIN hanging visibly below it around knee height, separated from body. Other hand on hip. Low-key cocky basement gym veteran, normal human height.",
+      "palette": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#373B49",
+        "#4D5365",
+        "#697287",
+        "#9FACC8",
+        "#E4E9F4",
+        "#6FA9DC",
+        "#C8946E",
+        "#A37152",
+        "#7E503D",
+        "#56352E",
+        "#38262A",
+        "#15141C",
+        "#302A32",
+        "#51414A"
+      ],
+      "status": "redesign_for_review"
+    },
+    {
+      "id": "bodybuilder-03",
+      "label": "Split mask",
+      "summary": "Shaved head \u00b7 navy sweatsuit \u00b7 white shoes and chalk wraps",
+      "skinTone": "deep brown",
+      "facing": "left",
+      "sprite": "bodybuilder-03-sprite.png",
+      "portrait": "bodybuilder-03-portrait.png",
+      "logical": "logical/bodybuilder-03-sprite.png",
+      "logicalPortrait": "logical/portraits/bodybuilder-03-portrait.png",
+      "appearance": "Retain DEEP BROWN skin and bald/shaved head. One VERTICAL HALF OF FACE covered in a cybernetic theater COMEDY/TRAGEDY HALF-MASK: a straight vertical edge dividing forehead to chin along the centerline; only the near-camera half has sculpted worn dull ivory/gunmetal mask with a downturned theatrical eye and dramatic cheek/mouth curve. Other half remains organic. NOT a lower-face mask, NOT whole-face mask. Forehead and eye on masked side hidden, exposed half with hard weathered eye and stern smirk. Dark mechanical neck, both FOREARMS AND HANDS fully cybernetic and some exposed elbow hardware; two thick loose cables join arm to torso. Baggy worn DARK NAVY tracksuit/sweatsuit with zip jacket partly open at neck and sleeves pushed up to elbows; slouchy matching navy sweatpants. CLEAN WHITE running shoes with restrained cool shadows. White chalk-stained hand wraps around BOTH mechanical fists/knuckles and wrists, metal fingertips visible. Arms loosely folded in front of waist so wrapped hands are clear; square shoulders and massive neck, masculine lifelong gym bro, normal height.",
+      "palette": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#373B49",
+        "#4D5365",
+        "#697287",
+        "#9FACC8",
+        "#E4E9F4",
+        "#6FA9DC",
+        "#A77757",
+        "#84573F",
+        "#623D2E",
+        "#43291F",
+        "#2D1E22",
+        "#182642",
+        "#25355A",
+        "#33496C",
+        "#A8A49A",
+        "#D4CFC2"
+      ],
+      "status": "redesign_for_review"
+    }
+  ],
+  "assets": [
+    {
+      "anchor": [
+        32,
+        123
+      ],
+      "binaryAlpha": true,
+      "dimensions": [
+        512,
+        1024
+      ],
+      "exact8xBlocks": true,
+      "facing": "left",
+      "file": "bodybuilder-01-sprite.png",
+      "id": "bodybuilder-01-sprite",
+      "kind": "gameplay_sprite",
+      "logical": "logical/bodybuilder-01-sprite.png",
+      "logicalBounds": [
+        6,
+        12,
+        57,
+        123
+      ],
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "mask": "masks/bodybuilder-01-sprite.png",
+      "maskMatchesAlpha": true,
+      "palette": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#373B49",
+        "#4D5365",
+        "#697287",
+        "#9FACC8",
+        "#E4E9F4",
+        "#6FA9DC",
+        "#DDB087",
+        "#C18B66",
+        "#96664F",
+        "#67473E",
+        "#41333A",
+        "#302A2A",
+        "#58473D",
+        "#897567",
+        "#2B1822",
+        "#492532",
+        "#683443",
+        "#874858"
+      ],
+      "scale": 8,
+      "source": "source/bodybuilder-01-sprite.png",
+      "sourceAnchorX": 443.5,
+      "sourceBounds": [
+        90,
+        226,
+        778,
+        1717
+      ],
+      "sourceDimensions": [
+        887,
+        1774
+      ],
+      "sourceScale": 0.0744466800804829,
+      "standingHeight": 111,
+      "usedColors": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#2B1822",
+        "#302A2A",
+        "#373B49",
+        "#41333A",
+        "#492532",
+        "#4D5365",
+        "#58473D",
+        "#67473E",
+        "#683443",
+        "#697287",
+        "#874858",
+        "#897567",
+        "#96664F",
+        "#9FACC8",
+        "#C18B66",
+        "#DDB087",
+        "#E4E9F4"
+      ],
+      "status": "new_redesign_for_review",
+      "runtimeId": null
+    },
+    {
+      "anchor": [
+        32,
+        123
+      ],
+      "binaryAlpha": true,
+      "dimensions": [
+        512,
+        1024
+      ],
+      "exact8xBlocks": true,
+      "facing": "left",
+      "file": "bodybuilder-02-sprite.png",
+      "id": "bodybuilder-02-sprite",
+      "kind": "gameplay_sprite",
+      "logical": "logical/bodybuilder-02-sprite.png",
+      "logicalBounds": [
+        6,
+        12,
+        59,
+        123
+      ],
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "mask": "masks/bodybuilder-02-sprite.png",
+      "maskMatchesAlpha": true,
+      "palette": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#373B49",
+        "#4D5365",
+        "#697287",
+        "#9FACC8",
+        "#E4E9F4",
+        "#6FA9DC",
+        "#C8946E",
+        "#A37152",
+        "#7E503D",
+        "#56352E",
+        "#38262A",
+        "#15141C",
+        "#302A32",
+        "#51414A"
+      ],
+      "scale": 8,
+      "source": "source/bodybuilder-02-sprite.png",
+      "sourceAnchorX": 443.5,
+      "sourceBounds": [
+        96,
+        198,
+        807,
+        1676
+      ],
+      "sourceDimensions": [
+        887,
+        1774
+      ],
+      "sourceScale": 0.07510148849797023,
+      "standingHeight": 111,
+      "usedColors": [
+        "#101118",
+        "#101522",
+        "#15141C",
+        "#1B1D27",
+        "#282B36",
+        "#302A32",
+        "#373B49",
+        "#38262A",
+        "#4D5365",
+        "#51414A",
+        "#56352E",
+        "#697287",
+        "#6FA9DC",
+        "#7E503D",
+        "#9FACC8",
+        "#A37152",
+        "#C8946E",
+        "#E4E9F4"
+      ],
+      "status": "new_redesign_for_review",
+      "runtimeId": null
+    },
+    {
+      "anchor": [
+        32,
+        123
+      ],
+      "binaryAlpha": true,
+      "dimensions": [
+        512,
+        1024
+      ],
+      "exact8xBlocks": true,
+      "facing": "left",
+      "file": "bodybuilder-03-sprite.png",
+      "id": "bodybuilder-03-sprite",
+      "kind": "gameplay_sprite",
+      "logical": "logical/bodybuilder-03-sprite.png",
+      "logicalBounds": [
+        11,
+        12,
+        56,
+        123
+      ],
+      "logicalDimensions": [
+        64,
+        128
+      ],
+      "mask": "masks/bodybuilder-03-sprite.png",
+      "maskMatchesAlpha": true,
+      "palette": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#373B49",
+        "#4D5365",
+        "#697287",
+        "#9FACC8",
+        "#E4E9F4",
+        "#6FA9DC",
+        "#A77757",
+        "#84573F",
+        "#623D2E",
+        "#43291F",
+        "#2D1E22",
+        "#182642",
+        "#25355A",
+        "#33496C",
+        "#A8A49A",
+        "#D4CFC2"
+      ],
+      "scale": 8,
+      "source": "source/bodybuilder-03-sprite.png",
+      "sourceAnchorX": 443.5,
+      "sourceBounds": [
+        155,
+        195,
+        763,
+        1704
+      ],
+      "sourceDimensions": [
+        887,
+        1774
+      ],
+      "sourceScale": 0.073558648111332,
+      "standingHeight": 111,
+      "usedColors": [
+        "#101118",
+        "#101522",
+        "#182642",
+        "#1B1D27",
+        "#282B36",
+        "#2D1E22",
+        "#33496C",
+        "#373B49",
+        "#43291F",
+        "#4D5365",
+        "#623D2E",
+        "#697287",
+        "#84573F",
+        "#9FACC8",
+        "#A77757",
+        "#A8A49A",
+        "#D4CFC2",
+        "#E4E9F4"
+      ],
+      "status": "new_redesign_for_review",
+      "runtimeId": null
+    },
+    {
+      "anchor": null,
+      "binaryAlpha": true,
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "exact8xBlocks": true,
+      "facing": "left",
+      "file": "bodybuilder-01-portrait.png",
+      "id": "bodybuilder-01-portrait",
+      "kind": "dialogue_portrait",
+      "logical": "logical/portraits/bodybuilder-01-portrait.png",
+      "logicalBounds": [
+        17,
+        4,
+        145,
+        160
+      ],
+      "logicalDimensions": [
+        160,
+        160
+      ],
+      "mask": "masks/portraits/bodybuilder-01-portrait.png",
+      "maskMatchesAlpha": true,
+      "palette": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#373B49",
+        "#4D5365",
+        "#697287",
+        "#9FACC8",
+        "#E4E9F4",
+        "#6FA9DC",
+        "#DDB087",
+        "#C18B66",
+        "#96664F",
+        "#67473E",
+        "#41333A",
+        "#302A2A",
+        "#58473D",
+        "#897567",
+        "#2B1822",
+        "#492532",
+        "#683443",
+        "#874858"
+      ],
+      "scale": 8,
+      "source": "source/bodybuilder-01-portrait.png",
+      "sourceAnchorX": 627,
+      "sourceBounds": [
+        131,
+        28,
+        1137,
+        1254
+      ],
+      "sourceDimensions": [
+        1254,
+        1254
+      ],
+      "sourceScale": 0.12759170653907495,
+      "standingHeight": null,
+      "usedColors": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#2B1822",
+        "#302A2A",
+        "#373B49",
+        "#41333A",
+        "#492532",
+        "#4D5365",
+        "#58473D",
+        "#67473E",
+        "#683443",
+        "#697287",
+        "#874858",
+        "#897567",
+        "#96664F",
+        "#9FACC8",
+        "#C18B66",
+        "#DDB087",
+        "#E4E9F4"
+      ],
+      "status": "new_redesign_for_review",
+      "runtimeId": null
+    },
+    {
+      "anchor": null,
+      "binaryAlpha": true,
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "exact8xBlocks": true,
+      "facing": "left",
+      "file": "bodybuilder-02-portrait.png",
+      "id": "bodybuilder-02-portrait",
+      "kind": "dialogue_portrait",
+      "logical": "logical/portraits/bodybuilder-02-portrait.png",
+      "logicalBounds": [
+        5,
+        9,
+        158,
+        160
+      ],
+      "logicalDimensions": [
+        160,
+        160
+      ],
+      "mask": "masks/portraits/bodybuilder-02-portrait.png",
+      "maskMatchesAlpha": true,
+      "palette": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#373B49",
+        "#4D5365",
+        "#697287",
+        "#9FACC8",
+        "#E4E9F4",
+        "#6FA9DC",
+        "#C8946E",
+        "#A37152",
+        "#7E503D",
+        "#56352E",
+        "#38262A",
+        "#15141C",
+        "#302A32",
+        "#51414A"
+      ],
+      "scale": 8,
+      "source": "source/bodybuilder-02-portrait.png",
+      "sourceAnchorX": 627,
+      "sourceBounds": [
+        43,
+        71,
+        1236,
+        1254
+      ],
+      "sourceDimensions": [
+        1254,
+        1254
+      ],
+      "sourceScale": 0.12759170653907495,
+      "standingHeight": null,
+      "usedColors": [
+        "#101118",
+        "#101522",
+        "#15141C",
+        "#1B1D27",
+        "#282B36",
+        "#302A32",
+        "#373B49",
+        "#38262A",
+        "#4D5365",
+        "#51414A",
+        "#56352E",
+        "#697287",
+        "#6FA9DC",
+        "#7E503D",
+        "#9FACC8",
+        "#A37152",
+        "#C8946E",
+        "#E4E9F4"
+      ],
+      "status": "new_redesign_for_review",
+      "runtimeId": null
+    },
+    {
+      "anchor": null,
+      "binaryAlpha": true,
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "exact8xBlocks": true,
+      "facing": "left",
+      "file": "bodybuilder-03-portrait.png",
+      "id": "bodybuilder-03-portrait",
+      "kind": "dialogue_portrait",
+      "logical": "logical/portraits/bodybuilder-03-portrait.png",
+      "logicalBounds": [
+        14,
+        4,
+        153,
+        160
+      ],
+      "logicalDimensions": [
+        160,
+        160
+      ],
+      "mask": "masks/portraits/bodybuilder-03-portrait.png",
+      "maskMatchesAlpha": true,
+      "palette": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#373B49",
+        "#4D5365",
+        "#697287",
+        "#9FACC8",
+        "#E4E9F4",
+        "#6FA9DC",
+        "#A77757",
+        "#84573F",
+        "#623D2E",
+        "#43291F",
+        "#2D1E22",
+        "#182642",
+        "#25355A",
+        "#33496C",
+        "#A8A49A",
+        "#D4CFC2"
+      ],
+      "scale": 8,
+      "source": "source/bodybuilder-03-portrait.png",
+      "sourceAnchorX": 627,
+      "sourceBounds": [
+        108,
+        30,
+        1196,
+        1254
+      ],
+      "sourceDimensions": [
+        1254,
+        1254
+      ],
+      "sourceScale": 0.12759170653907495,
+      "standingHeight": null,
+      "usedColors": [
+        "#101118",
+        "#101522",
+        "#1B1D27",
+        "#282B36",
+        "#2D1E22",
+        "#33496C",
+        "#373B49",
+        "#43291F",
+        "#4D5365",
+        "#623D2E",
+        "#697287",
+        "#84573F",
+        "#9FACC8",
+        "#A77757",
+        "#A8A49A",
+        "#D4CFC2",
+        "#E4E9F4"
+      ],
+      "status": "new_redesign_for_review",
+      "runtimeId": null
+    }
+  ],
+  "directionRule": "All NPC sprites and portraits face screen-left. Player reference faces screen-right.",
+  "references": {
+    "reference/colossus-oni.png": "Cybernetic design language and deep shadow treatment only; normal NPCs retain existing scale.",
+    "reference/colossus-oni-portrait.png": "Portrait class pixel-density and shading reference.",
+    "reference/player-body.png": "Shared gameplay scale only.",
+    "reference/cairon-portrait.png": "Existing portrait reference retained unchanged."
+  },
+  "preview": "preview.html",
+  "prompts": "prompts.json",
+  "validation": "validation.json",
+  "style": "STYLE-LOCK.md",
+  "styleProfile": "style-profile.json",
+  "styleAudit": "style-audit.json",
+  "supersedesForThreeLifters": "under_city_npcs_v3",
+  "cairon": "Use existing under-city-npcs-v3 Cairon files; no redesign in this set.",
+  "runtimeIntegration": "Static source-art handoff only; canonical game IDs, animation states and runtime registry are unchanged."
+}

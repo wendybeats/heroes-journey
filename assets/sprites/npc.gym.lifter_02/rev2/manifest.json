@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "npc.gym.lifter_02",
+  "revision": 2,
+  "status": "review",
+  "kind": "body",
+  "canvas": {
+    "width": 64,
+    "height": 128
+  },
+  "pivot": {
+    "x": 32,
+    "y": 123
+  },
+  "layer_order": 0,
+  "max_palette_colors": 24,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner handoff 2026-10-18 (under-city-npcs-v4). Cybernetic goggles: Dark curls \u00b7 hoodie and shorts \u00b7 belt with chain. Heavier cybernetics, obscured face, worn baggy clothing, to sit beside the Colossus. Same contract as rev1: 64x128 logical cell, 111 px standing height, feet on row 122, anchor (32,123), binary alpha, faces screen-left; one still, lean/glow/dash are code.",
+  "world": "city",
+  "area": "colossus_gym",
+  "scene": "gym_floor",
+  "mood": [
+    "iron",
+    "grit"
+  ],
+  "time": "night"
+}

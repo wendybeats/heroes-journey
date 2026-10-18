@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "asset_set_id": "portrait.guide_elder.left",
+  "revision": 2,
+  "status": "review",
+  "kind": "portrait",
+  "canvas": {
+    "width": 1254,
+    "height": 1254
+  },
+  "pivot": {
+    "x": 627,
+    "y": 1253
+  },
+  "layer_order": 0,
+  "max_palette_colors": 100000,
+  "animations": {
+    "still": {
+      "frames": [
+        "still/000.png"
+      ],
+      "frame_duration_ms": 1000,
+      "loop": false,
+      "poster_frame": 0
+    }
+  },
+  "palette_roles": {},
+  "notes": "Owner handoff 2026-10-18 (with under-city-npcs-v4): new left-facing Cairon dialogue card, arms folded, chest-up, chunkier pixel treatment to match the v4 lifter cards and the Colossus. For the challenge card, onboarding guide rows, the Health welcome and story scenes where he stands on the right (hero always left). Arrived as a lossy WebP through chat; alpha snapped to binary, not on a logical grid. portrait.guide_elder (right-facing) stays for provenance.",
+  "world": "city",
+  "area": "under_city"
+}
