@@ -61,12 +61,17 @@ struct SpeakerPortrait: View {
     /// The draft recipe during onboarding, or the saved one afterwards; nil = no sprite yet.
     var recipe: AvatarRecipe?
     var size: CGFloat = 150
+    /// Owner QA 2026-10-18: a speaker on the right must face left, toward the bubble. The card portrait is drawn that
+    /// way (doc 33); without one the portrait is mirrored.
+    var facingLeft = false
 
     var body: some View {
         if character.id == "hero", let recipe {
             SpritePortrait(recipe: recipe, outfit: state.bundle.evolution(forLevel: 1)?.outfit, size: size)
-        } else if let set = character.portraitAssetSetID {
+        } else if facingLeft, let set = character.cardPortraitAssetSetID {
             PortraitView(assetSetID: set, size: size)
+        } else if let set = character.portraitAssetSetID {
+            PortraitView(assetSetID: set, size: size).scaleEffect(x: facingLeft ? -1 : 1, y: 1)
         } else {
             // Unauthored portrait: a named stand-in so the scene still reads (Colossus until his art lands).
             VStack(spacing: NeoTokyo.Spacing.xs) {

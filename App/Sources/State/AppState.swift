@@ -486,8 +486,9 @@ final class AppState {
             let firstSync = healthSync.anchor == nil
             let page = try await importer.fetchWorkouts(after: healthSync.anchor)
             let now = self.now
-            // First sync: credit only the recent window; older workouts are kept as history (doc 15).
-            let creditFrom: Date? = firstSync ? ruleset.healthHistoryWindowDays.map { now.addingTimeInterval(-Double($0) * 86_400) } : nil
+            // First sync: credit only the recent window, counted from the start of the day (owner 2026-10-18: a window of 0
+            // credits today and nothing before); older workouts are kept as history (doc 15), facts for preferences.
+            let creditFrom: Date? = firstSync ? ruleset.healthHistoryWindowDays.map { Calendar.current.startOfDay(for: now).addingTimeInterval(-Double($0) * 86_400) } : nil
             var importedCount = 0
             for item in page.imported {
                 let outcome = ImportReconciler.reconcile(
@@ -499,8 +500,9 @@ final class AppState {
                     now: now, creditFrom: creditFrom)
                 importLog[item.externalID] = outcome.disposition
                 guard let event = outcome.event else { continue }
-                events.append(event); importedCount += 1
+                events.append(event)
                 if case .imported = outcome.disposition {
+                    importedCount += 1   // credited ones only: the welcome card says what counted, not what was kept (owner QA 2026-10-18)
                     outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
                 }
             }

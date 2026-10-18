@@ -76,6 +76,24 @@ Stall tests still lose; random play wins 0–1 in 50. The Pure lifter's brute wi
 
 Telegraphs: a move is no longer announced before it lands. The action's `telegraph` is narrated as it resolves ("Colossus adds another plate.", "Colossus swings everything."), and ANALYZE reads the next move once (`intent`, "READ · Crush") until the player's next action. The lasting tell is the pattern, which the loss lines already teach ("Watch him when he loads the weight."). The simulator's strategies still read the intent directly; with a fixed pattern that is the same information a player has after one cycle.
 
+## Third tuning, 2026-10-18: the owner finished with 70 % stamina (options, not changes)
+
+The owner's second device fight ended with 70 % stamina left and asked for ideas; two were offered (MORE hits harder; an unblocked Crush at two stacks is a KO). Seven variants were run through the simulator's five builds and three strategies (`scratchpad boss_ideas.py`, same engine as `Tools/simulate_boss.py`). Cells are result, turn count, stamina left for the tactical line; defensive shown where it changes.
+
+| Variant | Balanced tactical | Owner-like tactical | Defensive (owner-like) | Reading |
+|---|---|---|---|---|
+| A. Current (stamina 240, escalation 8 %, attack 12) | won, 20, 44 % | won, 28, 35 % | won, 11 % | Where the owner got 70 %. |
+| B. Escalation 15 % | won, 40 % | won, 23 % | lost | Longer fights punish more; mostly hurts the slow builds. |
+| C. Unblocked Crush at ≥ 2 stacks is a KO | unchanged | unchanged | unchanged | The simulated lines always guard the Crush; it is a rule for real players who forget. Readable, no balance cost. |
+| D. Attack 14, test threshold 0.9 | won, 26 % | won, 13 % | lost | Too harsh: STR specialist tactical ends at 0 %, three defensive lines lose. |
+| E. MORE adds 15 % to his hits per stack | won, 36 % | won, 27 % | lost | Pressure cuts both ways: the player's stacks also arm him, so every stack is a decision. |
+| F. B + C | as B | as B | lost | |
+| G. C + E | as E | as E | lost | |
+
+The 70 % the owner kept is above the simulator's 35 % for the owner-like tactical line, so the simulator underestimates a good human by roughly a third of the bar; a variant that leaves the simulated owner-like line at 25 % should leave the owner near 50 %. None of these touches the trap that kills Brute (the Crush) or the race the Pure lifter wins.
+
+Recommendation: **G plus a middle escalation (about 12 %)**: E makes MORE a trade rather than a free ramp, C adds the readable lethal rule the owner proposed (and a loss line can teach it: "He loads two plates and you stood there."), and 12 % narrows the long fights without D's collapse. Expected simulated owner-like tactical near 20–25 %, defensive lines lose for the END and owner-like builds (which doc 36 accepts: guarding alone was never meant to win). Not implemented; the owner picks. Implementing is engine (`BossCombat`: stack multiplier on boss damage, lethal rule), the Python simulator, the golden fixture and tests, then one device fight.
+
 ## Presentation V2 (owner brief 2026-10-16)
 Built as doc 20 increment 56: distinct verbs (only Attack closes distance), physical hits with hit-stop and recoil, Broken as a state the stage says out loud, anchored feedback, Pressure explained once, MORE as a scene with a persistent intensity, one phase beat at `phase_at` (presentation only), the victory sequence and card, a darker room, the dialogue layout, and a first-use build line per verb. The keep list in the brief is intact; the only divergence is the telegraph, which follows the owner's device note (narrated on landing, read by Analyze) rather than the advance banner.
 

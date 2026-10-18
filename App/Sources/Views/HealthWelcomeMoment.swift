@@ -19,7 +19,7 @@ struct HealthWelcomeMoment: View {
                 HStack(alignment: .top, spacing: NeoTokyo.Spacing.sm) {
                     // Owner line (2026-10-16), in Cairon's voice; the guide sits to the right of his bubble (hero always left).
                     Bubble(text: "Looks like your human is already active today. That's a good sign that you'll be successful.", trailing: true)
-                    if let guide = state.bundle.character("guide.elder"), let set = guide.portraitAssetSetID {
+                    if let guide = state.bundle.character("guide.elder"), let set = guide.cardPortrait {
                         PortraitView(assetSetID: set, size: 56)
                             .clipShape(RoundedRectangle(cornerRadius: NeoTokyo.Radius.md, style: .continuous))
                     }

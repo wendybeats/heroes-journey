@@ -75,7 +75,7 @@ struct StoryView: View {
         ZStack(alignment: speakerOnRight ? .bottomTrailing : .bottomLeading) {
             BackdropImage(assetSetID: stageBackdrop)
             if let speaker {
-                SpeakerPortrait(character: speaker, recipe: heroRecipe, size: 160)   // owner QA 2026-10-17: 200 was too big
+                SpeakerPortrait(character: speaker, recipe: heroRecipe, size: 160, facingLeft: speakerOnRight)   // owner QA 2026-10-17: 200 was too big
                     .padding(NeoTokyo.Spacing.xs)
                     .background(NeoTokyo.Surface.scrim.opacity(0.35), in: RoundedRectangle(cornerRadius: NeoTokyo.Radius.lg, style: .continuous))
                     .padding(.horizontal, NeoTokyo.Spacing.md)
@@ -84,18 +84,21 @@ struct StoryView: View {
             }
         }
         .frame(height: 320)
-        .overlay(alignment: .top) {
+        .overlay(alignment: .bottom) {
+            // Owner QA 2026-10-18: at the top it was cut off; it sits under the graphic now, centred, gold (progression).
             if let banner, bannerShown {
-                HStack(spacing: 6) {
-                    Image(systemName: "sparkles").font(HeroFont.label)
-                    Text(banner).font(HeroFont.captionMedium)
+                HStack(spacing: 8) {
+                    Image(systemName: "sparkles").font(HeroFont.captionMedium)
+                    Text(banner).font(HeroFont.headline)
                 }
                 .foregroundStyle(NeoTokyo.Hierarchy.primary)
-                .padding(.horizontal, NeoTokyo.Spacing.md).padding(.vertical, NeoTokyo.Spacing.xs)
+                .padding(.horizontal, NeoTokyo.Spacing.lg).padding(.vertical, NeoTokyo.Spacing.sm)
                 .glass(cornerRadius: NeoTokyo.Radius.md, tint: NeoTokyo.Surface.scrim)
-                .padding(.top, 60)
-                .transition(.move(edge: .top).combined(with: .opacity))
-                .task { try? await Task.sleep(for: .milliseconds(3000)); withAnimation(.easeIn(duration: 0.3)) { bannerShown = false } }
+                .overlay(RoundedRectangle(cornerRadius: NeoTokyo.Radius.md, style: .continuous).stroke(NeoTokyo.Hierarchy.primary.opacity(0.5), lineWidth: 1))
+                .shadow(color: NeoTokyo.Hierarchy.primary.opacity(0.3), radius: 14)
+                .padding(.bottom, 6)
+                .transition(.scale(scale: 0.9).combined(with: .opacity))
+                .task { try? await Task.sleep(for: .milliseconds(3500)); withAnimation(.easeIn(duration: 0.3)) { bannerShown = false } }
             }
         }
         .ignoresSafeArea(edges: .top)

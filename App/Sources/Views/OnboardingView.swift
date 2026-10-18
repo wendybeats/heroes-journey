@@ -59,7 +59,7 @@ struct OnboardingView: View {
                     // Owner 2026-10-16: the hero is always on the left, so the guide and his bubble sit to the right.
                     HStack(alignment: .top, spacing: NeoTokyo.Spacing.sm) {
                         Bubble(text: line, trailing: true)
-                        if let guide = state.bundle.character("guide.elder"), let set = guide.portraitAssetSetID {
+                        if let guide = state.bundle.character("guide.elder"), let set = guide.cardPortrait {   // faces the bubble (owner QA 2026-10-18)
                             PortraitView(assetSetID: set, size: 56)
                                 .clipShape(RoundedRectangle(cornerRadius: NeoTokyo.Radius.md, style: .continuous))
                         }

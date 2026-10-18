@@ -25,7 +25,7 @@ The regular user sits in the middle of the target. The heavy user is deliberatel
 ## What dev-2 changed from dev-1
 
 - `session_base_xp: 5`. Any event that earns at least one credited minute adds a flat 5 XP (doc 00 §3, participation creates progress). It is not tapered. Values above ~10 push users with many short sessions (reading, meditation) to Level 10 in about ten days, so it stays small.
-- `health_history_window_days: 7`. On the first Apple Health sync only, workouts older than seven days are imported as history without XP (doc 15 "history import": unbounded historical XP could skip the whole arc on day one). Later syncs credit everything new.
+- `health_history_window_days: 7`. On the first Apple Health sync only, workouts older than seven days are imported as history without XP (doc 15 "history import": unbounded historical XP could skip the whole arc on day one). Later syncs credit everything new. **Changed 2026-10-18 (owner, device QA): 0.** A seven-day window credited 717 workouts' worth of the recent week and four levels at once for an active owner; the window is now the connecting day, counted from its start, so the day's earlier session still earns. Older workouts are kept as history, uncredited.
 - Thresholds unchanged from dev-1. Flattening the top end to pull the light user forward also pulls the regular user to Level 10 in 12–14 days; the lever that would help light users without that side effect does not exist in the ruleset.
 - dev-1 is archived, not deleted, so transactions that cite it stay explainable (doc 11).
 

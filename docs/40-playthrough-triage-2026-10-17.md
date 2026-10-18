@@ -85,3 +85,13 @@ Three of the notes are confirmed bugs in the code as it stands, not impressions:
 4. Steps earn XP, carefully: MVP caps step credit at about 40 XP a day. Later it scales so frequent walkers earn normally and a rare walker's 10k-step day is a big moment.
 5. Bond feedback: only the two attributes that moved.
 6. The "0 XP" receipt: the owner will watch it. Reading from the code: steps never produce a receipt (they are a daily total for the walk goal, never a fact), and no milestone carries a reward, so a zero-XP "Logged" receipt can only be an imported Health workout. The most likely one is an Apple Watch auto-recorded walk that arrived after the day's 120 XP cap was spent: the engine priced it at 0 and the receipt borrowed the cap copy ("you've gone over your limit"). Under strain (increment 57) the same walk now credits at the band rate, so the message disappears on its own. "Not in history for today" is consistent with a walk that started before midnight and sits under yesterday. Build A1 adds the source to history rows ("Apple Health · Walking · 23 min") so the next ghost names itself, and the zero-XP copy is limited to activity receipts.
+
+## Second device batch (owner, 2026-10-18), applied in increment 62
+1. Cairon faces his bubble (card portrait in onboarding and the Health welcome; story speakers on the right use the card portrait or a mirrored portrait). The owner is drawing a new Cairon card and cards and sprites for the three lifters; the current portraits are too high-fidelity.
+2. Health history credit: Level 4 on connect from "717 workouts". Now the window is 0 days from the start of the connecting day; everything older is history only. The welcome card counts credited workouts only. Where XP lands is unchanged: the engine never credits a fact outside the window.
+3. "Your room is open" banner: under the graphic, centred, gold stroke, 3.5 s.
+4. First quest: a bell card "I'll let you know when I return." sits above Enable notifications.
+5. Goal tap: opens the log on the category tab (Make for music and drawing, Calm for recovery, Mind for reading), no guessed activity.
+6. Pre-Colossus dialogue: "Colossus fight unlocked" banner over the offer scene.
+7. Ascension II: eyes and lightning take the tier colour; the tier colour is now purple.
+8. Colossus at 70 % stamina: options and sweep numbers in doc 37, owner to pick.

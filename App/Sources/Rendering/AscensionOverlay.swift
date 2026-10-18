@@ -96,7 +96,8 @@ struct AscensionOverlay: View {
                                 path.addLine(to: CGPoint(x: fromX + (toX - fromX) * u + jag, y: -10 + (toY + 10) * u))
                             }
                             let fade = 1 - (t - strike) / 0.16
-                            context.stroke(path, with: .color(NeoTokyo.Hierarchy.primary.opacity(0.9 * fade)), style: StrokeStyle(lineWidth: 6, lineCap: .round, lineJoin: .round))
+                            // Owner QA 2026-10-18: the strikes take the tier's colour (II is purple) so each Ascension reads as its own.
+                            context.stroke(path, with: .color(NeoTokyo.Ascension.color(forTier: toTier).opacity(0.9 * fade)), style: StrokeStyle(lineWidth: 6, lineCap: .round, lineJoin: .round))
                             context.stroke(path, with: .color(NeoTokyo.Text.primary.opacity(fade)), style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
                         }
                         .ignoresSafeArea()
@@ -116,8 +117,8 @@ struct AscensionOverlay: View {
                             NeoTokyo.Hierarchy.primary.mask { sprite }.opacity(glow * 0.9)
                             NeoTokyo.Text.primary.mask { sprite }.opacity(white)
                             // the eyes light before the room does
-                            Capsule().fill(NeoTokyo.Hierarchy.primary).frame(width: 4 * scale, height: 1.5 * scale)
-                                .shadow(color: NeoTokyo.Hierarchy.primary, radius: 6).shadow(color: NeoTokyo.Text.primary, radius: 3)
+                            Capsule().fill(NeoTokyo.Ascension.color(forTier: toTier)).frame(width: 4 * scale, height: 1.5 * scale)
+                                .shadow(color: NeoTokyo.Ascension.color(forTier: toTier), radius: 6).shadow(color: NeoTokyo.Text.primary, radius: 3)
                                 .offset(x: 2.5 * scale, y: -39 * scale)
                                 .opacity(eyes)
                         }

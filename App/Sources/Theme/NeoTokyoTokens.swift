@@ -57,7 +57,7 @@ public enum NeoTokyo {
     /// Doc 38 Ascension tier colours: rendered around the character, never baked into sprites.
     public enum Ascension {
         public static let i = Color(.sRGB, red: 0.3608, green: 0.5529, blue: 1.0000, opacity: 1)  // #5C8DFF
-        public static let ii = Color(.sRGB, red: 0.2471, green: 0.8471, blue: 0.9647, opacity: 1)  // #3FD8F6
+        public static let ii = Color(.sRGB, red: 0.6902, green: 0.2980, blue: 1.0000, opacity: 1)  // #B04CFF
         public static let iii = Color(.sRGB, red: 0.6510, green: 0.4196, blue: 1.0000, opacity: 1)  // #A66BFF
         public static let iv = Color(.sRGB, red: 0.9529, green: 0.8863, blue: 0.6588, opacity: 1)  // #F3E2A8
         public static let v = Color(.sRGB, red: 1.0000, green: 0.9647, blue: 0.8627, opacity: 1)  // #FFF6DC
@@ -77,7 +77,7 @@ public enum NeoTokyo {
         public static func rgb(forTier tier: Int) -> (UInt8, UInt8, UInt8) {
             switch tier {
             case 1: return (92, 141, 255)
-            case 2: return (63, 216, 246)
+            case 2: return (176, 76, 255)
             case 3: return (166, 107, 255)
             case 4: return (243, 226, 168)
             case 5: return (255, 246, 220)

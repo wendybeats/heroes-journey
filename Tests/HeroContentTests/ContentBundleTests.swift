@@ -47,7 +47,7 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(ruleset.levelThresholdsTotalXP, ruleset.levelThresholdsTotalXP.sorted(), "monotonic")
         XCTAssertEqual(ruleset.structuredWorkout?.defaultMinutes, 45)
         XCTAssertEqual(ruleset.structuredWorkout?.minutesPerValidSet, 2.5)
-        XCTAssertEqual(ruleset.sessionBaseXP, 15); XCTAssertEqual(ruleset.healthHistoryWindowDays, 7)
+        XCTAssertEqual(ruleset.sessionBaseXP, 15); XCTAssertEqual(ruleset.healthHistoryWindowDays, 0, "owner 2026-10-18: Health earns from the connecting day; history is kept, not credited")
         XCTAssertEqual(ruleset.goalXP, ["primary": 30, "secondary": 20, "small_win": 12])
         XCTAssertEqual(ruleset.dailyQuest?.durationMinutes, 240, "owner decision 2026-10-02")
         XCTAssertEqual(ruleset.dailyQuest?.rewardTable.map(\.tier), ["common", "uncommon", "rare", "page"], "doc 33: the page row only counts where a quest has a page pool")

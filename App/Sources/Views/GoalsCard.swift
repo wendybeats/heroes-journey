@@ -177,16 +177,16 @@ struct GoalRow: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Log activity")
-                .sheet(isPresented: $showLog) { LogSheet(preselect: suggestedActivity) }
+                .sheet(isPresented: $showLog) { LogSheet(initialTab: suggestedTab) }
             }
         }
         .padding(.vertical, NeoTokyo.Spacing.xs)
         .animation(.easeOut(duration: 0.3), value: done)
     }
 
-    /// Doc 40 #4: the activity the goal asks for. One family: its first activity type. Any-family: the player's
-    /// primary family if the goal accepts it, else the first family listed. Manual and steps goals have none.
-    private var suggestedActivity: ContentBundle.ActivityType? {
+    /// Owner QA 2026-10-18: a goal tap opens the log on the goal's category tab (the attribute its family feeds most),
+    /// never a guessed activity ("play music" went to drawing). Manual and steps goals have none.
+    private var suggestedTab: AttributeID? {
         guard let rule = state.template(for: goal)?.rule else { return nil }
         let family: FamilyID
         switch rule {
@@ -196,8 +196,7 @@ struct GoalRow: View {
             family = families.contains(state.goalPreferences.primaryFamily) ? state.goalPreferences.primaryFamily : first
         default: return nil
         }
-        let recent = state.events.sorted { $0.startedAt > $1.startedAt }.compactMap { state.bundle.activityType($0.activityTypeID) }.first { $0.familyID == family }
-        return recent ?? state.bundle.activityTypes.first { $0.familyID == family }
+        return BondReference.attribute(forFamily: family.rawValue, ruleset: state.ruleset, fallback: state.bundle.attributes.first?.id ?? "strength")
     }
 }
 
@@ -212,6 +211,13 @@ struct QuestDepartPrompt: View {
                 SpritePortrait(recipe: recipe, outfit: state.evolution?.outfit, size: 120)
             }
             Bubble(text: state.quest?.notificationPrompt ?? "Time to see if I can find anything useful around here. I'll be back in a few hours.")
+            // Owner QA 2026-10-18: say what the permission is for before asking.
+            HStack(spacing: NeoTokyo.Spacing.sm) {
+                Image(systemName: "bell.badge").font(HeroFont.headline).foregroundStyle(NeoTokyo.Hierarchy.primary)
+                Text("I'll let you know when I return.").font(HeroFont.bodyMedium).foregroundStyle(NeoTokyo.Text.primary)
+            }
+            .padding(NeoTokyo.Spacing.md).frame(maxWidth: .infinity, alignment: .leading)
+            .glass(cornerRadius: NeoTokyo.Radius.md, tint: NeoTokyo.Surface.raised)
             Button("Enable notifications") { dismiss(); Task { await state.beginQuest(requestNotifications: true) } }
                 .buttonStyle(PrimaryButtonStyle())
             Button("Not now") { dismiss(); Task { await state.beginQuest(requestNotifications: false) } }

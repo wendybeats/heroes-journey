@@ -272,7 +272,8 @@ struct HomeView: View {
         // Doc 40 #13: the first time a boss beat is offered, Cairon speaks before the card appears.
         if let offered = state.offeredMilestones.first, let chapter = state.offerScenePending(for: offered) {
             state.markOfferScenePlayed(offered)
-            storyScene = StoryScene(chapter: chapter, milestone: nil)
+            let bossName = state.bundle.boss(forMilestone: offered.id).map { state.bundle.character($0.characterID)?.displayName ?? $0.displayName }
+            storyScene = StoryScene(chapter: chapter, milestone: nil, banner: bossName.map { "\($0) fight unlocked" })   // owner QA 2026-10-18
             return
         }
         guard let milestone = state.nextStoryBeat else { flushToasts(); return }
