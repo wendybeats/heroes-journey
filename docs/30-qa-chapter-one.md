@@ -96,3 +96,27 @@ Fresh install unless a line says otherwise.
 
 **History**
 23. One Steps row a day with a Health tag; Health imports carry the Health badge.
+
+## QA for build 2e064f9 (2026-10-18): second device batch
+
+Fresh install for 1–3; the rest on an existing save.
+
+**Onboarding and Health**
+1. Cairon's card in the guide rows (onboarding, Health welcome) faces his bubble, to the left.
+2. Connect Health on an account with a long history: the welcome card counts only today's workouts; no level jump from history. The timeline still shows older workouts as history.
+3. A session done earlier today, before connecting, is credited on connect.
+
+**Story**
+4. "Your room is open" / "New area · …" sits under the scene graphic, centred, gold with a thin gold stroke, and holds about 3.5 s. Nothing cut off at the top.
+5. Any speaker on the right (Cairon, the lifter) faces the hero on the left.
+6. The first Face Colossus offer: Cairon's line plays with "Colossus fight unlocked" under the graphic; then the boss card.
+
+**Goals and quests**
+7. Tap "Play or practise music for 15 min" → log sheet on the Make tab, no activity preselected. "Recover for 10 min" → Calm. "Read for 10 min" → Mind. "Draw for 15 min" → Make.
+8. First quest departure: a small bell card "I'll let you know when I return." above Enable notifications.
+
+**Ascension (dev replay, tier II)**
+9. Ascension II: purple lightning and purple eyes; the rest of the sequence unchanged. Tier I now strikes in its own blue (the strikes were gold before); the white core of each bolt is unchanged.
+
+**Fight**
+10. Unchanged on purpose: the Colossus still ends near where you left him (options in doc 37, awaiting a pick).
