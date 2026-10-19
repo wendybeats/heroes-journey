@@ -39,3 +39,6 @@ A fitness-first RPG whose progression is driven by real-life activity. The track
 
 ## Core loop
 Real activity → ActivityEvent → ProgressionEngine → XP/Attribute ledgers → reward grants → character/world feedback → desire to return.
+
+## Studio workflow (owner, 2026-10-19)
+`docs/41` is the operating model: Linear project "Heroes — Studio" is the source of truth for tasks; Slack `#heroes-build` / `#heroes-studio` / `#heroes-growth` for reporting; ChatGPT plans and reviews, Claude builds. Work from the Linear issue, record decisions and blockers on it, Done only with evidence, concise Slack posts for milestones and blockers only, no scope expansion, no unprompted releases, spending or destructive actions. Completion report format is in docs/41.
