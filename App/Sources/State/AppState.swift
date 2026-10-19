@@ -10,7 +10,7 @@ import HeroContent
 /// Supabase-backed one replaces it without touching this file's callers.
 @MainActor @Observable
 final class AppState {
-    struct Archive: Codable {
+    struct Archive: Codable, Sendable {
         static let schemaVersion = 4
         var schemaVersion = Archive.schemaVersion
         var userID: UserID
@@ -38,6 +38,9 @@ final class AppState {
         /// Owner QA 2026-10-16: day-one Health credit, told once (see `HealthWelcome`), and the day the story holds for it.
         var healthWelcome: HealthWelcome? = nil
         var healthGraceDay: DayKey? = nil
+        /// HER-17: facts already appended to the server, and the snapshot version last uploaded.
+        var uploadedEventIDs: Set<ActivityEventID> = []
+        var stateVersion: Int = 0
 
         init(userID: UserID, recipe: AvatarRecipe?, events: [ActivityEvent], ledger: ProgressionLedger, outbox: Outbox, workouts: [Workout], activeWorkout: Workout?, preferredUnit: WeightUnit, healthSync: HealthSyncState, corrections: [ActivityCorrection], importLog: [String: ImportDisposition], goalPreferences: GoalPreferences, goalPlans: [GoalPlan], goalCompletions: [GoalCompletion], goalSeed: UInt64, questRuns: [QuestRun], startedOn: DayKey?, lastStageDay: DayKey?, storyProgress: StoryProgress, challengeOffers: [ChallengeOffer] = [], healthWelcome: HealthWelcome? = nil, healthGraceDay: DayKey? = nil) {
             self.userID = userID; self.recipe = recipe; self.events = events; self.ledger = ledger; self.outbox = outbox
@@ -72,11 +75,13 @@ final class AppState {
             challengeOffers = try c.decodeIfPresent([ChallengeOffer].self, forKey: .challengeOffers) ?? []
             healthWelcome = try c.decodeIfPresent(HealthWelcome.self, forKey: .healthWelcome)
             healthGraceDay = try c.decodeIfPresent(DayKey.self, forKey: .healthGraceDay)
+            uploadedEventIDs = try c.decodeIfPresent(Set<ActivityEventID>.self, forKey: .uploadedEventIDs) ?? []
+            stateVersion = try c.decodeIfPresent(Int.self, forKey: .stateVersion) ?? 0
         }
     }
 
     /// Doc 33: a challenge offered on a day. Open until declined or accepted (then its fact's id is here) or the day ends.
-    struct ChallengeOffer: Codable, Equatable {
+    struct ChallengeOffer: Codable, Equatable, Sendable {
         let day: DayKey
         let challengeID: ChallengeID
         /// Which line set this meeting uses (meeting count, cycling).
@@ -110,6 +115,11 @@ final class AppState {
     private(set) var userID: UserID
     /// HER-6: product analytics. Set by the app at launch; `NoAnalytics` in previews and tests.
     @ObservationIgnored var analytics: any AnalyticsClient = NoAnalytics()
+    /// HER-17: the server side of the account. nil until the app connects it; previews and tests stay offline.
+    @ObservationIgnored var account: AccountSync?
+    @ObservationIgnored private var uploadedEventIDs: Set<ActivityEventID>
+    @ObservationIgnored private var stateVersion: Int
+    @ObservationIgnored private var syncing = false
     /// The settings toggle (Room). Default on; off clears the queue and sends nothing. Not part of the archive.
     var analyticsEnabled: Bool = UserDefaults.standard.object(forKey: "analytics.enabled") as? Bool ?? true {
         didSet { UserDefaults.standard.set(analyticsEnabled, forKey: "analytics.enabled"); analytics.setEnabled(analyticsEnabled) }
@@ -147,7 +157,7 @@ final class AppState {
     /// (rules 1 and 4); what changes is the telling. Health credit on the day the character woke never opens the
     /// reward modal: it is gathered into one card from Cairon, Home holds the numbers at `before` until the card
     /// is dismissed so the level-up plays once, and the day's auto beats and challenge offer wait for tomorrow.
-    struct HealthWelcome: Codable, Equatable {
+    struct HealthWelcome: Codable, Equatable, Sendable {
         let day: DayKey
         let levelBefore: Int, totalXPBefore: Int, attributesBefore: [AttributeID: Int]
         var steps: Int?
@@ -310,6 +320,8 @@ final class AppState {
         self.healthWelcome = archive?.healthWelcome
         self.healthGraceDay = archive?.healthGraceDay
         challengeOffers = archive?.challengeOffers ?? []
+        self.uploadedEventIDs = archive?.uploadedEventIDs ?? []
+        self.stateVersion = archive?.stateVersion ?? 0
         self.goalSeed = (archive?.goalSeed).flatMap { $0 == 0 ? nil : $0 } ?? UInt64.random(in: 1...UInt64.max)
         self.baseRuleset = ruleset
         let authority = ProgressionAuthority(ruleset: ruleset, levelRewards: bundle.levelRewards, calendar: .current)
@@ -361,6 +373,7 @@ final class AppState {
             }
             save()
         }
+        await syncAccount()
     }
 
     /// Queue the Ascension takeover when a level change crosses into a higher tier. Idempotent per boundary.
@@ -1158,12 +1171,68 @@ final class AppState {
     }
 
     private func save() {
-        let archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit, healthSync: healthSync, corrections: corrections, importLog: importLog, goalPreferences: goalPreferences, goalPlans: goalPlans, goalCompletions: goalCompletions, goalSeed: goalSeed, questRuns: questRuns, startedOn: startedOn, lastStageDay: lastStageDay, storyProgress: storyProgress, challengeOffers: challengeOffers, healthWelcome: healthWelcome, healthGraceDay: healthGraceDay)
+        stateVersion += 1
+        let archive = currentArchive()
         do {
             let data = try JSONEncoder().encode(archive)
             try data.write(to: Self.archiveURL, options: .atomic)
         } catch {
             assertionFailure("archive save failed: \(error)")
+        }
+    }
+
+    private func currentArchive() -> Archive {
+        var archive = Archive(userID: userID, recipe: recipe, events: events, ledger: ledger, outbox: outbox, workouts: workouts, activeWorkout: activeWorkout, preferredUnit: preferredUnit, healthSync: healthSync, corrections: corrections, importLog: importLog, goalPreferences: goalPreferences, goalPlans: goalPlans, goalCompletions: goalCompletions, goalSeed: goalSeed, questRuns: questRuns, startedOn: startedOn, lastStageDay: lastStageDay, storyProgress: storyProgress, challengeOffers: challengeOffers, healthWelcome: healthWelcome, healthGraceDay: healthGraceDay)
+        archive.uploadedEventIDs = uploadedEventIDs; archive.stateVersion = stateVersion
+        return archive
+    }
+
+    // MARK: account sync (HER-17)
+
+    /// Sign in (anonymous on first launch), bind the character to the auth user, restore a fresh install from the
+    /// server snapshot when there is one, then push anything the server has not seen.
+    func connectAccount(_ account: AccountSync) async {
+        self.account = account
+        do {
+            _ = try await account.signIn()
+            try await account.bindProfile(userID.rawValue)
+            if recipe == nil, events.isEmpty, let saved = try await account.fetchState(Archive.self), saved.state.recipe != nil {
+                adopt(saved.state)
+            }
+        } catch {
+            // Offline or not yet configured: the app works locally; the next drain retries.
+        }
+        await syncAccount()
+    }
+
+    /// Replace the whole state with a server snapshot (a reinstall that found its account). The authority is rebuilt
+    /// from the restored ledger and facts, so progression continues exactly where it was.
+    private func adopt(_ archive: Archive) {
+        userID = archive.userID; events = archive.events; ledger = archive.ledger; outbox = archive.outbox
+        workouts = archive.workouts; activeWorkout = archive.activeWorkout; preferredUnit = archive.preferredUnit; healthSync = archive.healthSync
+        corrections = archive.corrections; importLog = archive.importLog; goalPreferences = archive.goalPreferences; goalPlans = archive.goalPlans
+        goalCompletions = archive.goalCompletions; goalSeed = archive.goalSeed == 0 ? goalSeed : archive.goalSeed; questRuns = archive.questRuns
+        startedOn = archive.startedOn; lastStageDay = archive.lastStageDay; storyProgress = archive.storyProgress; challengeOffers = archive.challengeOffers
+        healthWelcome = archive.healthWelcome; healthGraceDay = archive.healthGraceDay
+        uploadedEventIDs = archive.uploadedEventIDs; stateVersion = archive.stateVersion
+        let authority = ProgressionAuthority(ruleset: ruleset, levelRewards: bundle.levelRewards, calendar: .current)
+        service = LocalAuthorityProgressionService(authority: authority, owner: userID, ledger: ledger, events: events)
+        recipe = archive.recipe   // last: its didSet saves and builds today's plan
+        resolveQuestIfDue()
+    }
+
+    /// Append every confirmed fact the server has not seen, then the snapshot. Safe to call often; one at a time.
+    func syncAccount() async {
+        guard let account, !syncing else { return }
+        syncing = true; defer { syncing = false }
+        let pending = events.filter { !uploadedEventIDs.contains($0.id) && (ledger.hasProcessed($0.id) || $0.source == .healthImport) }
+        let receipts = pending.compactMap { outbox.receipt(for: $0.id) }
+        do {
+            try await account.upload(events: pending, receipts: receipts, profileID: userID.rawValue)
+            if !pending.isEmpty { uploadedEventIDs.formUnion(pending.map(\.id)); save() }
+            try await account.uploadState(currentArchive(), version: stateVersion)
+        } catch {
+            // Offline or a server error: nothing is lost, the next drain retries.
         }
     }
 

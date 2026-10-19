@@ -136,3 +136,10 @@ Fresh install for 1–3; the rest on an existing save.
 2. Fresh install, complete onboarding, log one activity, complete one goal, depart on a quest. In PostHog Live events: Application Installed, Application Opened, onboarding completed, activity logged (first = true), goal completed, quest departed, in that order.
 3. Turn the toggle off, log another activity: nothing new arrives. Turn it on, log again: it arrives.
 4. No event carries a duration, a workout type, a distance or a step count.
+
+## QA for accounts, increment 1 (HER-17, 2026-10-19)
+
+1. Fresh install, complete onboarding, log one activity. In Supabase: one `profiles` row with your character's id, rows in `activity_events` (the bond fact and the activity) and `receipts`, and `profiles.state` filled.
+2. Delete the app, reinstall, open it: if the keychain kept the session, Home opens with your character, level and history within a second or two, without onboarding. If it shows onboarding instead, the session did not survive; note it, Apple sign-in (increment 2) is the fix.
+3. Airplane mode, log an activity, come back online, log another: both facts arrive on the next sync.
+4. Nothing in the app waits on the server: Home and logging behave the same with the network off.

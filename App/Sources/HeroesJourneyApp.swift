@@ -12,6 +12,8 @@ struct HeroesJourneyApp: App {
         analytics.setEnabled(loaded.analyticsEnabled)
         analytics.identify(loaded.userID.rawValue.uuidString, properties: [:])
         _state = State(initialValue: loaded)
+        // HER-17: the account connects in the background; a fresh install that finds its account restores before onboarding ends.
+        Task { await loaded.connectAccount(AccountSync()) }
     }
 
     var body: some Scene {

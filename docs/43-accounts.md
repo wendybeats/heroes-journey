@@ -1,0 +1,37 @@
+# 43 · Accounts and the server-side fact log (HER-17)
+
+Owner decisions 2026-10-19: Supabase for the backend; sign-in and restore ship before external testers; accounts must be recoverable, editable (grant and take) and fixable. The principle from CLAUDE.md rules 1–4 makes all three cheap: **an account is its fact log.** Progression is derived from immutable facts under a versioned ruleset, so recovery is a replay and an edit is a new fact.
+
+Project: Heroes Journey, `fuwscpmwyaksklwvrohm`, us-west-2, Postgres 17. Migrations live in `supabase/migrations/` and are applied through the Supabase connector (or the SQL editor).
+
+## Tables
+| Table | Rows | Who writes |
+|---|---|---|
+| `profiles` | one per auth user: `profile_id` (the app's local UserID), `state` (the archive as a snapshot for fast restore), `state_version`, `rebuild_required` | the app; admins flip `rebuild_required` |
+| `activity_events` | every `ActivityEvent` the app creates, `payload` verbatim plus indexed columns; `inserted_by` client or admin, `reason` | the app (client rows), admins (admin facts) |
+| `receipts` | what the authority credited for a fact | the app today; the server once the authority moves |
+| `corrections` | a source deletion, duplicate, wrong duration or type, as a fact | the app, admins |
+
+All three fact tables are append-only: a trigger rejects every UPDATE and DELETE for every role, the dashboard included. Row-level security limits each authenticated user to their own rows; client inserts must carry `inserted_by = 'client'`. The service role bypasses RLS for admin work and still cannot change a fact.
+
+## Increment 1 (built 2026-10-19)
+- Identity: an anonymous Supabase user on first launch, kept in the keychain (it usually survives a reinstall). `AccountSync` in `App/Sources/Backend/`.
+- Binding: `profiles` upsert of the auth user id with the local UserID.
+- Upload: after every drain, facts the ledger has processed (and Health history facts) plus their receipts are appended; duplicates are ignored server-side; `uploadedEventIDs` in the archive remembers what went up. Then the archive is uploaded as the profile snapshot.
+- Restore: on launch, a fresh install (no recipe, no facts) with a session whose profile has a snapshot adopts it wholesale, rebuilds the authority from the restored ledger and facts, and Home opens where the player left off.
+- Offline: every step fails silently and the next drain retries. Nothing in the app waits on the server.
+
+## Increment 2: Sign in with Apple
+Native Sign in with Apple (AuthenticationServices) with a nonce, then `signInWithIdToken(provider: .apple, idToken:, nonce:)` to link the identity to the anonymous user so nothing is lost. Needs: the Sign in with Apple capability on the App ID; the Apple provider enabled in Supabase Auth with the Services ID; Anonymous sign-ins enabled in Supabase Auth. Restore then keys off the Apple identity, not the keychain.
+
+## Increment 3: admin facts and corrections in the engine
+`ActivitySource.admin` with `AdminReference(kind: grant | revoke, rewardID?, xp?, attribute?, reason, actor)`, evaluated like story grants; revoke removes a reward grant (rule 4). `ActivityCorrection.Kind` grows to duplicate, wrongDuration, wrongType. The app re-derives its ledger from the fact log when `profiles.rebuild_required` is set.
+
+## How to recover, grant, take and fix (today)
+- Recover: the player signs in on the new device; the app adopts `profiles.state`. Until increment 2 this depends on the keychain session surviving.
+- Inspect: `select * from activity_events where profile_id = '<UserID>' order by started_at`.
+- Grant or take: not until increment 3. Do not edit `state` by hand; it is overwritten by the next upload.
+- Fix a bad fact: insert a `corrections` row (increment 3 makes the app honour it).
+
+## Keys
+The project URL and publishable key are public by design and live in `AccountSync.swift`. The service role and secret keys never go in the repo or in chat.

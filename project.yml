@@ -12,6 +12,10 @@ packages:
   PostHog:
     url: https://github.com/PostHog/posthog-ios
     from: "3.25.0"
+  # HER-17: accounts and the server-side fact log. Publishable key only; see App/Sources/Backend/AccountSync.swift.
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    from: "2.0.0"
 settings:
   base:
     SWIFT_VERSION: "6.0"
@@ -60,6 +64,7 @@ targets:
       - target: HeroContent
         embed: true
       - package: PostHog
+      - package: Supabase
     entitlements:
       path: App/Resources/HeroesJourney.entitlements
       properties:
