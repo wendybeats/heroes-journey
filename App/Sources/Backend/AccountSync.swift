@@ -52,14 +52,22 @@ struct ProfileFetchRow<State: Decodable & Sendable>: Decodable, Sendable {
     enum CodingKeys: String, CodingKey { case state, stateVersion = "state_version", rebuildRequired = "rebuild_required" }
 }
 
-actor AccountSync {
+/// A plain Sendable class, not an actor: the Supabase client's responses are not Sendable, so every call stays in a
+/// nonisolated context and only Sendable values (ids, facts, the archive) cross into the main actor.
+final class AccountSync: @unchecked Sendable {
     /// The project URL and publishable key are public by design (row-level security is the guard); the service and
     /// secret keys never go in the repo.
     static let projectURL = URL(string: "https://fuwscpmwyaksklwvrohm.supabase.co")!
     static let publishableKey = "sb_publishable_CfwLnXtgYVDJoDWABEtrqg_dk25sWQK"
 
     private let client: SupabaseClient
-    private(set) var authUserID: UUID?
+    private let lock = NSLock()
+    private var _authUserID: UUID?
+    var authUserID: UUID? {
+        lock.lock(); defer { lock.unlock() }
+        return _authUserID
+    }
+    private func setAuthUserID(_ id: UUID) { lock.lock(); _authUserID = id; lock.unlock() }
 
     init() {
         client = SupabaseClient(supabaseURL: Self.projectURL, supabaseKey: Self.publishableKey)
@@ -68,11 +76,11 @@ actor AccountSync {
     /// The keychain session if there is one, else a new anonymous user. Returns the auth user id.
     func signIn() async throws -> UUID {
         if let session = try? await client.auth.session {
-            authUserID = session.user.id
+            setAuthUserID(session.user.id)
             return session.user.id
         }
         let session = try await client.auth.signInAnonymously()
-        authUserID = session.user.id
+        setAuthUserID(session.user.id)
         return session.user.id
     }
 
