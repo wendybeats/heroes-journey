@@ -27,6 +27,9 @@ Linear project: **Heroes — Studio**. Slack: `#heroes-studio` (priorities, deci
 
 Within an approved task Claude may inspect code, plan, change code, run tests, fix directly related bugs and document. Claude asks before expanding scope, changing fundamental design, replacing architecture, irreversible data changes, public deployment, or paid services.
 
+## Review handoff
+When an issue is waiting on the owner (In Review, or a decision only the owner can take), assign it to the owner so the Linear "assigned to me" view is the review queue. Claude unassigns itself when handing over and takes it back when the review comes in.
+
 ## Issue format
 Title (outcome), Why, Requirements, Acceptance criteria, References. Lifecycle: Backlog → Ready → In Progress → Blocked → Done.
 
