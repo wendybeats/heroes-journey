@@ -945,7 +945,7 @@ final class AppState {
     func completeMilestone(_ milestone: Milestone) {
         guard !storyProgress.isComplete(milestone.id) else { return }
         storyProgress = StoryDirector.complete(milestone, campaign: campaign, progress: storyProgress)
-        if milestone.completesChapter, let chapter = campaign.chapter(containing: milestone.id) { analytics.track(.chapterCompleted(chapter: chapter.id.rawValue)) }
+        if milestone.completesChapter, let chapter = campaign.chapter(containing: milestone.id) { analytics.track(.chapterCompleted(chapter: chapter.id)) }
         // Owner QA 2026-10-05: a world backdrop the story opens becomes the Home scene; the room's own backdrop does not (the room is a hub, not the world).
         if let b = milestone.unlockBackdrop, let backdrop = bundle.backdrop(b), backdrop.role != "home_room", var r = recipe {
             r.backdropID = backdrop.id; recipe = r
