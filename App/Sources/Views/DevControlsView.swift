@@ -21,6 +21,10 @@ struct DevControlsView: View {
                         Text("Moves the app's clock a whole day: new goals, the stage screen, a new daily quest and a new challenge roll. Facts logged after this land on the advanced day; Health still reads the real calendar.")
                             .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
                     }
+                    section("Last receipt") {
+                        // HER-20: the engine's inputs for the last activity receipt, so a surprising number explains itself on the phone.
+                        ForEach(state.explainLastReceipt(), id: \.0) { item in row(item.0, value: item.1) }
+                    }
                     section("Quest") {
                         row("State", value: questLabel)
                         Button("Finish the quest now") { state.devFinishQuest() }

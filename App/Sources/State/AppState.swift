@@ -402,6 +402,26 @@ final class AppState {
         if receipt.leveledUp { analytics.track(.levelReached(level: receipt.levelAfter)) }
     }
 
+    /// HER-20: how the last activity receipt was priced, recomputed from the ledger the way the engine saw it. Debug only.
+    func explainLastReceipt() -> [(String, String)] {
+        guard let receipt = lastReceipt, let event = events.first(where: { $0.id == receipt.activityEventID }) else { return [("Last receipt", "none")] }
+        let record = ledger.processing.first { $0.activityEventID == event.id && $0.purpose == .original }
+        let context = ledger.context(for: event, ruleset: ruleset, events: events, levelRewards: bundle.levelRewards, calendar: .current)
+        let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd HH:mm"
+        let appDay = DayKey(now, calendar: .current), eventDay = DayKey(event.startedAt, calendar: .current)
+        return [
+            ("Event", "\(event.activityTypeID.rawValue) · \(event.source.rawValue)"),
+            ("Started", f.string(from: event.startedAt) + (eventDay == appDay ? "" : " (not the app's today)")),
+            ("App today", "\(appDay.year)-\(appDay.month)-\(appDay.day) · offset \(devDayOffset)"),
+            ("Duration", "\(Int(event.durationMinutes)) min · sets \(event.structuredSetCount ?? 0)"),
+            ("Prior minutes, family, that day", String(format: "%.1f", context.priorEligibleMinutesToday)),
+            ("Credited minutes", String(format: "%.1f", record?.eligibleMinutes ?? 0)),
+            ("Raw XP before strain", "\(record?.unstrainedXP ?? receipt.xp)"),
+            ("Prior raw XP that day", "\(context.priorActivityXPToday)"),
+            ("Granted", "\(receipt.xp) xp · \(receipt.attributes.map { "\($0.key.rawValue) +\($0.value)" }.sorted().joined(separator: ", "))"),
+        ]
+    }
+
     func dismissReward() {
         guard lastReceipt != nil else { return }
         lastReceipt = nil; lastPersonalRecords = []; lastGoalReceipts = []
