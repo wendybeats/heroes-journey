@@ -7,6 +7,11 @@ options:
 # HeroDomain and HeroContent are built here as framework targets from the same sources the
 # Swift package uses (Package.swift stays for `swift test` and Linux CI). A local package at the
 # project root made Xcode report "Missing package product" after regeneration; targets do not.
+packages:
+  # HER-6: product analytics. The project key is public (write-only); see App/Sources/Analytics/PostHogAnalytics.swift.
+  PostHog:
+    url: https://github.com/PostHog/posthog-ios
+    from: "3.25.0"
 settings:
   base:
     SWIFT_VERSION: "6.0"
@@ -54,6 +59,7 @@ targets:
         embed: true
       - target: HeroContent
         embed: true
+      - package: PostHog
     entitlements:
       path: App/Resources/HeroesJourney.entitlements
       properties:

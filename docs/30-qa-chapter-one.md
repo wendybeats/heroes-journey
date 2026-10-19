@@ -129,3 +129,10 @@ Fresh install for 1–3; the rest on an existing save.
 3. At one Pressure an unguarded Crush is a hit, not a KO.
 4. His TEST and Crush numbers climb with the stacks (about +15 % per stack); Center brings them back down.
 5. Expectation for your build: a tactical fight ends with roughly half your bar, down from 70 %.
+
+## QA for analytics (HER-6, 2026-10-19)
+
+1. Room → Settings shows "Usage analytics", on by default, with the caption "Level-ups, quests, fights. Never Health data."
+2. Fresh install, complete onboarding, log one activity, complete one goal, depart on a quest. In PostHog Live events: Application Installed, Application Opened, onboarding completed, activity logged (first = true), goal completed, quest departed, in that order.
+3. Turn the toggle off, log another activity: nothing new arrives. Turn it on, log again: it arrives.
+4. No event carries a duration, a workout type, a distance or a step count.

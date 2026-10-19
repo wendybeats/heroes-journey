@@ -183,6 +183,16 @@ struct RoomView: View {
                     Button("Connect") { Task { await state.connectHealth() } }.font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.fallback)
                 }
             }
+            // HER-6: the analytics opt-out. Off clears the queue; nothing from Health is ever in it either way.
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Usage analytics").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
+                    Text("Level-ups, quests, fights. Never Health data.").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
+                }
+                Spacer()
+                Toggle("Usage analytics", isOn: Binding(get: { state.analyticsEnabled }, set: { state.analyticsEnabled = $0 }))
+                    .labelsHidden().tint(NeoTokyo.Hierarchy.primary)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .card()

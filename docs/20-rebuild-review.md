@@ -391,6 +391,10 @@ The owner's v4 pack redraws the three gym lifters with heavier cybernetics and o
 
 Two ruleset levers, both off by default so older rulesets decode unchanged: `pressure_boss_damage_per_stack` (0.15: each Pressure stack arms his hits as well as softening the player's) and `lethal_pressure_stacks` (2: an unguarded Crush at two or more stacks takes everything left; guarded, it is a Deflect as before). The engine emits a `lethal` event after the hit; the stage shows KO with a one-line explanation from content (`tutorial.lethal`), and the Pressure explainer now says his hits get harder too. Simulator mirrored, golden regenerated (35 cases), one engine test for both rules. Doc 37 has the post-change table: Balanced tactical 37 %, the pure lifter can no longer brute through, Mindfulness tactical thin at 5 %. Content version 2026.10.18-1.
 
+## Increment 65, 2026-10-19: product analytics (HER-6, PostHog)
+
+The owner picked PostHog and Supabase. The app gains `AnalyticsClient` with twelve named events (docs/42), a `PostHogAnalytics` adapter configured for the minimum (our events plus the SDK's lifecycle events for retention; no autocapture, screen views, element capture, replay or flag calls), and an opt-out toggle in the Room's settings. Hooks live in `AppState` at the state transitions, never in views, and one `trackReceipt` turns each confirmed receipt into the right event by what the fact was. Nothing from Apple Health leaves the device beyond "an activity was credited" and its family. The project key is PostHog's public write-only key, in source by design. Verification is one device session and the event list in PostHog; HER-6 is Done when every event has appeared with its properties.
+
 ## Planned (owner, 2026-10-12): challenges and between-beat content
 
 Doc 33 holds the design, the five-increment plan (40–44) and the content inventory (lines and art the owner writes separately). Order: beats wait for their quest (`requires_quest`), Challenges with Cairon then the lifter, repeat quest exchanges and found pages, story-aware goal lines and Row rumours. Each lands behind its content: a field with no lines renders nothing.

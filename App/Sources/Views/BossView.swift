@@ -464,7 +464,10 @@ struct BossView: View {
             pop = nil
             if encounter.result == .won { await victory() }
             else if encounter.result == nil, !phaseShown, let at = boss.phaseAt, shownBoss <= encounter.bossStaminaMax * at { await phaseBeat() }
-            if let result = encounter.result { state.recordBossAttempt(boss, result: result); await pause(200) }
+            if let result = encounter.result {
+                state.recordBossAttempt(boss, result: result, turns: encounter.turn, staminaShare: max(0, encounter.playerStamina / encounter.playerStaminaMax))
+                await pause(200)
+            }
             busy = false
         }
     }

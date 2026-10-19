@@ -108,6 +108,12 @@ final class AppState {
     let tokens: DesignTokens
     private var service: LocalAuthorityProgressionService
     private(set) var userID: UserID
+    /// HER-6: product analytics. Set by the app at launch; `NoAnalytics` in previews and tests.
+    @ObservationIgnored var analytics: any AnalyticsClient = NoAnalytics()
+    /// The settings toggle (Room). Default on; off clears the queue and sends nothing. Not part of the archive.
+    var analyticsEnabled: Bool = UserDefaults.standard.object(forKey: "analytics.enabled") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(analyticsEnabled, forKey: "analytics.enabled"); analytics.setEnabled(analyticsEnabled) }
+    }
     var recipe: AvatarRecipe? { didSet { save(); if oldValue == nil { ensureTodayPlan() } } }
     private(set) var events: [ActivityEvent]
     /// Mirror of the authority's ledger, refreshed after every receipt.
@@ -342,6 +348,7 @@ final class AppState {
                 let levelBefore = snapshot.level
                 ledger = await service.ledger
                 noteAscension(from: levelBefore, to: snapshot.level)
+                if !receipt.wasAlreadyProcessed { trackReceipt(entry.submission.event, receipt: receipt) }
                 if showReward && !receipt.wasAlreadyProcessed {
                     if entry.submission.event.goal != nil, lastReceipt != nil { lastGoalReceipts.append(receipt) } else { lastReceipt = receipt }
                 }
@@ -363,6 +370,20 @@ final class AppState {
         guard let new, old?.id != new.id, (new.ascensionTier ?? 0) > (old?.ascensionTier ?? 0) else { return }
         pendingAscension = PendingAscension(fromTier: pendingAscension?.fromTier ?? old?.ascensionTier ?? 0, toTier: new.ascensionTier ?? 0,
                                             evolutionName: new.displayName, chapterID: new.ascensionChapter)
+        analytics.track(.ascensionReached(tier: new.ascensionTier ?? 0))
+    }
+
+    /// HER-6: one analytics event per confirmed receipt, by what the fact was. Health facts send no detail.
+    private func trackReceipt(_ event: ActivityEvent, receipt: ProgressionReceipt) {
+        if let goal = event.goal {
+            analytics.track(.goalCompleted(slot: goal.slot.rawValue, attribute: goal.attributeID.rawValue))
+        } else if let challenge = event.challenge {
+            analytics.track(.challengeResolved(challenge: challenge.challengeID.rawValue, won: challenge.won, probability: challenge.probability))
+        } else if event.quest == nil, event.bond == nil, event.story == nil {
+            let first = !activityEvents.contains { $0.id != event.id && ledger.hasProcessed($0.id) }
+            analytics.track(.activityLogged(source: event.steps != nil ? "steps" : event.source.rawValue, family: event.familyID.rawValue, first: first))
+        }
+        if receipt.leveledUp { analytics.track(.levelReached(level: receipt.levelAfter)) }
     }
 
     func dismissReward() {
@@ -465,6 +486,7 @@ final class AppState {
             healthSync.authorization = .requested   // the prompt finished; read access is not knowable
             healthSync.stepsRequested = true
             healthSync.lastError = nil
+            analytics.track(.healthConnected)
         } catch {
             healthSync.lastError = String(describing: error)
         }
@@ -626,6 +648,7 @@ final class AppState {
         let pick = theirs[Int(ChallengeMath.roll(seed: seed) * Double(theirs.count)) % theirs.count]
         let meetings = challengeOffers.filter { $0.challengeID == pick.id && $0.eventID != nil }.count
         challengeOffers.append(ChallengeOffer(day: today, challengeID: pick.id, setIndex: meetings))
+        analytics.track(.challengeOffered(challenge: pick.id.rawValue, character: who.rawValue))
         challengeOffers = challengeOffers.filter { today.daysSince($0.day, calendar: .current) <= 60 }
         save()
     }
@@ -661,9 +684,10 @@ final class AppState {
     }
     /// Attempts so far, telemetry only (owner 2026-10-16: never shown in the Room).
     func bossAttempts(_ boss: BossDefinition) -> Int { UserDefaults.standard.integer(forKey: "boss.attempts.\(boss.id.rawValue)") }
-    func recordBossAttempt(_ boss: BossDefinition, result: CombatResult) {
+    func recordBossAttempt(_ boss: BossDefinition, result: CombatResult, turns: Int = 0, staminaShare: Double = 0) {
         UserDefaults.standard.set(bossAttempts(boss) + 1, forKey: "boss.attempts.\(boss.id.rawValue)")
         if result == .won { UserDefaults.standard.set(true, forKey: "boss.won.\(boss.id.rawValue)") }
+        analytics.track(.bossAttempted(boss: boss.id.rawValue, result: result.rawValue, turns: turns, staminaShare: staminaShare))
     }
     /// Cairon's hint after the latest loss: the first line on the first loss, tightening, the last line repeating.
     func bossLossLine(_ boss: BossDefinition) -> String? { boss.lossLine(attempt: max(1, bossAttempts(boss) + 1)) }
@@ -880,6 +904,8 @@ final class AppState {
         for m in bundle.campaign.milestones where m.level <= 1 && m.storyChapter == "chapter.awakening" {
             storyProgress = StoryDirector.complete(m, campaign: bundle.campaign, progress: storyProgress)
         }
+        analytics.identify(userID.rawValue.uuidString, properties: ["primary_family": preferences.primaryFamily.rawValue, "secondary_interest": preferences.secondaryInterest])
+        analytics.track(.onboardingCompleted(primaryFamily: preferences.primaryFamily.rawValue, secondaryInterest: preferences.secondaryInterest, healthConnected: healthSync.authorization == .requested))
         save()
         Task { await drain(showReward: false) }
     }
@@ -919,6 +945,7 @@ final class AppState {
     func completeMilestone(_ milestone: Milestone) {
         guard !storyProgress.isComplete(milestone.id) else { return }
         storyProgress = StoryDirector.complete(milestone, campaign: campaign, progress: storyProgress)
+        if milestone.completesChapter, let chapter = campaign.chapter(containing: milestone.id) { analytics.track(.chapterCompleted(chapter: chapter.id.rawValue)) }
         // Owner QA 2026-10-05: a world backdrop the story opens becomes the Home scene; the room's own backdrop does not (the room is a hub, not the world).
         if let b = milestone.unlockBackdrop, let backdrop = bundle.backdrop(b), backdrop.role != "home_room", var r = recipe {
             r.backdropID = backdrop.id; recipe = r
@@ -971,6 +998,7 @@ final class AppState {
         questRuns.append(run)
         questRuns = questRuns.filter { today.daysSince($0.day, calendar: .current) <= 30 || !$0.isResolved }
         showDeparture = true
+        analytics.track(.questDeparted(quest: quest.id.rawValue))
         save()
         if requestNotifications, await QuestNotifications.requestPermission() {
             await QuestNotifications.schedule(returnAt: run.returnsAt, characterName: recipe?.name ?? "Your character", line: quest.awayLines.first ?? "")
@@ -1033,6 +1061,7 @@ final class AppState {
     func claimQuest(_ run: QuestRun) {
         guard let i = questRuns.firstIndex(where: { $0.id == run.id }), questRuns[i].isResolved, !questRuns[i].isClaimed else { return }
         questRuns[i].claimedAt = now
+        analytics.track(.questClaimed(quest: questRuns[i].questID.rawValue, tier: rewardTier(for: questRuns[i]), page: questRuns[i].reward?.pageRewardID != nil))
         if let eventID = questRuns[i].activityEventID, let receipt = outbox.receipt(for: eventID) { lastReceipt = receipt }
         // Owner QA 2026-10-06 / doc 33: the end scene plays on the first completion; later completions play the
         // quest's repeat exchanges in order (content), cycling, so a seventh walk still says something.
