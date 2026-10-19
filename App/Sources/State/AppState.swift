@@ -548,7 +548,13 @@ final class AppState {
             // credits today and nothing before); older workouts are kept as history (doc 15), facts for preferences.
             let creditFrom: Date? = firstSync ? ruleset.healthHistoryWindowDays.map { Calendar.current.startOfDay(for: now).addingTimeInterval(-Double($0) * 86_400) } : nil
             var importedCount = 0
-            for item in page.imported {
+            // HER-20 (owner device, day offset 10): Health keeps the real calendar, the app's clock may be days ahead. Steps
+            // already land on the app's day; workouts now do too, so a session imported today counts toward today's goals and
+            // the Today card, and is priced against today's other facts. The shift is zero in production.
+            let shift = TimeInterval(devDayOffset) * 86_400
+            for raw in page.imported {
+                let item = shift == 0 ? raw : ImportedActivity(externalID: raw.externalID, sourceKind: raw.sourceKind, startedAt: raw.startedAt.addingTimeInterval(shift),
+                                                               endedAt: raw.endedAt.addingTimeInterval(shift), sourceName: raw.sourceName)
                 let outcome = ImportReconciler.reconcile(
                     item, userID: userID, existing: events,
                     mapping: bundle.healthWorkoutMapping.map,

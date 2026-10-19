@@ -403,6 +403,10 @@ Supabase project schema (docs/43): `profiles`, append-only `activity_events`, `r
 
 Native Apple sign-in with a nonce, in the Room's account row and on the onboarding name step for returning players. Supabase decides between linking the Apple identity to the guest user (same id, nothing moves) and switching to the account the Apple ID already had; on a switch the server's character wins on a fresh device, otherwise the device's character is kept and re-appended under the new user. To make that re-append safe, facts and receipts are now keyed per user on the server (`(user_id, id)`), applied and recorded in `supabase/migrations/`. The entitlement is in project.yml; the App ID capability and the Supabase Apple provider are the owner's. Docs/43 has the settings list.
 
+## Increment 68, 2026-10-19: Health imports follow the dev clock (HER-20)
+
+Owner device run: a 37-minute WHOOP strength session arrived as "+14 XP, +1 Strength", completed no goal and left the Today card at zero. Root cause: the device's dev day offset was 10, so the app's "today" was ten days ahead of the real calendar; the Health fact kept its real date, missed the app-day goal and Today filters, and was priced by taper and strain against the real day's earlier imports. Production (offset 0) was never affected. Fix: imported workouts are shifted by the day offset on import, the way steps already were, so a dev day behaves like a real one for Health too. Dev controls gained a "Last receipt" section showing the engine's inputs for the last activity receipt, so the next surprising number explains itself on the phone.
+
 ## Planned (owner, 2026-10-12): challenges and between-beat content
 
 Doc 33 holds the design, the five-increment plan (40–44) and the content inventory (lines and art the owner writes separately). Order: beats wait for their quest (`requires_quest`), Challenges with Cairon then the lifter, repeat quest exchanges and found pages, story-aware goal lines and Row rumours. Each lands behind its content: a field with no lines renders nothing.

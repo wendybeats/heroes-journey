@@ -150,3 +150,9 @@ Fresh install for 1–3; the rest on an existing save.
 2. Delete the app, reinstall, on the name step tap "Already have a character?" → Apple: Home opens with the character, level, history and quests, no onboarding.
 3. Cancel the Apple sheet: no error text. Deny or fail: a short error line under the button, nothing else changes.
 4. A second device with its own guest character, sign in with the same Apple ID: the account's character replaces the fresh guest only when the device had no activity; otherwise the device's character stays and its facts appear under the Apple user in Supabase.
+
+## QA for HER-20 (Health imports under a dev day offset, 2026-10-19)
+
+1. With Day offset 10 in Dev controls, record a workout in Health (or let WHOOP write one), then open the app: the receipt reads the full session (about 15 + 2 XP per minute, strained only by today's other activity), "Train for 30 min" completes if it ran 30 minutes or more, and the Today card counts it as a session.
+2. Dev controls → Last receipt shows "Started" without "(not the app's today)".
+3. Back to today (offset 0): a Health workout from earlier today behaves the same as before.
