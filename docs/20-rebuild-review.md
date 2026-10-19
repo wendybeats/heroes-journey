@@ -399,6 +399,10 @@ The owner picked PostHog and Supabase. The app gains `AnalyticsClient` with twel
 
 Supabase project schema (docs/43): `profiles`, append-only `activity_events`, `receipts` and `corrections`, triggers that reject every update and delete, row-level security per user. In the app, `AccountSync` signs in anonymously on first launch (keychain session), binds the local UserID to the auth user, appends every processed fact and receipt after each drain (duplicates ignored server-side, `uploadedEventIDs` in the archive), uploads the archive as a profile snapshot, and on a fresh install with a session adopts the server snapshot before onboarding ends. Everything fails silently offline and retries on the next drain. The two advisor fixes (pinned search_path, subselected auth calls, two indexes) are in `supabase/migrations/` and not yet applied; the connector timed out twice. Sign in with Apple and admin facts are increments 2 and 3.
 
+## Increment 67, 2026-10-19: Sign in with Apple (HER-17 increment 2)
+
+Native Apple sign-in with a nonce, in the Room's account row and on the onboarding name step for returning players. Supabase decides between linking the Apple identity to the guest user (same id, nothing moves) and switching to the account the Apple ID already had; on a switch the server's character wins on a fresh device, otherwise the device's character is kept and re-appended under the new user. To make that re-append safe, facts and receipts are now keyed per user on the server (`(user_id, id)`), applied and recorded in `supabase/migrations/`. The entitlement is in project.yml; the App ID capability and the Supabase Apple provider are the owner's. Docs/43 has the settings list.
+
 ## Planned (owner, 2026-10-12): challenges and between-beat content
 
 Doc 33 holds the design, the five-increment plan (40–44) and the content inventory (lines and art the owner writes separately). Order: beats wait for their quest (`requires_quest`), Challenges with Cairon then the lifter, repeat quest exchanges and found pages, story-aware goal lines and Row rumours. Each lands behind its content: a field with no lines renders nothing.

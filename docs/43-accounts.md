@@ -21,8 +21,16 @@ All three fact tables are append-only: a trigger rejects every UPDATE and DELETE
 - Restore: on launch, a fresh install (no recipe, no facts) with a session whose profile has a snapshot adopts it wholesale, rebuilds the authority from the restored ledger and facts, and Home opens where the player left off.
 - Offline: every step fails silently and the next drain retries. Nothing in the app waits on the server.
 
-## Increment 2: Sign in with Apple
-Native Sign in with Apple (AuthenticationServices) with a nonce, then `signInWithIdToken(provider: .apple, idToken:, nonce:)` to link the identity to the anonymous user so nothing is lost. Needs: the Sign in with Apple capability on the App ID; the Apple provider enabled in Supabase Auth with the Services ID; Anonymous sign-ins enabled in Supabase Auth. Restore then keys off the Apple identity, not the keychain.
+## Increment 2: Sign in with Apple (built 2026-10-19)
+Native Sign in with Apple (`AppleSignInButton`, AuthenticationServices) with a nonce: raw to Supabase, SHA-256 to Apple. Two places: Room → Settings → Account (guests), and the onboarding name step ("Already have a character?") for a returning player on a new phone.
+
+Two outcomes, decided by Supabase:
+- **Linked.** The id-token grant is sent with the guest session attached; with manual linking on, GoTrue links the Apple identity to the guest user. Same user id, every row stays. Nothing moves.
+- **Switched.** The Apple ID already had an account, or linking is off: the device signs into that account. If the server has a character and this device is fresh, the server's character is adopted (the reinstall case). Otherwise this device's character is kept and every fact is re-appended under the new user: facts are keyed `(user_id, id)` since this increment, so the guest's rows never collide.
+
+Supabase settings this needs: Authentication → Providers → Apple enabled with the app's bundle id (`dev.heroesjourney.prototype`) in Client IDs (no secret needed for the native id-token flow); Authentication → Settings → "Allow manual linking" on; Anonymous sign-ins on. Apple Developer: Sign in with Apple capability on the App ID (the entitlement is in project.yml).
+
+Guest users left behind by a switch keep their rows; they can be deleted by the anonymous-user cleanup query in Supabase's docs once they are older than 30 days.
 
 ## Increment 3: admin facts and corrections in the engine
 `ActivitySource.admin` with `AdminReference(kind: grant | revoke, rewardID?, xp?, attribute?, reason, actor)`, evaluated like story grants; revoke removes a reward grant (rule 4). `ActivityCorrection.Kind` grows to duplicate, wrongDuration, wrongType. The app re-derives its ledger from the fact log when `profiles.rebuild_required` is set.

@@ -68,6 +68,17 @@ final class AccountSync: @unchecked Sendable {
         return _authUserID
     }
     private func setAuthUserID(_ id: UUID) { lock.lock(); _authUserID = id; lock.unlock() }
+    private var _isAnonymous = true
+    /// Whether the current user is still a guest (no Apple identity linked).
+    var isAnonymous: Bool { lock.lock(); defer { lock.unlock() }; return _isAnonymous }
+    private func note(_ session: Session) { lock.lock(); _authUserID = session.user.id; _isAnonymous = session.user.isAnonymous; lock.unlock() }
+
+    enum AppleOutcome: Sendable {
+        /// The Apple identity now belongs to the user this device already had; nothing moves.
+        case linked
+        /// The Apple ID already had an account (or linking is off): the device is now signed into that account.
+        case switched(from: UUID?, to: UUID)
+    }
 
     init() {
         client = SupabaseClient(supabaseURL: Self.projectURL, supabaseKey: Self.publishableKey)
@@ -76,12 +87,44 @@ final class AccountSync: @unchecked Sendable {
     /// The keychain session if there is one, else a new anonymous user. Returns the auth user id.
     func signIn() async throws -> UUID {
         if let session = try? await client.auth.session {
-            setAuthUserID(session.user.id)
+            note(session)
             return session.user.id
         }
         let session = try await client.auth.signInAnonymously()
-        setAuthUserID(session.user.id)
+        note(session)
         return session.user.id
+    }
+
+    /// Sign in with Apple. First try to link the identity to the current (guest) user, which keeps the user id and
+    /// every row; GoTrue links when the id-token grant carries the current session and manual linking is on. If that
+    /// is refused (the Apple ID already has an account, or linking is off), sign into the Apple account instead.
+    func signInWithApple(idToken: String, nonce: String) async throws -> AppleOutcome {
+        let before = authUserID
+        if let current = try? await client.auth.session, current.user.isAnonymous, let linked = try? await linkIdentity(session: current, idToken: idToken, nonce: nonce) {
+            note(linked)
+            if linked.user.id == before { return .linked }
+            return .switched(from: before, to: linked.user.id)
+        }
+        let session = try await client.auth.signInWithIdToken(credentials: OpenIDConnectCredentials(provider: .apple, idToken: idToken, nonce: nonce))
+        note(session)
+        return session.user.id == before ? .linked : .switched(from: before, to: session.user.id)
+    }
+
+    private struct TokenResponse: Decodable { let accessToken: String; let refreshToken: String
+        enum CodingKeys: String, CodingKey { case accessToken = "access_token", refreshToken = "refresh_token" } }
+
+    /// The id-token grant with the guest session attached: GoTrue treats that as "link to this user".
+    private func linkIdentity(session current: Session, idToken: String, nonce: String) async throws -> Session {
+        var request = URLRequest(url: Self.projectURL.appendingPathComponent("auth/v1/token").appending(queryItems: [URLQueryItem(name: "grant_type", value: "id_token")]))
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(Self.publishableKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(current.accessToken)", forHTTPHeaderField: "Authorization")
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["provider": "apple", "id_token": idToken, "nonce": nonce])
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else { throw URLError(.userAuthenticationRequired) }
+        let token = try JSONDecoder().decode(TokenResponse.self, from: data)
+        return try await client.auth.setSession(accessToken: token.accessToken, refreshToken: token.refreshToken)
     }
 
     /// Bind the local character id to the auth user. Idempotent.

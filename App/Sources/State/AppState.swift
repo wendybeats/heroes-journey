@@ -120,6 +120,9 @@ final class AppState {
     @ObservationIgnored private var uploadedEventIDs: Set<ActivityEventID>
     @ObservationIgnored private var stateVersion: Int
     @ObservationIgnored private var syncing = false
+    enum AccountStatus { case offline, guest, apple }
+    /// What the Room's account row shows. Offline until the first sign-in succeeds.
+    private(set) var accountStatus: AccountStatus = .offline
     /// The settings toggle (Room). Default on; off clears the queue and sends nothing. Not part of the archive.
     var analyticsEnabled: Bool = UserDefaults.standard.object(forKey: "analytics.enabled") as? Bool ?? true {
         didSet { UserDefaults.standard.set(analyticsEnabled, forKey: "analytics.enabled"); analytics.setEnabled(analyticsEnabled) }
@@ -1195,6 +1198,7 @@ final class AppState {
         self.account = account
         do {
             _ = try await account.signIn()
+            accountStatus = account.isAnonymous ? .guest : .apple
             try await account.bindProfile(userID.rawValue)
             if recipe == nil, events.isEmpty, let saved = try await account.fetchState(Archive.self), saved.state.recipe != nil {
                 adopt(saved.state)
@@ -1203,6 +1207,32 @@ final class AppState {
             // Offline or not yet configured: the app works locally; the next drain retries.
         }
         await syncAccount()
+    }
+
+    /// Sign in with Apple (HER-17 increment 2). Linked: same user, nothing moves. Switched: the Apple ID already had an
+    /// account; its character wins when it has one and this device is fresh, otherwise this device's character is kept
+    /// and every fact is re-appended under the new identity. Returns a message for the button, nil on success.
+    func signInWithApple(idToken: String, nonce: String) async -> String? {
+        guard let account else { return "Not connected yet. Try again in a moment." }
+        do {
+            let outcome = try await account.signInWithApple(idToken: idToken, nonce: nonce)
+            switch outcome {
+            case .linked:
+                break
+            case .switched:
+                if let saved = try? await account.fetchState(Archive.self), saved.state.recipe != nil, recipe == nil || events.isEmpty {
+                    adopt(saved.state)
+                } else {
+                    uploadedEventIDs = []   // a new identity: the server has none of this device's facts yet
+                }
+            }
+            accountStatus = .apple
+            try? await account.bindProfile(userID.rawValue)
+            await syncAccount()
+            return nil
+        } catch {
+            return "Sign in didn't go through. \(error.localizedDescription)"
+        }
     }
 
     /// Replace the whole state with a server snapshot (a reinstall that found its account). The authority is rebuilt

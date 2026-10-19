@@ -142,6 +142,12 @@ struct OnboardingView: View {
                 .textInputAutocapitalization(.words)
                 .padding(NeoTokyo.Spacing.md)
                 .background(NeoTokyo.Surface.overlay, in: RoundedRectangle(cornerRadius: NeoTokyo.Radius.md, style: .continuous))
+            // HER-17: a returning player on a new phone signs in here; a found character skips the rest of onboarding.
+            VStack(alignment: .leading, spacing: NeoTokyo.Spacing.xs) {
+                Text("Already have a character?").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
+                AppleSignInButton(label: .continue)
+            }
+            .padding(.top, NeoTokyo.Spacing.md)
         case .body:
             ChoiceRows(options: AvatarRecipe.BaseBody.allCases.map { ($0.rawValue, $0.rawValue.capitalized) }, selection: Binding(get: { draft.baseBody.rawValue }, set: { raw in
                 guard let body = AvatarRecipe.BaseBody(rawValue: raw) else { return }

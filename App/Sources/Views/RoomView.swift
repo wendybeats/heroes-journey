@@ -183,6 +183,22 @@ struct RoomView: View {
                     Button("Connect") { Task { await state.connectHealth() } }.font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.fallback)
                 }
             }
+            // HER-17: the account row. Guests see the Apple button; signed-in players see the state.
+            VStack(alignment: .leading, spacing: NeoTokyo.Spacing.xs) {
+                HStack {
+                    Text("Account").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
+                    Spacer()
+                    switch state.accountStatus {
+                    case .apple: Text("Signed in with Apple").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
+                    case .guest: Text("Guest").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
+                    case .offline: Text("Offline").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.muted)
+                    }
+                }
+                if state.accountStatus != .apple {
+                    Text("Sign in to keep your character if you change phones.").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
+                    AppleSignInButton(label: .signIn)
+                }
+            }
             // HER-6: the analytics opt-out. Off clears the queue; nothing from Health is ever in it either way.
             HStack {
                 VStack(alignment: .leading, spacing: 2) {

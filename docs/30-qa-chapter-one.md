@@ -143,3 +143,10 @@ Fresh install for 1–3; the rest on an existing save.
 2. Delete the app, reinstall, open it: if the keychain kept the session, Home opens with your character, level and history within a second or two, without onboarding. If it shows onboarding instead, the session did not survive; note it, Apple sign-in (increment 2) is the fix.
 3. Airplane mode, log an activity, come back online, log another: both facts arrive on the next sync.
 4. Nothing in the app waits on the server: Home and logging behave the same with the network off.
+
+## QA for Sign in with Apple (HER-17 increment 2, 2026-10-19)
+
+1. Room → Settings → Account reads "Guest" with the Apple button and "Sign in to keep your character if you change phones." Tap, authorise: the row reads "Signed in with Apple" and the button is gone. In Supabase → Authentication → Users the user now has an Apple identity and is no longer anonymous (linked case), or a new user appears (switched case; note which).
+2. Delete the app, reinstall, on the name step tap "Already have a character?" → Apple: Home opens with the character, level, history and quests, no onboarding.
+3. Cancel the Apple sheet: no error text. Deny or fail: a short error line under the button, nothing else changes.
+4. A second device with its own guest character, sign in with the same Apple ID: the account's character replaces the fresh guest only when the device had no activity; otherwise the device's character stays and its facts appear under the Apple user in Supabase.
