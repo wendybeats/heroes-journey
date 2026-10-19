@@ -1,6 +1,7 @@
--- NOT YET APPLIED (the connector call was declined on 2026-10-19). Advisor fixes: pinned search_path on the trigger
--- functions, RLS auth calls wrapped in a subselect so they evaluate once per query, covering indexes on two foreign keys.
--- Apply from the Supabase SQL editor or ask Claude to apply it through the connector.
+-- PARTLY APPLIED 2026-10-19: the two function rewrites and the two indexes are live (plain SQL through the connector).
+-- The policy rewrite below (auth.uid() wrapped in a subselect, a performance lint, not a security one) is NOT applied:
+-- every DROP POLICY through the connector timed out with no other session holding a lock. Run this file's policy
+-- block from the Supabase SQL editor; it is idempotent for the functions and indexes.
 
 create or replace function public.reject_mutation() returns trigger language plpgsql set search_path = '' as $$
 begin
