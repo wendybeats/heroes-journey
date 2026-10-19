@@ -1,7 +1,6 @@
--- PARTLY APPLIED 2026-10-19: the two function rewrites and the two indexes are live (plain SQL through the connector).
--- The policy rewrite below (auth.uid() wrapped in a subselect, a performance lint, not a security one) is NOT applied:
--- every DROP POLICY through the connector timed out with no other session holding a lock. Run this file's policy
--- block from the Supabase SQL editor; it is idempotent for the functions and indexes.
+-- Idempotent: safe to run whole from the Supabase SQL editor. The function rewrites and indexes were applied on
+-- 2026-10-19 through the connector; the policy rewrite (auth.uid() wrapped in a subselect, a performance lint) kept
+-- timing out through the connector and is applied from the SQL editor.
 
 create or replace function public.reject_mutation() returns trigger language plpgsql set search_path = '' as $$
 begin
@@ -36,5 +35,5 @@ create policy "receipts: append own" on public.receipts for insert to authentica
 create policy "corrections: own rows" on public.corrections for select to authenticated using (user_id = (select auth.uid()));
 create policy "corrections: append own" on public.corrections for insert to authenticated with check (user_id = (select auth.uid()) and inserted_by = 'client');
 
-create index receipts_event on public.receipts (event_id);
-create index corrections_event on public.corrections (event_id);
+create index if not exists receipts_event on public.receipts (event_id);
+create index if not exists corrections_event on public.corrections (event_id);
