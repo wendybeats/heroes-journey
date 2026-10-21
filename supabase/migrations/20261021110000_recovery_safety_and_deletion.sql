@@ -1,8 +1,8 @@
 -- HER-14 (2026-10-21): recovery safety and account deletion. Project fuwscpmwyaksklwvrohm; this file is the record.
 -- Applied through the connector on 2026-10-21: the profiles columns and size check, guard_profile_state() and its
--- trigger, the reject_mutation() rewrite. NOT applied by the connector: delete_my_account() and its grants (the
--- connector cancels any statement containing DELETE as destructive, even inside a function body). The owner runs
--- that block in the SQL editor; the whole file is idempotent and can be rerun as one.
+-- trigger, the reject_mutation() rewrite. delete_my_account() and its grants were applied by the owner in the SQL
+-- editor the same day (the connector cancels any statement containing DELETE, even inside a function body);
+-- verified: pg_proc has it with prosecdef = true. The whole file is idempotent and can be rerun as one.
 --
 -- 1. A snapshot never destroys another character: when a profile's state is replaced by a different character's
 --    archive (a sign-in that kept the phone's character over the account's), the displaced snapshot is kept in
