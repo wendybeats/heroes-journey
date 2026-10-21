@@ -127,7 +127,21 @@ final class AccountSync: @unchecked Sendable {
         return try await client.auth.setSession(accessToken: token.accessToken, refreshToken: token.refreshToken)
     }
 
-    /// Bind the local character id to the auth user. Idempotent.
+    /// Drop the keychain session. The anonymous user it held is unreachable afterwards unless an Apple identity was linked.
+    func signOut() async {
+        try? await client.auth.signOut()
+        lock.lock(); _authUserID = nil; _isAnonymous = true; lock.unlock()
+    }
+
+    /// HER-14: erase every row and the auth user through `delete_my_account()` (security definer; the append-only
+    /// triggers allow deletes only inside it). The session dies with the user; the local sign-out just forgets it.
+    func deleteAccount() async throws {
+        try await client.rpc("delete_my_account").execute()
+        await signOut()
+    }
+
+    /// Bind the local character id to the auth user. Idempotent: the row keeps the character it was first bound to;
+    /// `state.userID` is the character the account currently plays.
     func bindProfile(_ profileID: UUID) async throws {
         guard let authUserID else { return }
         try await client.from("profiles").upsert(ProfileRow(id: authUserID, profileID: profileID), onConflict: "id", ignoreDuplicates: true).execute()

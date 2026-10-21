@@ -123,6 +123,26 @@ final class AppState {
     enum AccountStatus { case offline, guest, apple }
     /// What the Room's account row shows. Offline until the first sign-in succeeds.
     private(set) var accountStatus: AccountStatus = .offline
+    /// HER-14: sync visibility for QA. When the last sync finished, or why it failed.
+    private(set) var lastSyncAt: Date?
+    private(set) var lastSyncError: String?
+    /// HER-14: a server snapshot waiting on the player's decision after a sign-in found progress on both sides.
+    @ObservationIgnored private var pendingServerSnapshot: Archive?
+
+    /// One side of a sign-in conflict, as the dialog shows it.
+    struct CharacterSummary: Sendable {
+        let name: String, level: Int, facts: Int, lastActive: Date?
+    }
+    struct SignInConflict: Identifiable, Sendable {
+        let id = UUID()
+        let local: CharacterSummary, server: CharacterSummary
+    }
+    enum AppleSignInResult: Sendable {
+        case done
+        /// Both this phone and the account have a character with progress: the player picks (`resolveSignInConflict`).
+        case conflict(SignInConflict)
+        case failed(String)
+    }
     /// The settings toggle (Room). Default on; off clears the queue and sends nothing. Not part of the archive.
     var analyticsEnabled: Bool = UserDefaults.standard.object(forKey: "analytics.enabled") as? Bool ?? true {
         didSet { UserDefaults.standard.set(analyticsEnabled, forKey: "analytics.enabled"); analytics.setEnabled(analyticsEnabled) }
@@ -1231,35 +1251,105 @@ final class AppState {
             }
         } catch {
             // Offline or not yet configured: the app works locally; the next drain retries.
+            lastSyncError = Self.shortDescription(of: error)
         }
         await syncAccount()
     }
 
-    /// Sign in with Apple (HER-17 increment 2). Linked: same user, nothing moves. Switched: the Apple ID already had an
-    /// account; its character wins when it has one and this device is fresh, otherwise this device's character is kept
-    /// and every fact is re-appended under the new identity. Returns a message for the button, nil on success.
-    func signInWithApple(idToken: String, nonce: String) async -> String? {
-        guard let account else { return "Not connected yet. Try again in a moment." }
+    /// Sign in with Apple (HER-17 increment 2, HER-14 safety). Linked: same user, nothing moves. Switched: the Apple
+    /// ID already had an account. If only one side has a character with progress, that side wins without asking; if
+    /// both do, nothing is decided here: the dialog asks, and `resolveSignInConflict` finishes. Nothing is destroyed
+    /// on either path (docs/43, increment 3a).
+    func signInWithApple(idToken: String, nonce: String) async -> AppleSignInResult {
+        guard let account else { return .failed("Not connected yet. Try again in a moment.") }
         do {
             let outcome = try await account.signInWithApple(idToken: idToken, nonce: nonce)
             switch outcome {
             case .linked:
                 break
             case .switched:
-                if let saved = try? await account.fetchState(Archive.self), saved.state.recipe != nil, recipe == nil || events.isEmpty {
-                    adopt(saved.state)
+                let saved = try? await account.fetchState(Archive.self)
+                let serverHas = saved?.state.recipe != nil
+                if serverHas, let saved, !hasLocalProgress {
+                    adopt(saved.state)          // the reinstall case: the account's character comes back
+                } else if serverHas, let saved {
+                    pendingServerSnapshot = saved.state
+                    return .conflict(SignInConflict(local: summary(of: currentArchive()), server: summary(of: saved.state)))
                 } else {
-                    uploadedEventIDs = []   // a new identity: the server has none of this device's facts yet
+                    uploadedEventIDs = []       // a new identity: the server has none of this device's facts yet
                 }
             }
             accountStatus = .apple
             try? await account.bindProfile(userID.rawValue)
             await syncAccount()
-            return nil
+            return .done
         } catch {
-            return "Sign in didn't go through. \(error.localizedDescription)"
+            return .failed("Sign in didn't go through. \(error.localizedDescription)")
         }
     }
+
+    /// A character with anything beyond the bond fact counts as progress worth asking about.
+    private var hasLocalProgress: Bool { recipe != nil && events.contains { $0.source != .bond } }
+
+    private func summary(of archive: Archive) -> CharacterSummary {
+        CharacterSummary(name: archive.recipe?.name ?? "Unnamed", level: archive.ledger.snapshot(ruleset: ruleset).level,
+                         facts: archive.events.filter { $0.source != .bond }.count, lastActive: archive.events.map(\.startedAt).max())
+    }
+
+    /// The player's answer to a sign-in conflict. Use the account's: this phone's facts are appended to the log under
+    /// the account first (they stop driving the ledger, they are not lost), then its snapshot is adopted. Keep this
+    /// phone's: its facts are re-appended and its snapshot replaces the account's, which the server keeps in
+    /// `profiles.previous_state`. Either way the account now plays one character.
+    func resolveSignInConflict(useServer: Bool) async {
+        guard let account, let server = pendingServerSnapshot else { return }
+        pendingServerSnapshot = nil
+        if useServer {
+            let local = events.filter { ledger.hasProcessed($0.id) || $0.source == .healthImport }
+            try? await account.upload(events: local, receipts: local.compactMap { outbox.receipt(for: $0.id) }, profileID: userID.rawValue)
+            adopt(server)
+        } else {
+            uploadedEventIDs = []
+        }
+        accountStatus = .apple
+        try? await account.bindProfile(userID.rawValue)
+        await syncAccount()
+    }
+
+    /// HER-14: erase the account on the server (rows and auth user), then this phone, then start a new guest.
+    /// Online only, and nothing local is touched until the server confirms. Returns a message on failure.
+    func deleteAccount() async -> String? {
+        guard let account, accountStatus != .offline else { return "Not connected. Try again when you are online." }
+        do { try await account.deleteAccount() } catch { return "Couldn't reach the server. Nothing was deleted; try again when you are online." }
+        Self.wipeLocalArchive()
+        adopt(.empty())
+        uploadedEventIDs = []; accountStatus = .offline; lastSyncAt = nil; lastSyncError = nil
+        analytics.identify(userID.rawValue.uuidString, properties: [:])
+        await connectAccount(AccountSync())
+        return nil
+    }
+
+    /// Dev: the reinstall-with-session case without reinstalling. Local data goes, the keychain session stays, so the
+    /// account connect that follows should bring the character back from the snapshot.
+    func devSimulateFreshInstall() async {
+        Self.wipeLocalArchive()
+        adopt(.empty()); uploadedEventIDs = []
+        if let account { await connectAccount(account) }
+    }
+
+    /// Dev: the reinstall-without-session case. Local data and the session go; a new guest starts, and
+    /// "Already have a character?" on the name step is the way back.
+    func devForgetSession() async {
+        await account?.signOut()
+        Self.wipeLocalArchive()
+        adopt(.empty()); uploadedEventIDs = []; accountStatus = .offline; lastSyncAt = nil; lastSyncError = nil
+        await connectAccount(AccountSync())
+    }
+
+    static func wipeLocalArchive() { try? FileManager.default.removeItem(at: archiveURL) }
+
+    /// How many confirmed facts the server has not seen yet.
+    var pendingUploadCount: Int { pendingUploads.count }
+    private var pendingUploads: [ActivityEvent] { events.filter { !uploadedEventIDs.contains($0.id) && (ledger.hasProcessed($0.id) || $0.source == .healthImport) } }
 
     /// Replace the whole state with a server snapshot (a reinstall that found its account). The authority is rebuilt
     /// from the restored ledger and facts, so progression continues exactly where it was.
@@ -1281,15 +1371,22 @@ final class AppState {
     func syncAccount() async {
         guard let account, !syncing else { return }
         syncing = true; defer { syncing = false }
-        let pending = events.filter { !uploadedEventIDs.contains($0.id) && (ledger.hasProcessed($0.id) || $0.source == .healthImport) }
+        let pending = pendingUploads
         let receipts = pending.compactMap { outbox.receipt(for: $0.id) }
         do {
             try await account.upload(events: pending, receipts: receipts, profileID: userID.rawValue)
             if !pending.isEmpty { uploadedEventIDs.formUnion(pending.map(\.id)); save() }
             try await account.uploadState(currentArchive(), version: stateVersion)
+            lastSyncAt = Date(); lastSyncError = nil
         } catch {
-            // Offline or a server error: nothing is lost, the next drain retries.
+            // Offline or a server error: nothing is lost, the next drain retries. The Account row shows why.
+            lastSyncError = Self.shortDescription(of: error)
         }
+    }
+
+    private static func shortDescription(of error: Error) -> String {
+        let text = (error as? LocalizedError)?.errorDescription ?? String(describing: error)
+        return text.count > 140 ? String(text.prefix(140)) + "…" : text
     }
 
     static func load() -> AppState {
@@ -1316,6 +1413,16 @@ final class AppState {
             fatalError("missing resource Content/v1/\(file)")
         }
         return url
+    }
+}
+
+extension AppState.Archive {
+    /// A first-launch archive: a new character id and nothing else. After account deletion, and for the dev
+    /// fresh-install controls.
+    static func empty(userID: UserID = UserID()) -> AppState.Archive {
+        AppState.Archive(userID: userID, recipe: nil, events: [], ledger: ProgressionLedger(), outbox: Outbox(), workouts: [], activeWorkout: nil,
+                         preferredUnit: .kg, healthSync: HealthSyncState(), corrections: [], importLog: [:], goalPreferences: GoalPreferences(),
+                         goalPlans: [], goalCompletions: [], goalSeed: 0, questRuns: [], startedOn: nil, lastStageDay: nil, storyProgress: StoryProgress())
     }
 }
 

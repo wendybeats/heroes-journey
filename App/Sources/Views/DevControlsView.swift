@@ -77,6 +77,15 @@ struct DevControlsView: View {
                         Text("Opens the fight with your real stats and today's training, ignoring the Level 10 and three-gym-runs gate. Winning plays the resolution beat only if that gate is met.")
                             .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
                     }
+                    section("Account") {
+                        // HER-14: both restore paths without reinstalling. Fresh install keeps the keychain session (the
+                        // snapshot should come straight back); Forget session starts a new guest ("Already have a character?").
+                        row("Status", value: accountLabel)
+                        Button("Simulate fresh install (keep session)") { Task { await state.devSimulateFreshInstall() }; dismiss() }.buttonStyle(SecondaryButtonStyle())
+                        Button("Forget session and start over") { Task { await state.devForgetSession() }; dismiss() }.buttonStyle(SecondaryButtonStyle())
+                        Text("Both wipe this phone's data. The server keeps everything; the first should restore your character within seconds, the second needs Apple sign-in on the name step.")
+                            .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
+                    }
                     section("Sprites") {
                         NavigationLink("Sprite lab") { SpriteLabView() }.font(HeroFont.bodyMedium).foregroundStyle(NeoTokyo.Hierarchy.fallback)
                     }
@@ -88,6 +97,12 @@ struct DevControlsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() }.foregroundStyle(NeoTokyo.Text.primary) } }
         }
+    }
+
+    private var accountLabel: String {
+        let status: String
+        switch state.accountStatus { case .apple: status = "Apple"; case .guest: status = "guest"; case .offline: status = "offline" }
+        return "\(status) · \(state.pendingUploadCount) pending" + (state.lastSyncError.map { " · \($0)" } ?? "")
     }
 
     private var questLabel: String {

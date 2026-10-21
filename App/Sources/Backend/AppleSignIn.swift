@@ -10,6 +10,8 @@ struct AppleSignInButton: View {
     @Environment(AppState.self) private var state
     @State private var rawNonce = AppleSignInButton.randomNonce()
     @State private var error: String?
+    /// HER-14: both this phone and the account have progress; the player picks which character this phone plays.
+    @State private var conflict: AppState.SignInConflict?
     var label: SignInWithAppleButton.Label = .signIn
 
     var body: some View {
@@ -26,7 +28,13 @@ struct AppleSignInButton: View {
                         error = "Apple returned no identity token."; return
                     }
                     let nonce = rawNonce
-                    Task { error = await state.signInWithApple(idToken: token, nonce: nonce) }
+                    Task {
+                        switch await state.signInWithApple(idToken: token, nonce: nonce) {
+                        case .done: error = nil
+                        case let .conflict(c): conflict = c
+                        case let .failed(message): error = message
+                        }
+                    }
                 case let .failure(err):
                     // The player cancelled, or the capability is missing on this build; both are silent except in debug.
                     error = (err as? ASAuthorizationError)?.code == .canceled ? nil : err.localizedDescription
@@ -37,6 +45,19 @@ struct AppleSignInButton: View {
             .clipShape(RoundedRectangle(cornerRadius: NeoTokyo.Radius.md, style: .continuous))
             if let error { Text(error).font(HeroFont.caption).foregroundStyle(NeoTokyo.Hierarchy.destructive) }
         }
+        .confirmationDialog("This Apple ID already has a character", isPresented: Binding(get: { conflict != nil }, set: { if !$0 { conflict = nil } }),
+                            titleVisibility: .visible, presenting: conflict) { c in
+            Button("Use \(c.server.name) from the account") { Task { await state.resolveSignInConflict(useServer: true) } }
+            Button("Keep \(c.local.name) on this phone") { Task { await state.resolveSignInConflict(useServer: false) } }
+            Button("Cancel", role: .cancel) { Task { await state.resolveSignInConflict(useServer: false) } }
+        } message: { c in
+            Text("\(Self.describe(c.server)) is on the account. \(Self.describe(c.local)) is on this phone. Both stay saved on the server; choose which one this phone plays. Cancel keeps this phone's.")
+        }
+    }
+
+    private static func describe(_ s: AppState.CharacterSummary) -> String {
+        let when = s.lastActive.map { ", last active " + $0.formatted(date: .abbreviated, time: .omitted) } ?? ""
+        return "\(s.name), level \(s.level), \(s.facts) activities\(when)"
     }
 
     static func randomNonce(length: Int = 32) -> String {

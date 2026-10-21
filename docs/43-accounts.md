@@ -32,6 +32,22 @@ Supabase settings this needs: Authentication → Providers → Apple enabled wit
 
 Guest users left behind by a switch keep their rows; they can be deleted by the anonymous-user cleanup query in Supabase's docs once they are older than 30 days.
 
+## Increment 3a: recovery safety, deletion, sync visibility (HER-14, built 2026-10-21)
+HER-14's acceptance is a TestFlight cohort that can reinstall without losing progress, with QA evidence and the privacy implications written down. Increments 1 and 2 give the mechanism; this increment makes it safe.
+
+**No silent overwrite.** A sign-in that switches to an Apple ID with its own character used to let the phone win and the next snapshot upload replace the account's character. Now `signInWithApple` returns `.conflict` when both sides have progress (anything beyond the bond fact), and the dialog asks which character this phone plays:
+- *Use the account's*: this phone's confirmed facts are appended to the log under the account first, then the account's snapshot is adopted. The phone's facts stop driving the ledger; they are not lost.
+- *Keep this phone's* (also Cancel): the phone's facts are re-appended and its snapshot replaces the account's. The server keeps what it displaced.
+When only one side has progress, that side wins without a question, as before. `profiles.profile_id` stays the character the account was first bound to; `state.userID` is the character it plays now.
+
+**Server guards** (migration `20261021110000_recovery_safety_and_deletion.sql`): a `before update of state` trigger on `profiles` copies the old snapshot into `previous_state` (with its version and time) when a different character takes the row, and raises `serialization_failure` when the same character uploads a lower `state_version` than the server holds. So a stale second device on the same account cannot roll it back; its facts still land, its snapshot is refused and the Account row says so. One device per account is the TestFlight assumption; reconciling two live devices is not built.
+
+**Deletion.** App Store Review 5.1.1(v) requires in-app account deletion for any app that creates accounts, guests included, and external TestFlight builds are reviewed. `delete_my_account()` (security definer, `authenticated` only) sets a transaction-scoped `heroes.erasure` setting that the append-only trigger honours for deletes, erases the caller's corrections, receipts, activity events and profile, then the auth user. The app calls it from Room → Settings → Account, confirmed twice, only when connected; nothing local is touched until the server confirms, then the archive is wiped, a new guest is created and onboarding starts. Apple Health is never written.
+
+**Sync visibility.** The Account row shows "Synced 2 minutes ago", "3 activities waiting to sync" or "Sync failed: …" from `lastSyncAt`, `pendingUploadCount` and `lastSyncError`. Dev controls → Account offers "Simulate fresh install (keep session)" and "Forget session and start over" so both restore paths can be run without reinstalling.
+
+**Migration of existing local characters** needs nothing: the first launch after the update signs in as a guest, binds, uploads every confirmed fact and the snapshot. **Offline** is unchanged: nothing waits on the server; the next drain retries. Privacy inventory, App Privacy answers and the policy draft are in docs/44.
+
 ## Increment 3: admin facts and corrections in the engine
 `ActivitySource.admin` with `AdminReference(kind: grant | revoke, rewardID?, xp?, attribute?, reason, actor)`, evaluated like story grants; revoke removes a reward grant (rule 4). `ActivityCorrection.Kind` grows to duplicate, wrongDuration, wrongType. The app re-derives its ledger from the fact log when `profiles.rebuild_required` is set.
 

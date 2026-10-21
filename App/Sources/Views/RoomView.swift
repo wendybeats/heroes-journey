@@ -183,22 +183,8 @@ struct RoomView: View {
                     Button("Connect") { Task { await state.connectHealth() } }.font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.fallback)
                 }
             }
-            // HER-17: the account row. Guests see the Apple button; signed-in players see the state.
-            VStack(alignment: .leading, spacing: NeoTokyo.Spacing.xs) {
-                HStack {
-                    Text("Account").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
-                    Spacer()
-                    switch state.accountStatus {
-                    case .apple: Text("Signed in with Apple").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
-                    case .guest: Text("Guest").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
-                    case .offline: Text("Offline").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.muted)
-                    }
-                }
-                if state.accountStatus != .apple {
-                    Text("Sign in to keep your character if you change phones.").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
-                    AppleSignInButton(label: .signIn)
-                }
-            }
+            // HER-17: the account row. Guests see the Apple button; signed-in players see the state. HER-14: sync state and deletion.
+            AccountRow()
             // HER-6: the analytics opt-out. Off clears the queue; nothing from Health is ever in it either way.
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
@@ -212,5 +198,62 @@ struct RoomView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .card()
+    }
+}
+
+/// HER-17 / HER-14: the Account row in Settings. Status, the Apple button for guests, the last sync (so "did it
+/// upload" is answerable on the phone), and account deletion (App Store Review 5.1.1(v)), confirmed twice, online only.
+struct AccountRow: View {
+    @Environment(AppState.self) private var state
+    @State private var confirmDelete = false
+    @State private var confirmDeleteAgain = false
+    @State private var deleting = false
+    @State private var deleteError: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: NeoTokyo.Spacing.xs) {
+            HStack {
+                Text("Account").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
+                Spacer()
+                switch state.accountStatus {
+                case .apple: Text("Signed in with Apple").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
+                case .guest: Text("Guest").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
+                case .offline: Text("Offline").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.muted)
+                }
+            }
+            Text(syncLine).font(HeroFont.caption).foregroundStyle(state.lastSyncError == nil ? NeoTokyo.Text.secondary : NeoTokyo.Text.muted)
+            if state.accountStatus != .apple {
+                Text("Sign in to keep your character if you change phones.").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary)
+                AppleSignInButton(label: .signIn)
+            }
+            Button(deleting ? "Deleting…" : "Delete account and data") { confirmDelete = true }
+                .font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.destructive)
+                .disabled(deleting || state.accountStatus == .offline)
+                .padding(.top, NeoTokyo.Spacing.xs)
+            if let deleteError { Text(deleteError).font(HeroFont.caption).foregroundStyle(NeoTokyo.Hierarchy.destructive) }
+        }
+        .confirmationDialog("Delete your account?", isPresented: $confirmDelete, titleVisibility: .visible) {
+            Button("Delete account and data", role: .destructive) { confirmDeleteAgain = true }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Your character, every activity you logged, your receipts and your sign-in are erased from our server and from this phone. Apple Health is not touched.")
+        }
+        .alert("This cannot be undone", isPresented: $confirmDeleteAgain) {
+            Button("Delete", role: .destructive) {
+                deleting = true
+                Task { deleteError = await state.deleteAccount(); deleting = false }
+            }
+            Button("Keep my account", role: .cancel) {}
+        } message: {
+            Text("There is no recovery after this. The app starts over as a new guest.")
+        }
+    }
+
+    private var syncLine: String {
+        if let error = state.lastSyncError { return "Sync failed: \(error)" }
+        let pending = state.pendingUploadCount
+        if pending > 0 { return "\(pending) \(pending == 1 ? "activity" : "activities") waiting to sync" }
+        if let at = state.lastSyncAt { return "Synced \(RelativeDateTimeFormatter().localizedString(for: at, relativeTo: Date()))" }
+        return "Not synced yet"
     }
 }
