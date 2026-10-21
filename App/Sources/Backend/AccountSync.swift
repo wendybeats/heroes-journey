@@ -130,8 +130,9 @@ final class AccountSync: @unchecked Sendable {
     /// Drop the keychain session. The anonymous user it held is unreachable afterwards unless an Apple identity was linked.
     func signOut() async {
         try? await client.auth.signOut()
-        lock.lock(); _authUserID = nil; _isAnonymous = true; lock.unlock()
+        forgetIdentity()
     }
+    private func forgetIdentity() { lock.lock(); _authUserID = nil; _isAnonymous = true; lock.unlock() }
 
     /// HER-14: erase every row and the auth user through `delete_my_account()` (security definer; the append-only
     /// triggers allow deletes only inside it). The session dies with the user; the local sign-out just forgets it.
