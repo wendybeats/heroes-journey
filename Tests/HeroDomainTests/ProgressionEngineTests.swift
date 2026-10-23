@@ -263,7 +263,7 @@ final class StepsCreditTests: XCTestCase {
         ActivityEvent(userID: user, activityTypeID: "steps", familyID: "cardio", startedAt: at ?? day, durationSeconds: 0, source: .healthImport, verification: .verified, sourceExternalID: "steps.\(steps)", steps: steps, createdAt: day)
     }
 
-    /// Owner 2026-10-17: 4 XP per thousand up to 40 a day; a day's facts are deltas priced against the prior steps.
+    /// Owner 2026-10-17: 4 XP per thousand; a day's facts are deltas priced against the prior steps. HER-28: full rate to 20,000, strain beyond.
     func testStepsEarnUpToTheDailyCap() {
         let s = ruleset.steps!
         XCTAssertEqual(s.credit(steps: 2500, priorSteps: 0), 10); XCTAssertEqual(s.credit(steps: 2500, priorSteps: 2500), 10)
@@ -279,7 +279,7 @@ final class StepsCreditTests: XCTestCase {
         XCTAssertEqual(ProgressionEngine.evaluate(event: fact(5000), ruleset: ruleset, context: heavy).xp, 10, "the 20 raw land in the 50 % band")
         let ctx = EvaluationContext(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:], priorStepsToday: 6000)
         let p = ProgressionEngine.evaluate(event: fact(6000), ruleset: ruleset, context: ctx)
-        XCTAssertEqual(p.xp, 16); XCTAssertEqual(p.attributes["endurance"], 1, "cardio's weight carries the points"); XCTAssertEqual(p.eligibleMinutes, 0)
+        XCTAssertEqual(p.xp, 24); XCTAssertEqual(p.attributes["endurance"], 2, "cardio's weight carries the points"); XCTAssertEqual(p.eligibleMinutes, 0)
     }
 
     /// The ledger supplies the day's prior steps; steps sit outside strain's raw XP; tomorrow starts at zero.
@@ -289,7 +289,7 @@ final class StepsCreditTests: XCTestCase {
         ledger.commit(ProgressionEngine.evaluate(event: a, ruleset: ruleset, context: ledger.context(for: a, ruleset: ruleset, events: [a], levelRewards: [:], calendar: calendar)), for: a, at: day)
         let ctxB = ledger.context(for: b, ruleset: ruleset, events: [a, b], levelRewards: [:], calendar: calendar)
         XCTAssertEqual(ctxB.priorStepsToday, 8000); XCTAssertEqual(ctxB.priorActivityXPToday, 0, "steps are not session XP")
-        XCTAssertEqual(ProgressionEngine.evaluate(event: b, ruleset: ruleset, context: ctxB).xp, 8, "40 − 32")
+        XCTAssertEqual(ProgressionEngine.evaluate(event: b, ruleset: ruleset, context: ctxB).xp, 16, "4,000 more at the full rate")
         let tomorrow = fact(3000, at: day.addingTimeInterval(86_400 * 2))
         XCTAssertEqual(ledger.context(for: tomorrow, ruleset: ruleset, events: [a, b, tomorrow], levelRewards: [:], calendar: calendar).priorStepsToday, 0)
         // Older archives have no steps field.
