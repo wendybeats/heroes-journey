@@ -230,18 +230,38 @@ public struct ProgressionRuleset: Codable, Sendable, Equatable {
     public let goalStoryLineChance: Double?
     /// Doc 36/37 boss combat; absent = no boss can be fought.
     public let bossCombat: BossCombat?
-    /// Owner 2026-10-17: steps earn, up to a daily cap, outside strain. Absent = steps only feed the walk goal.
+    /// Owner 2026-10-17: steps earn. Owner 2026-10-23 (HER-28): full credit up to `full_credit_steps` a day, and steps
+    /// beyond it earn through the day's strain bands instead of nothing; `moments` are the day totals that open a
+    /// receipt. Absent = steps only feed the walk goal.
     public struct StepsCredit: Codable, Sendable, Equatable {
         public let xpPerThousand: Double
-        public let dailyCapXP: Int
+        /// Steps a day at the full rate; beyond this the raw XP goes through `dailyActivityStrain`.
+        public let fullCreditSteps: Int
         /// A sync writes a steps fact only once this many new steps have accrued.
         public let minDelta: Int
-        public init(xpPerThousand: Double, dailyCapXP: Int, minDelta: Int = 500) { self.xpPerThousand = xpPerThousand; self.dailyCapXP = dailyCapXP; self.minDelta = minDelta }
-        enum CodingKeys: String, CodingKey { case xpPerThousand = "xp_per_1000", dailyCapXP = "daily_cap_xp", minDelta = "min_delta" }
-        /// XP for the day's steps from 0 to `steps`, capped.
-        public func credited(upToSteps steps: Int) -> Double { min(Double(dailyCapXP), Double(max(0, steps)) * xpPerThousand / 1000) }
-        /// What a fact of `steps` more credits after `priorSteps` today. Floors to whole XP.
+        /// Day totals that are a moment: a receipt when crossed with the app open (a notification later, HER-26).
+        public let moments: [Int]
+        public init(xpPerThousand: Double, fullCreditSteps: Int, minDelta: Int = 500, moments: [Int] = []) {
+            self.xpPerThousand = xpPerThousand; self.fullCreditSteps = fullCreditSteps; self.minDelta = minDelta; self.moments = moments
+        }
+        enum CodingKeys: String, CodingKey { case xpPerThousand = "xp_per_1000", fullCreditSteps = "full_credit_steps", minDelta = "min_delta", moments }
+        public init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            xpPerThousand = try c.decode(Double.self, forKey: .xpPerThousand)
+            fullCreditSteps = try c.decode(Int.self, forKey: .fullCreditSteps)
+            minDelta = try c.decodeIfPresent(Int.self, forKey: .minDelta) ?? 500
+            moments = try c.decodeIfPresent([Int].self, forKey: .moments) ?? []
+        }
+        /// Full-rate XP for the day's steps from 0 to `steps` (stops at `fullCreditSteps`).
+        public func credited(upToSteps steps: Int) -> Double { Double(min(max(0, steps), fullCreditSteps)) * xpPerThousand / 1000 }
+        /// Raw XP for the steps beyond `fullCreditSteps`, from 0 to `steps`; the engine strains it.
+        public func beyondCredited(upToSteps steps: Int) -> Double { Double(max(0, steps - fullCreditSteps)) * xpPerThousand / 1000 }
+        /// What a fact of `steps` more credits at the full rate after `priorSteps` today. Floors to whole XP.
         public func credit(steps: Int, priorSteps: Int) -> Int { Int((credited(upToSteps: priorSteps + steps) - credited(upToSteps: priorSteps)).rounded(.down)) }
+        /// The raw XP of the part of this fact that lies beyond the full-credit steps. Floors to whole XP.
+        public func beyondRaw(steps: Int, priorSteps: Int) -> Int { Int((beyondCredited(upToSteps: priorSteps + steps) - beyondCredited(upToSteps: priorSteps)).rounded(.down)) }
+        /// The highest moment a day total crosses going from `before` to `after`.
+        public func momentCrossed(from before: Int, to after: Int) -> Int? { moments.filter { before < $0 && after >= $0 }.max() }
     }
     public let steps: StepsCredit?
 

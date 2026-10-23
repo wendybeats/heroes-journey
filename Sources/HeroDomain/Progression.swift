@@ -90,10 +90,14 @@ public enum ProgressionEngine {
             xp = 0
             if let reward = story.rewardID, !context.grantedRewardIDs.contains(reward) { questRewards.append(reward) }
         } else if let steps = event.steps {
-            // Steps (owner 2026-10-17): a delta of the day's count, priced against the day's prior steps up to the cap;
-            // outside strain; the family's weights (cardio → Endurance) carry the points.
+            // Steps (owner 2026-10-17): a delta of the day's count, priced against the day's prior steps at the full rate
+            // up to `full_credit_steps`; HER-28 (owner 2026-10-23): the part beyond earns through the day's strain bands,
+            // placed by the day's session XP (sessions are not strained by steps). The family's weights carry the points.
             guard let rule = ruleset.steps else { return empty() }
-            xp = max(0, rule.credit(steps: steps, priorSteps: context.priorStepsToday))
+            let full = max(0, rule.credit(steps: steps, priorSteps: context.priorStepsToday))
+            let beyond = max(0, rule.beyondRaw(steps: steps, priorSteps: context.priorStepsToday))
+            let strained = ruleset.dailyActivityStrain.map { max(0, $0.credit(raw: beyond, priorRaw: context.priorActivityXPToday)) } ?? beyond
+            xp = full + strained
             for (attributeKey, weight) in ruleset.attributeWeightsByFamily[event.familyID.rawValue] ?? [:] {
                 let points = Int((Double(xp) * ruleset.attributePointsPerXP * weight).rounded(.down))
                 if points > 0 { attributes[AttributeID(attributeKey)] = points }

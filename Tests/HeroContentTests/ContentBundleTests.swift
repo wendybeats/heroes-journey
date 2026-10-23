@@ -38,7 +38,7 @@ final class ContentBundleTests: XCTestCase {
         XCTAssertEqual(strain.bands.map(\.upTo), [200, 400]); XCTAssertEqual(strain.bands.map(\.rate), [0.5, 0.25])
         XCTAssertEqual(strain.credited(upToRaw: 400), 210, "a day tops out at 120 + 40 + 50"); XCTAssertEqual(strain.credited(upToRaw: 1000), 210)
         XCTAssertEqual(ruleset.bondGrant, .init(xp: 12, primaryPoints: 6, secondaryPoints: 4))
-        XCTAssertEqual(ruleset.steps, .init(xpPerThousand: 4, dailyCapXP: 40, minDelta: 500), "owner 2026-10-17: steps earn, 10k = 40 a day")
+        XCTAssertEqual(ruleset.steps, .init(xpPerThousand: 4, fullCreditSteps: 20_000, minDelta: 500, moments: [5000, 10_000, 20_000, 30_000]), "owner 2026-10-23: full rate to 20k, strain beyond, moments at 5k/10k/20k/30k")
         XCTAssertEqual(bundle.activityType("steps")?.loggingMode, .automatic, "steps come from Health, never by hand")
         XCTAssertEqual(bundle.goalCategories.map(\.id), ["body", "mind", "calm", "make", "order"], "doc 40 #17: the five categories")
         XCTAssertTrue(bundle.goalTemplates.allSatisfy { $0.category != nil }, "every template names a category")

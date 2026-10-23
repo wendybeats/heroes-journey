@@ -168,3 +168,18 @@ Fresh install for 1–3; the rest on an existing save.
 
 ## Owner device run 2026-10-23, build 17620be: first finding
 - Account row read "guest · 710 pending · there is no unique or exclusion constraint matching the ON CONFLICT specification". The upload named the pre-increment-2 keys (`id`, `submission_id`); the server keys facts `(user_id, id)` and receipts `(user_id, submission_id)` since migration 20261019101500. Fixed in the next commit; the 710 facts were waiting on the phone and go up on the first sync after the fix. The sync line did its job: the failure was visible without the dashboard.
+
+## QA for HER-27, HER-28 and the week grid (2026-10-23)
+
+**Health welcome only before onboarding (HER-27)**
+1. Fresh character; after onboarding, do a Health workout (or let WHOOP write one) and open the app: a normal receipt ("Logged", type, minutes, XP), no "your human is already active" card, and the Level 2 room intro plays on the next Home visit once Level 2 is reached.
+2. Fresh install with a workout already in Health from earlier today, then onboard: the welcome card with that workout counted; the story holds until your first manual action (a logged session, a finished workout, a tapped goal).
+3. Day two with the welcome card never dismissed: Health credit arrives as receipts, nothing is held.
+
+**Steps moments (HER-28)**
+4. Walk past 5,000 steps with the app closed, then open it: the receipt reads "Steps counted · 5,000 steps · +20 XP today". Same at 10,000 (+40). Between moments a sync stays quiet; the Today row keeps counting.
+5. Past 20,000: the Today row keeps earning but slower on a day with sessions (strain), and still at the full rate on a quiet day. Nothing stops at 20k.
+6. A steps moment never fires on the onboarding day while the welcome card is up.
+
+**Week grid**
+7. A boxing (combat) session of ten minutes or more lights both the Strength hand and the Endurance shoeprints for that day. A run lights only the shoeprints; a strength session lights only the hand.

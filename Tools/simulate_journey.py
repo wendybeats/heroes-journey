@@ -137,9 +137,9 @@ class Player:
             minutes_by_family[fam] = minutes_by_family.get(fam, 0) + credited
             events.append((fam, mins, sets))
         if self.stats.pop("_capped_today", False): self.stats["cap_days"] += 1
-        # steps (owner 2026-10-17): xp_per_1000 up to daily_cap_xp, outside strain; credited when Health syncs, which needs the app open
+        # steps (owner 2026-10-17, HER-28): xp_per_1000 up to full_credit_steps; credited when Health syncs, which needs the app open
         if (st := R.get("steps")) and s["open"]:
-            sx = math.floor(min(st["daily_cap_xp"], s["steps"] * st["xp_per_1000"] / 1000))
+            sx = math.floor(min(s["steps"], st["full_credit_steps"]) * st["xp_per_1000"] / 1000)   # HER-28: full rate to 20k; the strained part beyond is not modelled
             self.grant(sx, {k: math.floor(sx * PPX * w) for k, w in WEIGHTS["cardio"].items()})
         if not s["open"]: return
         # the app opens: the story first (beats the level has reached, unless held), then the quest claim, then goals

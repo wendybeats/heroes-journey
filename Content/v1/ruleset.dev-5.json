@@ -227,10 +227,11 @@
     ]
   },
   "steps": {
-    "notes": "Owner 2026-10-17: steps earn, carefully. Credited in Health syncs as facts of at least min_delta steps; xp_per_1000 up to daily_cap_xp a day (10,000 steps = 40). Outside strain, which is for sessions. Later: scale so frequent walkers earn normally and a rare walker's 10k day is a moment.",
+    "notes": "Owner 2026-10-17: steps earn, carefully. Credited in Health syncs as facts of at least min_delta steps at xp_per_1000. Owner 2026-10-23 (HER-28): full rate up to full_credit_steps a day (20,000 steps = 80 XP), and steps beyond that go through daily_activity_strain, placed by the day's session XP, instead of earning nothing; sessions are not strained by steps. moments are the day totals that open a receipt when crossed with the app open (5k, 10k, 20k, 30k); the outside-app notification for them rides HER-26.",
     "xp_per_1000": 4,
-    "daily_cap_xp": 40,
-    "min_delta": 500
+    "full_credit_steps": 20000,
+    "min_delta": 500,
+    "moments": [5000, 10000, 20000, 30000]
   },
   "level_curve": {
     "derived_from": "light persona",

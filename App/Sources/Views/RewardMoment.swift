@@ -13,9 +13,15 @@ struct RewardMoment: View {
                 .onTapGesture { state.dismissReward() }
             VStack(spacing: NeoTokyo.Spacing.md) {
                 Eyebrow(text: receipt.leveledUp ? "Level up" : (questRun != nil ? "Back from the quest" : (isGoal ? "Goal complete" : (isSteps ? "Steps counted" : "Logged"))))
-                Text(receipt.leveledUp ? "Level \(receipt.levelAfter)" : "+\(receipt.xp) XP")
-                    .font(HeroFont.statXL)
-                    .foregroundStyle(NeoTokyo.Hierarchy.primary)
+                if let moment = state.stepsMoment, isSteps, !receipt.leveledUp {
+                    // HER-28: a steps moment celebrates the day's total, not the last 500-step delta.
+                    Text("\(moment.formatted()) steps").font(HeroFont.statXL).foregroundStyle(NeoTokyo.Text.primary)
+                    Text("+\(state.todayStepsXP) XP today").font(HeroFont.statMD).foregroundStyle(NeoTokyo.Hierarchy.primary)
+                } else {
+                    Text(receipt.leveledUp ? "Level \(receipt.levelAfter)" : "+\(receipt.xp) XP")
+                        .font(HeroFont.statXL)
+                        .foregroundStyle(NeoTokyo.Hierarchy.primary)
+                }
                 if receipt.leveledUp {
                     Text("+\(receipt.xp) XP").font(HeroFont.statMD).foregroundStyle(NeoTokyo.Text.primary)
                 }

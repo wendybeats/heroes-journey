@@ -298,7 +298,10 @@ final class AppState {
             guard let day = cal.date(byAdding: .day, value: offset, to: interval.start) else { return nil }
             var attrs: Set<AttributeID> = []
             for e in activityEvents where cal.isDate(e.startedAt, inSameDayAs: day) && e.durationSeconds >= 10 * 60 {
-                attrs.insert(BondReference.attribute(forFamily: e.familyID.rawValue, ruleset: ruleset, fallback: "endurance"))
+                // Owner 2026-10-23: every attribute the family feeds at 0.3 or more lights (boxing is combat: Strength and
+                // Endurance both), not only the heaviest one.
+                let fed = (ruleset.attributeWeightsByFamily[e.familyID.rawValue] ?? [:]).filter { $0.value >= 0.3 }.map { AttributeID($0.key) }
+                if fed.isEmpty { attrs.insert(BondReference.attribute(forFamily: e.familyID.rawValue, ruleset: ruleset, fallback: "endurance")) } else { attrs.formUnion(fed) }
             }
             return DayEffort(day: day, isToday: cal.isDate(day, inSameDayAs: now), attributes: attrs)
         }
@@ -444,7 +447,7 @@ final class AppState {
 
     func dismissReward() {
         guard lastReceipt != nil else { return }
-        lastReceipt = nil; lastPersonalRecords = []; lastGoalReceipts = []
+        lastReceipt = nil; lastPersonalRecords = []; lastGoalReceipts = []; stepsMoment = nil
         rewardToken += 1
     }
 
@@ -567,7 +570,8 @@ final class AppState {
             // First sync: credit only the recent window, counted from the start of the day (owner 2026-10-18: a window of 0
             // credits today and nothing before); older workouts are kept as history (doc 15), facts for preferences.
             let creditFrom: Date? = firstSync ? ruleset.healthHistoryWindowDays.map { Calendar.current.startOfDay(for: now).addingTimeInterval(-Double($0) * 86_400) } : nil
-            var importedCount = 0
+            var importedCount = 0, importedBeforeBond = 0, importedAfterBond = 0
+            let bondAt = self.bondAt
             // HER-20 (owner device, day offset 10): Health keeps the real calendar, the app's clock may be days ahead. Steps
             // already land on the app's day; workouts now do too, so a session imported today counts toward today's goals and
             // the Today card, and is priced against today's other facts. The shift is zero in production.
@@ -587,6 +591,7 @@ final class AppState {
                 events.append(event)
                 if case .imported = outcome.disposition {
                     importedCount += 1   // credited ones only: the welcome card says what counted, not what was kept (owner QA 2026-10-18)
+                    if let bondAt, event.startedAt >= bondAt { importedAfterBond += 1 } else { importedBeforeBond += 1 }
                     outbox.enqueue(ProgressionSubmission(event: event, contentVersion: bundle.contentVersion, submittedAt: now))
                 }
             }
@@ -602,7 +607,7 @@ final class AppState {
             healthSync.lastImportedCount = importedCount
             healthSync.lastError = nil
             save()
-            await drainHealth(imported: importedCount)
+            await drainHealth(pre: importedBeforeBond, post: importedAfterBond)
         } catch {
             healthSync.lastError = String(describing: error)
             save()
@@ -616,23 +621,35 @@ final class AppState {
         guard let steps = try? await importer.fetchSteps(on: Date()) else { return }   // Health reads the real calendar
         todaySteps = steps
         let before = outbox.pending.count
+        let creditedBefore = creditedStepsToday
         recordStepsFact(total: steps)
-        let stepsPending = outbox.pending.count - before
-        let hits = evaluateGoals(now: now)
-        if outbox.pending.count > before {
-            save()
-            // A steps fact on its own is quiet (the Today row shows it); a goal it completes still gets its receipt.
-            if hits.isEmpty && !isWokeDay && healthWelcome == nil { await drain(showReward: false) } else { await drainHealth(imported: 0) }
+        _ = evaluateGoals(now: now)
+        guard outbox.pending.count > before else { return }
+        save()
+        // HER-28 (owner 2026-10-23): a steps fact on its own is quiet (the Today row shows it), except when the day's
+        // total crosses a moment (5k, 10k, …): then the receipt opens on the day's steps. A goal it completes always does.
+        if let rule = ruleset.steps, let crossed = rule.momentCrossed(from: creditedBefore, to: steps), healthWelcome?.day != today {
+            stepsMoment = crossed
+            await drain(showReward: true)
+        } else {
+            await drainHealth(pre: 0, post: 0)
         }
-        _ = stepsPending
     }
+
+    /// The day's steps already written as facts.
+    private var creditedStepsToday: Int {
+        let now = self.now
+        return events.filter { $0.steps != nil && Calendar.current.isDate($0.startedAt, inSameDayAs: now) }.reduce(0) { $0 + ($1.steps ?? 0) }
+    }
+    /// HER-28: the steps moment the open receipt celebrates (5,000, 10,000, …), nil for an ordinary receipt.
+    private(set) var stepsMoment: Int?
 
     /// One fact per `min_delta` new steps, keyed by the day and the running total so a repeated sync never writes twice
     /// (rule 1: the day's steps are a sequence of immutable deltas, never an edited count).
     private func recordStepsFact(total: Int) {
         guard let rule = ruleset.steps, let type = bundle.activityType("steps") else { return }
         let now = self.now
-        let credited = events.filter { $0.steps != nil && Calendar.current.isDate($0.startedAt, inSameDayAs: now) }.reduce(0) { $0 + ($1.steps ?? 0) }
+        let credited = creditedStepsToday
         let delta = total - credited
         guard delta >= rule.minDelta else { return }
         let externalID = "steps.\(today.rawValue).\(total)"
@@ -648,13 +665,21 @@ final class AppState {
         return ledger.xp.filter { $0.activityEventID.map(ids.contains) == true }.reduce(0) { $0 + $1.amount }
     }
 
-    /// Health credit: receipts as usual, except on the woke day, where it folds into the welcome card (see `HealthWelcome`).
-    private func drainHealth(imported: Int) async {
-        guard isWokeDay || healthWelcome != nil else { await drain(showReward: imported > 0 || outbox.pending.contains { $0.submission.event.goal != nil }); return }
+    /// Health credit. HER-27 (owner 2026-10-23): the welcome card is for activity that happened before onboarding
+    /// (`pre`: sessions that started before the bond), told once and holding the day's story; a session after the bond
+    /// (`post`) gets its receipt like any other day and never holds the story. Steps alone never open the card; they
+    /// fold into it only while it is today's.
+    private func drainHealth(pre: Int, post: Int) async {
+        let goalPending = outbox.pending.contains { $0.submission.event.goal != nil }
+        let welcomeToday = healthWelcome?.day == today
+        if post > 0 || !(isWokeDay || welcomeToday) { await drain(showReward: pre + post > 0 || goalPending); return }
+        guard pre > 0 || welcomeToday else { await drain(showReward: goalPending); return }
         let before = snapshot
         await drain(showReward: false)
-        foldHealthCredit(before: before, imported: imported)
+        foldHealthCredit(before: before, imported: pre)
     }
+    /// The onboarding moment: the bond fact's time. Nil while onboarding is still open.
+    private var bondAt: Date? { events.first { $0.source == .bond }?.startedAt }
 
     /// Record Health credit that just landed on the woke day into the one card, and hold the day's story for it.
     private func foldHealthCredit(before: ProgressSnapshot, imported: Int) {

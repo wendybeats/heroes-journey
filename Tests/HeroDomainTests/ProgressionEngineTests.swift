@@ -257,7 +257,7 @@ final class StepsCreditTests: XCTestCase {
     var ruleset: ProgressionRuleset {
         ProgressionRuleset(id: "ruleset.steps", version: 1, status: .dev, xpPerMinuteByFamily: ["cardio": 2.0], attributeWeightsByFamily: ["cardio": ["endurance": 1.0]],
                            attributePointsPerXP: 0.1, verificationMultiplier: [:], dailyTaper: .init(fullCreditMinutes: 30, taperRate: 0.2, hardCapMinutes: 90), minimumDurationSeconds: 60,
-                           levelThresholdsTotalXP: [0, 100_000], dailyActivityStrain: .init(fullCreditXP: 120, bands: [.init(upTo: 200, rate: 0.5)]), steps: .init(xpPerThousand: 4, dailyCapXP: 40))
+                           levelThresholdsTotalXP: [0, 100_000], dailyActivityStrain: .init(fullCreditXP: 120, bands: [.init(upTo: 200, rate: 0.5)]), steps: .init(xpPerThousand: 4, fullCreditSteps: 20_000, moments: [5000, 10_000, 20_000]))
     }
     func fact(_ steps: Int, at: Date? = nil) -> ActivityEvent {
         ActivityEvent(userID: user, activityTypeID: "steps", familyID: "cardio", startedAt: at ?? day, durationSeconds: 0, source: .healthImport, verification: .verified, sourceExternalID: "steps.\(steps)", steps: steps, createdAt: day)
@@ -267,7 +267,16 @@ final class StepsCreditTests: XCTestCase {
     func testStepsEarnUpToTheDailyCap() {
         let s = ruleset.steps!
         XCTAssertEqual(s.credit(steps: 2500, priorSteps: 0), 10); XCTAssertEqual(s.credit(steps: 2500, priorSteps: 2500), 10)
-        XCTAssertEqual(s.credit(steps: 6000, priorSteps: 6000), 16, "the cap: 40 − 24"); XCTAssertEqual(s.credit(steps: 3000, priorSteps: 12_000), 0)
+        XCTAssertEqual(s.credit(steps: 6000, priorSteps: 6000), 24); XCTAssertEqual(s.credit(steps: 3000, priorSteps: 12_000), 12)
+        // HER-28 (owner 2026-10-23): full rate to 20,000, then the raw XP beyond goes to strain.
+        XCTAssertEqual(s.credit(steps: 2000, priorSteps: 19_000), 4, "only the 1,000 inside full credit"); XCTAssertEqual(s.beyondRaw(steps: 2000, priorSteps: 19_000), 4)
+        XCTAssertEqual(s.credit(steps: 5000, priorSteps: 25_000), 0); XCTAssertEqual(s.beyondRaw(steps: 5000, priorSteps: 25_000), 20)
+        XCTAssertEqual(s.momentCrossed(from: 4800, to: 5300), 5000); XCTAssertNil(s.momentCrossed(from: 5000, to: 5400)); XCTAssertEqual(s.momentCrossed(from: 0, to: 12_000), 10_000)
+        // Beyond full credit the engine strains the raw XP by the day's session XP: a quiet day keeps it, a heavy day halves it.
+        let quiet = EvaluationContext(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:], priorActivityXPToday: 0, priorStepsToday: 25_000)
+        XCTAssertEqual(ProgressionEngine.evaluate(event: fact(5000), ruleset: ruleset, context: quiet).xp, 20)
+        let heavy = EvaluationContext(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:], priorActivityXPToday: 150, priorStepsToday: 25_000)
+        XCTAssertEqual(ProgressionEngine.evaluate(event: fact(5000), ruleset: ruleset, context: heavy).xp, 10, "the 20 raw land in the 50 % band")
         let ctx = EvaluationContext(priorEligibleMinutesToday: 0, priorTotalXP: 0, grantedRewardIDs: [], levelRewards: [:], priorStepsToday: 6000)
         let p = ProgressionEngine.evaluate(event: fact(6000), ruleset: ruleset, context: ctx)
         XCTAssertEqual(p.xp, 16); XCTAssertEqual(p.attributes["endurance"], 1, "cardio's weight carries the points"); XCTAssertEqual(p.eligibleMinutes, 0)
