@@ -155,13 +155,14 @@ final class AccountSync: @unchecked Sendable {
             ActivityEventRow(id: e.id.rawValue, profileID: profileID, startedAt: e.startedAt, source: e.steps != nil ? "steps" : e.source.rawValue,
                              activityTypeID: e.activityTypeID.rawValue, familyID: e.familyID.rawValue, schemaVersion: e.schemaVersion, payload: e)
         }
-        try await client.from("activity_events").upsert(rows, onConflict: "id", ignoreDuplicates: true).execute()
+        // Facts are keyed (user_id, id) since increment 2; user_id defaults to auth.uid() server-side.
+        try await client.from("activity_events").upsert(rows, onConflict: "user_id,id", ignoreDuplicates: true).execute()
         let receiptRows = receipts.map { r in
             ReceiptRow(submissionID: r.submissionID, eventID: r.activityEventID.rawValue, rulesetID: r.rulesetID.rawValue, xp: r.xp,
                        levelBefore: r.levelBefore, levelAfter: r.levelAfter, payload: r, confirmedAt: r.confirmedAt)
         }
         if !receiptRows.isEmpty {
-            try await client.from("receipts").upsert(receiptRows, onConflict: "submission_id", ignoreDuplicates: true).execute()
+            try await client.from("receipts").upsert(receiptRows, onConflict: "user_id,submission_id", ignoreDuplicates: true).execute()
         }
     }
 
