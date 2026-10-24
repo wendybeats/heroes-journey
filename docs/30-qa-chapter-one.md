@@ -197,3 +197,5 @@ Fixed in the next build:
 6. History showed `quest.quest.protein_row.completed` for a story milestone fact; it now reads "Story · Protein Row".
 
 Open for the owner (HER-30): goals credit the attribute of the family that completed them ("Train for 45 min" by a run → Endurance; "Recover for 10 min" is Mindfulness by template, Endurance only if completed by a walk). Say whether goals should always credit their template's attribute instead.
+
+Follow-ups built the same day (owner answers): the fight note card slides away on the next action; rest and recovery goals always pay Mindfulness, training goals pay where the session pays (HER-30, option A with the rest exception); PostHog rage-click detection off.

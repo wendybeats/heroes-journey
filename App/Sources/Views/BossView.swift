@@ -463,6 +463,7 @@ struct BossView: View {
         guard !busy, encounter.result == nil else { return }
         busy = true
         readNext = false
+        noteTask?.cancel(); note = nil   // owner 2026-10-24: an action slides the note card away; a new hint may bring a new one
         if !explainedActions.contains(action) { explainedActions.insert(action); hint = buildLine(for: action) }
         let events = encounter.step(action)
         let split = events.firstIndex { if case .bossAttack = $0 { return true }; if case .bossLoad = $0 { return true }; if case .pressure = $0 { return true }; if case .bossRecovered = $0 { return true }; return false } ?? events.count

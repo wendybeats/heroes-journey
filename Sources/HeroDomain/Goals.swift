@@ -412,7 +412,9 @@ public enum GoalEvaluator {
         case let .activityFamily(f, _): family = f
         case let .anyFamily(families, _):
             family = completedBy.map(\.familyID).flatMap { families.contains($0) ? $0 : nil } ?? families.first ?? familyFallback
-            if let ruleset { attribute = BondReference.attribute(forFamily: family.rawValue, ruleset: ruleset, fallback: template.attributeID) }
+            // Owner 2026-10-24 (HER-30): a training goal pays where the session pays; a rest or recovery goal (template
+            // attribute Mindfulness) always pays Mindfulness, whatever family satisfied it.
+            if let ruleset, template.attributeID != "mindfulness" { attribute = BondReference.attribute(forFamily: family.rawValue, ruleset: ruleset, fallback: template.attributeID) }
         default: family = familyFallback
         }
         return ActivityEvent(id: id, userID: userID, activityTypeID: ActivityTypeID(template.id.rawValue), familyID: family, startedAt: now, durationSeconds: 0,

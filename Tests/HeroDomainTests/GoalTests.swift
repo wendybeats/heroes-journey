@@ -148,6 +148,12 @@ final class GoalTests: XCTestCase {
         XCTAssertEqual(fact.familyID, "combat"); XCTAssertEqual(fact.goal?.attributeID, "endurance", "boxing pays endurance, so the goal does too")
         let untraced = GoalEvaluator.makeEvent(for: plan.goals[0], template: train, userID: user, familyFallback: "strength", at: now)
         XCTAssertEqual(untraced.goal?.attributeID, "strength", "without the activity, the template's attribute stands")
+        // Owner 2026-10-24 (HER-30): a rest or recovery goal always pays Mindfulness, even when a walk (cardio) satisfied it.
+        let recover = t("p.recover", .primary, rule: rule, attr: "mindfulness", tags: ["training", "physical", "mobility"])
+        let walk = ActivityEvent(userID: user, activityTypeID: "walking", familyID: "cardio", startedAt: now, durationSeconds: 31 * 60, source: .manual, verification: .selfReported)
+        let restPlan = GoalPlan(day: monday, goals: [DailyGoal(templateID: "p.recover", slot: .primary, day: monday, lineIndex: 0, target: nil)], generatedAt: now)
+        let rest = GoalEvaluator.makeEvent(for: restPlan.goals[0], template: recover, userID: user, familyFallback: "mobility", at: now, completedBy: walk, ruleset: ruleset)
+        XCTAssertEqual(rest.familyID, "cardio"); XCTAssertEqual(rest.goal?.attributeID, "mindfulness", "rest pays mindfulness whatever satisfied it")
         // The rule survives the hand-written Codable.
         let data = try JSONEncoder().encode(train)
         XCTAssertEqual(try JSONDecoder().decode(GoalTemplate.self, from: data), train)
