@@ -18,7 +18,16 @@ final class HealthKitImporter: @unchecked Sendable {
     /// Presents the system prompt. Completion says only that the prompt finished; read access is
     /// not knowable (doc 15), so callers record `.requested`, never "granted".
     func requestAuthorization() async throws {
-        try await store.requestAuthorization(toShare: [], read: [HKObjectType.workoutType(), HKQuantityType(.stepCount)])
+        try await store.requestAuthorization(toShare: [], read: Self.readTypes)
+    }
+
+    private static let readTypes: Set<HKObjectType> = [HKObjectType.workoutType(), HKQuantityType(.stepCount)]
+
+    /// True when this install has never shown the prompt for our read types. HealthKit keeps that per install, so a
+    /// reinstall (owner 2026-10-24: the account snapshot said Connected, Health's Sharing list had no entry) answers
+    /// `shouldRequest` even though the archive remembers `.requested`. Unknown counts as "no prompt needed".
+    func needsPrompt() async -> Bool {
+        (try? await store.statusForAuthorizationRequest(toShare: [], read: Self.readTypes)) == .shouldRequest
     }
 
     /// Step total for the local calendar day containing `date`. HealthKit merges overlapping

@@ -570,6 +570,15 @@ final class AppState {
             healthSync.stepsRequested = true
             save()
         }
+        // Owner 2026-10-24: after a reinstall restored from the account, the row said "Connected · synced 4 hours ago"
+        // while Health had no entry for the app. Authorisation lives in HealthKit per install, so when it says the prompt
+        // was never shown here, the archive's claim is stale: drop it and offer Connect again. The anchor goes with it
+        // (it belongs to the old install); the reconciler dedupes already-credited workouts by external id.
+        if await importer.needsPrompt() {
+            healthSync = HealthSyncState()
+            save()
+            return
+        }
         await refreshSteps()
         do {
             let firstSync = healthSync.anchor == nil
@@ -1361,6 +1370,10 @@ final class AppState {
         return nil
     }
 
+    /// Dev: forget this phone's Health connection so the Connect flow can be run again. HealthKit's own grant is not
+    /// revocable from an app (Settings → Health → Data Access & Devices does that), so the prompt may not reappear.
+    func devResetHealthConnection() { healthSync = HealthSyncState(); todaySteps = 0; save() }
+
     /// Dev: the reinstall-with-session case without reinstalling. Local data goes, the keychain session stays, so the
     /// account connect that follows should bring the character back from the snapshot.
     func devSimulateFreshInstall() async {
@@ -1388,7 +1401,9 @@ final class AppState {
     /// from the restored ledger and facts, so progression continues exactly where it was.
     private func adopt(_ archive: Archive) {
         userID = archive.userID; events = archive.events; ledger = archive.ledger; outbox = archive.outbox
-        workouts = archive.workouts; activeWorkout = archive.activeWorkout; preferredUnit = archive.preferredUnit; healthSync = archive.healthSync
+        workouts = archive.workouts; activeWorkout = archive.activeWorkout; preferredUnit = archive.preferredUnit
+        // `healthSync` is deliberately not taken: Health authorisation and the query anchor belong to this phone, not
+        // the account (owner 2026-10-24). A fresh install stays at Connect; an existing install keeps what it has.
         corrections = archive.corrections; importLog = archive.importLog; goalPreferences = archive.goalPreferences; goalPlans = archive.goalPlans
         goalCompletions = archive.goalCompletions; goalSeed = archive.goalSeed == 0 ? goalSeed : archive.goalSeed; questRuns = archive.questRuns
         startedOn = archive.startedOn; lastStageDay = archive.lastStageDay; storyProgress = archive.storyProgress; challengeOffers = archive.challengeOffers

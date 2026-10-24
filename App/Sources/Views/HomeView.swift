@@ -686,13 +686,14 @@ struct HomeView: View {
             Button("Connect Apple Health") { Task { await state.connectHealth() } }
                 .font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.fallback)
         case .requested:
-            if let at = state.healthSync.lastSyncAt {
+            // The last sync's error wins over an older success (owner 2026-10-24: a stale "synced 4 hours ago" hid a failing read).
+            if let err = state.healthSync.lastError {
+                Text("Health · \(err.prefix(40))").font(HeroFont.caption).foregroundStyle(NeoTokyo.Hierarchy.destructive)
+            } else if let at = state.healthSync.lastSyncAt {
                 // Owner QA 2026-10-18: this read "Health · next week" because the sync time carries the dev day offset
                 // and was formatted against the wall clock. Relative to the app's own clock, and plainer.
                 let formatter = RelativeDateTimeFormatter()
                 Text("Health · synced \(formatter.localizedString(for: at, relativeTo: state.now))").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
-            } else if let err = state.healthSync.lastError {
-                Text("Health · \(err.prefix(40))").font(HeroFont.caption).foregroundStyle(NeoTokyo.Hierarchy.destructive)
             }
         default:
             EmptyView()

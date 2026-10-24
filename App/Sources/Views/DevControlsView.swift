@@ -86,6 +86,13 @@ struct DevControlsView: View {
                         Text("Both wipe this phone's data. The server keeps everything; the first should restore your character within seconds, the second needs Apple sign-in on the name step.")
                             .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
                     }
+                    section("Health") {
+                        row("Connection", value: healthLabel)
+                        Button("Sync now") { Task { await state.syncHealth() } }.buttonStyle(SecondaryButtonStyle()).disabled(state.healthSync.authorization != .requested)
+                        Button("Forget the Health connection") { state.devResetHealthConnection() }.buttonStyle(SecondaryButtonStyle())
+                        Text("Forgetting clears this phone's Health bookkeeping (not iOS's grant) so Connect can be run again; the next sync re-reads from the start and dedupes by Health id.")
+                            .font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
+                    }
                     section("Sprites") {
                         NavigationLink("Sprite lab") { SpriteLabView() }.font(HeroFont.bodyMedium).foregroundStyle(NeoTokyo.Hierarchy.fallback)
                     }
@@ -103,6 +110,13 @@ struct DevControlsView: View {
         let status: String
         switch state.accountStatus { case .apple: status = "Apple"; case .guest: status = "guest"; case .offline: status = "offline" }
         return "\(status) · \(state.pendingUploadCount) pending" + (state.lastSyncError.map { " · \($0)" } ?? "")
+    }
+
+    private var healthLabel: String {
+        let auth: String
+        switch state.healthSync.authorization { case .requested: auth = "connected"; case .notRequested: auth = "not connected"; case .unavailable: auth = "unavailable" }
+        let sync = state.healthSync.lastSyncAt.map { "synced " + RelativeDateTimeFormatter().localizedString(for: $0, relativeTo: state.now) } ?? "never synced"
+        return "\(auth) · \(sync)" + (state.healthSync.lastError.map { " · \($0.prefix(40))" } ?? "")
     }
 
     private var questLabel: String {

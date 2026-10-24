@@ -48,6 +48,9 @@ When only one side has progress, that side wins without a question, as before. `
 
 **Migration of existing local characters** needs nothing: the first launch after the update signs in as a guest, binds, uploads every confirmed fact and the snapshot. **Offline** is unchanged: nothing waits on the server; the next drain retries. Privacy inventory, App Privacy answers and the policy draft are in docs/44.
 
+## What a snapshot must not carry: device state (owner finding, 2026-10-24)
+`Archive.healthSync` (Health authorisation, the anchored-query anchor, last sync) is bookkeeping for one install of the app on one phone. It is still serialised in the snapshot for backward compatibility, but `adopt` ignores it, and `syncHealth` verifies the archive's `.requested` against HealthKit's `statusForAuthorizationRequest` on every sync: `shouldRequest` means this install never showed the prompt, so the claim is dropped and Connect is offered again. The same rule applies to anything else that is granted per install (notification permission is already read live from `UNUserNotificationCenter`).
+
 ## Increment 3: admin facts and corrections in the engine
 `ActivitySource.admin` with `AdminReference(kind: grant | revoke, rewardID?, xp?, attribute?, reason, actor)`, evaluated like story grants; revoke removes a reward grant (rule 4). `ActivityCorrection.Kind` grows to duplicate, wrongDuration, wrongType. The app re-derives its ledger from the fact log when `profiles.rebuild_required` is set.
 

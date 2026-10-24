@@ -199,3 +199,14 @@ Fixed in the next build:
 Open for the owner (HER-30): goals credit the attribute of the family that completed them ("Train for 45 min" by a run → Endurance; "Recover for 10 min" is Mindfulness by template, Endurance only if completed by a walk). Say whether goals should always credit their template's attribute instead.
 
 Follow-ups built the same day (owner answers): the fight note card slides away on the next action; rest and recovery goals always pay Mindfulness, training goals pay where the session pays (HER-30, option A with the rest exception); PostHog rage-click detection off.
+
+## QA for the Health reconnect after reinstall (2026-10-24)
+
+Found by the owner after the HER-14 reinstall test: Today read "Health · synced 4 hours ago", Settings said Connected, and Health → Sharing → Apps had no Heroes Journey entry. Cause: the restored account snapshot carried the old install's Health bookkeeping. Fixed the same day.
+
+1. On the current phone, update the build and open the app. Expected: Home shows "Connect Apple Health" again (the stale Connected is dropped on the first sync check); Settings → Apple Health shows Connect.
+2. Tap Connect. Expected: the iOS Health prompt appears, Heroes Journey appears in Health → Sharing → Apps, and the first sync imports today's steps and any workout inside the credit window. Workouts already credited before the reinstall must not credit again (History shows one entry each).
+3. Settings → Apple Health reads "Connected · Sync now", then "Synced just now · N imported" after a tap on Sync now.
+4. Dev controls → Account → Simulate fresh install, then let the account restore. Expected: Apple Health stays Connected (this phone's grant is kept; only the account data was replaced) and the next sync continues from the phone's anchor.
+5. Dev controls → Health → Forget the Health connection. Expected: Connect reappears; tapping it shows no prompt (iOS already granted) and the sync re-reads from the start without duplicates.
+6. Airplane mode, Sync now: the Settings line shows the last error in red instead of an older "Synced".

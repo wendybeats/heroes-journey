@@ -177,11 +177,19 @@ struct RoomView: View {
                 Text("Apple Health").font(HeroFont.body).foregroundStyle(NeoTokyo.Text.primary)
                 Spacer()
                 switch state.healthSync.authorization {
-                case .requested: Text("Connected").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
+                case .requested:
+                    Text("Connected").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.secondary)
+                    Button("Sync now") { Task { await state.syncHealth() } }.font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.fallback)
                 case .unavailable: Text("Unavailable").font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.muted)
                 case .notRequested:
                     Button("Connect") { Task { await state.connectHealth() } }.font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Hierarchy.fallback)
                 }
+            }
+            // Owner 2026-10-24: a way to check the connection from the phone. The last sync or its error, and where iOS keeps
+            // the switch (apps cannot revoke their own Health access).
+            if state.healthSync.authorization == .requested {
+                Text(healthSyncLine(state)).font(HeroFont.caption).foregroundStyle(state.healthSync.lastError == nil ? NeoTokyo.Text.secondary : NeoTokyo.Hierarchy.destructive)
+                Text("Manage access in Health → Sharing → Apps → Heroes Journey.").font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.muted)
             }
             // HER-17: the account row. Guests see the Apple button; signed-in players see the state. HER-14: sync state and deletion.
             AccountRow()
@@ -199,6 +207,15 @@ struct RoomView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .card()
     }
+}
+
+/// Settings → Apple Health status line (owner 2026-10-24).
+@MainActor private func healthSyncLine(_ state: AppState) -> String {
+    if let err = state.healthSync.lastError { return "Last sync failed: \(err.prefix(60))" }
+    if let at = state.healthSync.lastSyncAt {
+        return "Synced \(RelativeDateTimeFormatter().localizedString(for: at, relativeTo: state.now)) · \(state.healthSync.lastImportedCount) imported"
+    }
+    return "Not synced yet"
 }
 
 /// HER-17 / HER-14: the Account row in Settings. Status, the Apple button for guests, the last sync (so "did it
