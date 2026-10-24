@@ -20,6 +20,7 @@ final class PostHogAnalytics: AnalyticsClient, @unchecked Sendable {
         config.captureApplicationLifecycleEvents = true
         config.captureScreenViews = false
         config.captureElementInteractions = false
+        config.rageClickConfig.enabled = false   // owner device run 2026-10-24: $rageclick arrived with interactions off; it has its own switch
         config.sessionReplay = false
         config.sendFeatureFlagEvent = false
         config.preloadFeatureFlags = false
