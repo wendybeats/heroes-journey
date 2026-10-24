@@ -46,6 +46,7 @@ struct HomeView: View {
     @State private var pendingToasts: [ToastItem] = []
     #if DEBUG || DEVCONTROLS
     @State private var showDev = false
+    @State private var healthPrompt: AppState.HealthPromptReason?
     #endif
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
@@ -135,6 +136,7 @@ struct HomeView: View {
                 }
             }
             .sheet(isPresented: $showRoom) { RoomView() }
+            .sheet(item: $healthPrompt) { reason in HealthConnectPrompt(reason: reason).presentationDetents([.medium]) }
             .fullScreenCover(item: $clash) { outcome in ChallengeClashView(outcome: outcome) { clash = nil } }
             .fullScreenCover(item: $bossFight) { fight in
                 BossView(fight: fight) { result in
@@ -177,7 +179,7 @@ struct HomeView: View {
     private var directorKey: String {
         "\(state.lastReceipt == nil)|\(state.healthWelcome == nil)|\(levelUpStart == nil)|\(ascension == nil)|\(state.needsStage)|"
             + "\(state.pendingReturnScene?.id ?? "")|\(state.pendingAscension?.toTier ?? -1)|\(storyScene == nil)|\(departure == nil)|\(clash == nil)|"
-            + "\(state.unclaimedQuest?.id.uuidString ?? "")"
+            + "\(state.unclaimedQuest?.id.uuidString ?? "")|\(state.healthPrompt?.rawValue ?? "")|\(healthPrompt == nil)"
     }
 
     /// The director's and the ledger's hooks on the screen, split from `presented` so each type-checks on its own.
@@ -248,7 +250,7 @@ struct HomeView: View {
 
     private var storyIdle: Bool {
         state.lastReceipt == nil && state.healthWelcome == nil && ascension == nil && levelUpStart == nil && !state.needsStage && state.unclaimedQuest == nil
-            && departure == nil && storyScene == nil && clash == nil && !chaining && !showWorkout && !showLog && !showHistory && !showRoom
+            && departure == nil && storyScene == nil && clash == nil && !chaining && !showWorkout && !showLog && !showHistory && !showRoom && healthPrompt == nil
     }
 
     /// Present the next scene once the screen has settled. The delay lets a dismissal finish before
@@ -264,6 +266,8 @@ struct HomeView: View {
         guard storyIdle else { return }
         // Owner 2026-10-06: an Ascension outranks every other beat. The takeover plays, then its scene, then the level's story.
         if let pending = state.pendingAscension { playAscension(pending); return }
+        // Owner 2026-10-24: the echo's Apple Health ask waits for a quiet screen like a beat, and plays before one.
+        if let reason = state.healthPrompt { state.healthPrompt = nil; healthPrompt = reason; return }
         // A quest's end scene plays first (after its return reveal), then any beat the level has reached.
         if let chapter = state.pendingReturnScene {
             storyScene = StoryScene(chapter: chapter, milestone: nil)

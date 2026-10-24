@@ -210,3 +210,13 @@ Found by the owner after the HER-14 reinstall test: Today read "Health · synced
 4. Dev controls → Account → Simulate fresh install, then let the account restore. Expected: Apple Health stays Connected (this phone's grant is kept; only the account data was replaced) and the next sync continues from the phone's anchor.
 5. Dev controls → Health → Forget the Health connection. Expected: Connect reappears; tapping it shows no prompt (iOS already granted) and the sync re-reads from the start without duplicates.
 6. Airplane mode, Sync now: the Settings line shows the last error in red instead of an older "Synced".
+
+## QA for the echo's Apple Health prompt (2026-10-24)
+
+1. Health not connected, after the bond: log a session by hand and dismiss the receipt. Expected: a medium sheet with your character, "Nice one. Next time, let me pick that up myself. We can grow stronger together, automatically.", the heart row, "Connect Apple Health" and "Not now". It waits for the receipt and any level-up to finish.
+2. Tap Connect Apple Health. Expected: the iOS Health prompt, then the normal first sync (steps, the credit window). Heroes Journey appears in Health → Sharing → Apps.
+3. Tap Not now instead. Expected: no sheet on the next hand-logged sessions for seven days; on day 7 or later, one more ask ("Still logging by hand? …"); after that none, only Settings → Apple Health → Connect.
+4. Reinstall (or Dev controls → Account → Simulate fresh install on a phone whose grant is gone): the first sync drops the stale Connected and the sheet opens with the reconnect line and "Reconnect Apple Health", regardless of earlier "Not now" answers.
+5. Health connected: no prompt ever. Health unavailable (iPad): no prompt ever.
+6. Dev controls → Health → Forget the Health connection also resets the ask log, so item 1 can be repeated.
+7. PostHog: `health prompt answered` with `reason` (firstLog / reconnect / reoffer) and `connected`.

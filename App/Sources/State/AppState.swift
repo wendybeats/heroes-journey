@@ -206,6 +206,41 @@ final class AppState {
         save()
         rewardToken += 1   // Home animates from `before` to the real numbers, one level-up, like a dismissed receipt
     }
+    // MARK: Health connect prompt (owner 2026-10-24)
+
+    /// Why the echo is asking for Apple Health. `firstLog`: the first session logged by hand after the bond, the moment
+    /// the value is obvious. `reconnect`: this install lost the grant (HER-31). `reoffer`: a week or more after "Not now".
+    enum HealthPromptReason: String, Codable, Identifiable { case firstLog, reconnect, reoffer; var id: String { rawValue } }
+    /// Set when a prompt is due; Home presents it once the screen is quiet and clears it.
+    var healthPrompt: HealthPromptReason?
+    /// Per install, like the grant itself (not in the account snapshot): how often the echo has asked and when last.
+    struct HealthPromptLog: Codable, Equatable { var asked = 0; var lastDay: DayKey? = nil }
+    private(set) var healthPromptLog: HealthPromptLog {
+        didSet { UserDefaults.standard.set(try? JSONEncoder().encode(healthPromptLog), forKey: Self.healthPromptLogKey) }
+    }
+    private static let healthPromptLogKey = "health.prompt.log"
+    static let healthPromptMaxAsks = 2        // after that only Settings → Connect remains
+    static let healthPromptReofferDays = 7
+
+    /// The prompt is due when Health is available and not connected, the player has met the room (onboarding done),
+    /// and the echo has not asked too often or too recently. Reconnect ignores the cadence: the grant was there before.
+    func queueHealthPrompt(_ reason: HealthPromptReason) {
+        guard healthAvailable, healthSync.authorization == .notRequested, startedOn != nil, healthPrompt == nil else { return }
+        if reason != .reconnect {
+            guard healthPromptLog.asked < Self.healthPromptMaxAsks else { return }
+            if let last = healthPromptLog.lastDay, today.daysSince(last, calendar: .current) < Self.healthPromptReofferDays { return }
+        }
+        healthPrompt = reason
+    }
+    /// The player answered. Connecting runs the real flow; declining records the day so the re-offer waits a week.
+    func answerHealthPrompt(connect: Bool) async {
+        guard let reason = healthPrompt else { return }
+        healthPrompt = nil
+        healthPromptLog.asked += 1; healthPromptLog.lastDay = today
+        analytics.track(.healthPromptAnswered(reason: reason.rawValue, connected: connect))
+        if connect { await connectHealth() }
+    }
+
     /// Owner 2026-10-06: an Ascension is a cutscene, never a stat that just appears. Recorded when the ledger
     /// crosses an evolution boundary (wherever that happens: a sheet, the quest screen, a relaunch) and played
     /// by Home as the highest-priority beat once the screen is quiet. Persisted so a kill mid-cover keeps it.
@@ -335,6 +370,7 @@ final class AppState {
         self.events = events
         self.ledger = ledger
         pendingAscension = UserDefaults.standard.data(forKey: Self.pendingAscensionKey).flatMap { try? JSONDecoder().decode(PendingAscension.self, from: $0) }
+        healthPromptLog = UserDefaults.standard.data(forKey: Self.healthPromptLogKey).flatMap { try? JSONDecoder().decode(HealthPromptLog.self, from: $0) } ?? HealthPromptLog()
         self.outbox = archive?.outbox ?? Outbox()
         self.workouts = archive?.workouts ?? []
         self.activeWorkout = archive?.activeWorkout
@@ -454,9 +490,13 @@ final class AppState {
     }
 
     func dismissReward() {
-        guard lastReceipt != nil else { return }
+        guard let receipt = lastReceipt else { return }
         lastReceipt = nil; lastPersonalRecords = []; lastGoalReceipts = []; stepsMoment = nil
         rewardToken += 1
+        // Owner 2026-10-24: after a session logged by hand, the echo offers to pick the next one up itself.
+        if let event = events.first(where: { $0.id == receipt.activityEventID }), event.source == .manual || event.source == .structuredWorkout {
+            queueHealthPrompt(healthPromptLog.asked == 0 ? .firstLog : .reoffer)
+        }
     }
 
     // MARK: strength workouts (doc 02 "Strength workout")
@@ -577,6 +617,7 @@ final class AppState {
         if await importer.needsPrompt() {
             healthSync = HealthSyncState()
             save()
+            queueHealthPrompt(.reconnect)
             return
         }
         await refreshSteps()
@@ -1372,7 +1413,7 @@ final class AppState {
 
     /// Dev: forget this phone's Health connection so the Connect flow can be run again. HealthKit's own grant is not
     /// revocable from an app (Settings → Health → Data Access & Devices does that), so the prompt may not reappear.
-    func devResetHealthConnection() { healthSync = HealthSyncState(); todaySteps = 0; save() }
+    func devResetHealthConnection() { healthSync = HealthSyncState(); todaySteps = 0; healthPromptLog = HealthPromptLog(); save() }
 
     /// Dev: the reinstall-with-session case without reinstalling. Local data goes, the keychain session stays, so the
     /// account connect that follows should bring the character back from the snapshot.

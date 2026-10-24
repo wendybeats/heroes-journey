@@ -9,6 +9,8 @@ import Foundation
 enum AnalyticsEvent: Sendable {
     case onboardingCompleted(primaryFamily: String, secondaryInterest: String, healthConnected: Bool)
     case healthConnected
+    /// The echo's Apple Health prompt (owner 2026-10-24). `reason`: first_log, reconnect, reoffer.
+    case healthPromptAnswered(reason: String, connected: Bool)
     /// `source`: manual, structured_workout, health_import, steps. `first`: the first activity ever credited.
     case activityLogged(source: String, family: String, first: Bool)
     case goalCompleted(slot: String, attribute: String)
@@ -25,6 +27,7 @@ enum AnalyticsEvent: Sendable {
         switch self {
         case .onboardingCompleted: return "onboarding completed"
         case .healthConnected: return "health connected"
+        case .healthPromptAnswered: return "health prompt answered"
         case .activityLogged: return "activity logged"
         case .goalCompleted: return "goal completed"
         case .questDeparted: return "quest departed"
@@ -42,6 +45,7 @@ enum AnalyticsEvent: Sendable {
         switch self {
         case let .onboardingCompleted(primary, secondary, health): return ["primary_family": primary, "secondary_interest": secondary, "health_connected": health]
         case .healthConnected: return [:]
+        case let .healthPromptAnswered(reason, connected): return ["reason": reason, "connected": connected]
         case let .activityLogged(source, family, first): return ["source": source, "family": family, "first": first]
         case let .goalCompleted(slot, attribute): return ["slot": slot, "attribute": attribute]
         case let .questDeparted(quest): return ["quest": quest]
