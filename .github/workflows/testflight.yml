@@ -1,0 +1,72 @@
+name: testflight
+
+# Archive the app on a GitHub macOS runner and upload it to App Store Connect (TestFlight), signed automatically with
+# an App Store Connect API key: no Mac, no cable, no certificates in the repo (docs/46). Manual trigger only; the
+# build number is the run number, so every upload is unique.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dev_controls:
+        description: "Compile the Dev controls into this build (owner QA builds yes, cohort builds no)"
+        type: boolean
+        default: true
+      marketing_version:
+        description: "Version shown in TestFlight (CFBundleShortVersionString)"
+        type: string
+        default: "0.1.0"
+
+jobs:
+  upload:
+    name: Archive and upload to TestFlight
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the secrets are present
+        run: |
+          for v in APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_ISSUER_ID APPLE_TEAM_ID; do :; done
+          test -n "$ASC_KEY_ID" || { echo "APP_STORE_CONNECT_KEY_ID secret is missing"; exit 1; }
+          test -n "$ASC_ISSUER_ID" || { echo "APP_STORE_CONNECT_ISSUER_ID secret is missing"; exit 1; }
+          test -n "$APPLE_TEAM_ID" || { echo "APPLE_TEAM_ID secret is missing"; exit 1; }
+          test -n "${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}" || { echo "APP_STORE_CONNECT_API_KEY_P8 secret is missing"; exit 1; }
+      - name: Write the App Store Connect API key
+        run: |
+          mkdir -p "$HOME/private_keys"
+          printf '%s' "${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}" > "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          chmod 600 "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+      - run: brew install xcodegen
+      - run: xcodegen generate
+      - name: Archive (automatic signing through the API key)
+        run: |
+          CONDITIONS='$(inherited)'
+          if [ "${{ inputs.dev_controls }}" = "true" ]; then CONDITIONS='$(inherited) DEVCONTROLS'; fi
+          xcodebuild -project HeroesJourney.xcodeproj -scheme HeroesJourney -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' \
+            -archivePath build/HeroesJourney.xcarchive \
+            -allowProvisioningUpdates -allowProvisioningDeviceRegistration \
+            -authenticationKeyPath "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
+            MARKETING_VERSION="${{ inputs.marketing_version }}" CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            SWIFT_ACTIVE_COMPILATION_CONDITIONS="$CONDITIONS" \
+            archive | tee build/archive.log | grep -E "error:|warning: .*(entitlement|provision|sign)|\*\* ARCHIVE" || true
+          test -d build/HeroesJourney.xcarchive || { echo "archive failed; last 80 log lines:"; tail -80 build/archive.log; exit 1; }
+      - name: Export and upload to App Store Connect
+        run: |
+          sed "s/TEAM_ID_PLACEHOLDER/$APPLE_TEAM_ID/" App/ExportOptions.plist > build/ExportOptions.plist
+          xcodebuild -exportArchive -archivePath build/HeroesJourney.xcarchive \
+            -exportOptionsPlist build/ExportOptions.plist -exportPath build/export \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            | tee build/export.log | grep -E "error:|Upload|EXPORT" || true
+          grep -q "EXPORT SUCCEEDED" build/export.log || { echo "export/upload failed; last 80 log lines:"; tail -80 build/export.log; exit 1; }
+          echo "Uploaded build ${{ github.run_number }} (version ${{ inputs.marketing_version }}) from $(git rev-parse --short HEAD); App Store Connect processes it in 10–20 minutes."
+      - name: Remove the key
+        if: always()
+        run: rm -rf "$HOME/private_keys"

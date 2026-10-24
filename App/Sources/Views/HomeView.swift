@@ -44,7 +44,7 @@ struct HomeView: View {
     @State private var toast: ToastItem?
     /// Toasts wait until Home is quiet again (owner 2026-10-12: they were firing under the next scene).
     @State private var pendingToasts: [ToastItem] = []
-    #if DEBUG
+    #if DEBUG || DEVCONTROLS
     @State private var showDev = false
     #endif
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -151,7 +151,7 @@ struct HomeView: View {
                 bossFight = BossFight(encounter: encounter, milestone: boss.milestoneID.flatMap { state.campaign.milestone($0) }, rehearsal: state.devBossRehearsal)
                 state.devBossRehearsal = false
             }
-            #if DEBUG
+            #if DEBUG || DEVCONTROLS
             .sheet(isPresented: $showDev) { DevControlsView() }
             #endif
             .overlayPreferenceValue(SceneAnchorsKey.self) { anchors in
@@ -322,7 +322,7 @@ struct HomeView: View {
         ZStack(alignment: .top) {
             HStack(spacing: 0) {
                 navButton("clock.arrow.circlepath", label: "History") { showHistory = true }
-                #if DEBUG
+                #if DEBUG || DEVCONTROLS
                 navButton("wrench.and.screwdriver", label: "Dev controls", muted: true) { showDev = true }
                 #endif
                 Color.clear.frame(maxWidth: .infinity).frame(height: 44)   // the FAB's slot

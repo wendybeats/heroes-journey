@@ -58,6 +58,9 @@ targets:
         buildPhase: resources
       - path: App/Resources/Fonts
         buildPhase: resources
+      # docs/46: the asset catalog holds the app icon (a placeholder composed from the kit until the owner's icon art lands).
+      - path: App/Resources/Assets.xcassets
+        buildPhase: resources
     dependencies:
       - target: HeroDomain
         embed: true
@@ -78,6 +81,8 @@ targets:
         NSHealthShareUsageDescription: Heroes Journey reads your workouts from Apple Health so they count toward your character without logging them twice. Health data is never used for advertising or sold.
         NSHealthUpdateUsageDescription: Heroes Journey does not write to Apple Health.
         UILaunchScreen: {}
+        # docs/46: HTTPS only, so no export-compliance question on every TestFlight build.
+        ITSAppUsesNonExemptEncryption: false
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UIUserInterfaceStyle: Dark
         UIAppFonts:
@@ -91,3 +96,6 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: dev.heroesjourney.prototype
         CODE_SIGN_STYLE: Automatic
         TARGETED_DEVICE_FAMILY: "1"
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

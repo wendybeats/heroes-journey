@@ -1,4 +1,4 @@
-#if DEBUG
+#if DEBUG || DEVCONTROLS
 import SwiftUI
 import HeroDomain
 import HeroContent
