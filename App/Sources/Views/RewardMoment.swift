@@ -25,6 +25,10 @@ struct RewardMoment: View {
                 if receipt.leveledUp {
                     Text("+\(receipt.xp) XP").font(HeroFont.statMD).foregroundStyle(NeoTokyo.Text.primary)
                 }
+                // Owner QA 2026-10-24: say what the session was (Boxing · 79 min · Apple Health), not only what it earned.
+                if let line = activityLine {
+                    Text(line).font(HeroFont.bodyMedium).foregroundStyle(NeoTokyo.Text.secondary).multilineTextAlignment(.center)
+                }
                 if let run = questRun {
                     if let tier = state.rewardTier(for: run), tier != "common" {
                         Eyebrow(text: tier)
@@ -94,6 +98,14 @@ struct RewardMoment: View {
         return e.goal == nil && e.quest == nil && e.challenge == nil && e.story == nil && e.bond == nil
     }
     private var isGoal: Bool { state.goalCompletions.contains { $0.activityEventID == receipt.activityEventID } }
+    /// The session named: activity, minutes, and where it came from.
+    private var activityLine: String? {
+        guard isActivity, let e = state.events.first(where: { $0.id == receipt.activityEventID }), e.steps == nil else { return nil }
+        var parts = [state.displayName(for: e)]
+        let minutes = Int(e.durationMinutes.rounded()); if minutes > 0 { parts.append("\(minutes) min") }
+        if e.source == .healthImport { parts.append("Apple Health") }
+        return parts.joined(separator: " · ")
+    }
     private var isSteps: Bool { state.events.first { $0.id == receipt.activityEventID }?.steps != nil }
 
     private func goalTitle(_ r: ProgressionReceipt) -> String {

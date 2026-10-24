@@ -2710,6 +2710,7 @@
       "id": "npc.gym.lifter_01",
       "display_name": "The lifter with the bionic hand",
       "portrait_asset_set_id": "portrait.gym.lifter_01",
+      "card_portrait_asset_set_id": "portrait.gym.lifter_01",
       "side": "right",
       "sprite_asset_set_id": "npc.gym.lifter_01",
       "notes": "Doc 33 challenger, Colossus Gym floor. Light skin, ash-brown crop, arms folded, asymmetric smirk. Unnamed by rule; faces screen-left. Owner handoff under-city-npcs-v3 (2026-10-12). Excessive and sincere: every answer is more gym or more food."

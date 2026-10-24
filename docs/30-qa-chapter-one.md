@@ -183,3 +183,17 @@ Fresh install for 1–3; the rest on an existing save.
 
 **Week grid**
 7. A boxing (combat) session of ten minutes or more lights both the Strength hand and the Endurance shoeprints for that day. A run lights only the shoeprints; a strength session lights only the hand.
+
+## Owner device run 2026-10-24, build 8455371: findings and fixes (B–E)
+
+Passed: the fight tuning (B), Health under the dev clock (C: a 60-minute strength session at offset 3 credited in full, landed on the app's day, History shows the offset days ahead of the real calendar, which is the dev clock working), offline logging and the re-sync (E), Sign in with Apple (switched path, 756 facts re-appended under the Apple user).
+
+Fixed in the next build:
+1. Fight: the tutorial lines and action hints were fading text on the stage. They now show as a small glass card under Colossus's bar for a few seconds; single words and numbers stay as pops.
+2. Receipt modal names the session: "Weightlifting · 60 min · Apple Health" under the XP.
+3. Dev controls → Last receipt read "none" after the modal was dismissed; it now falls back to the latest confirmed session receipt.
+4. The bionic-hand lifter's dialogue card was mirrored on the right; it is authored facing left, so it now draws unmirrored (`card_portrait_asset_set_id`).
+5. Offline: the Account row showed the raw NSURLError text; it now reads "Offline · 1 activity waiting to sync".
+6. History showed `quest.quest.protein_row.completed` for a story milestone fact; it now reads "Story · Protein Row".
+
+Open for the owner (HER-30): goals credit the attribute of the family that completed them ("Train for 45 min" by a run → Endurance; "Recover for 10 min" is Mindfulness by template, Endurance only if completed by a walk). Say whether goals should always credit their template's attribute instead.

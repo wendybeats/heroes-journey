@@ -53,6 +53,10 @@ struct BossView: View {
     @State private var shatter = false
     @State private var ring: Ring? = nil
     @State private var pop: Pop? = nil
+    /// Owner QA 2026-10-24: longer feedback (the tutorial lines, the action hints) reads as a small card under Colossus's
+    /// bar instead of fading text on the stage; single words and numbers stay as pops.
+    @State private var note: String? = nil
+    @State private var noteTask: Task<Void, Never>? = nil
     @State private var line: String? = nil
     /// What Colossus just did, shown while he does it (owner QA 2026-10-16: no advance telegraph).
     @State private var narration: String? = nil
@@ -159,7 +163,19 @@ struct BossView: View {
             .animation(.easeOut(duration: 0.2), value: breakPop)
             .animation(.easeOut(duration: 0.35), value: shatter)
             .animation(.easeOut(duration: 0.2), value: shownBroken)
+            if let note {
+                Text(note).font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, NeoTokyo.Spacing.md).padding(.vertical, NeoTokyo.Spacing.sm)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .glass(cornerRadius: NeoTokyo.Radius.md, tint: NeoTokyo.Surface.overlay)
+                    .padding(.top, NeoTokyo.Spacing.xs)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
         }
+        .animation(.easeOut(duration: 0.2), value: note)
+        .onChange(of: pop?.sub) { _, sub in if let sub { showNote(sub, seconds: 5) } }
+        .onChange(of: hint) { _, text in if let text { showNote(text, seconds: 7) } }
         .padding(.horizontal, NeoTokyo.Spacing.lg)
         .padding(.top, DeviceInsets.top + NeoTokyo.Spacing.sm)
         .padding(.bottom, NeoTokyo.Spacing.sm)
@@ -259,6 +275,15 @@ struct BossView: View {
     }
 
     /// Feedback at its anchor (brief P0-4), clamped inside the stage so nothing clips at the edges.
+    private func showNote(_ text: String, seconds: Double) {
+        noteTask?.cancel()
+        note = text
+        noteTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(seconds))
+            if !Task.isCancelled, note == text { note = nil }
+        }
+    }
+
     private func popView(_ pop: Pop, size: CGSize, heroAnchor: CGPoint, bossAnchor: CGPoint, floorY: CGFloat) -> some View {
         let margin: CGFloat = pop.big ? 110 : 80
         let raw: CGPoint
@@ -270,7 +295,7 @@ struct BossView: View {
         }
         return VStack(spacing: 2) {
             Text(pop.text).font(pop.big ? HeroFont.statXL : HeroFont.title).foregroundStyle(pop.color)
-            if let sub = pop.sub { Text(sub).font(HeroFont.captionMedium).foregroundStyle(NeoTokyo.Text.primary) }
+            // the longer line (`sub`) goes to the note card under Colossus's bar (owner QA 2026-10-24)
         }
         .multilineTextAlignment(.center)
         .shadow(color: NeoTokyo.Surface.base.opacity(0.9), radius: 6)
@@ -369,10 +394,7 @@ struct BossView: View {
             }
             .containerRelativeFrame(.horizontal, count: 10, span: 7, spacing: 0)
             .frame(maxWidth: .infinity, alignment: .trailing)
-            if let hint {
-                Text(hint).font(HeroFont.caption).foregroundStyle(NeoTokyo.Text.secondary).fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading).transition(.opacity)
-            }
+            // the action hint now shows in the note card under Colossus's bar (owner QA 2026-10-24)
             LazyVGrid(columns: [GridItem(.flexible(), spacing: NeoTokyo.Spacing.sm), GridItem(.flexible())], spacing: NeoTokyo.Spacing.sm) {
                 ForEach(CombatAction.allCases, id: \.self) { action in
                     Button { perform(action) } label: {

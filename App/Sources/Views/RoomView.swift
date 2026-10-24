@@ -250,8 +250,9 @@ struct AccountRow: View {
     }
 
     private var syncLine: String {
-        if let error = state.lastSyncError { return "Sync failed: \(error)" }
         let pending = state.pendingUploadCount
+        if state.lastSyncError == AppState.offlineSyncError { return pending > 0 ? "Offline · \(pending) \(pending == 1 ? "activity" : "activities") waiting to sync" : "Offline · will sync when connected" }
+        if let error = state.lastSyncError { return "Sync failed: \(error)" }
         if pending > 0 { return "\(pending) \(pending == 1 ? "activity" : "activities") waiting to sync" }
         if let at = state.lastSyncAt { return "Synced \(RelativeDateTimeFormatter().localizedString(for: at, relativeTo: Date()))" }
         return "Not synced yet"

@@ -273,6 +273,12 @@ final class AppState {
         if let quest = event.quest { return bundle.quest(quest.questID)?.displayName ?? quest.questID.rawValue }
         if event.bond != nil { return "The bond" }
         if let c = event.challenge { return "\(bundle.character(CharacterID(c.characterID))?.displayName ?? "Someone")'s challenge" }
+        // Owner QA 2026-10-24: a story milestone fact showed its raw id in History; name it after its chapter.
+        if let story = event.story {
+            let milestone = bundle.campaign.milestones.first { $0.id == story.milestoneID }
+            let title = milestone?.storyChapter.flatMap { bundle.chapter($0)?.title }
+            return title.map { "Story · \($0)" } ?? "Story"
+        }
         return bundle.activityType(event.activityTypeID)?.displayName ?? event.activityTypeID.rawValue
     }
     /// How an imported event was treated, for badges in the timeline.
@@ -427,7 +433,9 @@ final class AppState {
 
     /// HER-20: how the last activity receipt was priced, recomputed from the ledger the way the engine saw it. Debug only.
     func explainLastReceipt() -> [(String, String)] {
-        guard let receipt = lastReceipt, let event = events.first(where: { $0.id == receipt.activityEventID }) else { return [("Last receipt", "none")] }
+        // Owner QA 2026-10-24: the modal's receipt is gone once dismissed; fall back to the latest confirmed session receipt.
+        let latest = lastReceipt ?? activityEvents.filter { $0.steps == nil }.sorted { $0.startedAt > $1.startedAt }.lazy.compactMap { self.outbox.receipt(for: $0.id) }.first
+        guard let receipt = latest, let event = events.first(where: { $0.id == receipt.activityEventID }) else { return [("Last receipt", "none")] }
         let record = ledger.processing.first { $0.activityEventID == event.id && $0.purpose == .original }
         let context = ledger.context(for: event, ruleset: ruleset, events: events, levelRewards: bundle.levelRewards, calendar: .current)
         let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd HH:mm"
@@ -1409,9 +1417,12 @@ final class AppState {
         }
     }
 
+    /// Owner QA 2026-10-24: the Account row is not a log. Being offline reads as "offline"; anything else is one short line.
+    static let offlineSyncError = "offline"
     private static func shortDescription(of error: Error) -> String {
-        let text = (error as? LocalizedError)?.errorDescription ?? String(describing: error)
-        return text.count > 140 ? String(text.prefix(140)) + "…" : text
+        if (error as NSError).domain == NSURLErrorDomain { return offlineSyncError }
+        let text = (error as? LocalizedError)?.errorDescription ?? (error as NSError).localizedDescription
+        return text.count > 90 ? String(text.prefix(90)) + "…" : text
     }
 
     static func load() -> AppState {
